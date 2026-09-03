@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  doc-page:not(:defined){visibility:hidden}
+  body{margin:0}
+  a{color:#6d28d9;text-decoration:underline;text-underline-offset:2px}
+  a:hover{color:#4c1d95}
+</style>
+<script src="./doc-page.js"></script>
+</helmet>
+
+<doc-page margin="0.8in">
+
+  <div slot="footer" style="display:flex;justify-content:space-between;align-items:baseline;font-family:'IBM Plex Mono',monospace;font-size:8pt;color:#8a8a95;padding-top:6px;border-top:1px solid #ddd">
+    <span>Estudio Universal Pro · informe técnico</span>
+    <span>2 de septiembre de 2026</span>
+  </div>
+
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9;margin-bottom:10px">Informe técnico · qué queda pendiente</div>
+
+  <h1 style="font-family:'Source Serif 4',Georgia,serif;font-size:30pt;font-weight:600;line-height:1.1;margin:0 0 10px;color:#1a1a20">Estudio Universal Pro</h1>
+
+  <p style="font-family:'Source Serif 4',Georgia,serif;font-size:12pt;line-height:1.55;color:#3c3c46;margin:0 0 4px;max-width:34em">Estado del proyecto a 2 de septiembre de 2026. Un archivo de entrada, catorce módulos, doce pestañas. Sin build, sin npm, sin servidor: se abre en el navegador tal cual.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:28px 0 34px;border-top:2px solid #1a1a20;border-bottom:1px solid #ddd">
+    <div style="padding:14px 16px 14px 0">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:22pt;font-weight:600;color:#1a1a20;line-height:1">12</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#8a8a95;margin-top:4px">Pestañas montadas</div>
+    </div>
+    <div style="padding:14px 16px;border-left:1px solid #ddd">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:22pt;font-weight:600;color:#1a1a20;line-height:1">14</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#8a8a95;margin-top:4px">Módulos b6_*.js</div>
+    </div>
+    <div style="padding:14px 0 14px 16px;border-left:1px solid #ddd">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:22pt;font-weight:600;color:#c2410c;line-height:1">7</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#8a8a95;margin-top:4px">Puntos abiertos</div>
+    </div>
+  </div>
+
+  <h2 style="font-family:'Source Serif 4',Georgia,serif;font-size:17pt;font-weight:600;margin:0 0 14px;color:#1a1a20;break-after:avoid">1 · Funciones pedidas y no construidas</h2>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:18px;border-left:3px solid #6d28d9">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#6d28d9;margin-bottom:5px">P1 · Guías 3D · <span style="color:#c2410c">alta</span></div>
+    <h3 style="font-family:'Source Serif 4',Georgia,serif;font-size:13pt;font-weight:600;margin:0 0 6px;color:#1a1a20">Campo de narración por paso</h3>
+    <p style="font-family:'Source Serif 4',Georgia,serif;font-size:11pt;line-height:1.55;color:#3c3c46;margin:0 0 6px;max-width:36em">Hoy la ficha de cada paso tiene Técnica, Dirección, Tipo de corte, Herramienta, Resultado y Observaciones. La voz del vídeo la genera el Cerebro y no se puede sustituir. Falta un campo de texto libre por paso que, cuando esté escrito, mande sobre el texto automático — en el vídeo y en el PDF.</p>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#8a8a95">b6_guias_3d.js · b6_voz.js</div>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:18px;border-left:3px solid #6d28d9">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#6d28d9;margin-bottom:5px">P2 · Guías 3D · <span style="color:#c2410c">alta</span></div>
+    <h3 style="font-family:'Source Serif 4',Georgia,serif;font-size:13pt;font-weight:600;margin:0 0 6px;color:#1a1a20">Posición y tamaño de la foto de la clienta</h3>
+    <p style="font-family:'Source Serif 4',Georgia,serif;font-size:11pt;line-height:1.55;color:#3c3c46;margin:0 0 6px;max-width:36em">En Guías 3D la foto entra como capa de fondo bajo la cabeza, al 46&nbsp;% de opacidad, sin ningún control. En Estudios sí existen la rejilla de nueve huecos y el deslizador de tamaño. Hay que llevar esos dos controles a Guías 3D, o extraerlos a un sitio común para que las dos pestañas usen el mismo.</p>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#8a8a95">b6_guias_3d.js ← b6_estudios.js</div>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:18px;border-left:3px solid #b8b8c2">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#8a8a95;margin-bottom:5px">P3 · Guías 3D · media</div>
+    <h3 style="font-family:'Source Serif 4',Georgia,serif;font-size:13pt;font-weight:600;margin:0 0 6px;color:#1a1a20">La foto desaparece en modo dos cabezas</h3>
+    <p style="font-family:'Source Serif 4',Georgia,serif;font-size:11pt;line-height:1.55;color:#3c3c46;margin:0 0 6px;max-width:36em">Decisión tomada en su día para no ensuciar la comparativa. Queda por decidir si se mantiene, si se pinta detrás de las dos cabezas o si se le pone un interruptor.</p>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#8a8a95">b6_guias_3d.js · decisión de producto</div>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:18px;border-left:3px solid #b8b8c2">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#8a8a95;margin-bottom:5px">P4 · Bandeja · media</div>
+    <h3 style="font-family:'Source Serif 4',Georgia,serif;font-size:13pt;font-weight:600;margin:0 0 6px;color:#1a1a20">La bandeja se vacía al recargar</h3>
+    <p style="font-family:'Source Serif 4',Georgia,serif;font-size:11pt;line-height:1.55;color:#3c3c46;margin:0 0 6px;max-width:36em">Todo lo descargado se apunta en la bandeja, pero vive en memoria. Un refresco del navegador borra la lista y con ella la posibilidad de bajar el ZIP conjunto. Falta persistirla en el dispositivo, como ya se hace con los proyectos.</p>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#8a8a95">b6_bandeja.js</div>
+  </div>
+
+  <h2 style="font-family:'Source Serif 4',Georgia,serif;font-size:17pt;font-weight:600;margin:34px 0 14px;color:#1a1a20;break-after:avoid">2 · Deuda técnica</h2>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:18px;border-left:3px solid #c2410c">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#c2410c;margin-bottom:5px">D1 · <span>alta</span></div>
+    <h3 style="font-family:'Source Serif 4',Georgia,serif;font-size:13pt;font-weight:600;margin:0 0 6px;color:#1a1a20">La caché hay que romperla a mano en catorce líneas</h3>
+    <p style="font-family:'Source Serif 4',Georgia,serif;font-size:11pt;line-height:1.55;color:#3c3c46;margin:0 0 6px;max-width:36em">Cada módulo se carga con <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5pt">?v=1788235987987</span>. Al tocar un módulo hay que subir ese número en las catorce líneas del <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5pt">helmet</span>, y si se olvida una, el navegador sigue sirviendo la versión vieja sin avisar. Es el fallo más frecuente del proyecto. Un único punto de versión lo cierra.</p>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#8a8a95">Estudio Universal Pro.dc.html · líneas 22–34</div>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:18px;border-left:3px solid #b8b8c2">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#8a8a95;margin-bottom:5px">D2 · media</div>
+    <h3 style="font-family:'Source Serif 4',Georgia,serif;font-size:13pt;font-weight:600;margin:0 0 6px;color:#1a1a20">Sin conexión no hay PDF ni ZIP</h3>
+    <p style="font-family:'Source Serif 4',Georgia,serif;font-size:11pt;line-height:1.55;color:#3c3c46;margin:0 0 6px;max-width:36em">jsPDF y JSZip se traen de un CDN externo. Si esa red falla, el resto de la aplicación funciona pero las descargas de PDF y los ZIP de la bandeja se caen en silencio. Se resuelve guardando las dos librerías en el propio proyecto.</p>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#8a8a95">cdnjs · jspdf 2.5.1, jszip 3.10.1</div>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:18px;border-left:3px solid #c2410c">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#c2410c;margin-bottom:5px">D3 · <span>alta</span></div>
+    <h3 style="font-family:'Source Serif 4',Georgia,serif;font-size:13pt;font-weight:600;margin:0 0 6px;color:#1a1a20">El repositorio lleva una semana sin sincronizar</h3>
+    <p style="font-family:'Source Serif 4',Georgia,serif;font-size:11pt;line-height:1.55;color:#3c3c46;margin:0 0 6px;max-width:36em">Última sincronización con <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5pt">fatimahairstudio082-cpu/aprendizajefatima.fatimahairstudio082.com</span> el 26 de agosto. Todo el trabajo posterior vive solo aquí. La subida tiene que hacerse desde el ordenador con Claude Code: desde este entorno solo se puede leer el repositorio, no escribir en él.</p>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#8a8a95">github.md · rama main</div>
+  </div>
+
+  <h2 style="font-family:'Source Serif 4',Georgia,serif;font-size:17pt;font-weight:600;margin:34px 0 6px;color:#1a1a20;break-after:avoid">3 · Las doce pestañas</h2>
+  <p style="font-family:'Source Serif 4',Georgia,serif;font-size:10.5pt;line-height:1.5;color:#8a8a95;margin:0 0 14px;max-width:36em">Todas están montadas y visibles. La columna de la derecha señala lo que queda abierto en cada una; en blanco significa que no hay nada anotado, no que esté verificada una por una.</p>
+
+  <table style="width:100%;border-collapse:collapse;font-family:'Source Serif 4',Georgia,serif;font-size:10.5pt">
+    <thead>
+      <tr>
+        <th style="text-align:left;padding:7px 10px 7px 0;border-bottom:2px solid #1a1a20;font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#1a1a20;font-weight:600;width:20%">Pestaña</th>
+        <th style="text-align:left;padding:7px 10px;border-bottom:2px solid #1a1a20;font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#1a1a20;font-weight:600;width:34%">Módulo</th>
+        <th style="text-align:left;padding:7px 0 7px 10px;border-bottom:2px solid #1a1a20;font-family:'IBM Plex Mono',monospace;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#1a1a20;font-weight:600">Abierto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Plantillas</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_folleto_disenos.js</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Editor</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_folleto_motor.js · _cerebro.js</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Tríptico</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_folleto_motor.js · b6_volantes.js</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">Construido; el mapa del repositorio aún lo da por pendiente</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Carrusel</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_folleto_motor.js</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Vídeo</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_voz.js</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Láminas</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_laminas_motor.js · _disenos.js</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Repaso</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_examen.js</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20;font-weight:600">Guías 3D</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_guias_3d.js · _cerebro · _divisiones · _cortes</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#c2410c">P1 · P2 · P3</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Estudios</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">b6_estudios.js</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">Origen de los controles que faltan en Guías 3D</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">QR</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">en el archivo de entrada</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Míos</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">en el archivo de entrada</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+      <tr style="break-inside:avoid">
+        <td style="padding:7px 10px 7px 0;border-bottom:1px solid #e4e4e8;color:#1a1a20">Plan</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e4e4e8;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#5a5a66">en el archivo de entrada</td>
+        <td style="padding:7px 0 7px 10px;border-bottom:1px solid #e4e4e8;color:#8a8a95">—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 style="font-family:'Source Serif 4',Georgia,serif;font-size:17pt;font-weight:600;margin:34px 0 14px;color:#1a1a20;break-after:avoid">4 · Orden propuesto</h2>
+
+  <ol style="font-family:'Source Serif 4',Georgia,serif;font-size:11pt;line-height:1.6;color:#3c3c46;margin:0;padding-left:1.3em;max-width:36em">
+    <li style="margin-bottom:8px"><b>D3 — subir al repositorio.</b> Mientras el trabajo viva en un solo sitio, todo lo demás es más caro de arreglar. Se hace desde el ordenador con Claude Code.</li>
+    <li style="margin-bottom:8px"><b>D1 — un único punto de versión.</b> Cambio pequeño que elimina el fallo que más tiempo cuesta a diario.</li>
+    <li style="margin-bottom:8px"><b>P2 — controles de foto en Guías 3D.</b> El código ya existe en Estudios; es trasladarlo.</li>
+    <li style="margin-bottom:8px"><b>P1 — campo de narración por paso.</b> Toca la ficha del paso, el vídeo y el PDF: es el más largo de los cuatro.</li>
+    <li style="margin-bottom:8px"><b>P4 y D2</b> cuando haya hueco. <b>P3</b> es una decisión tuya, no trabajo de código.</li>
+  </ol>
+
+  <p style="font-family:'Source Serif 4',Georgia,serif;font-size:10pt;line-height:1.55;color:#8a8a95;margin:26px 0 0;padding-top:12px;border-top:1px solid #ddd;max-width:36em">Este informe recoge lo anotado en la conversación y lo que se lee en el código. No sustituye a una prueba pestaña por pestaña: si alguna falla en uso real y no aparece aquí, es que no se ha registrado todavía.</p>
+
+</doc-page>
+
+</x-dc>
+</body>
+</html>
