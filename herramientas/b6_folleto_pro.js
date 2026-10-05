@@ -1871,6 +1871,11 @@
           estado('✓ Vídeo descargado' + (tipo === 'webm'
             ? ' en WebM. Va bien en Android; si en iPhone no se ve, mándalo por Drive en vez de por WhatsApp.'
             : ' en MP4, listo para WhatsApp e Instagram.'), 'done');
+          // Otros formatos (MP4, MOV, WebM, GIF, MP3…): botones del bloque, si están cargados
+          var stF = $('fpSt');
+          if (stF && typeof window.fmtBotones === 'function') stF.insertAdjacentHTML('beforeend',
+            '<div class="dl-multi" style="margin-top:6px"><div class="dl-multi-title">⬇ Otros formatos</div><div style="display:flex;gap:6px;flex-wrap:wrap">' +
+            window.fmtBotones(blob, (carrusel ? 'carrusel_' : 'folleto_') + hoy() + '.' + tipo, '.' + tipo, true) + '</div></div>');
           arrancarBucle();
         };
 
