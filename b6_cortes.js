@@ -720,6 +720,14 @@
   var API = {
     familias: function () { return FAMILIAS.slice(); },
 
+    /* Datos técnicos del corte para las fichas dibujadas (b6_pelu_fichas.js). */
+    tecnica: function (id) {
+      var c = PORID[id]; if (!c) return null; var g = c.g;
+      return { elev: (g.elevB || g.elev || plana(0)).slice(), elevF: (g.elevF || g.elev || plana(0)).slice(), guia: g.guiaElev || 0,
+        part: g.part || 'horizontal', tipo: g.tipo || 'Recto', dir: g.dir || 'Caída natural', her: g.herramienta || 'Tijera',
+        acabado: g.acabado || 'Punteado', resultado: g.resultado || '', notas: (g.notas || []).slice() };
+    },
+
     cabellos: function () { return CABELLOS.slice(); },
 
     lista: function (fam) {

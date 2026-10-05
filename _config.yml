@@ -1,0 +1,6 @@
+# GitHub Pages (Jekyll): publicar también las carpetas que empiezan por «_»
+include:
+  - _ds
+exclude:
+  - docs
+  - README.md

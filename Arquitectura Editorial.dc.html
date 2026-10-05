@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/modernist-73a75936-ae9a-47bf-9bb8-3209a5c29ae1/styles.css">
+  <script src="_ds/modernist-73a75936-ae9a-47bf-9bb8-3209a5c29ae1/_ds_bundle.js"></script>
+  <style>body{margin:0;background:var(--color-bg)} a{color:var(--color-accent-700)} a:hover{color:var(--color-accent)}</style>
+</helmet>
+<div style="max-width:1120px;margin:0 auto;padding:48px 28px 80px;font-family:var(--font-body);color:var(--color-text)">
+
+  <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">Estudio Universal · Propuesta de arquitectura</div>
+  <h1 style="font-family:var(--font-heading);font-weight:var(--font-heading-weight);font-size:clamp(34px,5vw,58px);line-height:1.02;margin:12px 0 18px;max-width:900px;text-wrap:balance">Editorial escolar: libros, cuadernos y trabajos de cualquier materia, por país</h1>
+  <p style="font-size:18px;line-height:1.55;max-width:760px;margin:0 0 40px;text-wrap:pretty">Una pestaña nueva dentro del Estudio, <b>📚 Editorial</b>, que arma material educativo de 10 a 300 páginas a partir del currículo oficial de ocho países. Reutiliza la voz, la bandeja de descargas y el cerebro de técnicas que ya existen.</p>
+
+  <section style="border-top:2px solid var(--color-divider);padding-top:28px;margin-bottom:48px">
+    <h2 style="font-family:var(--font-heading);font-weight:var(--font-heading-weight);font-size:28px;margin:0 0 20px">1. Capas</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;border:2px solid var(--color-text)">
+      <div style="padding:20px;border-right:2px solid var(--color-text)">
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">Datos</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;margin:6px 0">b6_curriculo.js</div>
+        <p style="margin:0;font-size:14px;line-height:1.55">Países, etapas, cursos, materias y el banco de unidades. Solo datos: no pinta nada.</p>
+      </div>
+      <div style="padding:20px;border-right:2px solid var(--color-text)">
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">Motor</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;margin:6px 0">b6_editorial_motor.js</div>
+        <p style="margin:0;font-size:14px;line-height:1.55">Contexto del país, generadores de ejercicios, figuras, ensamblado a la extensión exacta, plantillas y exportaciones.</p>
+      </div>
+      <div style="padding:20px;border-right:2px solid var(--color-text)">
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">Interfaz</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;margin:6px 0">b6_editorial.js</div>
+        <p style="margin:0;font-size:14px;line-height:1.55">&lt;editorial-escolar&gt;: panel de decisiones, vista previa paginada, modo clase narrado.</p>
+      </div>
+      <div style="padding:20px;background:var(--color-surface)">
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">Reutiliza</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;margin:6px 0">Motores del Estudio</div>
+        <p style="margin:0;font-size:14px;line-height:1.55">EU_VOZ (narración), B6Bandeja (ZIP de descargas), EU_CEREBRO (Peluquería se convierte en unidades), jsZip.</p>
+      </div>
+    </div>
+    <p style="font-size:14px;line-height:1.6;max-width:760px;margin:16px 0 0;color:var(--color-neutral-800)">Mismas reglas que el resto del proyecto: JavaScript clásico, sin build, registro en <code>window</code>, estilos en línea y montaje con <code>&lt;x-import&gt;</code>. Una sola lista de páginas alimenta la vista previa, la impresión, el EPUB y el HTML interactivo, así que lo que se ve es lo que sale.</p>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider);padding-top:28px;margin-bottom:48px">
+    <h2 style="font-family:var(--font-heading);font-weight:var(--font-heading-weight);font-size:28px;margin:0 0 20px">2. Modelo de datos</h2>
+    <table class="table" style="width:100%">
+      <thead><tr><th style="text-align:left">Entidad</th><th style="text-align:left">Qué guarda</th></tr></thead>
+      <tbody>
+        <tr><td><b>País</b></td><td>Marco oficial y autoridad, nombres de etapas y cursos, papel (A4/Carta), moneda, impuesto (IVA 21/16/19 %, ITBIS 18 %, sales tax), voseo, nombres propios, ciudades, río, música, fiesta, comida, precios de ejemplo e hitos históricos.</td></tr>
+        <tr><td><b>Banda de edad</b></td><td>Infantil, tres ciclos de primaria, secundaria, bachillerato, técnica y adultos. Cada curso de cada país apunta a una banda.</td></tr>
+        <tr><td><b>Materia</b></td><td>13 materias con su nombre oficial por país (por ejemplo «Prácticas del Lenguaje» en Argentina, «Lenguajes» en México).</td></tr>
+        <tr><td><b>Unidad</b></td><td>Título, bandas donde vale, ideas, vocabulario, afirmaciones V/F, preguntas abiertas, figura, generador de ejercicios y frase del guía. Hoy hay 67 unidades semilla.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider);padding-top:28px;margin-bottom:48px">
+    <h2 style="font-family:var(--font-heading);font-weight:var(--font-heading-weight);font-size:28px;margin:0 0 20px">3. Qué fabrica</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px 32px">
+      <div><b>Libro de texto y ebook</b><p style="margin:4px 0 0;font-size:14px;line-height:1.55">Cinco momentos por unidad: apertura, explicación con esquema, ejemplo del entorno, actividades y repaso con autoevaluación. Glosario, solucionario con número de página y bibliografía.</p></div>
+      <div><b>Cuaderno y fichas</b><p style="margin:4px 0 0;font-size:14px;line-height:1.55">Práctica con espacio real para escribir; fichas con nombre, curso y fecha listas para fotocopiar.</p></div>
+      <div><b>Unidad didáctica</b><p style="margin:4px 0 0;font-size:14px;line-height:1.55">Marco curricular del país, objetivos, sesiones, situación de aprendizaje, DUA e instrumentos de evaluación.</p></div>
+      <div><b>Examen y rúbricas</b><p style="margin:4px 0 0;font-size:14px;line-height:1.55">Modelos A, B, C… sobre 10 puntos con solucionario; rúbrica analítica y lista de cotejo. Escala de España o de Latinoamérica según el país.</p></div>
+      <div><b>Láminas y presentación</b><p style="margin:4px 0 0;font-size:14px;line-height:1.55">Una idea grande por hoja; diapositivas 16:9 con modo clase que narra y avanza sola.</p></div>
+      <div><b>Trabajo del alumno</b><p style="margin:4px 0 0;font-size:14px;line-height:1.55">Portada con centro y fecha local, índice, guías por apartado y bibliografía que se escribe sola en APA 7.</p></div>
+    </div>
+    <p style="font-size:14px;line-height:1.6;max-width:760px;margin:20px 0 0">La extensión es exacta: el motor calcula cuántas unidades caben, reparte páginas de práctica entre ellas y, como el solucionario también ocupa hojas, quita o añade práctica hasta cuadrar. Los ejercicios numéricos y contables no se repiten porque se generan con una semilla; «Otra versión» da un libro nuevo con los mismos contenidos.</p>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider);padding-top:28px;margin-bottom:48px">
+    <h2 style="font-family:var(--font-heading);font-weight:var(--font-heading-weight);font-size:28px;margin:0 0 20px">4. Humanizado, en concreto</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;border-top:2px solid var(--color-text)">
+      <div style="padding:14px 0;border-bottom:2px solid var(--color-divider)"><b>La lengua del país.</b> Voseo en Argentina (leé, escribí, pensá); ordenador y aula en España; enojo en América.</div>
+      <div style="padding:14px 0;border-bottom:2px solid var(--color-divider)"><b>Sus cuentas.</b> Moneda y separador decimal de cada país; problemas con tamales, arepas, empanadas o el boleto de colectivo.</div>
+      <div style="padding:14px 0;border-bottom:2px solid var(--color-divider)"><b>Un guía con nombre.</b> Acompaña cada unidad con frases que animan; la docente puede renombrarlo y subir su imagen.</div>
+      <div style="padding:14px 0;border-bottom:2px solid var(--color-divider)"><b>Diseño por edad.</b> Cinco plantillas: Juego, Cuaderno, Editorial, Técnica y Sobria. Los adultos no reciben material infantilizado.</div>
+      <div style="padding:14px 0;border-bottom:2px solid var(--color-divider)"><b>Apoyos.</b> Lectura fácil, tipografía para dislexia, pistas DUA y autoevaluación en cada repaso.</div>
+      <div style="padding:14px 0;border-bottom:2px solid var(--color-divider)"><b>Se escucha.</b> Cada página se lee en voz alta con la voz del Estudio; el HTML interactivo comprueba respuestas y felicita.</div>
+    </div>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider);padding-top:28px;margin-bottom:48px">
+    <h2 style="font-family:var(--font-heading);font-weight:var(--font-heading-weight);font-size:28px;margin:0 0 20px">5. Salidas</h2>
+    <table class="table" style="width:100%">
+      <thead><tr><th style="text-align:left">Formato</th><th style="text-align:left">Cómo sale</th></tr></thead>
+      <tbody>
+        <tr><td>PDF para imprenta o casa</td><td>Impresión del navegador con tamaño de página exacto (A4, Carta o 16:9). Texto vectorial, cualquier extensión.</td></tr>
+        <tr><td>EPUB 3</td><td>Maquetación fija, una página por archivo, índice navegable e imágenes empaquetadas.</td></tr>
+        <tr><td>HTML interactivo</td><td>Un archivo que funciona sin conexión: casillas que se comprueban, botón de escuchar por página.</td></tr>
+        <tr><td>Diapositivas</td><td>La misma unidad convertida en presentación 16:9 para proyectar o imprimir.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider);padding-top:28px">
+    <h2 style="font-family:var(--font-heading);font-weight:var(--font-heading-weight);font-size:28px;margin:0 0 8px">6. Siguiente fase</h2>
+    <p style="font-size:14px;line-height:1.6;max-width:760px;margin:0 0 18px;color:var(--color-neutral-800)">Lo construido es la estructura completa con un banco semilla. Para uso editorial real, en este orden:</p>
+    <ol style="margin:0;padding-left:22px;font-size:15px;line-height:1.7;max-width:820px">
+      <li><b>Ampliar el banco por curso</b>, con revisión de docentes de cada país: de 67 unidades a un temario completo por grado, con el código de cada estándar (OA de Chile, DBA de Colombia, criterios LOMLOE).</li>
+      <li><b>Editor de unidades</b> dentro de la pestaña, para que la docente escriba o corrija contenido sin tocar código.</li>
+      <li><b>Figuras 3D</b> con el visor de Guías 3D: sólidos geométricos, célula, globo terráqueo, piezas de dibujo técnico girables.</li>
+      <li><b>Vídeo MP4 del modo clase</b> y envío directo de mapas y procesos a la pestaña Láminas.</li>
+      <li><b>PowerPoint editable</b> de la presentación y edición bilingüe español–inglés para EE. UU.</li>
+    </ol>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>
