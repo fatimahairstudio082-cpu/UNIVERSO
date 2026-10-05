@@ -1342,7 +1342,7 @@ async function processMedia(){
     document.getElementById('mediaProgTxt').textContent='✅ Completado';
     const ext=outBlob.type.includes('mp4')?'.mp4':outBlob.type.includes('webm')?'.webm':outBlob.type.includes('ogg')?'.ogg':'.mp3';
     document.getElementById('mediaSt').innerHTML=`<div class="st done">✅ Optimizado ${pesoBadge(mediaFile.size,outBlob.size)}</div>`;
-    document.getElementById('mediaRes2').innerHTML=`<div class="dl-multi" style="margin-top:8px"><div class="dl-multi-title">⬇ Descargar archivo optimizado</div><div style="display:flex;gap:6px;flex-wrap:wrap"><div class="dl-btn-fmt" onclick="dlMedia('${URL.createObjectURL(outBlob)}','${nombre+ext}')"><span class="fmt-ico">${isVideo?'🎬':'🎵'}</span><span class="fmt-lbl">${ext.toUpperCase().replace('.','')}</span><span class="fmt-sz">${fmt(outBlob.size)}</span></div></div><div style="font-size:8px;color:var(--tx2);margin-top:4px">💡 Procesado 100% en tu dispositivo · Sin subir a internet</div></div>`;
+    document.getElementById('mediaRes2').innerHTML=`<div class="dl-multi" style="margin-top:8px"><div class="dl-multi-title">⬇ Descargar archivo optimizado</div><div style="display:flex;gap:6px;flex-wrap:wrap"><div class="dl-btn-fmt" onclick="dlMedia('${URL.createObjectURL(outBlob)}','${nombre+ext}')"><span class="fmt-ico">${isVideo?'🎬':'🎵'}</span><span class="fmt-lbl">${ext.toUpperCase().replace('.','')}</span><span class="fmt-sz">${fmt(outBlob.size)}</span></div>${fmtBotones(outBlob,nombre,ext,isVideo)}</div><div style="font-size:8px;color:var(--tx2);margin-top:4px">💡 Procesado 100% en tu dispositivo · Sin subir a internet</div></div>`;
   }catch(err){
     clearInterval(progInt);
     document.getElementById('mediaSt').innerHTML=`<div class="st err">❌ Error: ${err.message}. Intenta con otro formato.</div>`;
@@ -1387,7 +1387,55 @@ function audioBufferToWav(buf){
   let off=44;for(let i=0;i<len;i++)for(let c=0;c<ch;c++){const s=Math.max(-1,Math.min(1,buf.getChannelData(c)[i]));view.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;}
   return new Blob([ab],{type:'audio/wav'});
 }
-function dlMedia(url,name){if(!gastar(5))return;const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function dlMedia(url,name){/* sin cobro: ya se pagó al optimizar (evita el cobro doble) */const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+
+// ── Descargar en otros formatos (MP4, MOV, GIF, MP3, M4A, WAV, WebM) ──
+// Conversión en el propio dispositivo con ffmpeg (gratuito); se carga solo la primera vez que se usa.
+const _fmtBlobs=[];
+const _FMT_ARGS={
+  mp4:['-c:v','libx264','-preset','ultrafast','-pix_fmt','yuv420p','-c:a','aac','-movflags','+faststart'],
+  mov:['-c:v','libx264','-preset','ultrafast','-pix_fmt','yuv420p','-c:a','aac'],
+  webm:['-c:v','libvpx','-b:v','2M','-c:a','libvorbis'],
+  gif:['-vf','fps=10,scale=480:-1','-an'],
+  mp3:['-vn','-c:a','libmp3lame','-b:a','192k'],
+  m4a:['-vn','-c:a','aac','-b:a','192k'],
+  wav:['-vn']
+};
+function fmtBotones(blob,base,extActual,esVideo){
+  const i=_fmtBlobs.push({blob,base})-1, ya=(extActual||'').replace('.','');
+  const lista=(esVideo?['mp4','mov','webm','gif','mp3','m4a','wav']:['mp3','m4a','wav']).filter(f=>f!==ya);
+  return lista.map(f=>`<div class="dl-btn-fmt" onclick="dlFormato(${i},'${f}',this)"><span class="fmt-ico">${['mp3','m4a','wav'].includes(f)?'🎵':f==='gif'?'🖼️':'🎬'}</span><span class="fmt-lbl">${f.toUpperCase()}</span><span class="fmt-sz">convertir</span></div>`).join('');
+}
+let _ffmpegCarga=null;
+function _cargarFFmpeg(){
+  if(_ffmpegCarga)return _ffmpegCarga;
+  _ffmpegCarga=new Promise((ok,ko)=>{
+    if(window.FFmpeg)return ok();
+    const s=document.createElement('script');s.src='https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js';
+    s.onload=()=>ok();s.onerror=()=>{_ffmpegCarga=null;ko(new Error('sin conexión con el conversor'));};document.head.appendChild(s);
+  });
+  return _ffmpegCarga;
+}
+async function dlFormato(i,f,btn){
+  const it=_fmtBlobs[i];if(!it||!btn||btn.dataset.ocupado)return;
+  const lbl=btn.querySelector('.fmt-sz'),antes=lbl?lbl.textContent:'';btn.dataset.ocupado='1';
+  const poner=t=>{if(lbl)lbl.textContent=t;};
+  try{
+    poner('⏳ cargando');await _cargarFFmpeg();
+    const ff=FFmpeg.createFFmpeg({corePath:'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',mainName:'main',log:false});
+    ff.setProgress(({ratio})=>{if(ratio>0)poner('⏳ '+Math.min(99,Math.round(ratio*100))+'%');});
+    await ff.load();poner('⏳ convirtiendo');
+    const entrada='entrada.'+((it.blob.type.split('/')[1]||'webm').split(';')[0]);
+    ff.FS('writeFile',entrada,await FFmpeg.fetchFile(it.blob));
+    await ff.run('-i',entrada,..._FMT_ARGS[f],'salida.'+f);
+    const datos=ff.FS('readFile','salida.'+f);try{ff.exit();}catch(e){}
+    const tipo={mp4:'video/mp4',mov:'video/quicktime',webm:'video/webm',gif:'image/gif',mp3:'audio/mpeg',m4a:'audio/mp4',wav:'audio/wav'}[f];
+    const url=URL.createObjectURL(new Blob([datos.buffer],{type:tipo}));
+    dlMedia(url,it.base.replace(/\.[a-z0-9]+$/i,'')+'.'+f);setTimeout(()=>URL.revokeObjectURL(url),4000);
+    poner('✅ '+fmt(datos.length));
+  }catch(e){poner('❌ reintentar');alert('No se pudo convertir a '+f.toUpperCase()+': '+(e&&e.message?e.message:e));}
+  finally{delete btn.dataset.ocupado;setTimeout(()=>poner(antes),5000);}
+}
 
 // ══ TARJETA SEGURA ══
 let cardDigitVisible=[];let cardImgSrc=null;
@@ -2551,7 +2599,7 @@ async function tpStartVideo(){
     const a=document.createElement('a');a.download='mi_tarjeta_'+nm+'_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.webm';a.href=url;document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url),4000);
     if(btn){btn.textContent='🎬 Grabar video';btn.classList.remove('btn-warn');}
-    if(st)st.innerHTML='<div class="st done">✅ Video descargado · WebM ('+fmt(blob.size)+')</div>';
+    if(st)st.innerHTML='<div class="st done">✅ Video descargado · WebM ('+fmt(blob.size)+')</div><div class="dl-multi" style="margin-top:6px"><div class="dl-multi-title">⬇ Otros formatos</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+fmtBotones(blob,a.download,'.webm',true)+'</div></div>';
     tpDraw();
   };
   if(st)st.innerHTML='<div class="st proc">🎬 Grabando video…</div>';
@@ -3163,7 +3211,7 @@ async function flStartVideo(){
     const a=document.createElement('a');a.download='flyer_'+(flVal('flFormato')||'cuadrado')+'_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.webm';a.href=url;document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url),4000);
     if(btn){btn.textContent='🎬 Grabar video';btn.classList.remove('btn-warn');}
-    if(st)st.innerHTML='<div class="st done">✅ Video descargado · WebM ('+fmt(blob.size)+')</div>';
+    if(st)st.innerHTML='<div class="st done">✅ Video descargado · WebM ('+fmt(blob.size)+')</div><div class="dl-multi" style="margin-top:6px"><div class="dl-multi-title">⬇ Otros formatos</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+fmtBotones(blob,a.download,'.webm',true)+'</div></div>';
     flDraw();
   };
   let dur=parseFloat(flVal('flDur'))||6; dur=Math.max(2,Math.min(20,dur));
