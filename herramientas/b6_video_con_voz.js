@@ -377,6 +377,11 @@
              (ext === 'mp4'
                ? ' · MP4: se envía bien por WhatsApp, Instagram y YouTube.'
                : ' · Salió en WebM: va bien en Android y YouTube; en iPhone puede que no se vea en WhatsApp.'), 'done');
+      // Otros formatos (MP4, MOV, WebM, GIF, MP3…): botones del bloque, si están cargados
+      var stV = $('vcSt');
+      if (stV && typeof window.fmtBotones === 'function') stV.insertAdjacentHTML('beforeend',
+        '<div class="dl-multi" style="margin-top:6px"><div class="dl-multi-title">⬇ Otros formatos</div><div style="display:flex;gap:6px;flex-wrap:wrap">' +
+        window.fmtBotones(blob, nombre, '.' + ext, true) + '</div></div>');
     } catch (e) {
       avance(null);
       estado('❌ ' + (e.message || e), 'err');
