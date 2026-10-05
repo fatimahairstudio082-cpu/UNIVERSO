@@ -1197,6 +1197,10 @@ window.EU_CARGA_EDITORIAL = function (progreso) {
       <x-import component-from-global-scope="editorial-escolar" from="./b6_editorial.js?v=1795500000001" hint-size="100%,760px"></x-import>
     </sc-if>
 
+    <sc-if value="{{ esHerramientas }}" hint-placeholder-val="{{ false }}">
+      <iframe src="./herramientas/bloque6_herramientas.html" title="Herramientas de Utilidad Pro" allow="clipboard-write; fullscreen; microphone" style="width:100%;height:calc(100vh - 150px);min-height:640px;border:0;border-radius:12px;background:#0a0a0a;display:block"></iframe>
+    </sc-if>
+
     <sc-if value="{{ esAnuncios }}" hint-placeholder-val="{{ false }}">
       <h2 style="font-size:14px;margin:0 0 3px;color:#a855f7">Anuncios premium · redes, web y pantallas</h2>
       <p style="margin:0 0 12px;font-size:11.5px;color:#94a3b8;line-height:1.6;max-width:860px;text-wrap:pretty">100 anuncios ilustrados en 10 categorías, cada uno en los <b>cuatro formatos</b> que piden las redes: cuadrado 1:1, vertical 4:5, historia 9:16 y horizontal 16:9. Cambias los textos, la paleta, la letra y el marco, pones tu marca en todos a la vez y descargas en PNG, JPG, SVG, PDF o un ZIP con los cuatro tamaños.</p>
@@ -4738,6 +4742,7 @@ class Component extends DCLogic {
       esQR: s.pantalla === 'qr',
       esMios: s.pantalla === 'mios',
       esPlan: s.pantalla === 'plan',
+      esHerramientas: s.pantalla === 'herramientas',
       cerrarMuro: () => this.setState({ muro: '' }),
       irPlan: () => this.setState({ muro: '', pantalla: 'plan' }),
       irVideo: () => this.setState({ pantalla: 'video' }),
@@ -4751,7 +4756,7 @@ class Component extends DCLogic {
       { id: 'video', nombre: '🎬 Vídeo' }, { id: 'editorial', nombre: '📚 Editorial' }, { id: 'anuncios', nombre: '📣 Anuncios' }, { id: 'laminas', nombre: '🧠 Láminas' },
       { id: 'repaso', nombre: '✅ Repaso' },
       { id: 'guias', nombre: '💇 Guías 3D' }, { id: 'estudios', nombre: '💄 Estudios' },
-      { id: 'qr', nombre: '🔳 QR' }, { id: 'mios', nombre: '📁 Míos' }, { id: 'plan', nombre: '💜 Plan' }
+      { id: 'qr', nombre: '🔳 QR' }, { id: 'herramientas', nombre: '🛠 Herramientas' }, { id: 'mios', nombre: '📁 Míos' }, { id: 'plan', nombre: '💜 Plan' }
     ].map(t => ({
       nombre: t.nombre,
       ir: () => this.setState({ pantalla: t.id }),
