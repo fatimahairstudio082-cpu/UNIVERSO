@@ -16,22 +16,243 @@ input,select,textarea,button{font-family:inherit}
 canvas{display:block}
 input[type=range]{accent-color:#a855f7}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="./b6_cerebro.js?v=1788235987987"></script>
-<script src="./b6_divisiones.js?v=1788235987987"></script>
-<script src="./b6_cortes.js?v=1788235987987"></script>
-<script src="./b6_voz.js?v=1788235987987"></script>
-<script src="./b6_bandeja.js?v=1788235987987"></script>
-<script src="./b6_folleto_motor.js?v=1788235987987"></script>
-<script src="./b6_folleto_disenos.js?v=1788235987987"></script>
-<script src="./b6_folleto_cerebro.js?v=1788235987987"></script>
-<script src="./b6_laminas_motor.js?v=1788235987987"></script>
-<script src="./b6_laminas_disenos.js?v=1788235987987"></script>
-<script src="./b6_examen.js?v=1788235987987"></script>
-<script src="./b6_volantes.js?v=1788235987987"></script>
-<script src="./b6_voz.js?v=1788235987987"></script>
+<script>
+/* QR, jsPDF y JSZip se piden sin bloquear: antes eran <script src> síncronos y, si el CDN tardaba,
+   el Estudio entero se quedaba en blanco esperando. Si un CDN falla se prueba el siguiente.
+   window.EU_LIBS es una promesa que se resuelve cuando las tres están (o han fallado todas). */
+(function () {
+  var LIBS = [
+    ['QRCode', ['https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js', 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js']],
+    ['jspdf', ['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js', 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js']],
+    ['JSZip', ['https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js', 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', 'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js']]
+  ];
+  var una = function (g, urls, i) {
+    return new Promise(function (ok) {
+      if (window[g] || i >= urls.length) return ok(!!window[g]);
+      var s = document.createElement('script'); s.src = urls[i]; s.async = true;
+      var t = setTimeout(function () { s.onload = s.onerror = null; ok(una(g, urls, i + 1)); }, 12000);
+      s.onload = function () { clearTimeout(t); ok(window[g] ? true : una(g, urls, i + 1)); };
+      s.onerror = function () { clearTimeout(t); ok(una(g, urls, i + 1)); };
+      document.head.appendChild(s);
+    });
+  };
+  window.EU_LIBS = Promise.all(LIBS.map(function (l) { return una(l[0], l[1], 0); }));
+})();
+</script>
+<script src="./b6_cerebro.js?v=1792400000000"></script>
+<script src="./b6_divisiones.js?v=1792400000000"></script>
+<script src="./b6_cortes.js?v=1795200000003"></script>
+<script src="./b6_voz.js?v=1792400000000"></script>
+<script src="./b6_bandeja.js?v=1792400000000"></script>
+<script src="./b6_folleto_motor.js?v=1792400000000"></script>
+<script src="./b6_folleto_disenos.js?v=1792400000000"></script>
+<script src="./b6_folleto_cerebro.js?v=1792400000000"></script>
+<script src="./b6_laminas_motor.js?v=1792400000000"></script>
+<script src="./b6_laminas_disenos.js?v=1792400000000"></script>
+<script src="./b6_examen.js?v=1792400000000"></script>
+<script src="./b6_volantes.js?v=1792400000000"></script>
+<script src="./b6_boton_biblioteca.js?v=1795800000002"></script>
+<script>
+/* Carga diferida: los módulos del Editorial (currículo, motor, bibliotecas de dibujos, portadas…)
+   no hacen falta para abrir el Estudio. Se descargan en segundo plano después del primer pintado,
+   en el mismo orden de siempre, y el Editorial espera a que terminen (EU_CARGA_EDITORIAL). */
+window.EU_DIFERIDOS = ["./b6_curriculo.js?v=1792400000000",
+"./b6_editorial_motor.js?v=1795000000002",
+"./b6_idiomas_plus.js?v=1792400000000",
+"./b6_idiomas_plus2.js?v=1792400000000",
+"./b6_cerebro_idiomas.js?v=1792400000000",
+"./b6_idiomas_soluciones.js?v=1792400000000",
+"./b6_cerebro_cocina.js?v=1792400000000",
+"./b6_cocina_unidades.js?v=1792600000002",
+"./b6_cocina_unidades2.js?v=1792700000004",
+"./b6_conectores.js?v=1795500000001",
+"./b6_cerebro_infantil.js?v=1792400000000",
+"./b6_infantil_unidades.js?v=1792700000003",
+"./b6_premium.js?v=1792400000000",
+"./b6_cerebro_svg.js?v=1795600000003",
+"./b6_mapas_datos.js?v=1792400000000",
+"./b6_cerebro_visual.js?v=1792400000000",
+"./b6_geometria.js?v=1792400000000",
+"./b6_cerebro_taller.js?v=1792400000000",
+"./b6_curriculo_plus.js?v=1792400000000",
+"./b6_cocina_premium.js?v=1792400000000",
+"./b6_anatomia_transversal.js?v=1792400000000",
+"./b6_rotacion.js?v=1792400000000",
+"./b6_botanica.js?v=1792400000000",
+"./b6_dibujos_plus.js?v=1792400000000",
+"./b6_batidos_objetivo.js?v=1792400000000",
+"./b6_colorear_plus.js?v=1792400000000",
+"./b6_dibujos_materias.js?v=1792400000000",
+"./b6_cerebro_libro.js?v=1794400000004",
+"./b6_laminas_plus.js?v=1792400000000",
+"./b6_dibujos_plus2.js?v=1792600000002",
+"./b6_dibujos_plus3.js?v=1792800000004",
+"./b6_dibujos_plus4.js?v=1793000000006",
+"./b6_mates_plus.js?v=1792400000000",
+"./b6_unidades_plus.js?v=1792600000001",
+"./b6_geometria_visual.js?v=1792400000000",
+"./b6_apertura_dibujo.js?v=1795600000004",
+"./b6_modelos.js?v=1794300000001",
+"./b6_lib_panaderia.js?v=1793200000007",
+"./b6_lib_panaderia2.js?v=1793200000007",
+"./b6_lib_panaderia3.js?v=1793200000007",
+"./b6_lib_pasteleria.js?v=1793300000001",
+"./b6_lib_pasteleria2.js?v=1793300000001",
+"./b6_lib_pasteleria3.js?v=1793300000001",
+"./b6_lib_cocina.js?v=1793300000007",
+"./b6_lib_cocina2.js?v=1793300000007",
+"./b6_lib_cocina3.js?v=1793300000007",
+"./b6_lib_batidos.js?v=1793300000008",
+"./b6_lib_batidos2.js?v=1793300000008",
+"./b6_lib_batidos3.js?v=1793300000011",
+"./b6_lib_peluqueria.js?v=1793300000012",
+"./b6_lib_peluqueria2.js?v=1793300000012",
+"./b6_lib_peluqueria3.js?v=1793300000012",
+"./b6_lib_peluqueria4.js?v=1793400000001",
+"./b6_pelu_fichas.js?v=1795200000005",
+"./b6_pelu_limpieza.js?v=1795700000002",
+"./b6_pelu_guias.js?v=1795700000004",
+"./b6_pelu_orden.js?v=1795700000002",
+"./b6_pelu_libro3d.js?v=1795700000006",
+"./b6_pelu_estudios.js?v=1795700000002",
+"./b6_lib_matematicas.js?v=1793400000001",
+"./b6_lib_matematicas2.js?v=1793400000001",
+"./b6_lib_matematicas3.js?v=1793400000002",
+"./b6_lib_ciencias.js?v=1793400000003",
+"./b6_lib_ciencias2.js?v=1793400000003",
+"./b6_lib_ciencias3.js?v=1793400000003",
+"./b6_lib_sociales.js?v=1793500000005",
+"./b6_lib_sociales2.js?v=1793500000005",
+"./b6_lib_sociales3.js?v=1793500000005",
+"./b6_lib_anatomia.js?v=1793500000001",
+"./b6_lib_anatomia2.js?v=1793500000001",
+"./b6_lib_anatomia3.js?v=1793500000001",
+"./b6_lib_lengua.js?v=1793500000002",
+"./b6_lib_lengua2.js?v=1793500000002",
+"./b6_lib_lengua3.js?v=1793500000002",
+"./b6_lib_ingles.js?v=1795000000001",
+"./b6_lib_ingles2.js?v=1795000000001",
+"./b6_lib_ingles3.js?v=1795000000001",
+"./b6_lib_fisica.js?v=1795000000001",
+"./b6_lib_fisica2.js?v=1795000000001",
+"./b6_lib_fisica3.js?v=1795000000001",
+"./b6_lib_quimica.js?v=1795000000001",
+"./b6_lib_quimica2.js?v=1795000000001",
+"./b6_lib_quimica3.js?v=1795000000001",
+"./b6_lib_biologia.js?v=1793800000002",
+"./b6_lib_biologia2.js?v=1793800000001",
+"./b6_lib_biologia3.js?v=1793800000002",
+"./b6_lib_artistica.js?v=1793800000002",
+"./b6_lib_artistica2.js?v=1793800000002",
+"./b6_lib_artistica3.js?v=1793800000002",
+"./b6_lib_contabilidad.js?v=1794000000003",
+"./b6_lib_contabilidad2.js?v=1794000000003",
+"./b6_lib_contabilidad3.js?v=1794000000003",
+"./b6_lib_musica.js?v=1794000000005",
+"./b6_lib_musica2.js?v=1794000000005",
+"./b6_lib_tecnologia.js?v=1794000000006",
+"./b6_lib_tecnologia2.js?v=1794000000006",
+"./b6_lib_efisica.js?v=1794000000007",
+"./b6_lib_efisica2.js?v=1794000000007",
+"./b6_lib_valores.js?v=1794000000009",
+"./b6_lib_religion.js?v=1794000000010",
+"./b6_lib_religion2.js?v=1794000000010",
+"./b6_lib_calculo.js?v=1794000000011",
+"./b6_lib_calculo2.js?v=1794000000011",
+"./b6_lib_calculo3.js?v=1794000000011",
+"./b6_lib_emprendimiento.js?v=1794100000001",
+"./b6_lib_emprendimiento2.js?v=1794100000001",
+"./b6_lib_emprendimiento3.js?v=1794100000001",
+"./b6_lib_marketing.js?v=1794100000002",
+"./b6_lib_marketing2.js?v=1794100000002",
+"./b6_lib_marketing3.js?v=1794100000002",
+"./b6_lib_ecommerce.js?v=1794100000002",
+"./b6_lib_ecommerce2.js?v=1794100000002",
+"./b6_lib_ecommerce3.js?v=1794100000002",
+"./b6_lib_redes.js?v=1794100000002",
+"./b6_lib_redes2.js?v=1794100000002",
+"./b6_lib_ia.js?v=1794100000002",
+"./b6_lib_ia2.js?v=1794100000002",
+"./b6_lib_idiomas.js?v=1794100000002",
+"./b6_lib_idiomas2.js?v=1794100000002",
+"./b6_lib_infantil.js?v=1794200000001",
+"./b6_lib_infantil2.js?v=1794200000001",
+"./b6_emprendimiento.js?v=1792400000000",
+"./b6_emprendimiento_2026.js?v=1792400000000",
+"./b6_marketing_ia.js?v=1792400000000",
+"./b6_ideas_2026.js?v=1792400000000",
+"./b6_redes_sociales.js?v=1795000000004",
+"./b6_modelos_libro.js?v=1795600000003",
+"./b6_comercio_electronico.js?v=1795500000001",
+"./b6_unidades_adultos.js?v=1792700000003",
+"./b6_relleno_total.js?v=1795500000001",
+"./b6_portada_edicion.js?v=1792400000000",
+"./b6_portadas_kit.js?v=1795000000007",
+"./b6_portadas_1.js?v=1795000000007",
+"./b6_portadas_2.js?v=1795000000007",
+"./b6_portadas_3.js?v=1795000000007",
+"./b6_portadas_editorial.js?v=1795000000007",
+"./b6_curso_premium.js?v=1795800000006",
+"./b6_infantil_interactivo.js?v=1795800000006"];
+/* Antes eran 131 peticiones (una por módulo): el Editorial tardaba medio minuto y la conexión
+   se saturaba. Ahora van en DOS archivos: b6_editorial_nucleo.js (motor, currículo, cerebros…,
+   lo justo para abrir el Editorial) y b6_editorial_libs.js (las bibliotecas b6_lib_* de dibujos,
+   que se bajan después, en segundo plano). Se ejecutan por tandas de ~25 ms para no congelar la
+   página. Un módulo cuya versión (?v=) no coincide con la del paquete se pide suelto: así un
+   cambio nunca queda oculto. Para regenerar los paquetes: _generar_paquetes.html. */
+window.EU_GRUPO = function (clave, paquete, lista, progreso) {
+  var G = window.__euG || (window.__euG = {}), E = G[clave] || (G[clave] = { n: 0, cb: [] });
+  if (progreso) E.cb.push(progreso);
+  if (E.p) return E.p;
+  var L = lista, tot = L.length;
+  E.p = new Promise(function (ok) {
+    var P = {};
+    var avisa = function () { E.cb.forEach(function (f) { try { f(E.n, tot); } catch (x) { } }); };
+    var ejecuta = function (i) {
+      var t0 = performance.now();
+      while (i < tot) {
+        var src = L[i];
+        if (P[src] == null) {
+          var s = document.createElement('script'); s.src = src;
+          s.onload = s.onerror = (function (j) { return function () { E.n = j + 1; avisa(); setTimeout(function () { ejecuta(j + 1); }, 0); }; })(i);
+          document.head.appendChild(s);
+          return;
+        }
+        var s2 = document.createElement('script'); s2.textContent = P[src] + '\n//# sourceURL=' + src;
+        var tm = performance.now();
+        try { document.head.appendChild(s2); } catch (x) { console.warn('Editorial:', src, x); }
+        tm = performance.now() - tm; if (tm > 150) (window.__euLentos || (window.__euLentos = [])).push([src.replace(/^\.\/|\?.*$/g, ''), Math.round(tm)]);
+        P[src] = null; i++; E.n = i;
+        if (performance.now() - t0 > 25) break;
+      }
+      avisa();
+      if (i >= tot) { P = null; return ok(); }
+      setTimeout(function () { ejecuta(i); }, 0);
+    };
+    var pq = document.createElement('script'); pq.src = paquete;
+    pq.onload = pq.onerror = function () {
+      P = (window.EU_PAQ && window.EU_PAQ[clave]) || {};
+      if (window.EU_PAQ) delete window.EU_PAQ[clave];
+      L.forEach(function (src) { if (P[src] == null) { var l = document.createElement('link'); l.rel = 'preload'; l.as = 'script'; l.href = src; document.head.appendChild(l); } });
+      ejecuta(0);
+    };
+    document.head.appendChild(pq);
+  });
+  return E.p;
+};
+window.EU_CARGA_LIBS = function (progreso) {
+  return window.EU_GRUPO('libs', './b6_editorial_libs.js?v=1795400000002',
+    window.EU_DIFERIDOS.filter(function (s) { return /b6_lib_/.test(s); }), progreso)
+    .then(function () { window.EU_LIBS_LISTAS = true; });
+};
+window.EU_CARGA_EDITORIAL = function (progreso) {
+  return window.EU_GRUPO('nucleo', './b6_editorial_nucleo.js?v=1795400000002',
+    window.EU_DIFERIDOS.filter(function (s) { return !/b6_lib_/.test(s); }), progreso)
+    .then(function () { window.EU_EDITORIAL_LISTO = true; window.EU_CARGA_LIBS(); });
+};
+/* El Editorial ya NO se carga solo al abrir el Estudio: 4,7 MB de módulos congelaban la página aunque
+   se estuviera en otra pestaña. Se carga al abrir la pestaña Editorial (asegurar() en b6_editorial.js). */
+</script>
 </helmet>
 
 <div style="min-height:100vh;background:#0d0d1a;color:#e2e8f0;font:13px 'Segoe UI',system-ui,sans-serif;padding-bottom:40px">
@@ -326,6 +547,7 @@ input[type=range]{accent-color:#a855f7}
               <button onClick="{{ c.ir }}" style="{{ c.estilo }}">{{ c.nombre }}</button>
             </sc-for>
             <button onClick="{{ verLibro }}" style="{{ triLibroEstilo }}">{{ triLibroTxt }}</button>
+            <button onClick="{{ guardarMiosTri }}" style="{{ estiloGuardarMios }}">💾 Guardar en Míos</button>
             <sc-if value="{{ triLibro }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ repetirLibro }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:600;cursor:pointer">↺ Abrir otra vez</button>
               <button onClick="{{ grabarLibro }}" style="background:transparent;border:1px solid #a855f7;color:#e9d5ff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:600;cursor:pointer">⏺ Grabar vídeo del libro</button>
@@ -393,7 +615,15 @@ input[type=range]{accent-color:#a855f7}
             </div>
           </div>
         </div>
-        <div style="background:#18183a;border:1px solid #2d2d4a;border-radius:12px;padding:12px 14px">
+        <div style="background:#18183a;border:1px solid #2d2d4a;border-radius:12px;overflow:hidden">
+          <div style="display:flex;border-bottom:1px solid #2d2d4a;background:#13132a">
+            <sc-for list="{{ triTabs }}" as="t" hint-placeholder-count="4">
+              <button onClick="{{ t.ir }}" style="{{ t.estilo }}">{{ t.nombre }}</button>
+            </sc-for>
+          </div>
+          <div style="padding:12px 14px">
+
+          <sc-if value="{{ triEsDiseno }}" hint-placeholder-val="{{ false }}">
           <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Plantilla del tríptico</label>
           <select onChange="{{ setTriDiseno }}" value="{{ triDiseno }}" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 9px;font-size:11.5px;width:100%;font-family:inherit">
             <sc-for list="{{ triDisenos }}" as="d" hint-placeholder-count="12">
@@ -401,32 +631,105 @@ input[type=range]{accent-color:#a855f7}
             </sc-for>
           </select>
           <div style="font-size:10px;color:#7c7c9e;line-height:1.5;margin-top:5px">{{ triDisenoDesc }}</div>
+          <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+          <sc-for list="{{ triPaneles }}" as="p" hint-placeholder-count="3">
+            <div style="border:1px solid #2d2d4a;border-radius:9px;padding:9px;margin-bottom:8px;background:#1a1a35">
+              <b style="font-size:11.5px;display:block;margin-bottom:6px">{{ p.nombre }}</b>
+              <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Cuántos cuadros</label>
+              <div style="display:flex;gap:5px;flex-wrap:wrap">
+                <sc-for list="{{ p.conteos }}" as="c" hint-placeholder-count="6">
+                  <button onClick="{{ c.ir }}" style="{{ c.estilo }}">{{ c.nombre }}</button>
+                </sc-for>
+              </div>
+              <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Cuadrícula</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <sc-for list="{{ p.rejillas }}" as="r" hint-placeholder-count="4">
+                  <button onClick="{{ r.ir }}" title="{{ r.uso }}" style="{{ r.estilo }}">
+                    <span style="display:block;font-size:10.5px;font-weight:700;color:#e2e8f0">{{ r.nombre }}</span>
+                    <span style="display:block;font-size:9.5px;color:#94a3b8;line-height:1.35;margin-top:2px">{{ r.uso }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Forma de los cuadros</label>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px">
+                <sc-for list="{{ p.formas }}" as="f" hint-placeholder-count="9">
+                  <button onClick="{{ f.ir }}" style="{{ f.estilo }}">
+                    <span style="display:block;font-size:15px;line-height:1">{{ f.icono }}</span>
+                    <span style="display:block;font-size:9px;margin-top:3px;color:#94a3b8">{{ f.nombre }}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+          </sc-if>
 
-          <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Tus fotos y vídeos</label>
+          <sc-if value="{{ triEsFotos }}" hint-placeholder-val="{{ false }}">
+          <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Tus fotos y vídeos</label>
           <input type="file" accept="image/*,video/*" multiple="{{ true }}" onChange="{{ setTriFotos }}" style="font-size:11px;color:#94a3b8;width:100%" />
           <div style="display:flex;gap:6px;align-items:center;margin-top:5px">
             <div style="font-size:10px;color:#7c7c9e;line-height:1.5;flex:1">Se reparten por los cuadros de esta cara, en orden.</div>
             <button onClick="{{ quitarTriFotos }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer">Quitar</button>
           </div>
+          <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+          <sc-for list="{{ triPaneles }}" as="p" hint-placeholder-count="3">
+            <div style="border:1px solid #2d2d4a;border-radius:9px;padding:9px;margin-bottom:8px;background:#1a1a35">
+              <b style="font-size:11.5px;display:block;margin-bottom:6px">{{ p.nombre }}</b>
+              <sc-for list="{{ p.celdas }}" as="c" hint-placeholder-count="2">
+                <div style="border:1px solid #2d2d4a;border-radius:8px;padding:8px;margin-bottom:6px;background:#13132a">
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px">
+                    <b style="font-size:11px;color:#cbd5e1">Cuadro {{ c.n }}</b>
+                    <button onClick="{{ c.quitarFoto }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-family:inherit;flex:none">Quitar</button>
+                  </div>
+                  <input type="file" accept="image/*,video/*" onChange="{{ c.setFoto }}" style="font-size:11px;color:#94a3b8;width:100%" />
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+          <div style="font-size:10px;color:#7c7c9e;line-height:1.5">Foto o vídeo. El vídeo va en bucle y sin sonido dentro del cuadro.</div>
+          </sc-if>
 
-          <h3 style="margin:14px 0 8px;font-size:10.5px;letter-spacing:.12em;color:#94a3b8;font-weight:700;text-transform:uppercase">Cuerpos de esta cara</h3>
+          <sc-if value="{{ triEsTextos }}" hint-placeholder-val="{{ false }}">
           <sc-for list="{{ triPaneles }}" as="p" hint-placeholder-count="3">
             <div style="border:1px solid #2d2d4a;border-radius:9px;padding:9px;margin-bottom:8px;background:#1a1a35">
               <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px">
                 <b style="font-size:11.5px">{{ p.nombre }}</b>
                 <button onClick="{{ p.regen }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer">🔁</button>
               </div>
-              <input onInput="{{ p.setTitulo }}" value="{{ p.titulo }}" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:12px;width:100%;margin-bottom:5px" />
-              <input onInput="{{ p.setSub }}" value="{{ p.sub }}" style="background:#13132a;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:7px 9px;font-size:11.5px;width:100%;margin-bottom:5px" />
-              <sc-for list="{{ p.celdas }}" as="c" hint-placeholder-count="1">
-                <label style="font-size:9.5px;color:#7c7c9e;letter-spacing:.05em;text-transform:uppercase;display:block;margin:2px 0 3px">{{ c.etq }}</label>
-                <textarea onInput="{{ c.setTexto }}" value="{{ c.texto }}" placeholder="Escribe aquí el texto de este cuerpo" style="background:#13132a;border:1px solid #2d2d4a;color:#cbd5e1;border-radius:7px;padding:7px 9px;font-size:11.5px;line-height:1.5;width:100%;min-height:56px;resize:vertical;font-family:inherit;margin-bottom:5px"></textarea>
+              <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Título</label>
+              <input onInput="{{ p.setTitulo }}" value="{{ p.titulo }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+              <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Subtítulo</label>
+              <input onInput="{{ p.setSub }}" value="{{ p.sub }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+              <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Marca</label>
+              <input onInput="{{ p.setMarca }}" value="{{ p.marca }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+              <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Pie · contacto</label>
+              <input onInput="{{ p.setPieContacto }}" value="{{ p.pieContacto }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+              <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Pie · llamada</label>
+              <input onInput="{{ p.setPieCta }}" value="{{ p.pieCta }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+              <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+              <sc-for list="{{ p.celdas }}" as="c" hint-placeholder-count="3">
+                <div style="border:1px solid #2d2d4a;border-radius:9px;padding:9px;margin-bottom:8px;background:#1a1a35">
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px">
+                    <b style="font-size:11.5px">Cuadro {{ c.n }}</b>
+                    <span style="display:flex;gap:5px;flex:none">
+                      <button onClick="{{ c.vaciar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-family:inherit">Vaciar</button>
+                      <button onClick="{{ c.quitar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-family:inherit">✕</button>
+                    </span>
+                  </div>
+                  <input onInput="{{ c.setTitulo }}" value="{{ c.titulo }}" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:12px;width:100%;margin-bottom:5px;font-family:inherit" />
+                  <textarea onInput="{{ c.setTexto }}" value="{{ c.texto }}" rows="2" style="background:#13132a;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:7px 9px;font-size:11.5px;width:100%;resize:vertical;line-height:1.5;margin-bottom:5px;font-family:inherit"></textarea>
+                  <div style="display:flex;gap:5px">
+                    <input onInput="{{ c.setPrecio }}" value="{{ c.precio }}" placeholder="Precio" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:11.5px;width:50%;font-family:inherit" />
+                    <input onInput="{{ c.setEtiqueta }}" value="{{ c.etiqueta }}" placeholder="Etiqueta" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:11.5px;width:50%;font-family:inherit" />
+                  </div>
+                </div>
               </sc-for>
-              <input type="file" accept="image/*,video/*" onChange="{{ p.setFoto }}" style="font-size:10.5px;color:#7c7c9e;width:100%" />
+              <button onClick="{{ p.anadirCelda }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:9px;padding:9px 15px;font-size:12.5px;font-weight:600;cursor:pointer;width:100%;font-family:inherit">＋ Añadir cuadro</button>
             </div>
           </sc-for>
+          </sc-if>
 
-          <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Paleta del tríptico</label>
+          <sc-if value="{{ triEsMarca }}" hint-placeholder-val="{{ false }}">
+          <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Paleta del tríptico</label>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <sc-for list="{{ triTemas }}" as="t" hint-placeholder-count="10">
               <button onClick="{{ t.ir }}" style="{{ t.estilo }}">{{ t.nombre }}</button>
@@ -452,8 +755,14 @@ input[type=range]{accent-color:#a855f7}
               </label>
             </sc-for>
           </div>
-          <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">QR en el cuerpo de contacto</label>
+          </sc-if>
+
+          <sc-if value="{{ triEsQR }}" hint-placeholder-val="{{ false }}">
+          <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">QR en el cuerpo de contacto</label>
           <button onClick="{{ triToggleQR }}" style="{{ triQREstilo }}">{{ triQRTxt }}</button>
+          </sc-if>
+
+          </div>
         </div>
       </div>
       </sc-if>
@@ -471,7 +780,27 @@ input[type=range]{accent-color:#a855f7}
               <button onClick="{{ v.ir }}" style="{{ v.estilo }}">{{ v.nombre }}</button>
             </sc-for>
             <span style="flex:1"></span>
+            <button onClick="{{ guardarMiosVol }}" style="{{ estiloGuardarMios }}">💾 Guardar en Míos</button>
             <button onClick="{{ volRegen }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:9px;padding:9px 13px;font-size:11.5px;cursor:pointer">🔁 Rehacer el texto</button>
+          </div>
+
+          <div style="background:#141430;border:1px solid #2d2d4a;border-radius:10px;padding:10px 11px;margin-top:10px">
+            <div style="font-size:10px;color:#7c7c9e;letter-spacing:.08em;text-transform:uppercase;font-weight:700">Vídeo narrado de la maqueta</div>
+            <p style="margin:5px 0 7px;font-size:10.5px;color:#7c7c9e;line-height:1.55">La hoja se presenta en movimiento con la narración rotulada y la voz dentro del archivo.</p>
+            <textarea onInput="{{ setVolNarra }}" value="{{ volNarra }}" placeholder="Ej.: Esta es la oferta de esta semana. Llévate el volante y enseñalo al pedir tu cita." style="width:100%;min-height:62px;background:#0f0f22;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 9px;font-size:11.5px;font-family:inherit;line-height:1.5;resize:vertical"></textarea>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+              <button onClick="{{ grabarVolVideo }}" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:0;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🎬 Vídeo de la maqueta</button>
+              <button onClick="{{ vozGoogle }}" style="{{ vozGoogleEstilo }}">{{ vozGoogleTxt }}</button>
+              <button onClick="{{ vozGrabar }}" style="{{ vozGrabarEstilo }}">{{ vozGrabarTxt }}</button>
+              <label style="{{ vozSubirEstilo }}">📁 Subir audio<input type="file" accept="audio/*" onChange="{{ vozSubir }}" style="display:none" /></label>
+              <sc-if value="{{ vozHay }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ vozOir }}" style="{{ vozSubirEstilo }}">▶ Oír</button>
+                <button onClick="{{ vozQuitar }}" style="{{ vozSubirEstilo }}">Quitar</button>
+              </sc-if>
+              <button onClick="{{ vozProbar }}" style="{{ vozSubirEstilo }}">🎧 Probar mezcla</button>
+              <button onClick="{{ vozVivo }}" style="{{ vozVivoEstilo }}">{{ vozVivoTxt }}</button>
+            </div>
+            <div style="font-size:10.5px;color:#7c7c9e;line-height:1.55;margin-top:8px">{{ vozResumen }}</div>
           </div>
           <sc-if value="{{ volEsEscena }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:8px">
@@ -511,12 +840,64 @@ input[type=range]{accent-color:#a855f7}
 
           <sc-if value="{{ volEsOrden }}" hint-placeholder-val="{{ false }}">
             <div style="background:#141430;border:1px solid #2d2d4a;border-radius:10px;padding:10px 11px;margin-top:14px">
-              <div style="font-size:10px;color:#7c7c9e;letter-spacing:.08em;text-transform:uppercase;font-weight:700">Qué lleva la hoja</div>
-              <div style="display:flex;flex-direction:column;gap:4px;margin-top:7px">
-                <sc-for list="{{ volBloques }}" as="b" hint-placeholder-count="4">
-                  <div style="font-size:10.5px;color:#cbd5e1;line-height:1.5">{{ b }}</div>
-                </sc-for>
+              <div style="display:flex;gap:6px;align-items:center;justify-content:space-between">
+                <div style="font-size:10px;color:#7c7c9e;letter-spacing:.08em;text-transform:uppercase;font-weight:700">Qué lleva la hoja</div>
+                <button onClick="{{ volResetBloques }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 8px;font-size:10px;cursor:pointer;flex:none">↺ Como la plantilla</button>
               </div>
+              <div style="font-size:10px;color:#5f5f80;line-height:1.5;margin-top:5px">Todo lo de esta hoja se puede cambiar: los nombres de los campos, las casillas, las columnas de las tablas, cuántos renglones hay y en qué orden va cada bloque.</div>
+
+              <label style="font-size:9.5px;color:#94a3b8;margin:10px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Nombre del negocio</label>
+              <input onInput="{{ setVolNegocio }}" value="{{ volNegocio }}" placeholder="Déjalo vacío para que no salga" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:11.5px;width:100%;font-family:inherit" />
+
+              <label style="font-size:9.5px;color:#94a3b8;margin:10px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Nombre del impreso</label>
+              <input onInput="{{ setVolTitulo }}" value="{{ volTitulo }}" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:11.5px;width:100%;font-family:inherit" />
+
+              <sc-for list="{{ volBloquesEd }}" as="b" hint-placeholder-count="4">
+                <div style="border:1px solid #2d2d4a;border-radius:9px;padding:8px 9px;margin-top:8px;background:#18183a">
+                  <div style="display:flex;gap:4px;align-items:center;margin-bottom:6px">
+                    <span style="flex:1;min-width:0;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a855f7">{{ b.tipo }}</span>
+                    <button onClick="{{ b.subir }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:6px;padding:3px 7px;font-size:10px;cursor:pointer;flex:none">↑</button>
+                    <button onClick="{{ b.bajar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:6px;padding:3px 7px;font-size:10px;cursor:pointer;flex:none">↓</button>
+                    <button onClick="{{ b.quitar }}" style="background:transparent;border:1px solid #4b4b7a;color:#7c7c9e;border-radius:6px;padding:3px 7px;font-size:10px;cursor:pointer;flex:none">✕</button>
+                  </div>
+
+                  <sc-if value="{{ b.hayTit }}" hint-placeholder-val="{{ false }}">
+                    <input onInput="{{ b.setTit }}" value="{{ b.tit }}" placeholder="Título del bloque" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:6px 8px;font-size:11px;width:100%;font-family:inherit;margin-bottom:6px" />
+                  </sc-if>
+
+                  <sc-if value="{{ b.esNota }}" hint-placeholder-val="{{ false }}">
+                    <textarea onInput="{{ b.setTxt }}" value="{{ b.txt }}" rows="3" style="background:#13132a;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:6px 8px;font-size:11px;line-height:1.5;width:100%;resize:vertical;font-family:inherit"></textarea>
+                  </sc-if>
+
+                  <sc-if value="{{ b.hayLista }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-size:9.5px;color:#7c7c9e;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">{{ b.rotLista }}</div>
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                      <sc-for list="{{ b.items }}" as="it" hint-placeholder-count="3">
+                        <div style="display:flex;gap:5px;align-items:center">
+                          <input onInput="{{ it.set }}" value="{{ it.valor }}" style="flex:1;min-width:0;background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:6px 8px;font-size:11px;font-family:inherit" />
+                          <button onClick="{{ it.quitar }}" style="background:transparent;border:1px solid #2d2d4a;color:#7c7c9e;border-radius:6px;padding:4px 7px;font-size:10px;cursor:pointer;flex:none">✕</button>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <button onClick="{{ b.anadir }}" style="background:transparent;border:1px dashed #4b4b7a;color:#94a3b8;border-radius:7px;padding:5px 9px;font-size:10.5px;cursor:pointer;margin-top:5px;width:100%;font-family:inherit">＋ Añadir</button>
+                  </sc-if>
+
+                  <sc-if value="{{ b.hayFilas }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;gap:7px;align-items:center;margin-top:7px">
+                      <span style="font-size:9.5px;color:#7c7c9e;letter-spacing:.06em;text-transform:uppercase">{{ b.rotFilas }}</span>
+                      <input type="number" min="1" max="30" onInput="{{ b.setFilas }}" value="{{ b.filas }}" style="width:66px;background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:6px 8px;font-size:11px;font-family:inherit" />
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+
+              <select onChange="{{ volAnadirBloque }}" value="" style="background:#13132a;border:1px dashed #4b4b7a;color:#cbd5e1;border-radius:8px;padding:8px 9px;font-size:11px;width:100%;font-family:inherit;margin-top:9px">
+                <option value="">＋ Añadir un bloque…</option>
+                <sc-for list="{{ volTiposNuevo }}" as="t" hint-placeholder-count="6">
+                  <option value="{{ t.id }}">{{ t.n }}</option>
+                </sc-for>
+              </select>
+
               <div style="font-size:10px;color:#5f5f80;line-height:1.5;margin-top:8px">Los renglones van a 9 mm, que es lo que necesita una letra normal. Si el impreso no cabe en la hoja, se le quitan filas a las tablas antes que apretar el renglón.</div>
             </div>
           </sc-if>
@@ -530,6 +911,38 @@ input[type=range]{accent-color:#a855f7}
             </div>
             <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">QR en la hoja</label>
             <button onClick="{{ volToggleQR }}" style="{{ volQREstilo }}">{{ volQRTxt }}</button>
+
+            <div style="height:1px;background:#2d2d4a;margin:14px 0"></div>
+            <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Título</label>
+            <input onInput="{{ setVolCabTitulo }}" value="{{ volCabTitulo }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+            <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Subtítulo</label>
+            <input onInput="{{ setVolCabSub }}" value="{{ volCabSub }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+            <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Marca</label>
+            <input onInput="{{ setVolCabMarca }}" value="{{ volCabMarca }}" placeholder="Déjalo vacío para que no salga" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+            <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Pie · contacto</label>
+            <input onInput="{{ setVolPieContacto }}" value="{{ volPieContacto }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+            <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Pie · llamada</label>
+            <input onInput="{{ setVolPieCta }}" value="{{ volPieCta }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+
+            <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+            <sc-for list="{{ volCeldas }}" as="c" hint-placeholder-count="3">
+              <div style="border:1px solid #2d2d4a;border-radius:9px;padding:9px;margin-bottom:8px;background:#1a1a35">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px">
+                  <b style="font-size:11.5px">Cuadro {{ c.n }}</b>
+                  <span style="display:flex;gap:5px;flex:none">
+                    <button onClick="{{ c.vaciar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-family:inherit">Vaciar</button>
+                    <button onClick="{{ c.quitar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-family:inherit">✕</button>
+                  </span>
+                </div>
+                <input onInput="{{ c.setTitulo }}" value="{{ c.titulo }}" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:12px;width:100%;margin-bottom:5px;font-family:inherit" />
+                <textarea onInput="{{ c.setTexto }}" value="{{ c.texto }}" rows="2" style="background:#13132a;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:7px 9px;font-size:11.5px;width:100%;resize:vertical;line-height:1.5;margin-bottom:5px;font-family:inherit"></textarea>
+                <div style="display:flex;gap:5px">
+                  <input onInput="{{ c.setPrecio }}" value="{{ c.precio }}" placeholder="Precio" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:11.5px;width:50%;font-family:inherit" />
+                  <input onInput="{{ c.setEtiqueta }}" value="{{ c.etiqueta }}" placeholder="Etiqueta" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:11.5px;width:50%;font-family:inherit" />
+                </div>
+              </div>
+            </sc-for>
+            <button onClick="{{ volAnadirCelda }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:9px;padding:9px 15px;font-size:12.5px;font-weight:600;cursor:pointer;width:100%;font-family:inherit">＋ Añadir cuadro</button>
           </sc-if>
 
           <div style="font-size:10px;color:#5f5f80;line-height:1.5;margin-top:14px">El nombre del negocio, la dirección y el contacto salen de tu ficha, igual que en el resto de la aplicación.</div>
@@ -614,19 +1027,142 @@ input[type=range]{accent-color:#a855f7}
             </sc-for>
           </select>
 
-          <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Diapositiva {{ carSelTxt }}</label>
-          <input onInput="{{ setCarTitulo }}" value="{{ carTitulo }}" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:12px;width:100%;margin-bottom:5px" />
-          <input onInput="{{ setCarSub }}" value="{{ carSub }}" style="background:#13132a;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:7px 9px;font-size:11.5px;width:100%" />
+          <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+          <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Cuántos cuadros</label>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <sc-for list="{{ carConteos }}" as="c" hint-placeholder-count="6">
+              <button onClick="{{ c.ir }}" style="{{ c.estilo }}">{{ c.nombre }}</button>
+            </sc-for>
+          </div>
+          <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Cuadrícula</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <sc-for list="{{ carRejillas }}" as="r" hint-placeholder-count="4">
+              <button onClick="{{ r.ir }}" title="{{ r.uso }}" style="{{ r.estilo }}">
+                <span style="display:block;font-size:10.5px;font-weight:700;color:#e2e8f0">{{ r.nombre }}</span>
+                <span style="display:block;font-size:9.5px;color:#94a3b8;line-height:1.35;margin-top:2px">{{ r.uso }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Forma de los cuadros</label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px">
+            <sc-for list="{{ carFormas }}" as="f" hint-placeholder-count="9">
+              <button onClick="{{ f.ir }}" style="{{ f.estilo }}">
+                <span style="display:block;font-size:15px;line-height:1">{{ f.icono }}</span>
+                <span style="display:block;font-size:9px;margin-top:3px;color:#94a3b8">{{ f.nombre }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+          <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Diapositiva {{ carSelTxt }} · título</label>
+          <input onInput="{{ setCarTitulo }}" value="{{ carTitulo }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+          <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Subtítulo</label>
+          <input onInput="{{ setCarSub }}" value="{{ carSub }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+          <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Marca</label>
+          <input onInput="{{ setCarMarca }}" value="{{ carMarca }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+          <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Pie · contacto</label>
+          <input onInput="{{ setCarPieContacto }}" value="{{ carPieContacto }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+          <label style="font-size:10px;color:#94a3b8;margin:8px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Pie · llamada</label>
+          <input onInput="{{ setCarPieCta }}" value="{{ carPieCta }}" style="background:#1a1a35;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px;width:100%;font-family:inherit" />
+
+          <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+          <sc-for list="{{ carCeldas }}" as="c" hint-placeholder-count="3">
+            <div style="border:1px solid #2d2d4a;border-radius:9px;padding:9px;margin-bottom:8px;background:#1a1a35">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px">
+                <b style="font-size:11.5px">Cuadro {{ c.n }}</b>
+                <span style="display:flex;gap:5px;flex:none">
+                  <button onClick="{{ c.vaciar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-family:inherit">Vaciar</button>
+                  <button onClick="{{ c.quitar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-family:inherit">✕</button>
+                </span>
+              </div>
+              <input onInput="{{ c.setTitulo }}" value="{{ c.titulo }}" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:12px;width:100%;margin-bottom:5px;font-family:inherit" />
+              <textarea onInput="{{ c.setTexto }}" value="{{ c.texto }}" rows="2" style="background:#13132a;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:7px 9px;font-size:11.5px;width:100%;resize:vertical;line-height:1.5;margin-bottom:5px;font-family:inherit"></textarea>
+              <div style="display:flex;gap:5px">
+                <input onInput="{{ c.setPrecio }}" value="{{ c.precio }}" placeholder="Precio" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:11.5px;width:50%;font-family:inherit" />
+                <input onInput="{{ c.setEtiqueta }}" value="{{ c.etiqueta }}" placeholder="Etiqueta" style="background:#13132a;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:7px;padding:7px 9px;font-size:11.5px;width:50%;font-family:inherit" />
+              </div>
+            </div>
+          </sc-for>
+          <button onClick="{{ carAnadirCelda }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:9px;padding:9px 15px;font-size:12.5px;font-weight:600;cursor:pointer;width:100%;font-family:inherit">＋ Añadir cuadro</button>
 
           <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Tus fotos y vídeos</label>
           <input type="file" accept="image/*,video/*" multiple="{{ true }}" onChange="{{ setCarFotos }}" style="font-size:11px;color:#94a3b8;width:100%" />
           <div style="font-size:10px;color:#7c7c9e;line-height:1.5;margin-top:4px">Se reparten por las diapositivas, una detrás de otra.</div>
+          <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+          <label style="font-size:10px;color:#94a3b8;margin:0 0 5px;display:block;letter-spacing:.06em;text-transform:uppercase">Diapositiva {{ carSelTxt }} · cuadro a cuadro</label>
+          <sc-for list="{{ carCeldas }}" as="c" hint-placeholder-count="3">
+            <div style="border:1px solid #2d2d4a;border-radius:8px;padding:8px;margin-bottom:6px;background:#1a1a35">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px">
+                <b style="font-size:11px;color:#cbd5e1">Cuadro {{ c.n }}</b>
+                <button onClick="{{ c.quitarFoto }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-family:inherit;flex:none">Quitar</button>
+              </div>
+              <input type="file" accept="image/*,video/*" onChange="{{ c.setFoto }}" style="font-size:11px;color:#94a3b8;width:100%" />
+            </div>
+          </sc-for>
+          <div style="font-size:10px;color:#7c7c9e;line-height:1.5">Foto o vídeo. El vídeo va en bucle y sin sonido dentro del cuadro.</div>
 
           <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Paleta</label>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <sc-for list="{{ carTemas }}" as="t" hint-placeholder-count="10">
               <button onClick="{{ t.ir }}" style="{{ t.estilo }}">{{ t.nombre }}</button>
             </sc-for>
+          </div>
+
+          <div style="height:1px;background:#2d2d4a;margin:12px 0"></div>
+          <h3 style="margin:0 0 6px;font-size:10.5px;letter-spacing:.12em;color:#94a3b8;font-weight:700;text-transform:uppercase">Animación</h3>
+          <label style="font-size:10px;color:#94a3b8;margin:0 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Cómo entra cada cuadro · en volumen</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ carEfectos3D }}" as="e" hint-placeholder-count="8">
+              <button onClick="{{ e.ir }}" style="{{ e.estilo }}">{{ e.nombre }}</button>
+            </sc-for>
+          </div>
+          <label style="font-size:10px;color:#94a3b8;margin:10px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">En plano</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ carEfectos2D }}" as="e" hint-placeholder-count="7">
+              <button onClick="{{ e.ir }}" style="{{ e.estilo }}">{{ e.nombre }}</button>
+            </sc-for>
+          </div>
+          <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Paso de diapositiva · en volumen</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ carTrans3D }}" as="x" hint-placeholder-count="4">
+              <button onClick="{{ x.ir }}" style="{{ x.estilo }}">{{ x.nombre }}</button>
+            </sc-for>
+          </div>
+          <label style="font-size:10px;color:#94a3b8;margin:10px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">En plano</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ carTrans2D }}" as="x" hint-placeholder-count="5">
+              <button onClick="{{ x.ir }}" style="{{ x.estilo }}">{{ x.nombre }}</button>
+            </sc-for>
+          </div>
+          <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Ambiente</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ carAmbientes }}" as="a" hint-placeholder-count="6">
+              <button onClick="{{ a.ir }}" style="{{ a.estilo }}">{{ a.nombre }}</button>
+            </sc-for>
+          </div>
+          <label style="font-size:10px;color:#94a3b8;display:block;margin:12px 0 3px">Segundos por diapositiva · {{ carSeg }} s · total {{ carDurTxt }}</label>
+          <input type="range" min="1" max="6" step="0.2" onInput="{{ setCarSeg }}" value="{{ carSeg }}" style="width:100%;accent-color:#a855f7" />
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">
+            <button onClick="{{ verCar }}" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:0;border-radius:9px;padding:9px 16px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">{{ carVerTxt }}</button>
+            <button onClick="{{ grabarCarVideo }}" style="background:transparent;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:9px;padding:9px 15px;font-size:12.5px;cursor:pointer;font-family:inherit">🎬 Vídeo del carrusel</button>
+            <button onClick="{{ guardarMiosCar }}" style="{{ estiloGuardarMios }}">💾 Guardar en Míos</button>
+          </div>
+
+          <div style="background:#141430;border:1px solid #2d2d4a;border-radius:10px;padding:10px 11px;margin-top:10px">
+            <div style="font-size:10px;color:#7c7c9e;letter-spacing:.08em;text-transform:uppercase;font-weight:700">Narración del vídeo</div>
+            <p style="margin:5px 0 7px;font-size:10.5px;color:#7c7c9e;line-height:1.55">Escribe lo que se cuenta. Sale rotulado dentro del vídeo, frase a frase, y es lo que se narra.</p>
+            <textarea onInput="{{ setCarNarra }}" value="{{ carNarra }}" placeholder="Ej.: Estos son los tratamientos de esta temporada. Deslízate para verlos. Pide tu cita por WhatsApp." style="width:100%;min-height:62px;background:#0f0f22;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:8px;padding:8px 9px;font-size:11.5px;font-family:inherit;line-height:1.5;resize:vertical"></textarea>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+              <button onClick="{{ vozGoogle }}" style="{{ vozGoogleEstilo }}">{{ vozGoogleTxt }}</button>
+              <button onClick="{{ vozGrabar }}" style="{{ vozGrabarEstilo }}">{{ vozGrabarTxt }}</button>
+              <label style="{{ vozSubirEstilo }}">📁 Subir audio<input type="file" accept="audio/*" onChange="{{ vozSubir }}" style="display:none" /></label>
+              <sc-if value="{{ vozHay }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ vozOir }}" style="{{ vozSubirEstilo }}">▶ Oír</button>
+                <button onClick="{{ vozQuitar }}" style="{{ vozSubirEstilo }}">Quitar</button>
+              </sc-if>
+              <button onClick="{{ vozProbar }}" style="{{ vozSubirEstilo }}">🎧 Probar mezcla</button>
+              <button onClick="{{ vozVivo }}" style="{{ vozVivoEstilo }}">{{ vozVivoTxt }}</button>
+            </div>
+            <div style="font-size:10.5px;color:#7c7c9e;line-height:1.55;margin-top:8px">{{ vozResumen }}</div>
           </div>
 
           <label style="font-size:10px;color:#94a3b8;margin:12px 0 3px;display:block;letter-spacing:.06em;text-transform:uppercase">Formato de descarga</label>
@@ -644,12 +1180,27 @@ input[type=range]{accent-color:#a855f7}
       <h2 style="font-size:14px;margin:0 0 3px;color:#a855f7">Guías profesionales en 3D</h2>
       <p style="margin:0 0 12px;font-size:11.5px;color:#94a3b8;line-height:1.6;max-width:860px;text-wrap:pretty">La cabeza de maniquí es la representación del motor, no un adorno. Escribes la <b>escala de elevaciones por zona</b> —Z0 a Z6, cara frontal y posterior— eliges la <b>línea de partición</b> (horizontal, vertical, diagonal u oblicua) y la cabeza dibuja al instante la partición sobre el cráneo, el mechón proyectado en ese ángulo real, la línea guía del corte y la numeración de cada elevación. De ahí sale el vídeo narrado y un <b>PDF con el diagrama y su escala por paso</b>. Todo se guarda en tu dispositivo y se exporta en JSON para pasárselo a otra profesional.</p>
       <x-import component-from-global-scope="guias-3d" from="./b6_guias_3d.js" hint-size="100%,640px"></x-import>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">
+        <button onClick="{{ guardarMiosGuia }}" style="{{ estiloGuardarMios }}">💾 Guardar la guía en Míos</button>
+      </div>
     </sc-if>
 
     <sc-if value="{{ esEstudios }}" hint-placeholder-val="{{ false }}">
       <h2 style="font-size:14px;margin:0 0 3px;color:#a855f7">Estudios · el maniquí en las demás disciplinas</h2>
       <p style="margin:0 0 12px;font-size:11.5px;color:#94a3b8;line-height:1.6;max-width:860px;text-wrap:pretty">La misma cabeza del corte, aplicada a lo demás, y <b>animada como se trabaja de verdad</b>: en colorimetría el color entra por la raíz mechón a mechón y después corre el tiempo de exposición; en cejas se traza el mapeo de tres líneas desde el ala de la nariz antes del contorno y del pelo; en pestañas la línea de implantación se divide en cinco zonas y cada extensión se coloca una a una con su curvatura y sus milímetros. De cada lámina salen la imagen, los seis momentos del proceso, el PDF y el vídeo narrado.</p>
       <x-import component-from-global-scope="estudios-belleza" from="./b6_estudios.js" hint-size="100%,700px"></x-import>
+    </sc-if>
+
+    <sc-if value="{{ esEditorial }}" hint-placeholder-val="{{ false }}">
+      <h2 style="font-size:14px;margin:0 0 3px;color:#a855f7">Editorial escolar · libros, cuadernos y trabajos</h2>
+      <p style="margin:0 0 12px;font-size:11.5px;color:#94a3b8;line-height:1.6;max-width:860px;text-wrap:pretty">Eliges país, curso y materia, y el editorial arma el material con el <b>currículo oficial</b> de ese país, su moneda, su papel y sus ejemplos. De 10 a 300 páginas, para imprimir, como EPUB o como libro interactivo que se lee en voz alta.</p>
+      <x-import component-from-global-scope="editorial-escolar" from="./b6_editorial.js?v=1795500000001" hint-size="100%,760px"></x-import>
+    </sc-if>
+
+    <sc-if value="{{ esAnuncios }}" hint-placeholder-val="{{ false }}">
+      <h2 style="font-size:14px;margin:0 0 3px;color:#a855f7">Anuncios premium · redes, web y pantallas</h2>
+      <p style="margin:0 0 12px;font-size:11.5px;color:#94a3b8;line-height:1.6;max-width:860px;text-wrap:pretty">100 anuncios ilustrados en 10 categorías, cada uno en los <b>cuatro formatos</b> que piden las redes: cuadrado 1:1, vertical 4:5, historia 9:16 y horizontal 16:9. Cambias los textos, la paleta, la letra y el marco, pones tu marca en todos a la vez y descargas en PNG, JPG, SVG, PDF o un ZIP con los cuatro tamaños.</p>
+      <x-import component-from-global-scope="anuncios-premium" from="./b6_anuncios_ui.js?v=1795100000001" hint-size="100%,760px"></x-import>
     </sc-if>
 
     <sc-if value="{{ esLaminas }}" hint-placeholder-val="{{ false }}">
@@ -667,6 +1218,9 @@ input[type=range]{accent-color:#a855f7}
         <div>
           <div style="background:#0a0a14;border:1px solid #2d2d4a;border-radius:12px;padding:14px;display:flex;justify-content:center">
             <canvas ref="{{ refLam }}" width="640" height="905" style="max-width:100%;max-height:62vh;height:auto;border-radius:6px;box-shadow:0 14px 40px rgba(0,0,0,.6);background:#000"></canvas>
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">
+            <button onClick="{{ guardarMiosLam }}" style="{{ estiloGuardarMios }}">💾 Guardar en Míos</button>
           </div>
 
           <sc-if value="{{ lamEsCarrusel }}" hint-placeholder-val="{{ false }}">
@@ -1010,6 +1564,9 @@ input[type=range]{accent-color:#a855f7}
           <div style="background:#0a0a14;border:1px solid #2d2d4a;border-radius:10px;padding:10px;display:flex;justify-content:center">
             <canvas ref="{{ refExamen }}" width="794" height="1123" style="max-width:100%;max-height:56vh;height:auto;border-radius:3px;box-shadow:0 12px 34px rgba(0,0,0,.55);background:#FBF9F4"></canvas>
           </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">
+            <button onClick="{{ guardarMiosExamen }}" style="{{ estiloGuardarMios }}">💾 Guardar en Míos</button>
+          </div>
 
           <sc-if value="{{ repVariasPag }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:9px">
@@ -1207,6 +1764,7 @@ input[type=range]{accent-color:#a855f7}
           <div ref="{{ refQR }}" style="background:#fff;border-radius:10px;padding:10px;min-height:150px"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
             <button onClick="{{ bajarQR }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:6px 11px;font-size:11px;font-weight:600;cursor:pointer">⬇ PNG</button>
+            <button onClick="{{ guardarMiosQR }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:6px 11px;font-size:11px;font-weight:600;cursor:pointer">💾 Míos</button>
             <button onClick="{{ ponerQR }}" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:0;border-radius:7px;padding:6px 11px;font-size:11px;font-weight:600;cursor:pointer">Poner en el folleto</button>
           </div>
           <div style="font-size:11px;color:#94a3b8;margin-top:8px;word-break:break-all">{{ qrTextoVista }}</div>
@@ -1217,17 +1775,38 @@ input[type=range]{accent-color:#a855f7}
     <sc-if value="{{ esMios }}" hint-placeholder-val="{{ false }}">
       <h2 style="font-size:14px;margin:0 0 3px;color:#a855f7">Mis proyectos</h2>
       <p style="margin:0 0 12px;font-size:11.5px;color:#94a3b8;line-height:1.6">Se guardan en este dispositivo. Las fotos no se guardan: el diseño y los textos sí.</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:9px">
+        <sc-for list="{{ miosFiltros }}" as="f" hint-placeholder-count="3">
+          <button onClick="{{ f.ir }}" style="{{ f.estilo }}">{{ f.n }}</button>
+        </sc-for>
+        <span style="flex:1"></span>
+        <sc-if value="{{ miosHayMarcados }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ miosDesmarcar }}" style="background:#18183a;border:1px solid #2d2d4a;color:#cbd5e1;border-radius:8px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit">Desmarcar</button>
+          <button onClick="{{ miosBorrarMarcados }}" style="background:transparent;border:1px solid #ef4444;color:#ef4444;border-radius:8px;padding:7px 12px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit">{{ miosBorrarTxt }}</button>
+        </sc-if>
+      </div>
       <div style="font-size:11.5px;color:#94a3b8;margin-bottom:8px">{{ conteoProyectos }}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px">
         <sc-for list="{{ proyectos }}" as="p" hint-placeholder-count="3">
           <div style="background:#18183a;border:1px solid #2d2d4a;border-radius:10px;overflow:hidden">
-            <div style="{{ p.miniBg }}"></div>
+            <div style="position:relative">
+              <div style="{{ p.miniBg }}"></div>
+              <input type="checkbox" checked="{{ p.sel }}" onChange="{{ p.alternar }}" style="position:absolute;top:7px;left:7px;accent-color:#a855f7;width:16px;height:16px;cursor:pointer" />
+              <span style="position:absolute;top:7px;right:7px;background:rgba(10,10,20,.82);border:1px solid #2d2d4a;color:#cbd5e1;border-radius:6px;padding:2px 6px;font-size:9.5px;font-weight:700">{{ p.etiqueta }}</span>
+            </div>
             <div style="padding:8px 10px">
-              <b style="display:block;font-size:11.5px">{{ p.nombre }}</b>
+              <sc-if value="{{ p.verNombre }}" hint-placeholder-val="{{ true }}">
+                <b style="display:block;font-size:11.5px">{{ p.nombre }}</b>
+              </sc-if>
+              <sc-if value="{{ p.editando }}" hint-placeholder-val="{{ false }}">
+                <input value="{{ p.nombre }}" onInput="{{ p.setNombre }}" onBlur="{{ p.cerrarNombre }}" style="width:100%;background:#0f0f22;border:1px solid #a855f7;color:#e2e8f0;border-radius:6px;padding:4px 6px;font-size:11.5px;font-family:inherit" />
+              </sc-if>
               <span style="color:#94a3b8;font-size:10px">{{ p.fecha }}</span>
               <div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap">
                 <button onClick="{{ p.abrir }}" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:0;border-radius:7px;padding:5px 10px;font-size:10.5px;font-weight:600;cursor:pointer">Abrir</button>
+                <button onClick="{{ p.renombrar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:5px 9px;font-size:10.5px;cursor:pointer">✎ Nombre</button>
                 <button onClick="{{ p.duplicar }}" style="background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:7px;padding:5px 10px;font-size:10.5px;cursor:pointer">Duplicar</button>
+                <sc-if value="{{ p.biblio }}" hint-placeholder-val="{{ false }}"><button onClick="{{ p.aBiblio }}" title="A la biblioteca de Peluquería" style="background:transparent;border:1px solid #a855f7;color:#d8b4fe;border-radius:7px;padding:5px 9px;font-size:10.5px;cursor:pointer">📚 Biblioteca</button></sc-if>
                 <button onClick="{{ p.borrar }}" style="background:transparent;border:1px solid #2d2d4a;color:#ef4444;border-radius:7px;padding:5px 10px;font-size:10.5px;cursor:pointer">Borrar</button>
               </div>
             </div>
@@ -1344,11 +1923,12 @@ input[type=range]{accent-color:#a855f7}
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;plan&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;free&quot;,&quot;pro&quot;],&quot;default&quot;:&quot;pro&quot;,&quot;tsType&quot;:&quot;'free' | 'pro'&quot;,&quot;section&quot;:&quot;Cuenta&quot;},&quot;formaDefecto&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;rect&quot;,&quot;circulo&quot;,&quot;pildora&quot;,&quot;arco&quot;,&quot;hexagono&quot;,&quot;hoja&quot;],&quot;default&quot;:&quot;hexagono&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Diseño&quot;},&quot;marcaNombre&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Fátima Hair Studio&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cuenta&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;plan&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;free&quot;,&quot;pro&quot;],&quot;default&quot;:&quot;pro&quot;,&quot;tsType&quot;:&quot;'free' | 'pro'&quot;,&quot;section&quot;:&quot;Cuenta&quot;},&quot;formaDefecto&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;rect&quot;,&quot;circulo&quot;,&quot;pildora&quot;,&quot;arco&quot;,&quot;hexagono&quot;,&quot;hoja&quot;],&quot;default&quot;:&quot;circulo&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Diseño&quot;},&quot;marcaNombre&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Fátima Hair Studio&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cuenta&quot;}}">
 class Component extends DCLogic {
   state = {
     listo: false,
     pantalla: 'plantillas',
+    triTab: 'textos',
     plan: 'free',
     marca: { nombre: 'Fátima Hair Studio', tel: '', mail: '', web: '', dir: '', c1: '#7c3aed', c2: '#a855f7' },
     marcaTmp: null,
@@ -1379,6 +1959,11 @@ class Component extends DCLogic {
     logoTam: 9,
     triFmt: 'png',
     triNarra: '',
+    carNarra: '',
+    volNarra: '',
+    miosFiltro: '',
+    miosSel: {},
+    miosEditando: '',
     triRatio: 'hoja',
     triQR: true,
     triPag: null,
@@ -1401,6 +1986,11 @@ class Component extends DCLogic {
     qrColor: '#000000',
     qrPos: 'centro',
     qrPuesto: false,
+    carEfecto: 'cubo',
+    carTrans: 'cubo3d',
+    carAmbiente: 'ninguno',
+    carSeg: 2.2,
+    carTocando: false,
     vEfecto: 'giroY',
     vAdorno: 'ninguno',
     vSalidas: ['reel'],
@@ -1539,6 +2129,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    if (this._latido) clearInterval(this._latido);
     if (this._offVoz) { try { this._offVoz(); } catch (e) { } }
     if (this._offBan) { try { this._offBan(); } catch (e) { } }
   }
@@ -1594,7 +2185,12 @@ class Component extends DCLogic {
     }, 66);
   }
 
-  componentWillUnmount() { if (this._latido) clearInterval(this._latido); }
+  /* La narración escrita, partida en frases: cada una es un rótulo dentro del
+     vídeo y un paso de la voz. */
+  frasesDe(t) {
+    return String(t || '').split(/(?<=[.!?…])\s+|\n+/)
+      .map(x => x.trim()).filter(Boolean);
+  }
 
   /* ─────────── datos ─────────── */
 
@@ -1758,7 +2354,7 @@ class Component extends DCLogic {
     if (p === 'plantillas') this.pintarParrilla();
     if (p === 'editor') this.pintarLienzo();
     if (p === 'triptico') { if (this.state.triModo === 'volante') this.pintarVol(); else this.pintarTri(); }
-    if (p === 'carrusel') this.pintarCar();
+    if (p === 'carrusel' && !this.animandoCar) this.pintarCar();
     if (p === 'laminas') this.pintarLam();
     if (p === 'video') {
       if (this.necesitaGuion()) return this.sincGuion();
@@ -1785,24 +2381,34 @@ class Component extends DCLogic {
   }
 
   pintarParrilla() {
-    const cont = this.refParrilla.current;
-    if (!cont) return;
-    const M = window.FOLLETO_MOTOR;
-    const cvs = cont.querySelectorAll('canvas[data-eu]');
-    let i = 0;
+    /* Una sola cadena a la vez: cada actualización del componente llamaba aquí y abría
+       otra cadena que repintaba todas las miniaturas pendientes (56 × ~28 veces al abrir).
+       Ahora la cadena viva busca en cada vuelta la siguiente miniatura sin pintar y usa
+       ~12 ms por fotograma. */
+    if (this._parrillaViva || !this.refParrilla.current) return;
+    this._parrillaViva = true;
+    const siguiente = () => {
+      const cont = this.refParrilla.current;
+      if (!cont) return null;
+      const cvs = cont.querySelectorAll('canvas[data-eu]');
+      for (let i = 0; i < cvs.length; i++) {
+        const k = cvs[i].getAttribute('data-eu');
+        if (cvs[i].dataset.hecho !== k && this.pagsParrilla[k]) return cvs[i];
+      }
+      return null;
+    };
     const paso = () => {
-      if (i >= cvs.length) return;
-      const cv = cvs[i++];
-      const clave = cv.getAttribute('data-eu');
-      if (cv.dataset.hecho === clave) { paso(); return; }
-      const pag = this.pagsParrilla[clave];
-      if (pag) {
+      const t0 = performance.now();
+      let cv;
+      while ((cv = siguiente())) {
+        const clave = cv.getAttribute('data-eu');
         const ctx = cv.getContext('2d');
         ctx.clearRect(0, 0, cv.width, cv.height);
-        this.pintarHoja(ctx, cv.width, cv.height, pag, {});
+        try { this.pintarHoja(ctx, cv.width, cv.height, this.pagsParrilla[clave], {}); } catch (e) { }
         cv.dataset.hecho = clave;
+        if (performance.now() - t0 > 12) break;
       }
-      requestAnimationFrame(paso);
+      if (cv) requestAnimationFrame(paso); else this._parrillaViva = false;
     };
     paso();
   }
@@ -1910,6 +2516,341 @@ class Component extends DCLogic {
       const d = this.diapoCanvas(k, w, hh);
       if (d) g.drawImage(d, 0, 0);
     });
+  }
+
+  /* ─────────── animación del carrusel ───────────
+     El repertorio es el mismo del editor: los cuadros de cada diapositiva
+     entran uno a uno con el efecto elegido —los de volumen con perspectiva de
+     verdad, los planos con recortes— y entre diapositiva y diapositiva hay una
+     transición aparte. Encima va la capa de ambiente. De aquí sale el vídeo. */
+
+  /* Una diapositiva con sus cuadros entrando. p va de 0 a 1 en la diapo. */
+  pintarDiapoAnim(ctx, W, H, i, p, t) {
+    const s = this.state, pag = (s.car || [])[i];
+    if (!pag) return;
+    (pag.celdas || []).forEach((c, j) => { c.media = this.carMedia[i + ':' + j] || null; });
+    const n = (pag.celdas || []).length || 1;
+    const ef = s.carEfecto || 'cubo';
+    const planas = { deslizar: 1, olas: 1, circulo: 1, persiana: 1 };
+    const q = Math.max(0, Math.min(1, p)) * n;
+    const iC = Math.min(n - 1, Math.floor(q));
+    const e = this.ease(Math.min(1, (q - iC) * 1.35));
+    const base = { formaCelda: pag.formaCelda || 'suave' };
+    if (pag.papel === 'cierre' && this.qrImg) { base.qr = this.qrImg; base.qrTexto = s.qrLbl; }
+    const op = Object.assign({}, base, {
+      revelar: (j) => {
+        if (j < iC) return { a: 1 };
+        if (j > iC) return { a: 0 };
+        if (ef === 'ninguna') return { a: 1 };
+        if (ef === 'deslizar') return { a: e, dx: (1 - e) * W * 0.55 };
+        if (ef === 'olas') return { a: e, dy: (1 - e) * H * 0.18 * (j % 2 ? -1 : 1) };
+        if (ef === 'circulo') return { a: 1, recorte: 'circulo', p: e };
+        if (ef === 'persiana') return { a: 1, recorte: 'persiana', p: e };
+        return { a: 0 };
+      }
+    });
+    const cap = document.createElement('canvas');
+    cap.width = W; cap.height = H;
+    const rects = this.pintarHoja(cap.getContext('2d'), W, H, pag, op) || [];
+    ctx.drawImage(cap, 0, 0);
+    if (planas[ef] || ef === 'ninguna' || !rects[iC]) return;
+
+    const off = document.createElement('canvas');
+    off.width = W; off.height = H;
+    this.pintarHoja(off.getContext('2d'), W, H, pag, Object.assign({}, base));
+    const r = rects[iC], cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, 0.15 + e);
+    if (ef === 'cubo') {
+      this.caraGirada(ctx, off, r.x, r.y, r.w, r.h, r.x, r.y, r.w, r.h, -(1 - e) * Math.PI / 2);
+      ctx.restore();
+      return;
+    }
+    if (ef === 'puerta') {
+      ctx.translate(r.x, cy);
+      ctx.scale(Math.max(0.02, Math.sin(e * Math.PI / 2)), 1);
+      ctx.translate(-r.x, -cy);
+    } else {
+      ctx.translate(cx, cy);
+      if (ef === 'giroY') ctx.scale(Math.max(0.02, Math.sin(e * Math.PI / 2)), 1);
+      else if (ef === 'volteoX') ctx.scale(1, Math.max(0.02, Math.sin(e * Math.PI / 2)));
+      else if (ef === 'caida') { const b = this.rebote(Math.min(1, q - iC)); ctx.translate(0, -(1 - b) * H * 0.55); }
+      else if (ef === 'profundidad') { const z = 0.55 + 0.45 * e; ctx.scale(z, z); }
+      else if (ef === 'orbita') { ctx.rotate((1 - e) * 0.9); const z = 0.65 + 0.35 * e; ctx.scale(z, z); }
+      else if (ef === 'hojagira') { ctx.rotate((1 - e) * 0.32); ctx.scale(Math.max(0.05, Math.sin(e * Math.PI / 2)), 1); }
+      else if (ef === 'latido') {
+        const pul = 1 + 0.055 * Math.exp(-((t * 2) % 1) * 3.2) * Math.sin(((t * 2) % 1) * Math.PI * 2);
+        const z = (0.86 + 0.14 * e) * pul;
+        ctx.scale(z, z);
+      } else if (ef === 'petaloAbre') {
+        ctx.translate(0, r.h * 0.42);
+        ctx.rotate((1 - e) * -0.55);
+        const z = 0.25 + 0.75 * e;
+        ctx.scale(z, z);
+        ctx.translate(0, -r.h * 0.42);
+      }
+      ctx.translate(-cx, -cy);
+    }
+    ctx.drawImage(off, r.x, r.y, r.w, r.h, r.x, r.y, r.w, r.h);
+    ctx.restore();
+  }
+
+  TRANS_CAR = [
+    { id: 'cubo3d', n: 'Cubo en 3D', d: '3d' }, { id: 'giro3d', n: 'Giro en Y', d: '3d' },
+    { id: 'volteo3d', n: 'Volteo en X', d: '3d' }, { id: 'libro3d', n: 'Página de libro', d: '3d' },
+    { id: 'deslizar', n: 'Deslizar', d: '2d' }, { id: 'fundido', n: 'Fundido', d: '2d' },
+    { id: 'zoom', n: 'Zoom', d: '2d' }, { id: 'barrido', n: 'Barrido', d: '2d' },
+    { id: 'ninguna', n: 'Sin transición', d: '2d' }
+  ];
+
+  /* Entrada de la diapositiva entera. e va de 0 a 1. */
+  transCar(ctx, W, H, hoja, e, modo) {
+    if (modo === 'ninguna' || e >= 1) { ctx.drawImage(hoja, 0, 0); return; }
+    ctx.save();
+    if (modo === 'cubo3d') {
+      ctx.globalAlpha = Math.min(1, 0.3 + e);
+      this.caraGirada(ctx, hoja, 0, 0, W, H, 0, 0, W, H, -(1 - e) * Math.PI / 2);
+      ctx.restore();
+      return;
+    }
+    if (modo === 'libro3d') {
+      ctx.globalAlpha = Math.min(1, 0.3 + e);
+      this.caraGirada(ctx, hoja, 0, 0, W, H, 0, 0, W, H, (1 - e) * Math.PI / 2, true, -1);
+      ctx.restore();
+      return;
+    }
+    if (modo === 'barrido') {
+      ctx.beginPath();
+      ctx.rect(0, 0, W * e, H);
+      ctx.clip();
+      ctx.drawImage(hoja, 0, 0);
+      ctx.restore();
+      return;
+    }
+    ctx.globalAlpha = modo === 'fundido' ? e : Math.min(1, 0.25 + e);
+    if (modo === 'deslizar') ctx.translate((1 - e) * W, 0);
+    if (modo === 'zoom') {
+      const z = 1.14 - 0.14 * e;
+      ctx.translate(W / 2, H / 2); ctx.scale(z, z); ctx.translate(-W / 2, -H / 2);
+    }
+    if (modo === 'giro3d') {
+      ctx.translate(W / 2, H / 2);
+      ctx.scale(Math.max(0.02, Math.sin(e * Math.PI / 2)), 1);
+      ctx.translate(-W / 2, -H / 2);
+    }
+    if (modo === 'volteo3d') {
+      ctx.translate(W / 2, H / 2);
+      ctx.scale(1, Math.max(0.02, Math.sin(e * Math.PI / 2)));
+      ctx.translate(-W / 2, -H / 2);
+    }
+    ctx.drawImage(hoja, 0, 0);
+    ctx.restore();
+  }
+
+  carDuracion() {
+    const car = this.state.car || [];
+    return Math.max(1, car.length) * Number(this.state.carSeg || 2.2);
+  }
+
+  /* Reproducción. Sin ctxFuera pinta en el lienzo del carrusel; con ctxFuera
+     pinta en el lienzo de la grabación, a la medida del archivo. */
+  animarCar(alAcabar, ctxFuera, dimFuera) {
+    const car = this.state.car || [];
+    if (!car.length) return;
+    let ctx, W, H;
+    if (ctxFuera) { ctx = ctxFuera; W = dimFuera.W; H = dimFuera.H; }
+    else {
+      const cv = this.refCar.current;
+      if (!cv) return;
+      ctx = cv.getContext('2d'); W = cv.width; H = cv.height;
+    }
+    if (this._carRAF) cancelAnimationFrame(this._carRAF);
+    const seg = Number(this.state.carSeg || 2.2);
+    const dur = car.length * seg;
+    const trans = Math.min(0.7, seg * 0.34);
+    const modo = this.state.carTrans || 'cubo3d';
+    const amb = this.state.carAmbiente || 'ninguno';
+    this.animandoCar = true;
+    this.setState({ carTocando: true });
+    const t0 = performance.now();
+    const hoja = document.createElement('canvas');
+    hoja.width = W; hoja.height = H;
+    const g = hoja.getContext('2d');
+    const paso = () => {
+      const t = Math.min(dur, (performance.now() - t0) / 1000);
+      const k = Math.min(car.length - 1, Math.floor(t / seg));
+      const local = t - k * seg;
+      g.clearRect(0, 0, W, H);
+      /* los cuadros entran durante el primer 70% de la diapositiva */
+      this.pintarDiapoAnim(g, W, H, k, local / (seg * 0.7), t);
+      this.marcaAgua(g, W, H);
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+      this.transCar(ctx, W, H, hoja, k === 0 && local < trans ? 1 : Math.min(1, local / trans), modo);
+      this.adornos(ctx, W, H, t, amb === 'ninguno' ? null : amb, car[k]);
+      if (t < dur && !this._carParar) { this._carRAF = requestAnimationFrame(paso); return; }
+      this._carRAF = null;
+      this._carParar = false;
+      this.animandoCar = false;
+      this.setState({ carTocando: false }, () => { if (!ctxFuera) this.pintarCar(); });
+      if (alAcabar) alAcabar();
+    };
+    paso();
+  }
+
+  pararCar() {
+    this._carParar = true;
+    if (this._carRAF) { cancelAnimationFrame(this._carRAF); this._carRAF = null; }
+    this.animandoCar = false;
+    this._carParar = false;
+    this.setState({ carTocando: false }, () => this.pintarCar());
+  }
+
+  /* Vídeo del carrusel con su animación, a la medida del formato elegido. */
+  grabarCarVideo() {
+    if (this.animandoCar) return;
+    const car = this.state.car || [];
+    if (!car.length) return;
+    const F = window.FOLLETO_MOTOR.FORMATOS[this.state.carFormato] || window.FOLLETO_MOTOR.FORMATOS.cuadrado;
+    const ar = F.w / F.h;
+    const out = document.createElement('canvas');
+    const lado = ar >= 1 ? 1280 : 900;
+    out.width = lado; out.height = Math.round(lado / ar);
+    if (!out.captureStream) return this.setState({ estado: 'Este navegador no sabe grabar el lienzo.' });
+    const Z = window.B6Voz;
+
+    /* La voz se engancha al grabador antes de arrancar; si no hay ninguna
+       forma de meterla, el vídeo sale igual pero sin sonido. */
+    const arranca = (pistaAudio, pz) => {
+      const conAudio = !!pistaAudio;
+      const mimes = conAudio
+        ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+        : ['video/mp4;codecs=avc1.42E01E', 'video/webm;codecs=vp9', 'video/webm'];
+      const mime = mimes.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
+      const flujo = out.captureStream(30);
+      if (pistaAudio) { try { flujo.addTrack(pistaAudio); } catch (e) { } }
+      let rec;
+      try { rec = new MediaRecorder(flujo, mime ? { mimeType: mime, videoBitsPerSecond: 6000000 } : undefined); }
+      catch (e) { return this.setState({ estado: 'No se ha podido abrir el grabador.' }); }
+      const trozos = [];
+      rec.ondataavailable = e => { if (e.data && e.data.size) trozos.push(e.data); };
+      rec.onstop = () => {
+        if (pz && pz.parar) { try { pz.parar(); } catch (e) { } }
+        else if (pistaAudio) { try { pistaAudio.stop(); } catch (e) { } }
+        const tipo = (mime && mime.indexOf('mp4') >= 0) ? 'video/mp4' : 'video/webm';
+        const url = URL.createObjectURL(new Blob(trozos, { type: tipo }));
+        this.bajarBlob(url, 'carrusel-video' + (tipo === 'video/mp4' ? '.mp4' : '.webm'));
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        this.setState({ estado: 'Vídeo del carrusel descargado' + (conAudio ? ' con la voz dentro.' : ' (sin sonido).') });
+      };
+      this.setState({ estado: 'Grabando la animación del carrusel…' });
+      rec.start();
+      if (pz && pz.empezar) { try { pz.empezar(); } catch (e) { } }
+      this.animarCar(() => setTimeout(() => { try { rec.stop(); } catch (e) { } }, 300),
+        out.getContext('2d'), { W: out.width, H: out.height });
+    };
+
+    if (Z && (Z.hay() || Z.vivo || Z.pestana)) {
+      Z.pista()
+        .then(pz => pz ? arranca(pz.track, pz) : (this.setState({ estado: Z.nota || '' }), arranca(null)))
+        .catch(() => arranca(null));
+      return;
+    }
+    arranca(null);
+  }
+
+  /* ─────────── vídeo narrado de la maqueta ───────────
+     La hoja no se anima: se presenta. Un acercamiento lento sobre el papel,
+     la narración rotulada abajo frase a frase, y la voz dentro del archivo. */
+  grabarVolVideo() {
+    if (this._volRAF) return;
+    const hoja = this.hojaVol();
+    if (!hoja) return this.setState({ estado: 'Todavía no hay hoja que grabar.' });
+    const Z = window.B6Voz;
+    const frases = this.frasesDe(this.state.volNarra);
+    const dur = Math.max(6, Math.min(30, (frases.length || 2) * 3));
+    const out = document.createElement('canvas');
+    out.width = 900; out.height = 1200;
+    if (!out.captureStream) return this.setState({ estado: 'Este navegador no sabe grabar el lienzo.' });
+    const cx = out.getContext('2d');
+
+    const pinta = (p) => {
+      cx.fillStyle = '#0a0a14';
+      cx.fillRect(0, 0, out.width, out.height);
+      /* Acercamiento suave: del 100% al 112% con una leve deriva vertical. */
+      const z = 1 + 0.12 * p;
+      const esc = Math.min(out.width / hoja.width, (out.height - 150) / hoja.height) * z;
+      const w = hoja.width * esc, h = hoja.height * esc;
+      const x = (out.width - w) / 2;
+      const y = (out.height - 150 - h) / 2 + 20 - 24 * p;
+      cx.save();
+      cx.shadowColor = 'rgba(0,0,0,.65)'; cx.shadowBlur = 44; cx.shadowOffsetY = 16;
+      cx.drawImage(hoja, x, y, w, h);
+      cx.restore();
+      if (!frases.length) return;
+      const i = Math.min(frases.length - 1, Math.floor(p * frases.length));
+      const t = frases[i];
+      cx.fillStyle = 'rgba(10,10,20,.9)';
+      cx.fillRect(0, out.height - 150, out.width, 150);
+      cx.fillStyle = '#f4f1ff';
+      cx.font = '600 34px system-ui, sans-serif';
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      /* El rótulo se parte en dos líneas si no cabe de una. */
+      const max = out.width - 90;
+      const pal = t.split(' ');
+      const lineas = []; let ln = '';
+      pal.forEach(w2 => {
+        const pr = ln ? ln + ' ' + w2 : w2;
+        if (cx.measureText(pr).width > max && ln) { lineas.push(ln); ln = w2; } else ln = pr;
+      });
+      if (ln) lineas.push(ln);
+      const vis = lineas.slice(0, 2);
+      vis.forEach((l, k) => cx.fillText(l, out.width / 2, out.height - 75 + (k - (vis.length - 1) / 2) * 42));
+    };
+
+    const arranca = (pistaAudio, pz) => {
+      const conAudio = !!pistaAudio;
+      const mime = Z ? Z.mime(conAudio)
+        : ['video/mp4;codecs=avc1.42E01E', 'video/webm'].find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
+      const flujo = out.captureStream(30);
+      if (pistaAudio) { try { flujo.addTrack(pistaAudio); } catch (e) { } }
+      let rec;
+      try { rec = new MediaRecorder(flujo, mime ? { mimeType: mime, videoBitsPerSecond: 5000000 } : undefined); }
+      catch (e) { return this.setState({ estado: 'No se ha podido abrir el grabador.' }); }
+      const trozos = [];
+      rec.ondataavailable = e => { if (e.data && e.data.size) trozos.push(e.data); };
+      rec.onstop = () => {
+        if (pz && pz.parar) { try { pz.parar(); } catch (e) { } }
+        else if (pistaAudio) { try { pistaAudio.stop(); } catch (e) { } }
+        const tipo = (mime && mime.indexOf('mp4') >= 0) ? 'video/mp4' : 'video/webm';
+        const url = URL.createObjectURL(new Blob(trozos, { type: tipo }));
+        this.bajarBlob(url, 'maqueta-video' + (tipo === 'video/mp4' ? '.mp4' : '.webm'));
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        this._volRAF = null;
+        this.setState({ estado: 'Vídeo de la maqueta descargado' + (conAudio ? ' con la voz dentro.' : ' con la narración rotulada.') });
+      };
+      this.setState({ estado: 'Grabando el vídeo de la maqueta…' });
+      rec.start();
+      if (pz && pz.empezar) { try { pz.empezar(); } catch (e) { } }
+      const t0 = performance.now();
+      const paso = () => {
+        const t = (performance.now() - t0) / 1000;
+        pinta(Math.max(0, Math.min(1, t / dur)));
+        if (t < dur) { this._volRAF = requestAnimationFrame(paso); return; }
+        this._volRAF = null;
+        setTimeout(() => { try { rec.stop(); } catch (e) { } }, 250);
+      };
+      this._volRAF = requestAnimationFrame(paso);
+    };
+
+    if (Z && (Z.hay() || Z.vivo || Z.pestana)) {
+      Z.pista()
+        .then(pz => pz ? arranca(pz.track, pz) : (this.setState({ estado: Z.nota || '' }), arranca(null)))
+        .catch(() => arranca(null));
+      return;
+    }
+    arranca(null);
   }
 
   /* ─────────── volantes y maquetas ───────────
@@ -2020,7 +2961,11 @@ class Component extends DCLogic {
     const mm = (this.triMedia || {})[this.state.triCara] || {};
     pags.forEach((pag, i) => (pag.celdas || []).forEach((c, j) => { c.media = mm[i + ':' + j] || null; }));
     const clave = pw + '|' + this.state.tick + '|' + this.state.triCara + '|' + this.state.triQR + '|' + (this._triMediaTick || 0) + '|' +
-      JSON.stringify(pags.map(p => [p.cabecera.titulo, p.tema, p.paletaPro || '', p.formaCelda || '', JSON.stringify(p.colores || '')]));
+      /* el contenido de los cuadros entra en la clave: si no, editar o borrar
+         un cuadro no repinta y parece que la herramienta no deja tocar nada */
+      JSON.stringify(pags.map(p => [p.cabecera.titulo, p.cabecera.subtitulo || '', p.cabecera.marca || '',
+        JSON.stringify(p.pie || ''), p.tema, p.paletaPro || '', p.formaCelda || '', JSON.stringify(p.colores || ''),
+        (p.celdas || []).map(c => [c.titulo || '', c.texto || '', c.precio || '', c.etiqueta || ''].join('\u001f')).join('\u001e')]));
     if (this._triClave === clave && this._triCuerpos) return this._triCuerpos;
     const cuerpos = pags.map((pag, i) => {
       const off = document.createElement('canvas');
@@ -2852,10 +3797,10 @@ class Component extends DCLogic {
   /* Partículas de ambiente. Todo sale de una fórmula con semilla: la misma
      escena da los mismos pétalos en el mismo sitio, así que la previa y el
      archivo grabado coinciden exactamente. */
-  adornos(ctx, W, H, t) {
-    const tipo = this.state.vAdorno || 'ninguno';
+  adornos(ctx, W, H, t, tipoFuera, pagFuera) {
+    const tipo = tipoFuera || this.state.vAdorno || 'ninguno';
     if (tipo === 'ninguno') return;
-    const M = window.FOLLETO_MOTOR, pag = this.state.pagina;
+    const M = window.FOLLETO_MOTOR, pag = pagFuera || this.state.pagina;
     if (!M || !pag) return;
     const C = M.colores(pag);
     const lado = Math.min(W, H);
@@ -3094,6 +4039,162 @@ class Component extends DCLogic {
   escribirProyectos(l) {
     try { localStorage.setItem('eu_proyectos_v1', JSON.stringify(l)); } catch (e) { }
     this.setState({ proyectos: l });
+  }
+
+  /* ─────────── Míos, para todas las pestañas ───────────
+     Cada tipo declara qué trozos del estado le hacen falta y a qué pantalla
+     se vuelve al abrirlo. Guardar es tomar esa foto; abrir es devolverla
+     tal cual y repintar. Las fotos y los audios no viajan aquí: no caben en
+     el almacenamiento del navegador. */
+  MIOS = {
+    folleto: { n: 'Folleto', ic: '📄', pantalla: 'editor', campos: ['pagina', 'fFormato', 'fTema', 'fForma'] },
+    triptico: { n: 'Tríptico', ic: '📐', pantalla: 'triptico', campos: ['triModo', 'triTema', 'triDiseno', 'triPag', 'triCara', 'triNarra', 'triFmt', 'triRatio', 'triQR'] },
+    volante: { n: 'Maqueta', ic: '🧾', pantalla: 'triptico', campos: ['triModo', 'volVar', 'volId', 'volVista', 'volEsc', 'volTema', 'volQR', 'volPag', 'volSem', 'volNarra'] },
+    carrusel: { n: 'Carrusel', ic: '🎠', pantalla: 'carrusel', campos: ['car', 'carSel', 'carFormato', 'carDiseno', 'carTema', 'carFmt', 'carNum', 'carEfecto', 'carTrans', 'carAmbiente', 'carSeg', 'carNarra'] },
+    lamina: { n: 'Lámina', ic: '🧠', pantalla: 'laminas', campos: ['lamFam', 'lamCat', 'lamDiseno', 'lam', 'lamHoja', 'lamTexto', 'lamSeg', 'lamVelo'] },
+    examen: { n: 'Examen', ic: '✅', pantalla: 'repaso', campos: ['repFam', 'repTec', 'repCara', 'repPag', 'repCentro', 'repResp'] },
+    qr: { n: 'QR', ic: '🔳', pantalla: 'qr', campos: ['qrTipo', 'qrVals', 'qrLbl', 'qrColor', 'qrPos'] },
+    guia: { n: 'Guía 3D', ic: '💇', pantalla: 'guias', campos: [] }
+  };
+
+  elGuias() { try { return document.querySelector('guias-3d'); } catch (e) { return null; } }
+
+  /* El nombre se saca del propio trabajo: el título que ya escribió la
+     persona. Si no hay ninguno, el tipo y la fecha. */
+  nombreMios(tipo) {
+    const s = this.state;
+    const t = (x) => (typeof x === 'string' && x.trim()) ? x.trim() : '';
+    let n = '';
+    if (tipo === 'folleto') n = t(s.pagina && s.pagina.cabecera && s.pagina.cabecera.titulo);
+    if (tipo === 'triptico') {
+      /* triPag es {ext, int}, y cada cara es un array de tres cuerpos: el
+         título que se ve es el del primer cuerpo de la portada. */
+      const cara = (s.triPag && (s.triPag.ext || s.triPag.int)) || [];
+      n = t((cara[0] || {}).cabecera && cara[0].cabecera.titulo);
+    }
+    if (tipo === 'volante') n = t(s.volPag && (s.volPag.titulo || (s.volPag.cabecera || {}).titulo));
+    if (tipo === 'carrusel') n = t(s.car && s.car[0] && s.car[0].cabecera && s.car[0].cabecera.titulo);
+    if (tipo === 'lamina') n = t(s.lam && (s.lam.titulo || ((s.lam.hojas || s.lam.nodos || [])[0] || {}).t));
+    if (tipo === 'examen') {
+      /* La técnica activa se calcula igual que en la pantalla de repaso: el
+         estado puede estar vacío porque allí se resuelve por defecto. */
+      const CB = window.EU_CEREBRO;
+      if (CB) {
+        const fam = s.repFam || ((CB.familias() || [])[0] || {}).id;
+        const tec = s.repTec || ((CB.listar(fam) || [])[0] || {}).id;
+        n = t(tec && (CB.obtener(tec) || {}).n);
+      }
+    }
+    if (tipo === 'qr') n = t(s.qrLbl);
+    if (tipo === 'guia') { const g = this.elGuias(); n = t(g && g.guia && g.guia.nombre); }
+    return n || (this.MIOS[tipo] ? this.MIOS[tipo].n : 'Trabajo');
+  }
+
+  /* La miniatura es el propio lienzo de la pestaña, reducido. Si esa pestaña
+     no pinta en un canvas, se dibuja una tarjeta con su icono. */
+  miniMios(tipo) {
+    const busca = (raiz) => {
+      if (!raiz) return null;
+      if (raiz.tagName === 'CANVAS') return raiz;
+      const c = raiz.querySelector && raiz.querySelector('canvas');
+      if (c) return c;
+      const i = raiz.querySelector && raiz.querySelector('img');
+      return i && i.naturalWidth ? i : null;
+    };
+    let fuente = null;
+    if (tipo === 'folleto') fuente = this.refLienzo.current;
+    if (tipo === 'triptico') fuente = this.refTri.current;
+    if (tipo === 'volante') fuente = this.refVol.current;
+    if (tipo === 'carrusel') fuente = this.refCar.current;
+    if (tipo === 'lamina') fuente = this.refLam.current;
+    if (tipo === 'examen') fuente = this.elExamen;
+    if (tipo === 'qr') fuente = busca(this.refQR.current);
+    if (tipo === 'guia') fuente = busca(this.elGuias());
+    const anc = fuente && (fuente.width || fuente.naturalWidth);
+    const alt = fuente && (fuente.height || fuente.naturalHeight);
+    const cv = document.createElement('canvas');
+    const cx = cv.getContext('2d');
+    if (anc && alt) {
+      cv.width = 240; cv.height = Math.max(80, Math.round(240 * (alt / anc)));
+      try {
+        cx.drawImage(fuente, 0, 0, cv.width, cv.height);
+        return cv.toDataURL('image/jpeg', 0.6);
+      } catch (e) { }
+    }
+    cv.width = 240; cv.height = 320;
+    const m = this.state.marca || {};
+    const g = cx.createLinearGradient(0, 0, 240, 320);
+    g.addColorStop(0, m.c1 || '#7c3aed'); g.addColorStop(1, m.c2 || '#a855f7');
+    cx.fillStyle = g; cx.fillRect(0, 0, 240, 320);
+    cx.font = '86px system-ui, sans-serif';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText((this.MIOS[tipo] || {}).ic || '📁', 120, 160);
+    return cv.toDataURL('image/jpeg', 0.6);
+  }
+
+  guardarEnMios(tipo) {
+    const D = this.MIOS[tipo];
+    if (!D) return;
+    const s = this.state;
+    const datos = {};
+    D.campos.forEach(k => {
+      const val = s[k];
+      if (val === undefined) return;
+      try { datos[k] = JSON.parse(JSON.stringify(val)); } catch (e) { datos[k] = val; }
+    });
+    if (tipo === 'folleto' && s.pagina) datos.pagina = this.limpiarPagina(s.pagina);
+    if (tipo === 'examen') {
+      /* Igual que el nombre: se guarda la familia y la técnica efectivas, no
+         el hueco que deja la pantalla cuando aún no se ha elegido nada. */
+      const CB = window.EU_CEREBRO;
+      if (CB) {
+        datos.repFam = s.repFam || ((CB.familias() || [])[0] || {}).id;
+        datos.repTec = s.repTec || ((CB.listar(datos.repFam) || [])[0] || {}).id;
+      }
+    }
+    if (tipo === 'guia') {
+      const el = this.elGuias();
+      if (!el || !el.guia) return this.setState({ estado: 'Todavía no hay guía que guardar.' });
+      try { datos.guia = JSON.parse(JSON.stringify(el.guia)); } catch (e) { return; }
+    }
+    const l = this.leerProyectos();
+    l.unshift({
+      id: 'p' + Date.now(), tipo, nombre: this.nombreMios(tipo),
+      datos, mini: this.miniMios(tipo),
+      fecha: new Date().toLocaleDateString('es-ES')
+    });
+    this.escribirProyectos(l);
+    this.setState({ estado: 'Guardado en «Míos».' });
+  }
+
+  abrirDeMios(p) {
+    const D = this.MIOS[p.tipo] || this.MIOS.folleto;
+    /* Los proyectos guardados antes de que Míos fuera general traen la página
+       en la raíz, no dentro de datos. */
+    const datos = p.datos || (p.pagina ? { pagina: p.pagina } : {});
+    const next = Object.assign({}, datos, { pantalla: D.pantalla, tick: this.state.tick + 1, estado: 'Abierto: ' + p.nombre });
+    if (p.tipo === 'triptico') next.triModo = datos.triModo || 'triptico';
+    if (p.tipo === 'volante') next.triModo = 'volante';
+    delete next.guia;
+    this.pagsParrilla = {};
+    this._volClave = null; this._volHoja = null;
+    this.setState(next, () => {
+      if (p.tipo === 'guia') {
+        const el = this.elGuias();
+        if (el && datos.guia && el.cargarGuia) setTimeout(() => { try { el.cargarGuia(datos.guia); } catch (e) { } }, 350);
+        return;
+      }
+      if (p.tipo === 'qr') { this.generarQR(); return; }
+      if (p.tipo === 'examen') { this.pintarExamen(); return; }
+      this.pintarPantalla(D.pantalla);
+    });
+  }
+
+  pintarPantalla(p) {
+    if (p === 'editor') return this.pintarLienzo();
+    if (p === 'triptico') return this.state.triModo === 'volante' ? this.pintarVol() : this.pintarTri();
+    if (p === 'carrusel') return this.pintarCar();
+    if (p === 'laminas') return this.pintarLam();
   }
 
   limpiarPagina(p) {
@@ -3630,6 +4731,8 @@ class Component extends DCLogic {
       esEstudios: s.pantalla === 'estudios',
       esVideo: s.pantalla === 'video',
       esLaminas: s.pantalla === 'laminas',
+      esEditorial: s.pantalla === 'editorial',
+      esAnuncios: s.pantalla === 'anuncios',
       esRepaso: s.pantalla === 'repaso',
       esGuias: s.pantalla === 'guias',
       esQR: s.pantalla === 'qr',
@@ -3645,15 +4748,15 @@ class Component extends DCLogic {
     v.tabs = [
       { id: 'plantillas', nombre: '🗂 Plantillas' }, { id: 'editor', nombre: '✏️ Editor' },
       { id: 'triptico', nombre: '📐 Tríptico' }, { id: 'carrusel', nombre: '🎠 Carrusel' },
-      { id: 'video', nombre: '🎬 Vídeo' }, { id: 'laminas', nombre: '🧠 Láminas' },
+      { id: 'video', nombre: '🎬 Vídeo' }, { id: 'editorial', nombre: '📚 Editorial' }, { id: 'anuncios', nombre: '📣 Anuncios' }, { id: 'laminas', nombre: '🧠 Láminas' },
       { id: 'repaso', nombre: '✅ Repaso' },
       { id: 'guias', nombre: '💇 Guías 3D' }, { id: 'estudios', nombre: '💄 Estudios' },
       { id: 'qr', nombre: '🔳 QR' }, { id: 'mios', nombre: '📁 Míos' }, { id: 'plan', nombre: '💜 Plan' }
     ].map(t => ({
       nombre: t.nombre,
       ir: () => this.setState({ pantalla: t.id }),
-      estilo: 'flex:none;border-radius:20px;padding:7px 14px;font-size:12px;cursor:pointer;white-space:nowrap;' +
-        (s.pantalla === t.id ? 'background:#22224a;border:1px solid #7c3aed;color:#fff;font-weight:600' : 'background:transparent;border:1px solid transparent;color:#94a3b8')
+      estilo: 'flex:none;border-radius:20px;padding:7px 14px;font-size:12px;cursor:pointer;white-space:nowrap;text-align:left;' +
+        (s.pantalla === t.id ? 'background:#22224a;border:1px solid #000000;color:#fff;font-weight:600' : 'background:transparent;border:1px solid #000000;color:#94a3b8')
     }));
 
     /* ── repaso y examen ── */
@@ -4473,20 +5576,7 @@ class Component extends DCLogic {
         this.setState({ estado: 'PDF de ' + F.mm[0] + '×' + F.mm[1] + ' mm descargado.' });
       };
 
-      v.guardarProyecto = () => {
-        const l = this.leerProyectos();
-        if (s.plan !== 'pro' && l.length >= 3) return this.setState({ muro: 'En Free se guardan 3 proyectos. Borra uno o pasa a Pro para guardar sin límite.' });
-        const mini = document.createElement('canvas');
-        mini.width = 240; mini.height = Math.round(240 * (M.FORMATOS[pag.formato].h / M.FORMATOS[pag.formato].w));
-        this.pintarHoja(mini.getContext('2d'), mini.width, mini.height, pag, {});
-        l.unshift({
-          id: 'p' + Date.now(), nombre: pag.cabecera.titulo || 'Folleto', tipo: 'folleto',
-          pagina: this.limpiarPagina(pag), mini: mini.toDataURL('image/jpeg', 0.6),
-          fecha: new Date().toLocaleDateString('es-ES')
-        });
-        this.escribirProyectos(l);
-        this.setState({ estado: 'Guardado en «Míos».' });
-      };
+      v.guardarProyecto = () => this.guardarEnMios('folleto');
     }
 
     /* ── Volantes y maquetas ── */
@@ -4529,15 +5619,121 @@ class Component extends DCLogic {
       v.volMedida = md.nombre + (md.pliegues.length ? '  ·  ' + md.pliegues.length + ' pliegues' : '');
       v.volEsOrden = esOrden;
       v.volEsFolleto = !esOrden;
-      v.volBloques = esOrden ? (plant.bloques || []).map(b => {
-        if (b.t === 'campos') return '· ' + b.c.join(' · ');
-        if (b.t === 'casillas') return '· ' + b.tit + ': ' + b.c.length + ' casillas';
-        if (b.t === 'tabla') return '· ' + b.tit + ': tabla de ' + b.cols.length + ' columnas';
-        if (b.t === 'lineas') return '· ' + b.tit + ': ' + b.n + ' renglones';
-        if (b.t === 'nota') return '· Nota legal al pie';
-        if (b.t === 'firma') return '· Firma de ' + b.c.join(' y ');
-        return '';
-      }) : [];
+
+      /* ── El impreso, editable ──
+         Los bloques ya viven en s.volPag.bloques (una copia de la plantilla,
+         no la plantilla). Lo que faltaba era el mando: aquí se cablean los
+         mismos setters que tiene el Editor de folletos. Cada cambio clona la
+         página y sube el tick, que es lo que invalida la caché de hojaVol();
+         sin eso se escribe pero la hoja no se repinta. */
+      const tocaVol = (fn) => {
+        const st = this.state;
+        const pg = JSON.parse(JSON.stringify(st.volPag || this.nuevoVolante(), (k, val) => k === 'media' ? undefined : val));
+        if (!pg.bloques) pg.bloques = [];
+        fn(pg);
+        this.setState({ volPag: pg, tick: st.tick + 1 });
+      };
+      const NOMBRE_BL = {
+        campos: 'Campos con línea', casillas: 'Casillas para marcar', tabla: 'Tabla',
+        lineas: 'Renglones libres', nota: 'Nota al pie', firma: 'Firmas'
+      };
+      const nuevoBloque = (t) => {
+        if (t === 'campos') return { t: 'campos', c: ['Campo', 'Campo'] };
+        if (t === 'casillas') return { t: 'casillas', tit: 'Marca lo que corresponda', c: ['Opción', 'Opción', 'Opción'] };
+        if (t === 'tabla') return { t: 'tabla', tit: 'Tabla', cols: ['Concepto', 'Cantidad', 'Importe'], filas: 5 };
+        if (t === 'lineas') return { t: 'lineas', tit: 'Observaciones', n: 3 };
+        if (t === 'nota') return { t: 'nota', txt: 'Escribe aquí el aviso o la instrucción.' };
+        return { t: 'firma', c: ['Profesional', 'Cliente'] };
+      };
+      const blsVol = esOrden ? ((s.volPag && s.volPag.bloques) || []) : [];
+      v.volTitulo = (s.volPag && s.volPag.titulo) || '';
+      v.setVolTitulo = (e) => { const x = e.target.value; tocaVol(pg => { pg.titulo = x; }); };
+      v.volBloquesEd = blsVol.map((b, i) => {
+        const clave = b.t === 'tabla' ? 'cols' : 'c';
+        return {
+          tipo: NOMBRE_BL[b.t] || b.t,
+          hayTit: b.t === 'casillas' || b.t === 'tabla' || b.t === 'lineas',
+          tit: b.tit || '',
+          setTit: (e) => { const x = e.target.value; tocaVol(pg => { pg.bloques[i].tit = x; }); },
+          esNota: b.t === 'nota',
+          txt: b.txt || '',
+          setTxt: (e) => { const x = e.target.value; tocaVol(pg => { pg.bloques[i].txt = x; }); },
+          hayLista: b.t === 'campos' || b.t === 'casillas' || b.t === 'tabla' || b.t === 'firma',
+          rotLista: b.t === 'tabla' ? 'Columnas' : b.t === 'casillas' ? 'Casillas' : b.t === 'firma' ? 'Firmas' : 'Campos',
+          items: ((b.t === 'tabla' ? b.cols : b.c) || []).map((et, j) => ({
+            valor: et,
+            set: (e) => { const x = e.target.value; tocaVol(pg => { pg.bloques[i][clave][j] = x; }); },
+            quitar: () => tocaVol(pg => {
+              const bb = pg.bloques[i];
+              bb[clave] = (bb[clave] || []).filter((x, q) => q !== j);
+            })
+          })),
+          anadir: () => tocaVol(pg => {
+            const bb = pg.bloques[i];
+            bb[clave] = (bb[clave] || []).concat([b.t === 'tabla' ? 'Columna' : 'Campo']);
+          }),
+          hayFilas: b.t === 'tabla' || b.t === 'lineas',
+          rotFilas: b.t === 'tabla' ? 'Filas en blanco' : 'Renglones',
+          filas: b.t === 'tabla' ? (b.filas || 1) : (b.n || 1),
+          setFilas: (e) => {
+            const n2 = Math.max(1, Math.min(30, parseInt(e.target.value, 10) || 1));
+            tocaVol(pg => {
+              const bb = pg.bloques[i];
+              if (bb.t === 'tabla') bb.filas = n2; else bb.n = n2;
+            });
+          },
+          subir: () => { if (i > 0) tocaVol(pg => { const a = pg.bloques, t2 = a[i - 1]; a[i - 1] = a[i]; a[i] = t2; }); },
+          bajar: () => { if (i < blsVol.length - 1) tocaVol(pg => { const a = pg.bloques, t2 = a[i + 1]; a[i + 1] = a[i]; a[i] = t2; }); },
+          quitar: () => tocaVol(pg => { pg.bloques = pg.bloques.filter((x, q) => q !== i); })
+        };
+      });
+      /* Nombre del negocio en la hoja de mando: editable y borrable.
+         Si se deja en blanco no se imprime nada ahí. */
+      v.volNegocio = (s.volPag && s.volPag.negocio) || '';
+      v.setVolNegocio = (e) => { const x = e.target.value; tocaVol(pg => { pg.negocio = x; }); };
+
+      /* Volantes y carteles: mismos campos editables que el tríptico. */
+      const pgV = (!esOrden && s.volPag) || null;
+      v.volCabTitulo = (pgV && pgV.cabecera && pgV.cabecera.titulo) || '';
+      v.volCabSub = (pgV && pgV.cabecera && pgV.cabecera.subtitulo) || '';
+      v.volCabMarca = (pgV && pgV.cabecera && pgV.cabecera.marca) || '';
+      v.volPieContacto = (pgV && pgV.pie && pgV.pie.contacto) || '';
+      v.volPieCta = (pgV && pgV.pie && pgV.pie.cta) || '';
+      const cab = (campo) => (e) => { const x = e.target.value; tocaVol(pg => { if (!pg.cabecera) pg.cabecera = {}; pg.cabecera[campo] = x; }); };
+      const pieV = (campo) => (e) => { const x = e.target.value; tocaVol(pg => { if (!pg.pie) pg.pie = {}; pg.pie[campo] = x; }); };
+      v.setVolCabTitulo = cab('titulo');
+      v.setVolCabSub = cab('subtitulo');
+      v.setVolCabMarca = cab('marca');
+      v.setVolPieContacto = pieV('contacto');
+      v.setVolPieCta = pieV('cta');
+      v.volCeldas = ((pgV && pgV.celdas) || []).map((c, j) => {
+        const set = (campo) => (e) => { const x = e.target.value; tocaVol(pg => { pg.celdas[j][campo] = x; }); };
+        return {
+          n: j + 1,
+          titulo: c.titulo || '', texto: c.texto || '', precio: c.precio || '', etiqueta: c.etiqueta || '',
+          setTitulo: set('titulo'), setTexto: set('texto'), setPrecio: set('precio'), setEtiqueta: set('etiqueta'),
+          vaciar: () => tocaVol(pg => {
+            const cd = pg.celdas[j];
+            cd.titulo = ''; cd.texto = ''; cd.precio = ''; cd.etiqueta = '';
+          }),
+          quitar: () => tocaVol(pg => { pg.celdas.splice(j, 1); })
+        };
+      });
+      v.volAnadirCelda = () => tocaVol(pg => {
+        if (!pg.celdas) pg.celdas = [];
+        pg.celdas.push({ titulo: 'Nuevo', texto: '', precio: '', etiqueta: '' });
+      });
+
+      v.volTiposNuevo = Object.keys(NOMBRE_BL).map(k => ({ id: k, n: NOMBRE_BL[k] }));
+      v.volAnadirBloque = (e) => {
+        const t = e.target.value;
+        if (!t) return;
+        tocaVol(pg => { pg.bloques = (pg.bloques || []).concat([nuevoBloque(t)]); });
+      };
+      v.volResetBloques = () => this.setState({
+        volPag: null, tick: s.tick + 1,
+        estado: 'Impreso devuelto a como viene la plantilla.'
+      });
 
       v.volVistas = [
         { id: 'hoja', n: '📄 La hoja' },
@@ -4610,18 +5806,126 @@ class Component extends DCLogic {
       ir: () => this.setState({ triCara: c.id })
     }));
     const tp = this.triPaginas();
+    /* tocaTri: clona el tríptico sin las fotos (no son serializables) y deja
+       cambiar un campo cualquiera. Así toda etiqueta del tríptico es editable. */
+    const tocaTri = (fn) => {
+      const t = JSON.parse(JSON.stringify(s.triPag, (k, val) => k === 'media' ? undefined : val));
+      fn(t);
+      this.setState({ triPag: t });
+    };
+    /* Sub-pestañas del panel, iguales que las del Editor */
+    v.triTabs = [
+      { id: 'diseno', n: 'Diseño' }, { id: 'textos', n: 'Textos' },
+      { id: 'fotos', n: 'Fotos' }, { id: 'qr', n: 'QR' }, { id: 'marca', n: 'Marca' }
+    ].map(t => ({
+      nombre: t.n,
+      ir: () => this.setState({ triTab: t.id }),
+      estilo: 'flex:1;background:' + ((s.triTab || 'textos') === t.id ? '#18183a' : 'none') + ';border:0;border-bottom:2px solid ' + ((s.triTab || 'textos') === t.id ? '#a855f7' : 'transparent') + ';color:' + ((s.triTab || 'textos') === t.id ? '#fff' : '#94a3b8') + ';padding:9px 0;font-size:11px;cursor:pointer;min-height:38px;font-family:inherit'
+    }));
+    v.triEsDiseno = (s.triTab || 'textos') === 'diseno';
+    v.triEsTextos = (s.triTab || 'textos') === 'textos';
+    v.triEsFotos = (s.triTab || 'textos') === 'fotos';
+    v.triEsQR = (s.triTab || 'textos') === 'qr';
+    v.triEsMarca = (s.triTab || 'textos') === 'marca';
+
+    /* Cambia rejilla y número de cuadros de un cuerpo del tríptico. Si faltan
+       cuadros los pide al cerebro; si sobran, se recortan. */
+    this.ponRejillaTri = (i, k, n) => {
+      const cara = s.triCara;
+      const M2 = window.FOLLETO_MOTOR, CB2 = window.FOLLETO_CEREBRO, m2 = s.marca;
+      if (!k) k = Object.keys(M2.REJILLAS).find(x => x !== 'rlista' && M2.REJILLAS[x].n === n);
+      tocaTri(t => {
+        const pg = t[cara][i];
+        if (k) pg.rejilla = k;
+        const cel = pg.celdas || (pg.celdas = []);
+        if (cel.length > n) cel.length = n;
+        while (cel.length < n) {
+          const ex = CB2.generar({ rubro: s.rubro, tono: s.tono, n: 8, negocio: m2.nombre, ciudad: m2.dir, contacto: this.contacto(), semilla: s.semilla + cel.length + i * 7 });
+          cel.push(ex.celdas[cel.length % 8]);
+        }
+      });
+    };
     v.triPaneles = (tp || []).map((p, i) => ({
       nombre: (s.triCara === 'ext' ? ['Contraportada', 'Solapa', 'Portada'] : ['Cuerpo 1', 'Cuerpo 2', 'Cuerpo 3'])[i],
       titulo: p.cabecera.titulo || '',
       sub: p.cabecera.subtitulo || '',
+      marca: p.cabecera.marca || '',
+      /* el pie es una estructura {contacto, cta}, no texto plano */
+      pieContacto: (p.pie && p.pie.contacto) || '',
+      pieCta: (p.pie && p.pie.cta) || '',
+      setMarca: (e) => tocaTri(t => { t[s.triCara][i].cabecera.marca = e.target.value; }),
+      setPieContacto: (e) => tocaTri(t => {
+        const pg = t[s.triCara][i];
+        if (!pg.pie) pg.pie = {};
+        pg.pie.contacto = e.target.value;
+      }),
+      setPieCta: (e) => tocaTri(t => {
+        const pg = t[s.triCara][i];
+        if (!pg.pie) pg.pie = {};
+        pg.pie.cta = e.target.value;
+      }),
       celdas: (p.celdas || []).map((c, j) => ({
-        etq: (p.celdas && p.celdas.length > 1 ? 'Texto ' + (j + 1) : 'Texto'),
+        n: j + 1,
+        titulo: c.titulo || '',
         texto: c.texto || '',
-        setTexto: (e) => {
-          const t = JSON.parse(JSON.stringify(s.triPag, (k, val) => k === 'media' ? undefined : val));
-          t[s.triCara][i].celdas[j].texto = e.target.value;
-          this.setState({ triPag: t });
-        }
+        precio: c.precio || '',
+        etiqueta: c.etiqueta || '',
+        setTitulo: (e) => tocaTri(t => { t[s.triCara][i].celdas[j].titulo = e.target.value; }),
+        setTexto: (e) => tocaTri(t => { t[s.triCara][i].celdas[j].texto = e.target.value; }),
+        setPrecio: (e) => tocaTri(t => { t[s.triCara][i].celdas[j].precio = e.target.value; }),
+        setEtiqueta: (e) => tocaTri(t => { t[s.triCara][i].celdas[j].etiqueta = e.target.value; }),
+        vaciar: () => tocaTri(t => {
+          const cd = t[s.triCara][i].celdas[j];
+          cd.titulo = ''; cd.texto = ''; cd.precio = ''; cd.etiqueta = '';
+        }),
+        setFoto: (e) => {
+          const f = e.target.files && e.target.files[0];
+          if (f) this.ponerMediaTri(s.triCara, i, j, f);
+          e.target.value = '';
+        },
+        quitarFoto: () => {
+          const mm = (this.triMedia || {})[s.triCara];
+          if (mm) delete mm[i + ':' + j];
+          this._triMediaTick = (this._triMediaTick || 0) + 1;
+          this.setState({ tick: s.tick + 1 });
+        },
+        quitar: () => tocaTri(t => {
+          const cel = t[s.triCara][i].celdas, n = cel.length;
+          cel.splice(j, 1);
+          /* las fotos viven aparte (triMedia[cara][pagina:celda]) — se corren una posición */
+          const mm = (this.triMedia || {})[s.triCara];
+          if (mm) {
+            for (let k = j; k < n - 1; k++) {
+              const sig = mm[i + ':' + (k + 1)];
+              if (sig) mm[i + ':' + k] = sig; else delete mm[i + ':' + k];
+            }
+            delete mm[i + ':' + (n - 1)];
+            this._triMediaTick = (this._triMediaTick || 0) + 1;
+          }
+        })
+      })),
+      anadirCelda: () => tocaTri(t => {
+        t[s.triCara][i].celdas.push({ titulo: 'Nuevo', texto: '', precio: '', etiqueta: '' });
+      }),
+      /* Mismos mandos de Diseño que el Editor, cuerpo a cuerpo */
+      conteos: [1, 2, 3, 4, 6, 8].map(n => ({
+        nombre: n + (n === 1 ? ' cuadro' : ' cuadros'),
+        estilo: this.chip(((p.celdas || []).length) === n) + ';font-size:10.5px;padding:5px 10px',
+        ir: () => this.ponRejillaTri(i, null, n)
+      })),
+      rejillas: Object.keys(M.REJILLAS).filter(k => k !== 'rlista' && M.REJILLAS[k].n === (p.celdas || []).length).map(k => ({
+        nombre: M.REJILLAS[k].nombre, uso: M.REJILLAS[k].uso,
+        estilo: 'text-align:left;border-radius:9px;padding:7px 9px;cursor:pointer;background:' + (p.rejilla === k ? '#22224a' : '#1a1a35') + ';border:1px solid ' + (p.rejilla === k ? '#a855f7' : '#2d2d4a'),
+        ir: () => this.ponRejillaTri(i, k, M.REJILLAS[k].n)
+      })),
+      formas: Object.keys(M.FORMAS_CELDA || {}).map(k => ({
+        nombre: M.FORMAS_CELDA[k].nombre, icono: M.FORMAS_CELDA[k].icono,
+        estilo: 'border-radius:9px;padding:7px 4px;cursor:pointer;text-align:center;background:' + ((p.formaCelda || 'suave') === k ? '#22224a' : '#1a1a35') + ';border:1px solid ' + ((p.formaCelda || 'suave') === k ? '#a855f7' : '#2d2d4a'),
+        ir: () => tocaTri(t => {
+          const pg = t[s.triCara][i];
+          pg.formaCelda = k;
+          (pg.celdas || []).forEach(c => { c.forma = null; });
+        })
       })),
       setTitulo: (e) => {
         const t = JSON.parse(JSON.stringify(s.triPag, (k, val) => k === 'media' ? undefined : val));
@@ -4712,11 +6016,142 @@ class Component extends DCLogic {
         this.setState(Object.assign({ car: lim, tick: s.tick + 1 }, extra || {}));
       };
 
+      /* Animación: el mismo repertorio del editor, en volumen y en plano. */
+      const EF3D = { giroY: 1, volteoX: 1, cubo: 1, puerta: 1, profundidad: 1, orbita: 1, hojagira: 1, petaloAbre: 1 };
+      const efCar = (e) => ({
+        nombre: e.n,
+        estilo: this.chip((s.carEfecto || 'cubo') === e.id) + ';font-size:10.5px;padding:5px 9px',
+        ir: () => this.setState({ carEfecto: e.id })
+      });
+      v.carEfectos3D = this.EFECTOS.filter(e => EF3D[e.id]).map(efCar);
+      v.carEfectos2D = this.EFECTOS.filter(e => !EF3D[e.id]).map(efCar)
+        .concat([{ nombre: 'Sin efecto', estilo: this.chip((s.carEfecto || 'cubo') === 'ninguna') + ';font-size:10.5px;padding:5px 9px', ir: () => this.setState({ carEfecto: 'ninguna' }) }]);
+      v.carTrans3D = this.TRANS_CAR.filter(x => x.d === '3d').map(x => ({
+        nombre: x.n,
+        estilo: this.chip((s.carTrans || 'cubo3d') === x.id) + ';font-size:10.5px;padding:5px 9px',
+        ir: () => this.setState({ carTrans: x.id })
+      }));
+      v.carTrans2D = this.TRANS_CAR.filter(x => x.d === '2d').map(x => ({
+        nombre: x.n,
+        estilo: this.chip((s.carTrans || 'cubo3d') === x.id) + ';font-size:10.5px;padding:5px 9px',
+        ir: () => this.setState({ carTrans: x.id })
+      }));
+      v.carAmbientes = this.ADORNOS.map(a => ({
+        nombre: a.n,
+        estilo: this.chip((s.carAmbiente || 'ninguno') === a.id) + ';font-size:10.5px;padding:5px 9px',
+        ir: () => this.setState({ carAmbiente: a.id })
+      }));
+      v.carSeg = String(s.carSeg || 2.2);
+      v.setCarSeg = (e) => this.setState({ carSeg: Number(e.target.value) });
+      v.carDurTxt = this.carDuracion().toFixed(1) + ' s';
+      v.verCar = () => { if (this.animandoCar) return this.pararCar(); this.animarCar(); };
+      v.pararCarAnim = () => this.pararCar();
+      v.grabarCarVideo = () => this.grabarCarVideo();
+      v.carVerTxt = s.carTocando ? '■ Parar' : '▶ Ver la animación';
+
       v.carSelTxt = car.length ? (iSel + 1) + ' de ' + car.length : '—';
       v.carTitulo = (sel && sel.cabecera && sel.cabecera.titulo) || '';
       v.carSub = (sel && sel.cabecera && sel.cabecera.subtitulo) || '';
       v.setCarTitulo = (e) => { const a = car.slice(); a[iSel] = Object.assign({}, sel, { cabecera: Object.assign({}, sel.cabecera, { titulo: e.target.value }) }); guardarCar(a); };
       v.setCarSub = (e) => { const a = car.slice(); a[iSel] = Object.assign({}, sel, { cabecera: Object.assign({}, sel.cabecera, { subtitulo: e.target.value }) }); guardarCar(a); };
+
+      /* Cuadros de la diapositiva seleccionada: editar, vaciar, borrar y añadir.
+         Se clona sin las fotos (no son serializables) igual que en el tríptico. */
+      const tocaCar = (fn) => {
+        const a = car.slice();
+        const pg = JSON.parse(JSON.stringify(sel, (k, val) => k === 'media' ? undefined : val));
+        fn(pg);
+        a[iSel] = pg;
+        guardarCar(a);
+      };
+      v.carCeldas = ((sel && sel.celdas) || []).map((c, j) => ({
+        n: j + 1,
+        titulo: c.titulo || '',
+        texto: c.texto || '',
+        precio: c.precio || '',
+        etiqueta: c.etiqueta || '',
+        setTitulo: (e) => tocaCar(pg => { pg.celdas[j].titulo = e.target.value; }),
+        setTexto: (e) => tocaCar(pg => { pg.celdas[j].texto = e.target.value; }),
+        setPrecio: (e) => tocaCar(pg => { pg.celdas[j].precio = e.target.value; }),
+        setEtiqueta: (e) => tocaCar(pg => { pg.celdas[j].etiqueta = e.target.value; }),
+        /* foto o vídeo en este cuadro concreto de la diapositiva */
+        setFoto: (e) => {
+          const f = e.target.files && e.target.files[0];
+          e.target.value = '';
+          if (!f) return;
+          const url = URL.createObjectURL(f);
+          const esVideo = /^video\//.test(f.type);
+          const el = document.createElement(esVideo ? 'video' : 'img');
+          const listo = () => {
+            this.carMedia[iSel + ':' + j] = { tipo: esVideo ? 'video' : 'img', el };
+            this.setState({ tick: this.state.tick + 1 });
+          };
+          if (esVideo) { el.muted = true; el.loop = true; el.playsInline = true; el.onloadeddata = () => { try { el.play(); } catch (er) { } listo(); }; }
+          else el.onload = listo;
+          el.src = url;
+        },
+        quitarFoto: () => {
+          delete this.carMedia[iSel + ':' + j];
+          this.setState({ tick: this.state.tick + 1 });
+        },
+        vaciar: () => tocaCar(pg => {
+          const cd = pg.celdas[j];
+          cd.titulo = ''; cd.texto = ''; cd.precio = ''; cd.etiqueta = '';
+        }),
+        quitar: () => tocaCar(pg => {
+          const n = (pg.celdas || []).length;
+          pg.celdas.splice(j, 1);
+          /* las fotos viven aparte, con clave diapo:celda — se corren una posición */
+          for (let k = j; k < n - 1; k++) {
+            const sig = this.carMedia[iSel + ':' + (k + 1)];
+            if (sig) this.carMedia[iSel + ':' + k] = sig; else delete this.carMedia[iSel + ':' + k];
+          }
+          delete this.carMedia[iSel + ':' + (n - 1)];
+        })
+      }));
+      v.carAnadirCelda = () => tocaCar(pg => {
+        if (!pg.celdas) pg.celdas = [];
+        pg.celdas.push({ titulo: 'Nuevo', texto: '', precio: '', etiqueta: '' });
+      });
+      v.carPieContacto = (sel && sel.pie && sel.pie.contacto) || '';
+      v.carPieCta = (sel && sel.pie && sel.pie.cta) || '';
+      v.setCarPieContacto = (e) => tocaCar(pg => { if (!pg.pie) pg.pie = {}; pg.pie.contacto = e.target.value; });
+      v.setCarPieCta = (e) => tocaCar(pg => { if (!pg.pie) pg.pie = {}; pg.pie.cta = e.target.value; });
+      v.carMarca = (sel && sel.cabecera && sel.cabecera.marca) || '';
+      v.setCarMarca = (e) => tocaCar(pg => { pg.cabecera.marca = e.target.value; });
+
+      /* Diseño de la diapositiva seleccionada, igual que en el Editor */
+      const nCar = ((sel && sel.celdas) || []).length;
+      const ponRejCar = (k, n) => {
+        if (!k) k = Object.keys(M.REJILLAS).find(x => x !== 'rlista' && M.REJILLAS[x].n === n);
+        tocaCar(pg => {
+          if (k) pg.rejilla = k;
+          const cel = pg.celdas || (pg.celdas = []);
+          if (cel.length > n) cel.length = n;
+          while (cel.length < n) {
+            const ex = CB.generar({ rubro: s.rubro, tono: s.tono, n: 8, negocio: s.marca.nombre, ciudad: s.marca.dir, contacto: this.contacto(), semilla: s.semilla + cel.length });
+            cel.push(ex.celdas[cel.length % 8]);
+          }
+        });
+      };
+      v.carConteos = [1, 2, 3, 4, 6, 8].map(n => ({
+        nombre: n + (n === 1 ? ' cuadro' : ' cuadros'),
+        estilo: this.chip(nCar === n) + ';font-size:10.5px;padding:5px 10px',
+        ir: () => ponRejCar(null, n)
+      }));
+      v.carRejillas = Object.keys(M.REJILLAS).filter(k => k !== 'rlista' && M.REJILLAS[k].n === nCar).map(k => ({
+        nombre: M.REJILLAS[k].nombre, uso: M.REJILLAS[k].uso,
+        estilo: 'text-align:left;border-radius:9px;padding:7px 9px;cursor:pointer;background:' + ((sel && sel.rejilla) === k ? '#22224a' : '#1a1a35') + ';border:1px solid ' + ((sel && sel.rejilla) === k ? '#a855f7' : '#2d2d4a'),
+        ir: () => ponRejCar(k, M.REJILLAS[k].n)
+      }));
+      v.carFormas = Object.keys(M.FORMAS_CELDA || {}).map(k => ({
+        nombre: M.FORMAS_CELDA[k].nombre, icono: M.FORMAS_CELDA[k].icono,
+        estilo: 'border-radius:9px;padding:7px 4px;cursor:pointer;text-align:center;background:' + (((sel && sel.formaCelda) || 'suave') === k ? '#22224a' : '#1a1a35') + ';border:1px solid ' + (((sel && sel.formaCelda) || 'suave') === k ? '#a855f7' : '#2d2d4a'),
+        ir: () => tocaCar(pg => {
+          pg.formaCelda = k;
+          (pg.celdas || []).forEach(c => { c.forma = null; });
+        })
+      }));
 
       v.carMedidas = [
         { id: 'cuadrado', n: '1:1' }, { id: 'vertical', n: '4:5' }, { id: 'historia', n: '9:16' }
@@ -4751,7 +6186,7 @@ class Component extends DCLogic {
       v.carBorrar = () => {
         if (car.length <= 2) return this.setState({ estado: 'Un carrusel necesita al menos dos diapositivas.' });
         const a = car.slice(); a.splice(iSel, 1);
-        delete this.carMedia[iSel + ':0']; delete this.carMedia[iSel + ':1'];
+        for (let c = 0; c < 8; c++) delete this.carMedia[iSel + ':' + c];
         guardarCar(a, { carSel: Math.max(0, iSel - 1) });
       };
       const mover = (d) => {
@@ -4759,7 +6194,7 @@ class Component extends DCLogic {
         if (j < 0 || j >= car.length) return;
         const a = car.slice();
         const t = a[iSel]; a[iSel] = a[j]; a[j] = t;
-        [0, 1].forEach(c => {
+        [0, 1, 2, 3, 4, 5, 6, 7].forEach(c => {
           const x = this.carMedia[iSel + ':' + c], y = this.carMedia[j + ':' + c];
           if (x) this.carMedia[j + ':' + c] = x; else delete this.carMedia[j + ':' + c];
           if (y) this.carMedia[iSel + ':' + c] = y; else delete this.carMedia[iSel + ':' + c];
@@ -4946,10 +6381,26 @@ class Component extends DCLogic {
       this.setState({ estado: 'Los seis cuerpos, uno por archivo, en ' + fSel.n + '.' });
     };
 
-    /* ── vídeo narrado del tríptico ── */
+    /* ── vídeo narrado: tríptico, carrusel y maqueta ──
+       Los tres narran un bloque entero, así que comparten los mismos mandos.
+       Sólo cambia el texto y la clave con la que se guarda la toma, para que
+       la grabación quede pegada a la pieza y no al orden de las pestañas. */
     v.triNarra = s.triNarra || '';
     v.setTriNarra = (e) => this.setState({ triNarra: e.target.value });
+    v.carNarra = s.carNarra || '';
+    v.setCarNarra = (e) => this.setState({ carNarra: e.target.value });
+    v.volNarra = s.volNarra || '';
+    v.setVolNarra = (e) => this.setState({ volNarra: e.target.value });
     const Z = window.B6Voz;
+    if (Z && (s.pantalla === 'carrusel' || s.pantalla === 'triptico')) {
+      const esVol = s.pantalla === 'triptico' && s.triModo === 'volante';
+      const narra = s.pantalla === 'carrusel' ? (s.carNarra || '')
+        : (esVol ? (s.volNarra || '') : (s.triNarra || ''));
+      const cl = s.pantalla === 'carrusel' ? 'car:' + s.carDiseno
+        : (esVol ? 'vol:' + s.volId : 'tri:' + s.triDiseno);
+      Z.ponerClave(cl);
+      Z.ponerGuion(this.frasesDe(narra).map((t, i) => ({ texto: t, clave: cl + ':' + i })));
+    }
     v.vozHay = !!(Z && Z.hay());
     v.vozResumen = Z ? Z.resumen() : 'El módulo de voz no ha cargado.';
     v.vozGrabarTxt = Z && Z.grabando ? '⏹ Parar' : '🎙 Grabar mi voz';
@@ -4966,6 +6417,11 @@ class Component extends DCLogic {
     v.vozQuitar = () => { if (Z) Z.quitar(); };
     v.vozVivo = () => { if (Z) Z.setVivo(!Z.vivo); };
     v.vozProbar = () => { if (Z) Z.probar(); };
+    /* La voz de Google sólo entra en el archivo si el navegador nos deja
+       tomar el sonido de la propia pestaña. Es lo que activa este botón. */
+    v.vozGoogleTxt = Z && Z.pestana ? '🔊 Voz de Google: dentro' : '🔊 Meter la voz de Google';
+    v.vozGoogleEstilo = this.chip(!!(Z && Z.pestana)) + ';font-size:11px;padding:7px 11px';
+    v.vozGoogle = () => { if (Z) Z.setPestana(!Z.pestana); };
 
     v.bFol = this.bandejaVals('folleto\\.|folleto-(?!video)|qr', 'folleto');
     v.bTri = this.bandejaVals('triptico', 'triptico');
@@ -5308,18 +6764,63 @@ class Component extends DCLogic {
     v.quitarQR = () => this.setState({ qrPuesto: false, tick: s.tick + 1 });
 
     /* ── Míos ── */
-    v.conteoProyectos = s.proyectos.length ? s.proyectos.length + ' guardados' : 'Todavía no has guardado nada.';
-    v.proyectos = s.proyectos.map(p => ({
-      nombre: p.nombre, fecha: p.fecha,
-      miniBg: 'width:100%;aspect-ratio:3/4;background:#000 center/cover no-repeat url(' + p.mini + ')',
-      abrir: () => this.setState({ pagina: p.pagina, pantalla: 'editor', tick: s.tick + 1 }),
-      duplicar: () => {
-        const l = this.leerProyectos();
-        l.unshift(Object.assign({}, p, { id: 'p' + Date.now(), nombre: p.nombre + ' (copia)' }));
-        this.escribirProyectos(l);
-      },
-      borrar: () => this.escribirProyectos(this.leerProyectos().filter(x => x.id !== p.id))
-    }));
+    const misTipos = Object.keys(this.MIOS);
+    const filtro = s.miosFiltro || '';
+    const marcados = s.miosSel || {};
+    const miosLista = s.proyectos.filter(p => !filtro || (p.tipo || 'folleto') === filtro);
+    v.conteoProyectos = s.proyectos.length
+      ? (filtro ? miosLista.length + ' de ' + s.proyectos.length + ' guardados' : s.proyectos.length + ' guardados')
+      : 'Todavía no has guardado nada. En cada pestaña tienes «Guardar en Míos».';
+    v.miosFiltros = [{ id: '', n: 'Todo' }].concat(misTipos.map(t => ({ id: t, n: this.MIOS[t].ic + ' ' + this.MIOS[t].n })))
+      .filter(f => !f.id || s.proyectos.some(p => (p.tipo || 'folleto') === f.id))
+      .map(f => ({ n: f.n, estilo: this.chip(filtro === f.id), ir: () => this.setState({ miosFiltro: f.id }) }));
+    const nMarcados = Object.keys(marcados).filter(k => marcados[k]).length;
+    v.miosHayMarcados = nMarcados > 0;
+    v.miosBorrarTxt = 'Borrar ' + nMarcados + (nMarcados === 1 ? ' marcado' : ' marcados');
+    v.miosBorrarMarcados = () => {
+      this.escribirProyectos(this.leerProyectos().filter(x => !marcados[x.id]));
+      this.setState({ miosSel: {} });
+    };
+    v.miosDesmarcar = () => this.setState({ miosSel: {} });
+    v.proyectos = miosLista.map(p => {
+      const tipo = p.tipo || 'folleto';
+      const D = this.MIOS[tipo] || this.MIOS.folleto;
+      const editando = s.miosEditando === p.id;
+      return {
+        nombre: p.nombre, fecha: p.fecha, etiqueta: D.ic + ' ' + D.n,
+        sel: !!marcados[p.id],
+        alternar: () => this.setState({ miosSel: Object.assign({}, marcados, { [p.id]: !marcados[p.id] }) }),
+        miniBg: 'width:100%;aspect-ratio:3/4;background:#000 center/cover no-repeat url(' + p.mini + ')',
+        editando, verNombre: !editando,
+        renombrar: () => this.setState({ miosEditando: p.id }),
+        setNombre: (e) => {
+          const x = e.target.value;
+          this.escribirProyectos(this.leerProyectos().map(z => z.id === p.id ? Object.assign({}, z, { nombre: x }) : z));
+        },
+        cerrarNombre: () => this.setState({ miosEditando: '' }),
+        abrir: () => this.abrirDeMios(p),
+        biblio: !!(window.EU_BIBLIO && window.EU_BIBLIO.puedeMios(p)),
+        aBiblio: () => window.EU_BIBLIO && window.EU_BIBLIO.desdeMios(p),
+        duplicar: () => {
+          const l = this.leerProyectos();
+          l.unshift(Object.assign({}, p, { id: 'p' + Date.now(), nombre: p.nombre + ' (copia)' }));
+          this.escribirProyectos(l);
+        },
+        borrar: () => this.escribirProyectos(this.leerProyectos().filter(x => x.id !== p.id))
+      };
+    });
+
+    /* El botón de guardar es el mismo en las ocho pestañas: guarda lo que
+       haya en la que estés mirando. */
+    v.guardarMiosTri = () => this.guardarEnMios('triptico');
+    v.guardarMiosVol = () => this.guardarEnMios('volante');
+    v.guardarMiosCar = () => this.guardarEnMios('carrusel');
+    v.guardarMiosLam = () => this.guardarEnMios('lamina');
+    v.guardarMiosExamen = () => this.guardarEnMios('examen');
+    v.guardarMiosQR = () => this.guardarEnMios('qr');
+    v.guardarMiosGuia = () => this.guardarEnMios('guia');
+    v.grabarVolVideo = () => this.grabarVolVideo();
+    v.estiloGuardarMios = 'background:transparent;border:1px solid #2d2d4a;color:#94a3b8;border-radius:9px;padding:9px 15px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit';
 
     return v;
   }

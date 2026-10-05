@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-73a75936-ae9a-47bf-9bb8-3209a5c29ae1/styles.css">
+<script src="_ds/modernist-73a75936-ae9a-47bf-9bb8-3209a5c29ae1/_ds_bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}a{color:var(--color-accent-700)}a:hover{color:var(--color-accent)}input[type=range]{accent-color:var(--color-accent)}</style>
+</helmet>
+<div style="max-width:1360px;padding:var(--space-8) var(--space-6);display:flex;flex-direction:column;gap:var(--space-6)">
+  <header style="display:flex;flex-direction:column;gap:var(--space-3);border-bottom:2px solid var(--color-text);padding-bottom:var(--space-4)">
+    <div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">Portadas premium · {{ total }} ilustraciones</div>
+    <h1 style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:44px;line-height:1.05">Portadas para libros y cuadernos</h1>
+    <p style="margin:0;max-width:760px;font-size:16px;line-height:1.5;text-wrap:pretty">Elige una portada y edítala: título, subtítulo, autor, sello, paleta, tipografía y posición del texto. Se descarga en PNG a 300 ppp, en PDF de 216 × 288 mm o en SVG vectorial.</p>
+  </header>
+  <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;border:2px solid var(--color-text);padding:var(--space-4);background:#fff">
+    <label style="display:flex;flex-direction:column;gap:4px;flex:2 1 260px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Tu título (se ve en todas)
+      <input value="{{ cfg.titulo }}" onChange="{{ setTitulo }}" placeholder="Escribe el título de tu libro" style="font:inherit;font-size:16px;font-weight:400;text-transform:none;letter-spacing:0;padding:10px 12px;border:2px solid var(--color-text);background:var(--color-bg);color:var(--color-text)">
+    </label>
+    <label style="display:flex;flex-direction:column;gap:4px;flex:1 1 200px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Autor
+      <input value="{{ cfg.autor }}" onChange="{{ setAutor }}" placeholder="Nombre del autor" style="font:inherit;font-size:16px;font-weight:400;text-transform:none;letter-spacing:0;padding:10px 12px;border:2px solid var(--color-text);background:var(--color-bg);color:var(--color-text)">
+    </label>
+    <button onClick="{{ togglePalTodas }}" style="{{ palTodasEstilo }}">{{ palTodasTxt }}</button>
+  </div>
+  <sc-if value="{{ hayGuardadas }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Mis portadas guardadas</div>
+      <div style="display:flex;gap:var(--space-3);overflow-x:auto;padding-bottom:4px">
+        <sc-for list="{{ guardadas }}" as="g" hint-placeholder-count="2">
+          <div style="flex:0 0 120px;display:flex;flex-direction:column;gap:4px">
+            <div onClick="{{ g.abrir }}" style="cursor:pointer;border:2px solid var(--color-text)" dangerouslySetInnerHTML="{{ g.html }}"></div>
+            <button onClick="{{ g.borrar }}" style="border:0;background:transparent;padding:0;font:inherit;font-size:12px;text-align:left;cursor:pointer;color:var(--color-neutral-700)">Quitar</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <div style="display:flex;flex-wrap:wrap;gap:var(--space-2)">
+    <sc-for list="{{ cats }}" as="c" hint-placeholder-count="7">
+      <button onClick="{{ c.pick }}" style="{{ c.estilo }}"><span style="white-space:nowrap">{{ c.n }} · {{ c.total }}</span></button>
+    </sc-for>
+  </div>
+  <div style="font-size:14px;color:var(--color-neutral-700)">{{ estado }}</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:var(--space-4)">
+    <sc-for list="{{ items }}" as="it" hint-placeholder-count="12">
+      <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+        <div onClick="{{ it.abrir }}" style="cursor:pointer;box-shadow:var(--shadow-md);transition:transform .15s" style-hover="transform:translateY(-3px)" dangerouslySetInnerHTML="{{ it.html }}"></div>
+        <div style="display:flex;justify-content:space-between;gap:var(--space-2);align-items:baseline">
+          <div style="font-weight:700;font-size:14px;line-height:1.25">{{ it.n }}</div>
+          <div style="font-size:11px;color:var(--color-neutral-600);white-space:nowrap">{{ it.num }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ hayEditor }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cerrar }}" style="position:fixed;inset:0;background:rgba(32,30,29,.6);display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;overflow:auto;z-index:10">
+      <div onClick="{{ parar }}" style="background:#fff;max-width:1120px;width:100%;border:2px solid var(--color-text);padding:var(--space-6);display:flex;flex-wrap:wrap;gap:var(--space-6)">
+        <div style="flex:1 1 380px;max-width:480px;display:flex;flex-direction:column;gap:var(--space-3)">
+          <div style="box-shadow:var(--shadow-lg)" dangerouslySetInnerHTML="{{ ed.html }}"></div>
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-2)">
+            <button class="btn btn-primary" onClick="{{ png }}" style="height:auto;width:auto;white-space:nowrap">PNG 300 ppp</button>
+            <button class="btn btn-secondary" onClick="{{ pdf }}" style="height:auto;width:auto;white-space:nowrap">PDF</button>
+            <button class="btn btn-secondary" onClick="{{ svgDl }}" style="height:auto;width:auto;white-space:nowrap">SVG</button>
+            <button class="btn btn-secondary" onClick="{{ guardar }}" style="height:auto;width:auto;white-space:nowrap">Guardar</button>
+            <button class="btn btn-secondary" onClick="{{ usarLibro }}" style="height:auto;width:auto;white-space:nowrap">{{ usarLibroTxt }}</button>
+          </div>
+          <div style="font-size:13px;color:var(--color-neutral-700)">{{ trabajando }}</div>
+        </div>
+        <div style="flex:1 1 420px;display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+          <div style="display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">{{ ed.cat }} · {{ ed.num }}</div>
+              <h2 style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:28px;line-height:1.1">{{ ed.n }}</h2>
+            </div>
+            <button class="btn btn-ghost" onClick="{{ cerrar }}" style="height:auto;width:auto">Cerrar</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3)">
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Título
+              <input value="{{ cfg.titulo }}" onChange="{{ setTitulo }}" placeholder="{{ ed.t }}" style="font:inherit;font-size:15px;font-weight:400;text-transform:none;letter-spacing:0;padding:8px 10px;border:2px solid var(--color-text);color:var(--color-text);background:#fff">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Subtítulo
+              <input value="{{ cfg.sub }}" onChange="{{ setSub }}" placeholder="{{ ed.s }}" style="font:inherit;font-size:15px;font-weight:400;text-transform:none;letter-spacing:0;padding:8px 10px;border:2px solid var(--color-text);color:var(--color-text);background:#fff">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Autor
+              <input value="{{ cfg.autor }}" onChange="{{ setAutor }}" placeholder="Nombre del autor" style="font:inherit;font-size:15px;font-weight:400;text-transform:none;letter-spacing:0;padding:8px 10px;border:2px solid var(--color-text);color:var(--color-text);background:#fff">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Sello · nivel
+              <input value="{{ cfg.sello }}" onChange="{{ setSello }}" placeholder="Editorial, curso o colección" style="font:inherit;font-size:15px;font-weight:400;text-transform:none;letter-spacing:0;padding:8px 10px;border:2px solid var(--color-text);color:var(--color-text);background:#fff">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Año
+              <input value="{{ cfg.anio }}" onChange="{{ setAnio }}" placeholder="2026" style="font:inherit;font-size:15px;font-weight:400;text-transform:none;letter-spacing:0;padding:8px 10px;border:2px solid var(--color-text);color:var(--color-text);background:#fff">
+            </label>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Paleta</div>
+            <div style="display:flex;flex-wrap:wrap;gap:var(--space-2)">
+              <sc-for list="{{ paletas }}" as="pl" hint-placeholder-count="14">
+                <button onClick="{{ pl.pick }}" title="{{ pl.n }}" style="{{ pl.estilo }}">
+                  <span style="display:flex;width:64px;height:22px">
+                    <sc-for list="{{ pl.cols }}" as="col" hint-placeholder-count="4"><span style="{{ col.estilo }}"></span></sc-for>
+                  </span>
+                  <span style="font-size:11px;line-height:1.2;text-align:left">{{ pl.n }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+          <sc-for list="{{ grupos }}" as="gr" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">{{ gr.n }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:0;border:2px solid var(--color-text);width:fit-content">
+                <sc-for list="{{ gr.ops }}" as="op" hint-placeholder-count="4">
+                  <button onClick="{{ op.pick }}" style="{{ op.estilo }}">{{ op.n }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-4)">
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Tamaño del dibujo · {{ zoomTxt }}
+              <input type="range" min="70" max="150" step="1" value="{{ zoomVal }}" onChange="{{ setZoom }}">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Mover dibujo · {{ dyTxt }}
+              <input type="range" min="-160" max="160" step="2" value="{{ cfg.dy }}" onChange="{{ setDy }}">
+            </label>
+          </div>
+          <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+            <button class="btn btn-ghost" onClick="{{ anterior }}" style="height:auto;width:auto">← Anterior</button>
+            <button class="btn btn-ghost" onClick="{{ siguiente }}" style="height:auto;width:auto">Siguiente →</button>
+            <button class="btn btn-ghost" onClick="{{ restablecer }}" style="height:auto;width:auto;margin-left:auto">Restablecer diseño</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { listo: false, cat: '', sel: null, palTodas: false, trabajando: '', guardadas: [],
+    cfg: { titulo: '', sub: '', autor: '', sello: '', anio: '', pal: null, fuente: 'auto', pos: 'auto', alin: 'auto', color: 'auto', banda: null, zoom: 1, dy: 0 } };
+  LIBS = ['b6_portadas_kit.js', 'b6_portadas_1.js', 'b6_portadas_2.js', 'b6_portadas_3.js'];
+  cache = {};
+  componentDidMount() {
+    const V = '?v=1793900000001';
+    try { const g = JSON.parse(localStorage.getItem('eu_portadas_guardadas') || '[]'); if (Array.isArray(g)) this.setState({ guardadas: g }); } catch (e) {}
+    const sig = (i) => {
+      if (i >= this.LIBS.length) return this.setState({ listo: true });
+      if (i === 0 && window.EU_PORTADAS) return sig(1);
+      const s = document.createElement('script'); s.src = './' + this.LIBS[i] + V; s.onload = () => sig(i + 1); s.onerror = () => sig(i + 1); document.head.appendChild(s);
+    };
+    sig(0);
+  }
+  svg(id, cfg) { const EP = window.EU_PORTADAS, k = id + '|' + JSON.stringify(cfg); if (!this.cache[k]) { const ks = Object.keys(this.cache); if (ks.length > 400) this.cache = {}; this.cache[k] = EP.svg(id, cfg); } return this.cache[k]; }
+  textos(c) { const o = {}; ['titulo', 'sub', 'autor', 'sello', 'anio'].forEach(k => { if (c[k]) o[k] = c[k]; }); return o; }
+  cfgEditor() { const c = this.state.cfg, o = this.textos(c); ['fuente', 'pos', 'alin', 'color'].forEach(k => { o[k] = c[k]; }); if (c.pal != null) o.pal = c.pal; if (c.banda != null) o.banda = c.banda; o.zoom = c.zoom; o.dy = c.dy; return o; }
+  set(k, v) { this.setState(s => ({ cfg: Object.assign({}, s.cfg, { [k]: v }) })); }
+  nombre() { const t = this.state.cfg.titulo || ((window.EU_PORTADAS.portada(this.state.sel) || {}).t) || 'portada'; return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'portada'; }
+  descargar(tipo) {
+    const EP = window.EU_PORTADAS, s = EP.svg(this.state.sel, this.cfgEditor()), n = this.nombre();
+    if (tipo === 'svg') return EP.descargarSVG(s, n);
+    this.setState({ trabajando: tipo === 'pdf' ? 'Preparando el PDF…' : 'Preparando el PNG…' });
+    const pr = tipo === 'pdf' ? EP.descargarPDF(s, n) : EP.descargarPNG(s, n, 2550);
+    pr.then(() => this.setState({ trabajando: 'Descargado.' })).catch(e => this.setState({ trabajando: 'No se pudo descargar: ' + e.message }));
+  }
+  guardar() { const g = [{ id: this.state.sel, cfg: this.cfgEditor(), f: Date.now() }].concat(this.state.guardadas).slice(0, 40); try { localStorage.setItem('eu_portadas_guardadas', JSON.stringify(g)); } catch (e) {} this.setState({ guardadas: g, trabajando: 'Guardada en «Mis portadas».' }); }
+  borrar(i) { const g = this.state.guardadas.filter((_, j) => j !== i); try { localStorage.setItem('eu_portadas_guardadas', JSON.stringify(g)); } catch (e) {} this.setState({ guardadas: g }); }
+  abrir(id, cfg) { this.setState(s => ({ sel: id, trabajando: '', cfg: cfg ? Object.assign({}, s.cfg, { titulo: '', sub: '', autor: '', sello: '', anio: '', pal: null, fuente: 'auto', pos: 'auto', alin: 'auto', color: 'auto', banda: null, zoom: 1, dy: 0 }, cfg) : Object.assign({}, s.cfg, { pal: s.palTodas ? s.cfg.pal : null, fuente: 'auto', pos: 'auto', alin: 'auto', color: 'auto', banda: null, zoom: 1, dy: 0 }) })); }
+  renderVals() {
+    const EP = window.EU_PORTADAS, st = this.state, c = st.cfg;
+    const chip = (on) => ({ whiteSpace: 'nowrap', minHeight: '36px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '15px', fontWeight: 700, border: '2px solid var(--color-text)', background: on ? 'var(--color-accent)' : 'transparent', color: on ? '#fff' : 'var(--color-text)' });
+    const seg = (on) => ({ padding: '7px 12px', border: 0, cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, background: on ? 'var(--color-text)' : 'transparent', color: on ? 'var(--color-bg)' : 'var(--color-text)' });
+    const base = { total: 100, cfg: c, cats: [], items: [], estado: 'Cargando las portadas…', hayEditor: false, ed: { html: { __html: '' } }, hayGuardadas: false, guardadas: [], paletas: [], grupos: [], zoomVal: 100, zoomTxt: '100 %', dyTxt: '0',
+      setTitulo: e => this.set('titulo', e.target.value), setSub: e => this.set('sub', e.target.value), setAutor: e => this.set('autor', e.target.value), setSello: e => this.set('sello', e.target.value), setAnio: e => this.set('anio', e.target.value),
+      setZoom: e => this.set('zoom', +e.target.value / 100), setDy: e => this.set('dy', +e.target.value),
+      togglePalTodas: () => this.setState(s => ({ palTodas: !s.palTodas, cfg: Object.assign({}, s.cfg, { pal: s.cfg.pal == null ? 0 : s.cfg.pal }) })),
+      palTodasEstilo: chip(st.palTodas), palTodasTxt: st.palTodas ? 'Paleta fija en todas: sí' : 'Paleta fija en todas: no',
+      cerrar: () => this.setState({ sel: null }), parar: e => e.stopPropagation(),
+      png: () => this.descargar('png'), pdf: () => this.descargar('pdf'), svgDl: () => this.descargar('svg'), guardar: () => this.guardar(), trabajando: st.trabajando,
+      usarLibroTxt: st.enLibro === st.sel ? '✓ En mi libro' : 'Usar en mi libro',
+      usarLibro: () => { try { localStorage.setItem('eu_portada_libro', JSON.stringify({ id: st.sel, cfg: this.cfgEditor(), f: Date.now() })); } catch (e) {} this.setState({ enLibro: st.sel, trabajando: 'Lista para el Editorial: en «Portada premium» elige «La enviada desde Portadas premium». Los textos vacíos se rellenan con los del libro.' }); },
+      restablecer: () => this.setState(s => ({ cfg: Object.assign({}, s.cfg, { pal: null, fuente: 'auto', pos: 'auto', alin: 'auto', color: 'auto', banda: null, zoom: 1, dy: 0 }) })),
+      anterior: () => {}, siguiente: () => {} };
+    if (!st.listo || !EP) return base;
+    const todas = EP.lista(), CATS = EP.CATS, lista = st.cat ? EP.lista(st.cat) : todas, txt = this.textos(c);
+    const cats = [{ k: '', n: 'Todas', total: todas.length }].concat(Object.keys(CATS).map(k => ({ k, n: CATS[k], total: EP.lista(k).length }))).map(o => ({ n: o.n, total: o.total, estilo: chip(st.cat === o.k), pick: () => this.setState({ cat: o.k }) }));
+    const thumbCfg = Object.assign({}, txt, st.palTodas && c.pal != null ? { pal: c.pal } : {});
+    const items = lista.map(cv => ({ n: cv.n, num: String(todas.indexOf(cv) + 1).padStart(3, '0'), html: { __html: this.svg(cv.id, thumbCfg) }, abrir: () => this.abrir(cv.id) }));
+    const guardadas = st.guardadas.filter(g => EP.portada(g.id)).map((g, i) => ({ html: { __html: this.svg(g.id, g.cfg) }, abrir: () => this.abrir(g.id, g.cfg), borrar: () => this.borrar(i) }));
+    const out = Object.assign(base, { total: todas.length, cats, items, estado: lista.length + ' portadas' + (st.cat ? ' en ' + CATS[st.cat] : '') + '. Pulsa una para editarla.', guardadas, hayGuardadas: guardadas.length > 0 });
+    const cv = st.sel && EP.portada(st.sel);
+    if (!cv) return out;
+    const idx = todas.indexOf(cv), palAct = c.pal != null ? c.pal : (cv.pal || 0);
+    const paletas = EP.PAL.map((pl, i) => ({ n: pl.n, cols: [pl.f, pl.d, pl.a, pl.b, pl.c].map(cc => ({ estilo: { flex: 1, background: cc } })), estilo: { display: 'flex', flexDirection: 'column', gap: '4px', padding: '6px', cursor: 'pointer', background: '#fff', border: i === palAct ? '3px solid var(--color-accent)' : '2px solid var(--color-neutral-300)', width: '82px', fontFamily: 'var(--font-body)', color: 'var(--color-text)' }, pick: () => this.set('pal', i) }));
+    const grupo = (n, k, ops) => ({ n, ops: ops.map(([v, t]) => ({ n: t, estilo: seg(c[k] === v), pick: () => this.set(k, v) })) });
+    const grupos = [
+      grupo('Tipografía', 'fuente', [['auto', 'Automática'], ['serif', 'Clásica'], ['elegante', 'Elegante'], ['sans', 'Moderna'], ['cond', 'Impacto']]),
+      grupo('Posición del texto', 'pos', [['auto', 'Automática'], ['arriba', 'Arriba'], ['centro', 'Centro'], ['abajo', 'Abajo']]),
+      grupo('Alineación', 'alin', [['auto', 'Automática'], ['izq', 'Izquierda'], ['centro', 'Centrada']]),
+      grupo('Color del texto', 'color', [['auto', 'Automático'], ['claro', 'Claro'], ['oscuro', 'Oscuro']]),
+      { n: 'Banda detrás del título', ops: [[null, 'Automática'], [true, 'Sí'], [false, 'No']].map(([v, t]) => ({ n: t, estilo: seg(c.banda === v), pick: () => this.set('banda', v) })) }
+    ];
+    const ir = (d) => { const L = lista.length ? lista : todas, j = L.indexOf(cv), nx = L[(j + d + L.length) % L.length]; this.abrir(nx.id); };
+    return Object.assign(out, { hayEditor: true, paletas, grupos, zoomVal: Math.round(c.zoom * 100), zoomTxt: Math.round(c.zoom * 100) + ' %', dyTxt: String(c.dy),
+      anterior: () => ir(-1), siguiente: () => ir(1),
+      ed: { html: { __html: EP.svg(cv.id, this.cfgEditor()) }, n: cv.n, t: cv.t, s: cv.s || 'Subtítulo', cat: CATS[cv.cat], num: 'Portada ' + String(idx + 1).padStart(3, '0') } });
+  }
+}
+</script>
+</body>
+</html>
