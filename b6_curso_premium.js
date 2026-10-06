@@ -194,7 +194,8 @@
       } else {
         var bx = 48, by = 118, bw = e.rot.length ? 840 : 1184, bh = 440;
         x.fillStyle = '#FFFFFF'; x.fillRect(bx, by, bw, bh);
-        if (im && im.complete && im.naturalWidth) { var r = Math.min(bw / im.naturalWidth, bh / im.naturalHeight); var w = im.naturalWidth * r, h = im.naturalHeight * r; x.drawImage(im, bx + (bw - w) / 2, by + (bh - h) / 2, w, h); }
+        if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
+        else if (im && im.complete && im.naturalWidth) { var r = Math.min(bw / im.naturalWidth, bh / im.naturalHeight); var w = im.naturalWidth * r, h = im.naturalHeight * r; x.drawImage(im, bx + (bw - w) / 2, by + (bh - h) / 2, w, h); }
         var low = e.texto.toLowerCase(), ry = by + 10;
         e.rot.forEach(function (rt) {
           var at = low.indexOf(rt.toLowerCase()); if (at < 0) at = 0; if (cur.pos < at && !cur.fin) return;
@@ -379,7 +380,7 @@
       '#bajo{font-size:17px;line-height:1.55;max-width:70ch}.pq{border-left:4px solid ' + T.soft + ';padding:6px 12px;margin:10px 0;display:flex;flex-direction:column;gap:4px}.in{font:inherit;padding:6px;max-width:320px}.sol{color:#C0392B;font-size:14px}.nota{font-size:20px;font-weight:700}' +
       'small{opacity:.7}';
     return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + e(D.titulo) + ' · curso</title><style>' + css + '</style>' +
-      '<script src="datos.js"></script></head><body><div class="wrap"><nav id="menu"></nav><main>' +
+      '<script src="datos.js"></script>' + (D.anim ? '<script src="anim.js"></script>' : '') + '</head><body><div class="wrap"><nav id="menu"></nav><main>' +
       '<div><small>' + e(D.sub) + '</small><h1 style="margin:2px 0 0;font-size:30px">' + e(D.titulo) + '</h1></div>' +
       '<div id="reproductor" style="display:flex;flex-direction:column;gap:12px"><h2 id="tl" style="margin:0;font-size:22px">Bienvenida</h2>' +
       '<canvas id="cv" width="1280" height="720"></canvas>' +
@@ -410,9 +411,12 @@
     var ED = window.EU_EDITORIAL, D = construir(res);
     if (!D.modulos.length) return Promise.reject(new Error('Este libro no tiene unidades para el curso.'));
     aviso('Curso premium: preparando dibujos…');
-    return imagenes(D, function (f) { aviso('Curso premium: dibujos ' + Math.round(f * 100) + ' %'); }).then(function () {
+    return (window.EU_CURSO_ANIM ? EU_CURSO_ANIM.enriquecer(D, res, aviso) : Promise.resolve(D)).then(function () {
+      return imagenes(D, function (f) { aviso('Curso premium: dibujos ' + Math.round(f * 100) + ' %'); });
+    }).then(function () {
       var z = new JSZip(), base = slug(D.titulo) + '-premium/';
       z.file(base + 'curso/index.html', cursoHTML(D));
+      if (D.anim && window.EU_CURSO_ANIM) z.file(base + 'curso/anim.js', EU_CURSO_ANIM.js());
       z.file(base + 'curso/datos.js', 'window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';');
       z.file(base + 'libro/libro-imprimible.html', ED.documento(res, 'print'));
       z.file(base + 'libro/libro-interactivo.html', ED.documento(res, 'web'));
