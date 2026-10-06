@@ -11,14 +11,25 @@
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
-  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['lateral', 'Lateral · corte'], ['frente', 'Frente · guía'], ['dos', '◫ Lateral + nuca']];
+  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['frente', 'Frente · guía'], ['dos', '◫ Lateral + nuca']];
   var DUR = 9000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
 
   /* corte y cabello de la guía cargada: «<corte> · <cabello>» (EU_CORTES.guiaDe) o una guía propia */
   function recetaDe(el) {
-    var DG = window.EU_DIAGRAMA, CO = window.EU_CORTES, g = el.guia; if (!DG || !g) return null;
+    var DG = window.EU_DIAGRAMA, CO = window.EU_CORTES, g = el.guia;
+    /* corte creado en «Crear mi corte»: manda sobre la guía cargada */
+    if (DG && el._dg && el._dg.libre && window.EU_GEOMETRIA_CAPILAR) {
+      var kL = 'libre:' + JSON.stringify(el._dg.libre);
+      if (!CACHE[kL]) {
+        var oL = CACHE[kL] = { R: EU_GEOMETRIA_CAPILAR.receta(el._dg.libre), E: null, err: null };
+        DG.construir(oL.R).then(function (E) { oL.E = E; if (E) Object.keys(E.fondos).forEach(function (v) { if (!IMG[v]) { IMG[v] = new Image(); IMG[v].src = E.fondos[v]; } }); })
+          .catch(function (e) { oL.err = e.message || String(e); });
+      }
+      return CACHE[kL];
+    }
+    if (!DG || !g) return null;
     var partes = String(g.nombre || '').split(' · '), c = null, cab = null;
     if (CO) {
       c = (CO.lista() || []).filter(function (x) { return x.n === partes[0]; })[0] || null;
@@ -94,7 +105,88 @@
       chips.push(b); fila.appendChild(b);
     });
     barra.parentNode.insertBefore(fila, barra.nextSibling);
+    var crear = document.createElement('button'); crear.textContent = '✏️ Crear mi corte'; crear.style.cssText = CHIP_OFF;
+    var panel = panelCrear(el, function () { sincro(); });
+    crear.onclick = function () { var vis = panel.style.display === 'none'; panel.style.display = vis ? '' : 'none'; crear.style.cssText = vis ? CHIP_ON : CHIP_OFF; };
+    fila.appendChild(crear); fila.parentNode.insertBefore(panel, fila.nextSibling);
+    /* «🔎 Escáner de cortes» (b6_pelu_escaner_cortes.js): qué hay, qué falta, y abrir este panel ya relleno */
+    var esc = document.createElement('button'); esc.textContent = '🔎 Escáner de cortes'; esc.style.cssText = CHIP_OFF;
+    esc.onclick = function () { if (window.EU_ESCANER_CORTES) window.EU_ESCANER_CORTES.abrir(el); };
+    fila.appendChild(esc);
+    /* «🧪 Laboratorio» (b6_pelu_laboratorio.js): miles de cortes calculados dentro de los rangos que se elijan */
+    var lab = document.createElement('button'); lab.textContent = '🧪 Laboratorio'; lab.style.cssText = CHIP_OFF;
+    lab.onclick = function () { if (window.EU_LAB_CORTES) window.EU_LAB_CORTES.abrir(el); };
+    fila.appendChild(lab);
+    el._dgCrear = { sincro: sincro, abrir: function (o) { panel.style.display = ''; crear.style.cssText = CHIP_ON; if (panel._poner) panel._poner(o); try { panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { } } };
     el._dgBarra = fila; sincro();
+  }
+
+  /* ─── «Crear mi corte»: cada capa con su elevación; el motor arma el corte completo y lo anima ─── */
+  function panelCrear(el, alAplicar) {
+    var GC = window.EU_GEOMETRIA_CAPILAR, DG = window.EU_DIAGRAMA;
+    var d = document.createElement('div'); d.style.cssText = 'display:none;margin-top:8px;padding:12px;border:1px solid #3b3b5c;border-radius:12px;background:#15152b;color:#e2e8f0;font:12px system-ui,sans-serif';
+    if (!GC || !DG) { d.textContent = 'El constructor de cortes no está cargado.'; return d; }
+    var CAMPO = 'background:#0f0f22;color:#e2e8f0;border:1px solid #3b3b5c;border-radius:8px;padding:6px 8px;font:12px system-ui,sans-serif';
+    function fila(et, nodo) { var f = document.createElement('label'); f.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:5px 0'; var s = document.createElement('span'); s.textContent = et; s.style.cssText = 'min-width:118px;color:#a5a5c8;font-weight:700'; f.appendChild(s); f.appendChild(nodo); d.appendChild(f); return nodo; }
+    function sel(ops) { var x = document.createElement('select'); x.style.cssText = CAMPO; ops.forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; x.appendChild(op); }); return x; }
+    function ent(ph, w) { var x = document.createElement('input'); x.placeholder = ph; x.style.cssText = CAMPO + ';width:' + (w || 260) + 'px'; return x; }
+    var tec = fila('Técnica', sel([['', '— elige una técnica o un corte mío —']]));
+    function llenarTec() {
+      tec.innerHTML = ''; [['', '— elige una técnica o un corte mío —']].concat(GC.TECNICAS.map(function (t) { return ['t:' + t.id, t.n + (t.validar ? ' (a validar por Fátima)' : '')]; }), GC.mios().map(function (m) { return ['m:' + m.n, '★ ' + m.n]; }))
+        .forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; tec.appendChild(op); });
+    }
+    llenarTec();
+    var nom = fila('Nombre', ent('Mi corte'));
+    var cap = fila('Capas (atrás)', ent('0, 25, 45, 90, 135', 300));
+    var rap = document.createElement('div'); rap.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;margin:2px 0 6px 126px';
+    GC.ELEVACIONES.forEach(function (g) { var b = document.createElement('button'); b.textContent = '+' + g + '°'; b.style.cssText = CHIP_OFF + ';padding:3px 8px'; b.onclick = function (e) { e.preventDefault(); cap.value = (cap.value.trim() ? cap.value.replace(/[,\s]+$/, '') + ', ' : '') + g; }; rap.appendChild(b); });
+    var bor = document.createElement('button'); bor.textContent = '⌫ quitar última'; bor.style.cssText = CHIP_OFF + ';padding:3px 8px'; bor.onclick = function (e) { e.preventDefault(); cap.value = cap.value.replace(/,?\s*[^,]*$/, ''); }; rap.appendChild(bor);
+    d.appendChild(rap);
+    var fre = fila('Capas (frente)', ent('vacío = igual que atrás', 300));
+    var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
+    var alt = fila('Guía del frente', sel(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; })));
+    var lin = fila('Línea de corte', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Hacia delante (redondeado)']]));
+    alt.value = 'nariz';
+    var aca = fila('Acabado', sel([['recto', 'Recto'], ['desgrafilado', 'Desgrafilado']]));
+    var lfr = fila('Línea del frente', sel([['', 'En arco'], ['recta', 'Recta (cuadrada)']]));
+    var gui = fila('Guía por capa', ent('m = móvil, f = fija · ej.: m, m, f (vacío = todas móviles)', 300));
+    var ref = fila('Ángulo medido', sel([['craneo', 'Desde el cráneo (90° = perpendicular a la curva)'], ['suelo', 'Desde el suelo (90° = horizontal)']]));
+    var cor = document.createElement('input'); cor.type = 'checkbox'; var corG = ent('grados (vacío = la capa más alta)', 200);
+    var fc = document.createElement('span'); fc.style.cssText = 'display:inline-flex;gap:8px;align-items:center'; fc.appendChild(cor); fc.appendChild(corG); fila('Coronilla △ oblicua', fc);
+    var CA = window.EU_CALCULO_CAPILAR, med0 = CA ? CA.medidas() : { guia: 20, contorno: 56, nucaCoronilla: 17, estandar: true };
+    var mg = ent('cm', 70), mc = ent('cm', 70), mn = ent('cm', 70); mg.value = med0.guia; mc.value = med0.contorno; mn.value = med0.nucaCoronilla;
+    var fm = document.createElement('span'); fm.style.cssText = 'display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap';
+    [['Largo de la guía', mg], ['Contorno', mc], ['Nuca–coronilla', mn]].forEach(function (q) { var l = document.createElement('span'); l.textContent = q[0]; l.style.color = '#a5a5c8'; fm.appendChild(l); fm.appendChild(q[1]); });
+    var gm = document.createElement('button'); gm.textContent = '💾 Medidas de la clienta'; gm.style.cssText = CHIP_OFF + ';padding:3px 8px';
+    gm.onclick = function (e) { e.preventDefault(); if (CA) nota.textContent = CA.guardarMedidas({ guia: mg.value, contorno: mc.value, nucaCoronilla: mn.value }) ? 'Medidas guardadas para los cálculos.' : 'No se pudieron guardar.'; };
+    fm.appendChild(gm); fila(med0.estandar ? 'Medidas (maniquí estándar, a validar)' : 'Medidas de la clienta', fm);
+    var nota = document.createElement('div'); nota.style.cssText = 'margin:6px 0;color:#fbbf24;min-height:14px'; d.appendChild(nota);
+    function nums(t) { return String(t || '').split(/[^0-9.]+/).filter(Boolean).map(Number).filter(function (n) { return !isNaN(n); }); }
+    function leer() {
+      var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), part: par.value, altura: alt.value, linea: lin.value, acabado: aca.value,
+        medidas: { guia: +mg.value || med0.guia, contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
+        lineaFrente: lfr.value, guias: String(gui.value || '').split(/[^a-zA-Z]+/).filter(Boolean).map(function (x) { return /^f/i.test(x) ? 'f' : 'm'; }), ref: ref.value };
+      if (cor.checked) { o.coronilla = true; var cg = nums(corG.value)[0]; if (cg != null) o.coronillaG = cg; }
+      return o;
+    }
+    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || 'nariz'; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
+      lfr.value = o.lineaFrente || ''; gui.value = (o.guias || []).join(', '); ref.value = o.ref || 'craneo'; cor.checked = !!o.coronilla; corG.value = o.coronillaG != null ? o.coronillaG : ''; nota.textContent = o.validar ? 'Elevaciones propuestas: a validar por Fátima. Cámbialas capa a capa si hace falta.' : (o.texto || ''); }
+    tec.onchange = function () { var v = tec.value; if (!v) return; var o = v.slice(0, 2) === 't:' ? GC.tecnica(v.slice(2)) : GC.mios().filter(function (m) { return m.n === v.slice(2); })[0]; if (o) poner(o); };
+    var bar = document.createElement('div'); bar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px';
+    var ver = document.createElement('button'); ver.textContent = '▶ Ver mi corte'; ver.style.cssText = CHIP_ON;
+    ver.onclick = function (e) {
+      e.preventDefault(); var o = leer(); if (!o.capas.length) { nota.textContent = 'Escribe al menos una capa con su elevación (0–225°).'; return; }
+      var t = tec.value.slice(0, 2) === 't:' ? GC.tecnica(tec.value.slice(2)) : null; if (t && t.texto && o.n === t.n) o.texto = t.texto;
+      el._dg = { on: true, modo: (el._dg && el._dg.modo) || 'todo', t0: 0, libre: o }; nota.textContent = 'Armando «' + o.n + '» con ' + o.capas.length + ' capas…'; alAplicar();
+      if (CA) { try { nota.textContent = CA.calcular(o, o.medidas).texto; } catch (er) { } }
+    };
+    var gua = document.createElement('button'); gua.textContent = '💾 Guardar como mi corte'; gua.style.cssText = CHIP_OFF;
+    gua.onclick = function (e) { e.preventDefault(); var o = leer(); if (!o.capas.length) return; nota.textContent = GC.guardar(o) ? 'Guardado «' + o.n + '» en tus cortes.' : 'No se pudo guardar en este navegador.'; llenarTec(); };
+    var sal = document.createElement('button'); sal.textContent = '↩ Volver al corte cargado'; sal.style.cssText = CHIP_OFF;
+    sal.onclick = function (e) { e.preventDefault(); if (el._dg) { el._dg.libre = null; el._dg.t0 = 0; } nota.textContent = ''; alAplicar(); };
+    bar.appendChild(ver); bar.appendChild(gua); bar.appendChild(sal); d.appendChild(bar);
+    d._poner = function (o) { llenarTec(); tec.value = ''; poner(o); };
+    return d;
   }
 
   window.customElements.whenDefined('guias-3d').then(function () {

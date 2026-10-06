@@ -56,13 +56,14 @@
     return out;
   }
   function preguntas(d) {
+    var nc = 'el corte «' + d.c.n + '»';
     var p0 = d.g.pasos[0], fin = d.g.pasos[d.g.pasos.length - 1], m = mx(fin.elevB || d.t.elev), ops = ['horizontal', 'vertical', 'diagonal hacia atrás'];
     var p0p = part(p0.particionB); if (ops.indexOf(p0p) < 0) ops[2] = p0p;
     var alt = [0, 45, 90, 135, 180].filter(function (x) { return x !== m; }).slice(0, 2).concat([m]).sort(function (a, b) { return a - b; });
     return [
-      { e: '¿Qué partición se usa en el primer paso?', o: ops.map(function (x) { return 'Partición ' + x; }), c: ops.indexOf(p0p) },
-      { e: '¿A qué elevación máxima se trabaja en el último paso?', o: alt.map(function (x) { return x + '°'; }), c: alt.indexOf(m) },
-      { e: '¿Con qué herramienta se corta?', o: [d.t.her, d.t.her === 'Navaja' ? 'Tijera' : 'Navaja', 'Maquinilla con peine 0'].filter(function (x, i, a) { return a.indexOf(x) === i; }), c: 0 }
+      { e: '¿Qué partición se usa en el primer paso de ' + nc + '?', o: ops.map(function (x) { return 'Partición ' + x; }), c: ops.indexOf(p0p) },
+      { e: '¿A qué elevación máxima llega ' + nc + '?', o: alt.map(function (x) { return x + '°'; }), c: alt.indexOf(m) },
+      { e: '¿Con qué herramienta se corta ' + nc + '?', o: [d.t.her, d.t.her === 'Navaja' ? 'Tijera' : 'Navaja', 'Maquinilla con peine 0'].filter(function (x, i, a) { return a.indexOf(x) === i; }), c: 0 }
     ].map(function (q, i) { var g = i % q.o.length, o = q.o.slice(g).concat(q.o.slice(0, g)); return { e: q.e, o: o, c: o.indexOf(q.o[q.c]) }; });
   }
 
