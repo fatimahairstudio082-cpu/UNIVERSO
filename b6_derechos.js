@@ -18,7 +18,8 @@
   function es(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function A(C) { return Object.assign({}, (C && C.cfg && C.cfg.acab) || {}, (C && C.acab) || {}); }
   function activo(C) { var a = A(C); return a.estado === 'autorizado' || a.marcaAut === 'si' || !!String(a.licencia || '').trim(); }
-  function autor(C) { return String((C && C.cfg && C.cfg.autor) || '').trim(); }
+  /* nombre que figura: quien autoriza (sección Autorización); si está vacío, la autoría del libro */
+  function autor(C) { return String(A(C).por || (C && C.cfg && C.cfg.autor) || '').trim(); }
   /* mismo cálculo que el sello de b6_conectores.js: el código registrado es el que ya se imprime */
   function codigo(C, res) {
     var a = A(C), s = H.hash(C.titulo + '|' + (a.por || '') + '|' + (a.fecha || '') + '|' + (res && res.pages ? res.pages.length : 0)).toString(36).toUpperCase().padStart(8, '0').slice(-8);
@@ -55,9 +56,9 @@
   ED.registrar({
     post: function (h, pg, C, modo, ctx) {
       if (!activo(C) || !ctx || !ctx.pages) return h;
-      var a = A(C), d = datos(C, ctx), s = '', W = C.papel.w, au = d.autor ? '© ' + d.anio + ' ' + d.autor : '© ' + d.anio;
+      var a = A(C), d = datos(C, ctx), s = '', W = C.papel.w, au = d.autor ? 'Autorizado por ' + d.autor + ' · © ' + d.anio : '© ' + d.anio;
       if (a.marcaAut === 'si' && a.estado !== 'borrador' && a.estado !== 'revision')
-        s += '<div style="' + ABS + 'inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:4"><div style="transform:rotate(-32deg);text-align:center;color:' + C.T.acc + ';opacity:.09;white-space:nowrap;font-family:sans-serif"><div style="font:800 ' + (W * 0.085) + 'mm/1 sans-serif;letter-spacing:.08em">AUTORIZADO</div><div style="font:700 ' + (W * 0.022) + 'mm/1.4 sans-serif;letter-spacing:.06em">' + es(au) + ' · Código ' + d.codigo + '</div></div></div>';
+        s += '<div style="' + ABS + 'inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:4"><div style="transform:rotate(-32deg);text-align:center;color:' + C.T.acc + ';opacity:.09;white-space:nowrap;font-family:sans-serif"><div style="font:800 ' + (W * 0.085) + 'mm/1 sans-serif;letter-spacing:.08em">AUTORIZADO</div><div style="font:700 ' + (W * 0.022) + 'mm/1.4 sans-serif;letter-spacing:.06em">' + (d.autor ? 'POR ' + es(d.autor.toUpperCase()) + ' · ' : '') + 'CÓDIGO ' + d.codigo + '</div></div></div>';
       /* créditos: el sello de «Material autorizado» (b6_conectores.js) tapaba la autoría y el ©; sube encima de ellos */
       if (pg.tipo === 'creditos' && a.estado === 'autorizado' && h.indexOf('left:17mm;right:17mm;bottom:24mm">') >= 0)
         h = h.replace('left:17mm;right:17mm;bottom:24mm">', 'left:17mm;right:17mm;bottom:70mm">').replace('top:18mm;bottom:72mm;overflow:hidden', 'top:18mm;bottom:100mm;overflow:hidden');
@@ -81,7 +82,7 @@
         try {
           RES_CURSO = res;
           if (res && res.C && activo(res.C)) {
-            var d = datos(res.C, res), au = d.autor ? '© ' + d.anio + ' ' + d.autor : '© ' + d.anio;
+            var d = datos(res.C, res), au = d.autor ? 'Autorizado por ' + d.autor + ' · © ' + d.anio : '© ' + d.anio;
             D.sub = (D.sub ? D.sub + ' · ' : '') + au + ' · Código ' + d.codigo + (d.licencia ? ' · Licencia: ' + d.licencia : '');
             if (!D.autor && d.autor) D.autor = d.autor;
             D.centro = (D.centro ? D.centro + ' · ' : '') + 'Código ' + d.codigo + (d.lic ? ' · ' + d.lic : '');
@@ -98,7 +99,7 @@
         return paq.apply(this, arguments).then(function (r) {
           if (!r || !r.D || !r.D.derechos || !window.JSZip) return r;
           var d = r.D.derechos; try { apuntar(res, 'curso'); } catch (e) { }
-          var t = 'DERECHOS DE AUTOR Y LICENCIA DE USO\n\n' + r.D.titulo + '\n© ' + d.anio + ' ' + (d.autor || '') + '. Todos los derechos reservados.\nCódigo de la obra: ' + d.codigo + '\n' +
+          var t = 'DERECHOS DE AUTOR Y LICENCIA DE USO\n\n' + r.D.titulo + '\n' + (d.autor ? 'Autorizado por ' + d.autor + ' · ' : '') + '© ' + d.anio + '. Todos los derechos reservados.\nCódigo de la obra: ' + d.codigo + '\n' +
             (d.licencia ? 'Licencia de uso personal e intransferible para: ' + d.licencia + ' (' + d.lic + ')\n' : '') +
             '\nQueda prohibida la reproducción, distribución, comunicación pública, reventa o transformación, total o parcial,\nde este curso y de sus materiales por cualquier medio sin autorización escrita de la autora.\nCada copia está registrada y su código se puede verificar.\n\n(Texto a revisar por la autora.)\n';
           return JSZip.loadAsync(r.blob).then(function (z) {
@@ -117,7 +118,7 @@
   function guardarGlob(o) { try { localStorage.setItem(GLOB, JSON.stringify(Object.assign(glob(), o))); } catch (e) { } }
   function sellar(doc) {
     var g = glob(); if (g.pdf !== 'si' || doc.__euSello) return; doc.__euSello = 1;
-    var n = doc.getNumberOfPages(), au = (g.autor ? '© ' + new Date().getFullYear() + ' ' + g.autor : '© ' + new Date().getFullYear());
+    var n = doc.getNumberOfPages(), au = (g.autor ? 'Autorizado por ' + g.autor + ' · © ' + new Date().getFullYear() : '© ' + new Date().getFullYear());
     var s = H.hash((g.autor || '') + '|' + (document.title || '') + '|' + n + '|' + Date.now()).toString(36).toUpperCase().padStart(8, '0').slice(-8), cod = s.slice(0, 4) + '-' + s.slice(4);
     var lin = au + ' · Código ' + cod + (g.licencia ? ' · Licencia de uso: ' + g.licencia : '') + ' · Prohibida su reproducción o distribución';
     for (var i = 1; i <= n; i++) {
@@ -157,7 +158,7 @@
         var i = el('input', ST.campo); i.value = a.licencia || ''; i.placeholder = 'Vacío = sin licencia personal';
         i.onchange = function () { setA('licencia', i.value.trim()); }; s.appendChild(i);
         var g = glob(), fp = el('div', ST.fila);
-        [['no', 'PDF de guías sin sello'], ['si', 'Sellar PDF de guías y láminas']].forEach(function (o) { var b = el('button', chip((g.pdf || 'no') === o[0]), o[1]); b.onclick = function () { guardarGlob({ pdf: o[0], autor: ed.cfg.autor || '', licencia: (ed.cfg.acab || {}).licencia || '' }); ed.set('acab', Object.assign({}, ed.cfg.acab || {}), false); ed.aviso(o[0] === 'si' ? 'Los PDF de Guías 3D, Estudios y biblioteca llevarán © y código.' : 'PDF sin sello.'); }; fp.appendChild(b); });
+        [['no', 'PDF de guías sin sello'], ['si', 'Sellar PDF de guías y láminas']].forEach(function (o) { var b = el('button', chip((g.pdf || 'no') === o[0]), o[1]); b.onclick = function () { guardarGlob({ pdf: o[0], autor: (ed.cfg.acab || {}).por || ed.cfg.autor || '', licencia: (ed.cfg.acab || {}).licencia || '' }); ed.set('acab', Object.assign({}, ed.cfg.acab || {}), false); ed.aviso(o[0] === 'si' ? 'Los PDF de Guías 3D, Estudios y biblioteca llevarán © y código.' : 'PDF sin sello.'); }; fp.appendChild(b); });
         s.appendChild(fp);
         var C = ed.res && ed.res.C;
         s.appendChild(el('div', ST.nota, C && activo(C) ? 'Código de la obra: ' + codigo(C, ed.res) + (a.licencia ? ' · Licencia ' + licCod(codigo(C, ed.res), a.licencia) : '') + '. Se registra al descargar. La contraportada lleva el aviso de derechos de autor.' :
