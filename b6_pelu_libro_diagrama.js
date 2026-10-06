@@ -23,6 +23,7 @@
     if (dg.k === 'corte') return DG.receta(dg.corte, dg.cab);
     if (dg.k === 'tec') { var t = GC && GC.tecnica(dg.id); return t ? GC.receta(t) : null; }
     if (dg.k === 'mio') return GC ? GC.receta(dg.o) : DG.libre(dg.o);
+    if (dg.k === 'var') { var v = GC && GC.variante && GC.variante(dg.id); return v ? GC.receta(v) : null; }
     return null;
   }
   function clave(dg) { return dg.k + '|' + (dg.corte || dg.id || (dg.o && dg.o.n)) + '|' + (dg.cab || ''); }
@@ -39,19 +40,32 @@
   }
 
   /* la regla del lateral ya va en la ficha de la página: en la leyenda solo lo propio de este corte */
-  function leyenda(e) { return String(e.texto || '').replace(/^El lateral, delante de la división de oreja a oreja\.\s*/, ''); }
+  function leyenda(e, d, dg) {
+    if (dg && dg.k === 'var' && d) {
+      /* variantes: el método ya se explica en las páginas de técnica; aquí solo los datos de esta combinación */
+      var R = d.R, g = function (a) { return a.map(function (x) { return x + '°'; }).join(' · '); };
+      if (e.tipo === 'lateral') return (R.liso ? 'Secciones horizontales (liso extremo)' : 'Secciones verticales') + '; delante: ' + g(R.frente.pila) + (R.desg ? ', desgrafilado' : '') + '.';
+      if (e.tipo === 'frente') return 'Guía a 0° ' + (ALT_N[R.altura] || R.altura) + (R.linea === 'recta' ? '; línea recta' : R.linea === 'redondeada' ? '; línea hacia delante' : '') + '.';
+      if (e.tipo === 'capas') return 'Atrás, de abajo arriba: ' + g(R.capas.pila) + '.';
+    }
+    return String(e.texto || '').replace(/^El lateral, delante de la división de oreja a oreja\.\s*/, '');
+  }
   /* ficha de la receta: solo lo que dice la receta (catálogo, técnica de Fátima o corte guardado) */
   function ficha(d, dg, T) {
     var R = d.R, pila = R.capas.pila || [], part = R.oblicua ? 'oblicua (box universal)' : R.liso ? 'horizontal (liso extremo)' : 'vertical';
     var chips = pila.map(function (g, z) { return '<span style="display:inline-block;margin:0 1mm 1mm 0;padding:.4mm 2mm;border-radius:99px;background:' + T.soft + ';white-space:nowrap"><b style="color:' + T.acc + '">' + (R.libre ? z + 1 : 'Z' + z) + '</b> ' + g + '°</span>'; }).join('');
-    var t = dg.k === 'tec' && window.EU_GEOMETRIA_CAPILAR ? window.EU_GEOMETRIA_CAPILAR.tecnica(dg.id) : null;
+    var GC = window.EU_GEOMETRIA_CAPILAR, t = !GC ? null : dg.k === 'tec' ? GC.tecnica(dg.id) : dg.k === 'var' ? GC.variante(dg.id) : null;
+    /* si delante se trabaja distinto que atrás (variantes, cortes propios), se ven las dos pilas */
+    var fr = (R.frente && R.frente.pila) || pila, dos = fr.join() !== pila.join();
+    var chipsF = fr.map(function (g, z) { return '<span style="display:inline-block;margin:0 1mm 1mm 0;padding:.4mm 2mm;border-radius:99px;background:' + T.soft + ';white-space:nowrap"><b style="color:' + T.acc + '">' + (z + 1) + '</b> ' + g + '°</span>'; }).join('');
     return '<div style="font-size:.74em;line-height:1.4;display:grid;gap:1.2mm">' +
-      '<div><b>Capas de abajo arriba:</b><div style="margin-top:1mm">' + chips + '</div></div>' +
+      '<div><b>' + (dos ? 'Atrás, capas de abajo arriba:' : 'Capas de abajo arriba:') + '</b><div style="margin-top:1mm">' + chips + '</div></div>' +
+      (dos ? '<div><b>Delante, capas de abajo arriba:</b><div style="margin-top:1mm">' + chipsF + '</div></div>' : '') +
       '<div><b>Secciones:</b> ' + part + ' · <b>Lateral:</b> dividido de oreja a oreja</div>' +
       '<div><b>Guía del frente:</b> a 0°, ' + es(ALT_N[R.altura] || R.altura) + (R.fuenteAltura === 'ejemplo' ? ' (ejemplo)' : '') + '</div>' +
       (R.linea ? '<div><b>Línea de corte:</b> ' + (R.linea === 'recta' ? 'recta (queda cuadrado)' : 'hacia delante (queda redondeado)') + '</div>' : '') +
       '<div><b>Acabado:</b> ' + (R.desg ? 'desgrafilado' : 'recto') + (R.punto ? ' · lateral llevado a un punto' : '') + '</div>' +
-      (t && t.texto ? '<div>' + es(t.texto) + '</div>' : '') +
+      (t && t.variante ? '<div>Atrás como en «' + es(GC.tecnica(t.base[0]).n) + '»; delante como en «' + es(GC.tecnica(t.base[1]).n) + '».</div>' : t && t.texto ? '<div>' + es(t.texto) + '</div>' : '') +
       (t && t.validar ? '<div style="color:#A0522D;font-weight:700">Elevaciones de ejemplo, a validar por Fátima.</div>' : '') + '</div>';
   }
 
@@ -72,14 +86,14 @@
   function pagina(pg, C, modo) {
     var H = ED.H, T = C.T, dg = pg.dg || {}, d = datos(dg), web = modo === 'web', rad = Math.min(T.r || 4, 6);
     if (!d) return H.cabecera(C, pg) + H.h1(C, es(pg.titulo || 'Diagramación')) + '<p style="font-size:.85em">La diagramación se prepara con el maniquí de Guías 3D: vuelve a abrir esta página en un momento.</p>' + H.folio(C, pg);
-    var R = d.R, tipo = dg.k === 'corte' ? 'Diagramación del corte' : dg.k === 'mio' ? 'Mi corte · diagramación' : 'Geometría capilar · técnica';
+    var R = d.R, tipo = dg.k === 'corte' ? 'Diagramación del corte' : dg.k === 'mio' ? 'Mi corte · diagramación' : dg.k === 'var' ? 'Variante de técnica' : 'Geometría capilar · técnica';
     var cab = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">' + tipo + ' · lateral, frente y capas</div>' + H.h1(C, es(R.n));
     var ctrl = web ? '<div style="display:flex;gap:3mm;align-items:center;margin:0 0 2.5mm"><button data-dg-play="1" style="font:inherit;font-size:.86em;padding:1.5mm 4mm;border:0;border-radius:' + rad + 'px;background:' + T.acc + ';color:#fff;cursor:pointer;white-space:nowrap;flex:none">▶ Ver diagramación</button><span data-dg-sub="1" style="font-size:.8em;font-style:italic;opacity:.85;min-width:0"></span></div>'
       : '<div style="font-size:.76em;opacity:.8;margin:0 0 2.5mm">Animación con voz de esta diagramación en el libro interactivo y en el curso premium.</div>';
     var fig = function (e, i, gr) {
       return '<figure data-dg-fig="' + i + '" style="margin:0;background:' + T.soft + ';border-radius:' + rad + 'px;padding:1.5mm' + (gr ? '' : ';font-size:.92em') + '">' +
         '<img src="' + d.fotos[i] + '" alt="' + es(e.t) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px">' +
-        '<figcaption style="font-size:.66em;line-height:1.3;margin-top:1.2mm"><b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (i + 1) + ' · ' + es(e.t) + '</b>' + es(leyenda(e)) + '</figcaption></figure>';
+        '<figcaption style="font-size:.66em;line-height:1.3;margin-top:1.2mm"><b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (i + 1) + ' · ' + es(e.t) + '</b>' + es(leyenda(e, d, dg)) + '</figcaption></figure>';
     };
     var arriba = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm">' + d.vis.slice(0, 2).map(function (e, i) { return fig(e, i, 1); }).join('') + '</div>';
     var abajo = '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3mm;margin-top:3mm;align-items:start">' + (d.vis[2] ? fig(d.vis[2], 2) : '<div></div>') + ficha(d, dg, T) + '</div>';
@@ -119,7 +133,7 @@
       if (p.relleno && p.tipo === 'vis') return c.push([2, i]);
       if (/^lec_(amplia|concepto|lectura|caso|proyecto)$/.test(p.tipo)) { var k = p.tipo; vistos[k] = (vistos[k] || 0) + 1; if (vistos[k] > 1) c.push([3, i]); }
     });
-    return c.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[1]; });
+    return c.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
   }
   /* el maniquí 3D tarda un momento la primera vez: cuando está listo, el Editorial vuelve a armar el libro */
   var ESPERA = 0;
@@ -138,8 +152,9 @@
       if (p.u && cortes.indexOf(p.u.id) < 0 && otras.indexOf(p.u.id) < 0) (/^pe_u_c_/.test(p.u.id) ? cortes : otras).push(p.u.id);
     });
     cortes.concat(otras).forEach(function (u) { libres[u] = huecos(res, u, g3d); });
-    function pon(uid, dg, t) {
-      var i = (libres[uid] || []).shift(); if (i == null) return false;
+    function pon(uid, dg, t, tope) {
+      var L = libres[uid] || []; if (!L.length || (tope != null && L[0][0] > tope)) return false;
+      var i = L.shift()[1];
       var p = res.pages[i]; res.pages[i] = { tipo: 'pe_diagrama', u: p.u, n: p.n, num: p.num, dg: dg, titulo: t }; quitadas[p.num] = 1; n++; return true;
     }
     /* 1 · cada corte con guía 3D en el libro, en su unidad */
@@ -148,6 +163,11 @@
     var extra = (GC ? GC.mios() : []).map(function (o) { return { k: 'mio', o: o }; }).concat((GC ? GC.TECNICAS : []).map(function (t) { return { k: 'tec', id: t.id }; }));
     var todas = cortes.concat(otras), j = 0;
     extra.forEach(function (dg) { for (var v = 0; v < todas.length; v++) { if (pon(todas[(j + v) % todas.length], dg, dg.id || dg.o.n)) { j = (j + v + 1) % todas.length; return; } } });
+    /* 4 · variantes de técnicas (atrás una, delante otra): en los huecos de relleno que queden en las unidades de corte
+       y en «Secciones, elevación y mecha guía»; no sustituyen lecturas. Ninguna se repite en el libro. */
+    var VAR = GC && GC.variantes ? GC.variantes() : [], dest = cortes.concat(otras.filter(function (u) { return u === 'pe_u_base'; })), iv = 0, hay = true;
+    while (hay && iv < VAR.length) { hay = false; for (var w = 0; w < dest.length && iv < VAR.length; w++) if (pon(dest[w], { k: 'var', id: VAR[iv].id }, VAR[iv].id, 2)) { iv++; hay = true; } }
+    res.variantes = iv;
     /* las soluciones de las páginas sustituidas salen del solucionario (la página nueva lleva las suyas) */
     res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return !quitadas[e.p]; }); });
     res.diagramas = n;

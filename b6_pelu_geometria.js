@@ -54,5 +54,30 @@
   /* receta animable de una técnica o de un corte propio */
   function receta(o) { var DG = window.EU_DIAGRAMA; if (!DG || !o) return null; var R = DG.libre(o); if (o.texto) R.capas.texto = o.texto; return R; }
 
-  window.EU_GEOMETRIA_CAPILAR = { TECNICAS: TECNICAS, ELEVACIONES: ELEVACIONES, tecnica: tecnica, receta: receta, mios: mios, guardar: guardar, quitar: quitar };
+  /* Variantes: atrás se corta con una técnica y delante con otra (el lateral se divide de oreja a oreja), la guía del
+     frente a una de sus alturas y el cabello normal (vertical) o liso extremo (horizontal). Solo técnicas con cifras de
+     Fátima (las «a validar» no entran). Todas las elevaciones salen de sus técnicas: aquí solo se combinan.
+     Orden fijo: por rondas; en cada ronda salen las 56 parejas atrás/delante una vez (salteadas), cada una con otra
+     altura y cabello, así un libro no repite pareja hasta haberlas usado todas. */
+  var ALT_N = { cejas: 'bajo las cejas', ojo: 'bajo el ojo', nariz: 'bajo la nariz', labio: 'bajo el labio', barbilla: 'en la barbilla', rostro: 'donde termina el rostro', cuello: 'en el cuello' };
+  var VAR = null;
+  function variantes() {
+    if (VAR) return VAR;
+    var base = TECNICAS.filter(function (t) { return !t.validar; }), alts = Object.keys(ALT_N), pares = [];
+    base.forEach(function (A) { base.forEach(function (F) { if (A !== F) pares.push([A, F]); }); });
+    var P = pares.length, K = alts.length * 2, paso = 25; while (P % paso === 0 || mcd(P, paso) !== 1) paso++;
+    VAR = [];
+    for (var r = 0; r < K; r++) for (var q = 0; q < P; q++) {
+      var p = (q * paso) % P, A = pares[p][0], F = pares[p][1], c = (r + p * 3) % K, al = alts[c % alts.length], liso = c >= alts.length;
+      VAR.push({ id: 'var_' + A.id + '__' + F.id + '__' + al + (liso ? '__liso' : ''), base: [A.id, F.id], variante: true,
+        n: 'Atrás ' + A.n.toLowerCase() + ' · delante ' + F.n.toLowerCase() + ' · guía ' + ALT_N[al] + (liso ? ' · liso extremo' : ''),
+        capas: A.capas.slice(), frente: (F.frente || F.capas).slice(), part: liso ? 'horizontal' : 'vertical', altura: al,
+        linea: A.linea || '', acabado: F.acabado, texto: 'Atrás, como en «' + A.n + '»: ' + A.texto + ' Delante, como en «' + F.n + '»: ' + F.texto });
+    }
+    return VAR;
+  }
+  function mcd(a, b) { return b ? mcd(b, a % b) : a; }
+  function variante(id) { return variantes().filter(function (v) { return v.id === id; })[0] || null; }
+
+  window.EU_GEOMETRIA_CAPILAR = { TECNICAS: TECNICAS, ELEVACIONES: ELEVACIONES, tecnica: tecnica, receta: receta, mios: mios, guardar: guardar, quitar: quitar, variantes: variantes, variante: variante, ALT_N: ALT_N };
 })();
