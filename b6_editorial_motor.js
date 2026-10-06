@@ -827,9 +827,14 @@
         '<div style="flex:1;margin:10mm 0;display:flex;flex-direction:column;justify-content:center">' + marcoImagen(C, 'Ilustración de portada: súbela en «Imágenes» del panel', 90, img) + '</div>' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6mm"><div><div style="font-weight:700">' + esc(C.cfg.autor || '') + '</div><div style="font-size:.85em;opacity:.8">' + esc(C.cfg.centro || '') + '</div><div style="font-size:.8em;opacity:.7;margin-top:1mm">' + marco + '</div></div>' + (C.prod.id === 'examen' ? '' : '<div style="display:flex;align-items:center;gap:2.5mm;font-size:.85em">' + avatar(C, 14) + '<span>Con ' + esc(C.guia.n) + '</span></div>') + '</div></div>';
     },
-    creditos: function (pg, C) {
+    creditos: function (pg, C, modo, ctx) {
       var ed = C.usuario === 'editorial', y = new Date().getFullYear();
-      return '<div style="position:absolute;left:17mm;right:17mm;bottom:22mm;font-size:.82em;line-height:1.6">' +
+      /* La mitad de arriba ya no queda en blanco: «Lo que vas a aprender», con el título y la primera idea de cada unidad del libro. */
+      var vistos = {}, uds = [];
+      ((ctx && ctx.pages) || []).forEach(function (p) { if (p.u && p.u.id && !vistos[p.u.id] && (p.tipo === 'apertura' || p.tipo === 's_titulo')) { vistos[p.u.id] = 1; uds.push([p.n, p.u]); } });
+      var arriba = uds.length ? '<div style="position:absolute;left:17mm;right:17mm;top:18mm;bottom:72mm;overflow:hidden;line-height:1.45">' + h2(C, 'Lo que vas a aprender') +
+        uds.map(function (x) { var u = x[1], i0 = (u.i || [])[0] || ''; return '<p style="margin:0 0 2.2mm"><b>' + (x[0] ? 'Unidad ' + x[0] + ' · ' : '') + esc(sub(u.t, C)) + '</b>' + (i0 ? '<br/><span style="opacity:.8">' + esc(sub(i0, C)) + '</span>' : '') + '</p>'; }).join('') + '</div>' : '';
+      return arriba + '<div style="position:absolute;left:17mm;right:17mm;bottom:22mm;font-size:.82em;line-height:1.6">' +
         '<p style="margin:0 0 3mm"><b>' + esc(C.titulo) + '</b><br/>' + (C.libre ? esc(C.matN) : esc(C.cursoN) + ' · ' + esc(C.N.n)) + '</p>' +
         '<p style="margin:0 0 3mm">Autoría: ' + esc(C.cfg.autor || '________________') + '<br/>' + (C.cfg.centro ? 'Centro: ' + esc(C.cfg.centro) + '<br/>' : '') + (C.libre ? '' : 'Referente curricular: ') + esc(C.libre ? '' : C.P.marco) + '</p>' +
         (ed ? '<p style="margin:0 0 3mm">ISBN: ________________ · Depósito legal: ________________<br/>Edición: 1.ª, ' + y + '</p>' : '') +

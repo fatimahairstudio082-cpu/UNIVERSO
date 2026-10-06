@@ -15,7 +15,43 @@
     return id && window.EU_CORTES && window.EU_CORTES.get(id) ? id : null;
   }
 
+  /* ─── lámina-concepto: el motor de láminas (LAMINAS_MOTOR) anima un esquema de la unidad al abrir «Ideas clave» ─── */
+  var LAM_SRC = null;
+  function cargarLaminas() {
+    if (LAM_SRC !== null || !window.LAMINAS_MOTOR || !window.fetch) return Promise.resolve();
+    var el = document.querySelector('script[src*="b6_laminas_motor.js"]'), src = el ? el.getAttribute('src') : './b6_laminas_motor.js';
+    return fetch(src).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) { LAM_SRC = /LAMINAS_MOTOR/.test(t) ? t : ''; }).catch(function () { LAM_SRC = ''; });
+  }
+  function laminas(D, res) {
+    var LM = window.LAMINAS_MOTOR; if (!LM || !LAM_SRC) return;
+    var est = (LM.porFamilia('mapa') || []).map(function (e) { return e.id; }), pals = (LM.paletas() || []).filter(function (p) { return p.claro; });
+    var pal = pals.filter(function (p) { return p.id === 'cuadricula'; })[0] || pals[0], modos = ['aparecer', 'dibujar'], n = 0;
+    D.modulos.forEach(function (M) {
+      var u = (res.unidades || []).filter(function (x) { return x.id === M.id; })[0]; if (!u) return;
+      var L = M.lecciones.filter(function (x) { return /__ideas$/.test(x.id); })[0]; if (!L || !L.escenas.length) return;
+      var claves = (u.k || []).map(String).filter(Boolean).slice(0, 6);
+      if (claves.length < 2) claves = (u.i || []).map(function (t) { t = String(t); return t.length > 42 ? t.slice(0, 40) + '…' : t; }).slice(0, 5);
+      if (claves.length < 2) return;
+      var k = 'lam_' + M.id; D.anim = D.anim || {};
+      D.anim[k] = { lam: { titulo: M.t, subtitulo: 'Ideas clave', estructura: est.length ? est[n % est.length] : 'radial', paleta: pal && pal.id, nodos: [{ t: M.t, d: '', nivel: 0 }].concat(claves.map(function (c) { return { t: c, d: '', nivel: 1 }; })) }, modo: modos[n % modos.length] };
+      L.escenas.unshift({ tipo: 'paso', id: L.escenas[0].id, t: 'Mapa de la unidad', texto: 'Mapa de la unidad: ' + M.t + '. ' + claves.join(', ') + '.', rot: [], anim: k });
+      n++;
+    });
+  }
+  /* reproductor de la lámina en el curso (sin dependencias: el motor va copiado tal cual en anim.js) */
+  function pintaLam(x, A, bx, by, bw, bh, p) {
+    var LM = window.LAMINAS_MOTOR; if (!LM) return false;
+    var W = 1600, H = Math.round(1600 * bh / bw), c = pintaLam.c || (pintaLam.c = document.createElement('canvas'));
+    if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+    var o = c.getContext('2d'); o.clearRect(0, 0, W, H);
+    LM.pintar(o, W, H, A.lam, { prog: p, modo: A.modo });
+    x.drawImage(c, bx, by, bw, bh); return true;
+  }
+
   function enriquecer(D, res, aviso) {
+    return cargarLaminas().then(function () { laminas(D, res); return diagramas(D, res, aviso); });
+  }
+  function diagramas(D, res, aviso) {
     var DG = window.EU_DIAGRAMA; if (!DG) return Promise.resolve(D);
     var tareas = [];
     D.modulos.forEach(function (M) { M.lecciones.forEach(function (L) { var c = corteDe(L); if (c) tareas.push({ M: M, L: L, c: c }); }); });
@@ -47,8 +83,16 @@
     });
   }
 
-  window.EU_CURSO_ANIM = {
-    enriquecer: enriquecer,
-    js: function () { return window.EU_DIAGRAMA ? window.EU_DIAGRAMA.js() : ''; }
-  };
+  /* anim.js del curso: motor de láminas (copia tal cual) + reproductor de diagramación + reparto por tipo de escena */
+  function js() {
+    var DG = window.EU_DIAGRAMA, partes = [];
+    /* el motor de láminas toma la mezcla de colores del motor de folletos; en el curso descargado no está:
+       se pone solo esa función (si falta, el texto de las cajas salía del mismo color que la caja) */
+    if (LAM_SRC) partes.push('if(!window.FOLLETO_MOTOR)window.FOLLETO_MOTOR={mezclar:function(a,b,t){function h(c){c=String(c||"#000").replace("#","");if(c.length===3)c=c.replace(/./g,"$&$&");return[0,2,4].map(function(i){return parseInt(c.substr(i,2),16)||0;});}var x=h(a),y=h(b);return"#"+x.map(function(v,i){return("0"+Math.round(v+(y[i]-v)*t).toString(16)).slice(-2);}).join("");}};', LAM_SRC);
+    partes.push('(function(){var dg=' + (DG ? DG.pinta.toString() : 'function(){return false;}') + ';var lam=' + pintaLam.toString() +
+      ';window.CURSO_ANIM={pinta:function(x,A,im,bx,by,bw,bh,p){return A&&A.lam?lam(x,A,bx,by,bw,bh,p):dg(x,A,im,bx,by,bw,bh,p);}};})();');
+    return partes.join('\n');
+  }
+
+  window.EU_CURSO_ANIM = { enriquecer: enriquecer, js: js };
 })();
