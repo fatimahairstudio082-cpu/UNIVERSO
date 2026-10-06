@@ -35,7 +35,7 @@
   var RECETAS = {};
 
   /* Cámaras: [azimut, elevación, distancia]; la cabeza es la misma en todos los cortes. */
-  var VISTAS = { tres: [2.3, 0.45, 5.6], nuca: [Math.PI, 0.12, 5.4], lateral: [Math.PI / 2, 0.08, 5.6], frente: [0, 0.10, 5.6] };
+  var VISTAS = { tres: [2.3, 0.45, 5.6], nuca: [Math.PI, 0.12, 5.4], lateral: [Math.PI / 2, 0.08, 5.6], frente: [0, 0.10, 5.6], arriba: [Math.PI, 1.0, 5.6] };
   var MIRA = -0.45, RECORTE = [190, 0, 900, 720];
 
   /* ───────────── el maniquí: ejemplar oculto de <guias-3d> ───────────── */
@@ -301,6 +301,49 @@
     return { v: v, tr: tr };
   }
 
+  /* Ángulos y largos (EU_CALCULO_CAPILAR): el perfil con transportador, escuadra/cartabón, compás y regla en cm */
+  function escAngulos(R, calc) {
+    var v = 'lateral', tr = [], n = calc.capas.length;
+    var atras = pr(v, P(NUCA, Math.PI / 2)), cara = pr(v, P(CARA, Math.PI / 2)), bx = atras[0] - cara[0], by = atras[1] - cara[1], bl = Math.sqrt(bx * bx + by * by) || 1;
+    bx /= bl; by /= bl;
+    var px = bl / (2 * calc.R), roots = [], tips = [];
+    calc.capas.forEach(function (c) { roots.push(pr(v, P(NUCA, Math.max(0.05, Math.min(2.6, c.b))))); });
+    tr.push(linea(plano(roots), [0, 0.08], '#5B4B8A', 2.5, { d: 1 }));
+    tr.push(rotulo('Compás · curva de la cabeza (R = ' + EU_CALCULO_CAPILAR.fmt(calc.R) + ' cm)', '#5B4B8A', 0));
+    calc.capas.forEach(function (c, z) {
+      var ta = 0.08 + 0.8 * z / n, tb = 0.08 + 0.8 * (z + 1) / n, sx = c.dir[0] * bx, sy = c.dir[0] * by - c.dir[1], sl = Math.sqrt(sx * sx + sy * sy) || 1, l = Math.min(260, c.largo * px), q = roots[z];
+      sx /= sl; sy /= sl;
+      /* guía fija que rodea el cráneo: el camino (arco + tramo recto) se pasa a la pantalla con la misma escala */
+      var pl = null;
+      if (c.camino) { pl = []; c.camino.forEach(function (Q) { var vx = Q[0] - c.raiz[0], vy = Q[1] - c.raiz[1]; pl.push(r1(q[0] + px * (vx * bx)), r1(q[1] + px * (vx * by - vy))); }); if (tips[0]) { pl[pl.length - 2] = tips[0][0]; pl[pl.length - 1] = tips[0][1]; } }
+      tips.push(pl ? [pl[pl.length - 2], pl[pl.length - 1]] : [r1(q[0] + sx * l), r1(q[1] + sy * l)]);
+      var tz = { k: 'i', x: q[0], y: q[1], dx: r1(sx * 1000) / 1000, dy: r1(sy * 1000) / 1000, l: r1(l), g: c.ang, e: c.escuadra, cm: EU_CALCULO_CAPILAR.fmt(c.largo) + ' cm', cpx: r1(px), cc: bx > 0 ? 1 : 0, t: [ta, tb], c: COL[z % 7], x2: z < n - 1 ? tb + 0.02 : 0 };
+      if (pl) tz.pl = pl; tr.push(tz);
+      tr.push(rotulo('Capa ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + EU_CALCULO_CAPILAR.fmt(c.largo) + ' cm · ' + (z ? 'guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) : 'guía'), COL[z % 7], ta, z < n - 1 ? { x: tb } : {}));
+    });
+    tr.push(tijera(plano(tips), [0.88, 0.99], CORTE, R.desg), rotulo('Forma: ' + calc.forma + ' (a validar)', CORTE, 0.88));
+    return { v: v, tr: tr };
+  }
+  /* Coronilla en triángulo oblicuo: vértice delante, base atrás; secciones oblicuas y mechones a su elevación */
+  function escCoronilla(R) {
+    var v = 'arriba', tr = [], g = R.coronilla.g, A = [CARA, 0.42], B = [NUCA + 0.8, 1.0], Cc = [NUCA - 0.8, 1.0], tips = [];
+    [[A, B], [B, Cc], [Cc, A]].forEach(function (e) { tr = tr.concat(lineas(tramos(v, recta(e[0], e[1]), 26), [0, 0.2], ROJO, 4)); });
+    function mz(a, b, f) { return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]; }
+    for (var k = 1; k <= 4; k++) {
+      var f = k / 5, p0 = mz(A, Cc, f), p1 = mz(B, Cc, f), ta = 0.2 + (k - 1) * 0.1;
+      tr = tr.concat(lineas(tramos(v, recta(p0, p1), 16), [ta, ta + 0.05], '#8E847A', 2));
+      for (var j = 0; j <= 3; j++) {
+        var pt = mz(p0, p1, j / 3); if (!seVe(v, pt[0], pt[1])) continue;
+        var a = P(pt[0], pt[1]), ks = [];
+        for (var m = 0; m <= 5; m++) ks.push([].concat(pr(v, a), pr(v, a.clone().add(dirElev(pt[0], pt[1], g * m / 5).multiplyScalar(0.75)))));
+        tr.push(mechon(ks, [ta + 0.05, 0.75], COL[(k + 2) % 7], 2.2)); tips.push(ks[5].slice(2));
+      }
+    }
+    tr.push(rotulo('Coronilla · triángulo oblicuo', ROJO, 0), rotulo('Secciones oblicuas · ' + g + '°', TINTA, 0.2), regla(0, g, [0.3, 0.7], CORTE, 'Coronilla'));
+    if (tips.length > 1) tr.push(tijera(plano(tips), [0.78, 0.98], CORTE, R.desg));
+    return { v: v, tr: tr };
+  }
+
   /* Corte libre: cada capa con su elevación (0–225°). Lo que no se elige, va por defecto y se dice. */
   function libre(o) {
     o = o || {};
@@ -314,7 +357,9 @@
       forma: o.lineaFrente === 'recta' ? 'recto' : 'arco', linea: o.linea || '', oblicua: part === 'oblicua',
       guia: { part: part, g: capas[0], texto: o.texto || '' },
       capas: { part: part === 'oblicua' ? 'horizontal' : part, pila: capas, texto: '' },
-      frente: { part: part, pila: frente, dir: 'Hacia el rostro', texto: '' }
+      frente: { part: part, pila: frente, dir: 'Hacia el rostro', texto: '' },
+      guias: (o.guias || []).slice(), ref: o.ref === 'suelo' ? 'suelo' : 'craneo', medidas: o.medidas || null,
+      coronilla: o.coronilla ? { g: Math.max(0, Math.min(225, +o.coronillaG || Math.max.apply(null, capas))) } : null
     };
   }
 
@@ -337,9 +382,23 @@
     ];
     if (R.oblicua) L.splice(1, 0, { tipo: 'oblicua', vista: 'nuca', t: 'Partición oblicua · box universal', texto: 'Partición oblicua: dos diagonales en X que bajan hacia detrás de las orejas. La nuca se corta en abanico, los lados en secciones diagonales y arriba queda el triángulo.', a: escOblicua(R) });
     if (R.libre) L.forEach(function (e) { if (e.tipo === 'guia') e.texto = 'Línea guía en la nuca a ' + R.guia.g + ' grados, medida desde la caída natural.'; });
+    /* geometría calculada: ángulos y largos (calculadora capilar) y coronilla en triángulo oblicuo */
+    var CC = window.EU_CALCULO_CAPILAR, calc = null;
+    try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias, ref: R.ref }, R.medidas) : null; } catch (e) { calc = null; }
+    var ic = L.map(function (e) { return e.tipo; }).indexOf('capas') + 1;
+    if (R.coronilla) L.splice(ic++, 0, { tipo: 'coronilla', vista: 'arriba', t: 'Coronilla · triángulo oblicuo', texto: 'La coronilla se corta en triángulo: el vértice hacia la frente y la base atrás, con secciones oblicuas. Cada mechón se eleva a ' + R.coronilla.g + ' grados.', a: escCoronilla(R) });
+    if (calc) {
+      var esq = []; calc.capas.forEach(function (c) { var t = CC.fmt(c.ang) + '°: ' + c.escuadra; if (c.ang && esq.indexOf(t) < 0) esq.push(t); });
+      L.splice(ic, 0, { tipo: 'angulos', vista: 'lateral', t: 'Ángulos y largos · escuadra y transportador', texto: 'Ángulos y largos de cada capa, de abajo arriba, medidos ' + (calc.ref === 'suelo' ? 'desde el suelo' : 'desde el cráneo') + '. ' + calc.texto + (esq.length ? ' Cómo se trazan: ' + esq.join('; ') + '.' : ''), a: escAngulos(R, calc) });
+    }
     var qs = [{ e: '¿Cómo se toman las secciones del lateral en ' + R.n.toLowerCase() + '?', o: ['Verticales', 'Horizontales'], c: R.liso ? 1 : 0, x: R.liso ? 'Es cabello liso extremo: en vertical el filo deja escalón.' : 'Siempre en vertical, salvo en cabello liso extremo.' }];
     if (R.fuenteAltura !== 'ejemplo') { var ks = Object.keys(ALTURAS).filter(function (k) { return k !== R.altura; }), gi = (R.n.length + pila.length) % ks.length; ks = ks.slice(gi).concat(ks.slice(0, gi)).slice(0, 3); ks.splice((R.n.length) % 4, 0, R.altura); qs.push({ e: '¿Desde dónde se saca la guía del frente en ' + R.n.toLowerCase() + '?', o: ks.map(function (k) { return 'Desde ' + ALTURAS[k].n; }), c: ks.indexOf(R.altura) }); }
-    return { R: R, escenas: L, preguntas: qs };
+    if (calc) {
+      var FORMAS = ['línea sólida · un solo largo', 'capas uniformes', 'graduación · escalonado (peso abajo)', 'capas en aumento (más cortas arriba)', 'forma combinada'];
+      var ops = FORMAS.filter(function (f) { return f !== calc.forma; }).slice((R.n.length + pila.length) % 3, (R.n.length + pila.length) % 3 + 2); ops.splice(pila.length % 3, 0, calc.forma);
+      qs.push({ e: 'Con estas elevaciones (' + pila.join(' · ') + '°), ¿qué forma resulta en ' + R.n.toLowerCase() + '?', o: ops, c: ops.indexOf(calc.forma), x: 'Largos calculados: ' + calc.largos.map(function (x) { return CC.fmt(x); }).join(' · ') + ' cm.' });
+    }
+    return { R: R, escenas: L, preguntas: qs, calculo: calc };
   }
 
   /* ───────────── reproductor de la animación: autónomo, se serializa al curso ───────────── */
@@ -367,6 +426,30 @@
       } else if (T.k === 's') cola.push([T, u]);
       else if (T.k === 'n') { x.beginPath(); x.arc(ox + T.x * s, oy + T.y * s, 11, 0, 7); x.fill(); if (T.s) { x.fillStyle = '#fff'; x.font = '700 13px system-ui,sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(T.s, ox + T.x * s, oy + T.y * s + 1); x.textAlign = 'left'; x.textBaseline = 'alphabetic'; } }
       else if (T.k === 'e') { x.setLineDash([]); x.font = '700 15px system-ui,sans-serif'; var tw = x.measureText(T.s).width + 18; x.fillStyle = 'rgba(255,255,255,.93)'; x.fillRect(bx + 12, ry, tw, 26); x.fillStyle = T.c; x.fillRect(bx + 12, ry, 4, 26); x.fillStyle = '#1F1B18'; x.fillText(T.s, bx + 24, ry + 18); ry += 32; }
+      else if (T.k === 'i') {
+        /* instrumento: transportador en la raíz, arco hasta el ángulo, escuadra/cartabón, mechón con regla en cm */
+        var act = !(T.x2 && p > T.x2);   /* transportador y escuadra solo en la capa que se está cortando; el mechón queda */
+        x.setLineDash([]); var qx = ox + T.x * s, qy = oy + T.y * s, rr = 58 * Math.max(0.7, s * 1.3), aD = Math.PI / 2, aS = Math.atan2(T.dy, T.dx), sg = T.cc ? -1 : 1;
+        var tot = ((aS - aD) * sg + 4 * Math.PI) % (2 * Math.PI); if (T.g > 200 && tot < Math.PI) tot += 2 * Math.PI; if (!T.g) tot = 0;
+        if (act) { x.strokeStyle = 'rgba(60,60,80,.55)'; x.lineWidth = 1.2; x.beginPath(); x.arc(qx, qy, rr, aD, aD + sg * Math.PI, sg < 0); x.stroke(); }
+        for (var kk = 0; act && kk <= 12; kk++) { var ak = aD + sg * kk * Math.PI / 12, l1 = kk % 6 ? 5 : 9; x.beginPath(); x.moveTo(qx + Math.cos(ak) * rr, qy + Math.sin(ak) * rr); x.lineTo(qx + Math.cos(ak) * (rr - l1), qy + Math.sin(ak) * (rr - l1)); x.stroke(); }
+        var uu = su(u), aE = aD + sg * tot * Math.min(1, uu * 1.6);
+        if (act && tot > 0.01) { x.fillStyle = T.c; x.globalAlpha = 0.22; x.beginPath(); x.moveTo(qx, qy); x.arc(qx, qy, rr * 0.85, aD, aE, sg < 0); x.closePath(); x.fill(); x.globalAlpha = 1; }
+        if (act && /escuadra|cartabón|recto/.test(T.e || '') && uu > 0.3) {
+          var tl = rr * 1.25; x.strokeStyle = '#2C6FD1'; x.lineWidth = 2; x.fillStyle = 'rgba(44,111,209,.12)';
+          x.beginPath(); x.moveTo(qx, qy); x.lineTo(qx + Math.cos(aD) * tl, qy + Math.sin(aD) * tl); x.lineTo(qx + Math.cos(aE) * tl, qy + Math.sin(aE) * tl); x.closePath(); x.fill(); x.stroke();
+        }
+        var fr = Math.min(1, Math.max(0, uu * 1.4 - 0.2)), ll = T.l * fr, ex = qx + T.dx * ll * s, ey = qy + T.dy * ll * s;
+        x.strokeStyle = T.c; x.lineWidth = 3.2 * Math.max(0.6, s * 1.4);
+        if (T.pl) { var np = parcial(T.pl, fr); camino(T.pl, Math.min(np, T.pl.length)); x.stroke(); ex = ox + T.pl[T.pl.length - 2] * s; ey = oy + T.pl[T.pl.length - 1] * s; ll = 0; }
+        else { x.beginPath(); x.moveTo(qx, qy); x.lineTo(ex, ey); x.stroke(); }
+        x.lineWidth = 1.2; x.strokeStyle = '#1F1B18'; var cmp = (T.cpx || 10) * 2 * s;
+        for (var dd = cmp; dd < ll * s; dd += cmp) { var mx2 = qx + T.dx * dd, my2 = qy + T.dy * dd; x.beginPath(); x.moveTo(mx2 - T.dy * 5, my2 + T.dx * 5); x.lineTo(mx2 + T.dy * 5, my2 - T.dx * 5); x.stroke(); }
+        x.font = '700 13px system-ui,sans-serif'; x.textAlign = 'center'; x.fillStyle = T.c; if (act) x.fillText(Math.round(T.g * 10) / 10 + '°', qx + Math.cos(aD + sg * tot / 2) * (rr + 16), qy + Math.sin(aD + sg * tot / 2) * (rr + 16) + 4);
+        if (uu >= 1) { x.fillStyle = 'rgba(255,255,255,.92)'; var tw2 = x.measureText(T.cm).width + 10; x.fillRect(ex - tw2 / 2, ey - 22, tw2, 18); x.fillStyle = '#1F1B18'; x.fillText(T.cm, ex, ey - 8); }
+        x.textAlign = 'left';
+        if (act && T.e && uu > 0.3) { x.font = '600 12px system-ui,sans-serif'; x.fillStyle = '#2C6FD1'; x.fillText(T.e, qx + (T.cc ? -rr - 8 - x.measureText(T.e).width : rr + 10), qy - rr * 0.35); }
+      }
       else if (T.k === 'r') {
         x.setLineDash([]); var R = Math.min(62, bh * 0.16), cx = bx + bw - R - 46, cy = by + bh * 0.42, g = T.g[0] + (T.g[1] - T.g[0]) * su(u);
         x.strokeStyle = '#9A8F84'; x.lineWidth = 1.5; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2 - 1.25 * Math.PI, Math.PI / 2, false); x.stroke();
