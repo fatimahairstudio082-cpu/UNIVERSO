@@ -109,6 +109,11 @@
     var panel = panelCrear(el, function () { sincro(); });
     crear.onclick = function () { var vis = panel.style.display === 'none'; panel.style.display = vis ? '' : 'none'; crear.style.cssText = vis ? CHIP_ON : CHIP_OFF; };
     fila.appendChild(crear); fila.parentNode.insertBefore(panel, fila.nextSibling);
+    /* «🔎 Escáner de cortes» (b6_pelu_escaner_cortes.js): qué hay, qué falta, y abrir este panel ya relleno */
+    var esc = document.createElement('button'); esc.textContent = '🔎 Escáner de cortes'; esc.style.cssText = CHIP_OFF;
+    esc.onclick = function () { if (window.EU_ESCANER_CORTES) window.EU_ESCANER_CORTES.abrir(el); };
+    fila.appendChild(esc);
+    el._dgCrear = { sincro: sincro, abrir: function (o) { panel.style.display = ''; crear.style.cssText = CHIP_ON; if (panel._poner) panel._poner(o); try { panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { } } };
     el._dgBarra = fila; sincro();
   }
 
@@ -156,6 +161,7 @@
     var sal = document.createElement('button'); sal.textContent = '↩ Volver al corte cargado'; sal.style.cssText = CHIP_OFF;
     sal.onclick = function (e) { e.preventDefault(); if (el._dg) { el._dg.libre = null; el._dg.t0 = 0; } nota.textContent = ''; alAplicar(); };
     bar.appendChild(ver); bar.appendChild(gua); bar.appendChild(sal); d.appendChild(bar);
+    d._poner = function (o) { llenarTec(); tec.value = ''; poner(o); };
     return d;
   }
 
