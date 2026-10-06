@@ -34,12 +34,16 @@
   var MIRA = -0.45, RECORTE = [190, 0, 900, 720];
 
   /* ───────────── el maniquí: ejemplar oculto de <guias-3d> ───────────── */
-  if (!window.customElements.get('guias-3d') && !document.querySelector('script[data-eu-g3d]')) {
-    var sc = document.createElement('script'); sc.src = './b6_guias_3d.js'; sc.setAttribute('data-eu-g3d', '1'); document.head.appendChild(sc);
+  /* el motor 3D se pide solo cuando hace falta (no al arrancar el Estudio) */
+  function pedirMotor() {
+    if (!window.customElements.get('guias-3d') && !document.querySelector('script[data-eu-g3d]')) {
+      var sc = document.createElement('script'); sc.src = './b6_guias_3d.js'; sc.setAttribute('data-eu-g3d', '1'); document.head.appendChild(sc);
+    }
   }
   var G = null, T = null, CAM = {}, FONDOS = null, PROM = null;
   function listo() {
     if (PROM) return PROM;
+    pedirMotor();
     PROM = new Promise(function (ok, mal) {
       var n = 0;
       (function espera() {
@@ -107,28 +111,37 @@
   function chapa(q, txt, c, t0) { return { k: 'n', x: q[0], y: q[1], s: String(txt), c: c, t: [t0, 1] }; }
 
   /* ───────────── la receta de un corte, desde los datos del motor ───────────── */
-  function receta(id) {
+  /* Receta de un corte del catálogo (cabello: el elegido o el que mejor le va) */
+  function receta(id, cab) {
     var CO = window.EU_CORTES, c = CO && CO.get(id); if (!c) return null;
-    var cab = (c.mejor || [])[0], g = CO.guiaDe(id, cab); if (!g || !g.pasos || g.pasos.length < 4) return null;
-    var p1 = g.pasos[1], p2 = g.pasos[2], p3 = g.pasos[3], todo = g.pasos.map(function (p) { return p.texto || ''; }).join(' ') + ' ' + (c.d || '');
-    var fija = RECETAS[id] || {}, alt = fija.altura, fuente = 'Fátima';
+    cab = cab || (c.mejor || [])[0];
+    return desdeGuia(CO.guiaDe(id, cab), { id: id, n: c.n, fam: c.fam, cab: cab, d: c.d });
+  }
+  /* Receta desde cualquier guía de <guias-3d> (también las guardadas por Fátima) */
+  function desdeGuia(g, meta) {
+    if (!g || !g.pasos || !g.pasos.length) return null;
+    meta = meta || {};
+    var P = g.pasos, ult = P[P.length - 1], p1 = P[1] || P[0], p2 = P[2] || ult, p3 = P[3] || ult;
+    var todo = P.map(function (p) { return p.texto || ''; }).join(' ') + ' ' + (meta.d || '');
+    var fija = RECETAS[meta.id] || {}, alt = fija.altura, fuente = 'Fátima';
     if (!alt) {
       fuente = 'texto';
-      if (/ceja|flequillo|pollina/i.test(todo) || c.fam === 'flequillos') alt = 'cejas';
+      if (/ceja|flequillo|pollina/i.test(todo) || meta.fam === 'flequillos') alt = 'cejas';
       else if (/p[oó]mulo|ojo/i.test(todo)) alt = 'ojo';
       else if (/nariz/i.test(todo)) alt = 'nariz';
       else if (/barbilla|ment[oó]n|maxilar|mand[ií]bula/i.test(todo)) alt = 'rostro';
       else { alt = 'nariz'; fuente = 'ejemplo'; }
     }
-    var liso = cab === 'liso_extremo', tipos = g.pasos.map(function (p) { return p.tipoCorte || ''; }).join(' ');
+    var liso = meta.cab === 'liso_extremo' || /liso extremo/i.test((g.aviso || '') + ' ' + (g.nombre || '')), tipos = P.map(function (p) { return p.tipoCorte || ''; }).join(' ');
     var desg = /desfil|desgraf|puntead|entresac/i.test(tipos + ' ' + todo);
+    function pila(a) { return (a || [0, 0, 0, 0, 0, 0, 0]).map(function (v) { return v == null ? 0 : v; }); }
     return {
-      id: id, n: c.n, fam: c.fam, cab: cab, liso: liso, desg: desg, altura: alt, fuenteAltura: fuente,
+      id: meta.id || 'guia', n: meta.n || String(g.nombre || 'Corte').split(' · ')[0], fam: meta.fam || '', cab: meta.cab || '', liso: liso, desg: desg, altura: alt, fuenteAltura: fuente,
       punto: /desfil|desgraf|punta/i.test(todo) || fija.punto ? (fija.punto || [1.05, -2.15, -0.30]) : null,
       forma: p3.tipoCorte === 'Recto' ? 'recto' : 'arco',
-      guia: { part: p1.particionB, g: (p1.elevB || [0])[0] || 0, texto: p1.texto || '' },
-      capas: { part: p2.particionB, pila: (p2.elevB || []).slice(), texto: p2.texto || '' },
-      frente: { part: p3.particionF, pila: (p3.elevF || []).slice(), dir: p3.direccion || '', texto: p3.texto || '' }
+      guia: { part: p1.particionB, g: pila(p1.elevB)[0] || 0, texto: p1.texto || '' },
+      capas: { part: p2.particionB, pila: pila(p2.elevB), texto: p2.texto || '' },
+      frente: { part: p3.particionF, pila: pila(p3.elevF), dir: p3.direccion || '', texto: p3.texto || '' }
     };
   }
 
@@ -250,7 +263,7 @@
   /* ───────────── textos de cada escena (reglas de Fátima + textos reales del corte) ───────────── */
   function txt(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
   function escenas(id) {
-    var R = receta(id); if (!R) return null;
+    var R = typeof id === 'object' ? id : receta(id); if (!R) return null;
     var A = ALTURAS[R.altura], pila = R.capas.pila;
     var capasTxt = pila.map(function (g, z) { return 'Z' + z + ' a ' + g + ' grados'; }).join(', ');
     var lat = 'El lateral, delante de la división de oreja a oreja. ' + (R.liso ? 'Cabello liso extremo: las secciones van horizontales, porque en vertical el filo deja escalón. ' :
@@ -329,7 +342,7 @@
 
   window.EU_DIAGRAMA = {
     ALTURAS: ALTURAS, RECETAS: RECETAS, VISTAS: VISTAS,
-    receta: receta, construir: construir, fondos: fondos, pinta: pinta,
+    receta: receta, desdeGuia: desdeGuia, construir: construir, fondos: fondos, pinta: pinta,
     /* código del reproductor para el curso descargado (sin dependencias) */
     js: function () { return 'window.CURSO_ANIM={pinta:(' + pinta.toString() + ')};'; }
   };
