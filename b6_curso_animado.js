@@ -95,7 +95,8 @@
     var DG = window.EU_DIAGRAMA, partes = [];
     /* el motor de láminas toma la mezcla de colores del motor de folletos; en el curso descargado no está:
        se pone solo esa función (si falta, el texto de las cajas salía del mismo color que la caja) */
-    if (LAM_SRC) partes.push('if(!window.FOLLETO_MOTOR)window.FOLLETO_MOTOR={mezclar:function(a,b,t){function h(c){c=String(c||"#000").replace("#","");if(c.length===3)c=c.replace(/./g,"$&$&");return[0,2,4].map(function(i){return parseInt(c.substr(i,2),16)||0;});}var x=h(a),y=h(b);return"#"+x.map(function(v,i){return("0"+Math.round(v+(y[i]-v)*t).toString(16)).slice(-2);}).join("");}};', LAM_SRC);
+    if (LAM_SRC && window.EU_EJ_ANIM && EU_EJ_ANIM.shim) partes.push(EU_EJ_ANIM.shim(), LAM_SRC);   /* mezcla, transparencias y temas (b6_ejemplos_animados.js) */
+    else if (LAM_SRC) partes.push('if(!window.FOLLETO_MOTOR)window.FOLLETO_MOTOR={mezclar:function(a,b,t){function h(c){c=String(c||"#000").replace("#","");if(c.length===3)c=c.replace(/./g,"$&$&");return[0,2,4].map(function(i){return parseInt(c.substr(i,2),16)||0;});}var x=h(a),y=h(b);return"#"+x.map(function(v,i){return("0"+Math.round(v+(y[i]-v)*t).toString(16)).slice(-2);}).join("");}};', LAM_SRC);
     partes.push('(function(){var dg=' + (DG ? DG.pinta.toString() : 'function(){return false;}') + ';var lam=' + pintaLam.toString() +
       ';window.CURSO_ANIM={pinta:function(x,A,im,bx,by,bw,bh,p){return A&&A.lam?lam(x,A,bx,by,bw,bh,p):dg(x,A,im,bx,by,bw,bh,p);}};})();');
     return partes.join('\n');

@@ -35,16 +35,21 @@
   function lamina(pg, C) {
     var LM = window.LAMINAS_MOTOR, u = pg.u; if (!LM || !u) return '';
     var V = VARIANTES[pg.lam || 0], clave = C.mat + '|' + u.id + '|' + (pg.lam || 0) + '|' + C.T.acc; if (IMG[clave]) return IMG[clave];
-    var nodos = nodosDe(u, C, V.de); if (!nodos) return '';
-    var ests = V.est.filter(function (id) { return !!(LM.ESTRUCTURAS || {})[id]; }), pals = (LM.paletas() || []).filter(function (p) { return p.claro; });
-    var h = ED.H.hash(u.id + ':lam' + (pg.lam || 0)), W = 1400, Hh = 1560;
-    var lam = { titulo: corto(sub(u.t, C), 60), subtitulo: V.de === 'i' ? 'Ideas de la unidad' : 'Palabras clave', estructura: ests.length ? ests[h % ests.length] : 'radial', paleta: pals.length ? pals[h % pals.length].id : undefined, nodos: nodos };
+    var lam = especie(pg, C), W = 1400, Hh = 1560; if (!lam) return '';
     try {
       var cv = document.createElement('canvas'); cv.width = W; cv.height = Hh;
       LM.pintar(cv.getContext('2d'), W, Hh, lam, { prog: 1, modo: 'aparecer' });
       IMG[clave] = cv.toDataURL('image/jpeg', 0.86);
     } catch (e) { console.warn('Escáner · lámina', e); return ''; }
     return IMG[clave];
+  }
+  /* receta de la lámina (lo que se pinta): la usa también el libro interactivo para animarla */
+  function especie(pg, C) {
+    var LM = window.LAMINAS_MOTOR, u = pg.u, V = VARIANTES[pg.lam || 0]; if (!LM || !u || !V) return null;
+    var nodos = nodosDe(u, C, V.de); if (!nodos) return null;
+    var ests = V.est.filter(function (id) { return !!(LM.ESTRUCTURAS || {})[id]; }), pals = (LM.paletas() || []).filter(function (p) { return p.claro; });
+    var h = ED.H.hash(u.id + ':lam' + (pg.lam || 0));
+    return { titulo: corto(sub(u.t, C), 60), subtitulo: V.de === 'i' ? 'Ideas de la unidad' : 'Palabras clave', estructura: ests.length ? ests[h % ests.length] : 'radial', paleta: pals.length ? pals[h % pals.length].id : undefined, nodos: nodos };
   }
   function paginaLamina(pg, C) {
     var H = ED.H, T = C.T, u = pg.u, src = lamina(pg, C), V = VARIANTES[pg.lam || 0];
@@ -231,5 +236,5 @@
   }
   if (!salidas()) (function espera(n) { if (!salidas() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
 
-  window.EU_ESCANER = { corregir: corregir, informe: informe, lamina: lamina, firma: firma, firmaDg: firmaDg, huella: huella };
+  window.EU_ESCANER = { corregir: corregir, informe: informe, lamina: lamina, especie: especie, firma: firma, firmaDg: firmaDg, huella: huella };
 })();
