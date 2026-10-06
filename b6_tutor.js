@@ -36,11 +36,14 @@
   }
 
   /* ─── datos de la página (se calculan al armar y se guardan en pg.tut) ─── */
-  function preparar(pg, res, vistos) {
+  function preparar(pg, res, vistos, visto) {
     var C = res.C, u = pg.u, r = H.rng(H.hash(u.id + ':tutor') + (C.semilla || 1) * 31), t = { lam: 0, nivel: 0 };
     /* lámina: una variante del esquema que la unidad aún no tenga como página */
     var ya = {}; res.pages.forEach(function (p) { if (p.u && p.u.id === u.id && p.tipo === 'esc_lamina') ya[p.lam || 0] = 1; });
-    t.lams = [0, 1, 2].filter(function (l) { return !ya[l]; }).slice(0, 2); t.lam = t.lams.length ? t.lams[0] : 0;
+    /* variantes que la unidad no tenga como página y cuya imagen no salga ya en el libro (dos unidades con las mismas palabras) */
+    var ES = window.EU_ESCANER, fi = function (l) { return ES && ES.firma ? ES.firma(u, C, l) : u.id + l; };
+    t.lams = [0, 1, 2].filter(function (l) { return !ya[l] && !visto.lam[fi(l)] && !/:\[\]$/.test(fi(l)); }).slice(0, 2); t.lams.forEach(function (l) { visto.lam[fi(l)] = 1; });
+    t.lam = t.lams.length ? t.lams[0] : 0; if (!t.lams.length) t.sinLam = 1;
     /* ejemplo resuelto: del generador de la unidad, con su respuesta (y su proceso si lo trae) */
     var ej = []; try { ej = H.ejercicios(u, C, r, 12) || []; } catch (e) { }
     ej = ej.filter(function (x) { return x && x.e && x.s != null && x.s !== '' && !vistos[txt(x.e)] && x.tipo !== 'dibujo'; });
@@ -55,7 +58,12 @@
     /* maniquí (Peluquería, unidades de corte): el corte de la unidad con sus instrumentos. En las demás unidades la
        segunda figura es otra lámina de la misma unidad (nunca un dibujo de otro tema). */
     var cor = null; res.pages.some(function (p) { if (!p.u || p.u.id !== u.id) return false; if (p.corte) cor = { k: 'corte', corte: p.corte, cab: p.cab }; else if (p.dg && p.dg.k === 'corte') cor = p.dg; return !!cor; });
-    if (cor && window.EU_DIAGRAMA && window.EU_PELU_LIBRO_DG) t.dg = { k: 'corte', corte: cor.corte, cab: cor.cab };
+    if (cor && window.EU_DIAGRAMA && window.EU_PELU_LIBRO_DG) {
+      /* la foto del maniquí no puede ser igual a otra imagen del libro (dos cortes pueden dar la misma escena) */
+      var dg = { k: 'corte', corte: cor.corte, cab: cor.cab }, fm = fotoManiqui(dg), fd = fm && fm.src && ES && ES.huella ? ES.huella(fm.src) : '';
+      if (!fd) { if (!fm) t.dg = dg; }
+      else if (!visto.dg[fd]) { t.dg = dg; visto.dg[fd] = 1; }
+    }
     return t;
   }
   /* fotograma del maniquí: la escena «ángulos» (transportador, escuadra/cartabón, regla en cm), que no sale en otras páginas */
@@ -73,8 +81,8 @@
   function pagina(pg, C, modo) {
     var T = C.T, u = pg.u, t = pg.tut || {}, web = modo === 'web', alto = Math.round((C.papel.h - 46) * 0.24), sol = [];
     var medir = !!pg._medir, lam = medir ? '' : (window.EU_ESCANER ? window.EU_ESCANER.lamina({ u: u, lam: t.lam }, C) : '');
-    var figs = [], conLam = t.nivel < 4;
-    if (conLam) figs.push('<img ' + (lam ? 'src="' + lam + '" ' : '') + 'alt="Esquema de la unidad" style="height:' + alto + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px">');
+    var figs = [], conLam = t.nivel < 4 && !t.sinLam;
+    if (conLam && (medir || lam)) figs.push('<img ' + (lam ? 'src="' + lam + '" ' : '') + 'alt="Esquema de la unidad" style="height:' + alto + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px">');
     if (t.nivel < 3 && t.dg) {
       var fm = medir ? { src: '', t: '' } : fotoManiqui(t.dg);
       if (fm) figs.push('<figure style="margin:0;text-align:center"><img ' + (fm.src ? 'src="' + fm.src + '" ' : '') + 'alt="Maniquí" style="height:' + (alto - 6) + 'mm;width:auto;max-width:100%;display:block;border-radius:' + T.r + 'px"><figcaption style="font-size:.7em;opacity:.8;margin-top:1mm">Maniquí · ' + es(fm.t || 'ángulos y centímetros') + '</figcaption></figure>');
@@ -144,12 +152,13 @@
   }
   function aplicar(res, cfg) {
     var C = res && res.C; if (!C || !res.pages || ((cfg && cfg.acab) || {}).tutor === 'no' || C.papelId === 'slide') return res;
-    var vistos = {}, hay = false;
+    var vistos = {}, hay = false, visto = { lam: {}, dg: res._fotos || {} }, ES = window.EU_ESCANER;
+    if (ES && ES.firma) res.pages.forEach(function (p) { if (p.tipo === 'esc_lamina' && p.u) visto.lam[ES.firma(p.u, C, p.lam || 0)] = 1; });
     res.pages.forEach(function (p) { (p.items || []).forEach(function (x) { if (x && x.e) vistos[txt(x.e)] = 1; }); });
     res.pages.forEach(function (p, i) {
       if (p.tipo !== 'repaso' || !p.u) return;
       var n = { tipo: 'tutor', u: p.u, n: p.n, num: p.num, fill2: { nada: 1 } };
-      try { n.tut = preparar(n, res, vistos); } catch (e) { console.warn('Tutor', e); return; }
+      try { n.tut = preparar(n, res, vistos, visto); } catch (e) { console.warn('Tutor', e); return; }
       while (n.tut.nivel < 6 && !cabe(n, res)) n.tut.nivel++;
       res.pages[i] = n; hay = true;
     });
@@ -170,7 +179,7 @@
     D.modulos.forEach(function (M) {
       var pg = res.pages.filter(function (p) { return p.tipo === 'tutor' && p.u && p.u.id === M.id; })[0]; if (!pg || !pg.tut) return;
       var u = pg.u, t = pg.tut, id = null;
-      if (window.EU_ESCANER) { var src = window.EU_ESCANER.lamina({ u: u, lam: t.lam }, C); if (src) { id = 'tutor_' + u.id; D.img[id] = src; } }
+      if (window.EU_ESCANER && !t.sinLam) { var src = window.EU_ESCANER.lamina({ u: u, lam: t.lam }, C); if (src) { id = 'tutor_' + u.id; D.img[id] = src; } }
       var titulo = txt(sub(u.t, C)), L = [];
       if (t.ej) L.push({ id: u.id + '__tutor_ej', t: 'Ejemplo resuelto · ' + titulo, pag: pg.num, video: 0, escenas: [
         { tipo: 'idea', id: id, t: 'Ejemplo resuelto', texto: 'Resolvemos juntos. ' + txt(sub(t.ej.e, C)), rot: [] },

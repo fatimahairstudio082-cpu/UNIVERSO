@@ -60,26 +60,33 @@
   /* fotogramas de los motores de Peluquería (Guías 3D, Estudios, divisiones): ya salen en sus propias páginas */
   var MOTOR = /^pe_(g3d|est|div)_/;
   function vacia(p) { return p.tipo === 'lec_amplia' && !p.ds; }
+  var LIBRO = 0;
   function corregir(res, cfg) {
     var C = res && res.C; if (!C || !res.pages || !cfg || ((cfg.acab || {}).escaner === 'no') || !PRODS.test((C.prod && C.prod.id) || '')) return res;
     var pages = res.pages, MO = window.EU_MODELOS, vistos = {}, malas = [];
+    C._libro = ++LIBRO;   /* marca de este armado: la memoria de las aperturas no reutiliza la elección de otro libro */
     /* Peluquería: los pasos de Guías 3D (pe_g3d_<corte>_<k>) ya salen en la página de la guía de su corte */
     var guia = {};
     pages.forEach(function (p) { if (p.tipo === 'pe_guia3d' && p.corte) guia[p.corte] = 1; });
     function enGuia(id) { var m = /^pe_g3d_(.+)_\d+$/.exec(id || ''); return !!(m && guia[m[1]]); }
+    /* Peluquería: la geometría de cada corte del catálogo manda; una técnica o variante igual repetiría sus dibujos */
+    pages.forEach(function (p) { if (p.tipo === 'pe_diagrama' && p.dg && p.dg.k === 'corte') { var sg = firmaDg(p.dg); if (sg) vistos['d:' + sg] = 1; } });
     pages.forEach(function (p, i) {
       if (vacia(p)) return malas.push([i, 'vacía']);
-      /* solo dibujos fijos de la biblioteca: un generador (gen) con otra semilla da otro ejercicio, no se toca */
+      /* dibujos fijos de la biblioteca; de los generadores, solo la figura idéntica (otra semilla da otro ejercicio) */
       var k = p.tipo === 'vis' && p.gen && MO && MO.modelo(p.gen) ? 'g:' + p.gen : p.tipo === 'col_modelo' && p.mod ? 'g:' + p.mod : '';
+      if (!k && p.tipo === 'vis' && p.v && typeof p.v.fig === 'string' && p.v.fig.length > 400) k = 'f:' + ED.H.hash(p.v.fig.replace(/\bid="[^"]*"/g, ''));
+      if (!k && p.tipo === 'pe_diagrama' && p.dg && p.dg.k !== 'corte') { var sg = firmaDg(p.dg); if (sg) k = 'd:' + sg; }
       if (!k) return; if (vistos[k]) malas.push([i, 'repetida']); else if (enGuia(p.gen)) malas.push([i, 'ya en la guía 3D', 1]); else vistos[k] = 1;
     });
-    if (!malas.length) { res.escaner = { cambios: [] }; return res; }
+    /* láminas de generador: misma imagen al pintarla (aunque los datos guardados difieran) = repetida */
+    try { repetidasAlPintar(res, malas, vistos); } catch (e) { console.warn('Escáner · pintar', e); }
     /* dibujos de la biblioteca que aún no están en el libro (mismo criterio que b6_modelos_libro.js) */
     var libres = [];
     if (MO && MO.vis) {
       var ya = {}, permit = null;
       pages.forEach(function (p) {
-        if (p.gen) ya[p.gen] = 1; if (p.mod) ya[p.mod] = 1;
+        if (p.gen) ya[p.gen] = 1; if (p.mod) ya[p.mod] = 1; if (typeof p.portMod === 'string') ya[p.portMod] = 1;
         if (p.u && p.u.mods) { permit = permit || {}; p.u.mods.forEach(function (id) { permit[id] = 1; }); }
         var t = ''; try { t = JSON.stringify(p, function (k, v) { return k === 'u' || k === 'C' ? undefined : v; }); } catch (e) { }
         (t.match(/data-modelo=\\"[^\\"]+/g) || []).forEach(function (x) { ya[x.replace(/^data-modelo=\\"/, '')] = 1; });
@@ -87,11 +94,13 @@
       [C.mat].concat(TAMBIEN[C.mat] || []).forEach(function (m) { (MO.lista(m) || []).forEach(function (x) { if (!ya[x.id] && !MOTOR.test(x.id) && (!permit || permit[x.id])) libres.push(x); }); });
     }
     var lamU = {}, cambios = [], sols = pages.filter(function (p) { return p.tipo === 'solucion' && p.entradas; });
-    pages.forEach(function (p) { if (p.tipo === 'esc_lamina' && p.u) lamU[p.u.id] = (lamU[p.u.id] || 0) + 1; });
+    var lamF = {};
+    pages.forEach(function (p) { if (p.tipo === 'esc_lamina' && p.u) { lamU[p.u.id] = (lamU[p.u.id] || 0) + 1; lamF[firma(p.u, C, p.lam || 0)] = 1; } });
     malas.forEach(function (m) {
       var i = m[0], pg = pages[i], u = pg.u, nu = null;
       /* primero las láminas de la unidad (cada variante sale una sola vez), luego dibujos sin usar, luego apuntes */
-      if (u) { var j = lamU[u.id] || 0; while (j < VARIANTES.length && !nodosDe(u, C, VARIANTES[j].de)) j++; if (j < VARIANTES.length) { nu = { tipo: 'esc_lamina', u: u, n: pg.n, num: pg.num, lam: j }; lamU[u.id] = j + 1; } }
+      /* (una lámina idéntica a otra del libro —dos unidades con las mismas palabras— no cuenta) */
+      if (u) { var j = lamU[u.id] || 0; while (j < VARIANTES.length && (!nodosDe(u, C, VARIANTES[j].de) || lamF[firma(u, C, j)])) j++; if (j < VARIANTES.length) { nu = { tipo: 'esc_lamina', u: u, n: pg.n, num: pg.num, lam: j }; lamU[u.id] = j + 1; lamF[firma(u, C, j)] = 1; } }
       while (!nu && libres.length) {
         var md = libres.shift(), V = MO.vis(md.id, C);
         if (V) nu = { tipo: 'vis', u: u, n: pg.n, v: V, items: V.items, relleno: false, modeloLib: 1, gen: md.id, sem: ED.H.hash((u ? u.id : '') + ':esc:' + md.id + ':' + pg.num) + (C.semilla || 1) * 7919, num: pg.num };
@@ -105,7 +114,61 @@
       if (nu.items && nu.items.length && sols.length) { var d = sols[0]; sols.forEach(function (s) { if (s.entradas.length && s.entradas[0].p < pg.num) d = s; }); d.entradas.push({ p: pg.num, items: nu.items, u: u }); d.entradas.sort(function (a, b) { return a.p - b.p; }); }
     });
     res.escaner = { cambios: cambios };
+    /* aperturas y «Cerca de ti» eligen su dibujo al pintar: se les fija uno de la biblioteca que no esté en el libro */
+    pages.forEach(function (p) {
+      if (!libres.length || !p.u || p.portMod || !/^(apertura|ejemplo)$/.test(p.tipo)) return;
+      var cl = pal(sub(p.u.t, C) + ' ' + (p.u.k || []).join(' ')), mejor = -1, pm = 0;
+      libres.forEach(function (m, j) { var w = pal(m.n + ' ' + (m.intro || '')), q = 0; cl.forEach(function (x) { if (w.indexOf(x) >= 0) q++; }); if (q > pm) { pm = q; mejor = j; } });
+      if (mejor >= 0) { p.portMod = libres[mejor].id; libres.splice(mejor, 1); }
+    });
+    apuntarModelos(pages, C);
+    try { vistasRepetidas(res); } catch (e) { console.warn('Escáner · vistas', e); }
     return res;
+  }
+  function pal(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').match(/[a-zñ]{4,}/g) || []; }
+  function huella(s) { s = String(s || ''); return s ? ED.H.hash(s.length + ':' + s.slice(0, 3000) + s.slice(-3000)) : 0; }
+  function repetidasAlPintar(res, malas, vistos) {
+    var MO = window.EU_MODELOS, ya = {}; malas.forEach(function (m) { ya[m[0]] = 1; });
+    res.pages.forEach(function (p, i) {
+      if (ya[i] || p.tipo !== 'vis' || !p.gen || (MO && MO.modelo(p.gen))) return;
+      var h = ''; try { h = ED.paginaHTML(p, res.C, 'print', res); } catch (e) { return; }
+      var f = (h.match(/<svg[\s\S]*?<\/svg>/g) || []).filter(function (x) { return x.length > 400; }).map(function (x) { return x.replace(/\bid="[^"]*"/g, ''); }).join('');
+      if (!f) return; var k = 'p:' + huella(f);
+      if (vistos[k]) malas.push([i, 'repetida']); else vistos[k] = 1;
+    });
+  }
+  /* Peluquería: cada vista (lateral, frente, capas) que ya salió igual en otra página se cambia por otra escena del corte */
+  function vistasRepetidas(res) {
+    var L = window.EU_PELU_LIBRO_DG, vis = res._fotos = res._fotos || {}; if (!L || !L.datos || !L.fotoEscena) return;
+    var ALT = ['angulos', 'seccionado', 'guia', 'coronilla', 'oblicua', 'capas', 'lateral', 'frente'];
+    res.pages.forEach(function (p) {
+      if (p.tipo !== 'pe_diagrama' || !p.dg) return; delete p.alt;
+      var d = L.datos(p.dg); if (!d) return;
+      var usadas = d.vis.map(function (e) { return e.tipo; });
+      d.fotos.forEach(function (f, i) {
+        var h = huella(f); if (!h || !vis[h]) { if (h) vis[h] = 1; return; }
+        for (var a = 0; a < ALT.length; a++) {
+          if (usadas.indexOf(ALT[a]) >= 0) continue;
+          var f2 = L.fotoEscena(p.dg, ALT[a]), h2 = huella(f2);
+          if (f2 && !vis[h2]) { (p.alt = p.alt || {})[i] = ALT[a]; usadas.push(ALT[a]); vis[h2] = 1; return; }
+        }
+      });
+    });
+  }
+  /* firma de una lámina: mismos nodos y misma variante = misma imagen */
+  function firma(u, C, lam) { var V = VARIANTES[lam || 0]; return V ? V.de + ':' + JSON.stringify(nodosDe(u, C, V.de) || []) : ''; }
+  /* firma de la geometría de un diagrama de Peluquería (mismas capas, frente, guía y línea = mismos dibujos) */
+  function firmaDg(dg) {
+    var L = window.EU_PELU_LIBRO_DG, d = null; if (!L || !L.datos) return '';
+    try { d = L.datos(dg); } catch (e) { d = null; }
+    var R = d && d.R; if (!R) return '';
+    return JSON.stringify([R.capas && R.capas.pila, R.frente && R.frente.pila, !!R.liso, R.altura || '', R.linea || '', !!R.oblicua, !!R.desg, !!(R.coronilla)]);
+  }
+  /* los dibujos de la biblioteca que ya son página quedan apuntados en el registro del libro, para que la apertura
+     de otra unidad (que elige al pintar) no vuelva a ponerlos */
+  function apuntarModelos(pages, C) {
+    var SV = window.EU_SVG, MO = window.EU_MODELOS; if (!SV || !SV.generar || !MO) return;
+    pages.forEach(function (p) { if (p.tipo === 'vis' && p.gen && MO.modelo(p.gen)) { try { SV.generar(p.gen, p.u, C, ED.H.rng(1)); } catch (e) { } } });
   }
   function enganchar() {
     if (ED.__escaner) return; ED.__escaner = 1;
@@ -168,5 +231,5 @@
   }
   if (!salidas()) (function espera(n) { if (!salidas() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
 
-  window.EU_ESCANER = { corregir: corregir, informe: informe, lamina: lamina };
+  window.EU_ESCANER = { corregir: corregir, informe: informe, lamina: lamina, firma: firma, firmaDg: firmaDg, huella: huella };
 })();

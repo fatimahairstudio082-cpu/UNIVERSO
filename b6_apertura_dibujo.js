@@ -50,7 +50,7 @@
     if (!pg || !pg.u || !/^(apertura|ejemplo|pro_capitulo)$/.test(pg.tipo || '')) return h;
     if (h.indexOf('0.5mm dashed') < 0) return h;
     var m = HUECO.exec(h); if (!m) return h;
-    var k = [pg.u.id, pg.tipo, pg.n || 0, C.mat, C.pk, (C.T && C.T.id) || '', ((C.cfg && C.cfg.acab) || {}).dibujo || '3d', m[1], pg.portMod || ''].join('|');
+    var k = [pg.u.id, pg.tipo, pg.n || 0, C.mat, C.pk, (C.T && C.T.id) || '', ((C.cfg && C.cfg.acab) || {}).dibujo || '3d', m[1], pg.portMod || '', C._libro || ''].join('|');   /* C._libro (escáner): cada libro armado elige de nuevo, sin repetir lo que ya tiene */
     if (!(k in CACHE)) {
       if (++NC > 400) { CACHE = {}; NC = 1; }
       var fig = '', modoD = ((C.cfg && C.cfg.acab) || {}).dibujo === '2d' ? 'color' : '3d';
