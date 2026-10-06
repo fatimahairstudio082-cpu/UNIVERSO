@@ -1,7 +1,7 @@
 /* b6_editorial_motor.js — motor del Editorial escolar.
    Arma libros, cuadernos, fichas, unidades didácticas, exámenes, rúbricas,
    láminas, presentaciones y trabajos del alumno a partir del banco curricular
-   (b6_curriculo.js), con la extensión exacta que se pida (10–500 páginas).
+   (b6_curriculo.js), con la extensión exacta que se pida (10–1000 páginas).
    Todo sale de la misma lista de páginas: la vista previa, la impresión
    (PDF vectorial desde el navegador), el EPUB de maquetación fija y el HTML
    interactivo. Se registra en window.EU_EDITORIAL. */
@@ -572,7 +572,7 @@
     var CU = window.EU_CURRICULO, C = contexto(cfg);
     var pool = CU.unidades(C.mat, C.bnd).filter(function (u) { return u._ajuste < 2.6; });
     if (!pool.length) pool = CU.unidades(C.mat, C.bnd).slice(0, 3);
-    var N = Math.max(4, Math.min(500, cfg.paginas || 40)), r = rng(hash(C.pk + C.mat + C.bnd + C.prod.id) + C.semilla * 7919);
+    var N = Math.max(4, Math.min(1000, cfg.paginas || 40)), r = rng(hash(C.pk + C.mat + C.bnd + C.prod.id) + C.semilla * 7919);
     var p = C.prod.id, pages;
 
     if (PROD_EXT[p]) pages = PROD_EXT[p].armar(C, pool, N, r, H);

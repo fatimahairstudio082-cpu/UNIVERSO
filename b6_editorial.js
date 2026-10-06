@@ -434,14 +434,14 @@
       /* 3 · Extensión */
       var s3 = seccion('Extensión');
       var fl = el('div', 'display:flex;gap:10px;align-items:center');
-      var rg = el('input'); rg.type = 'range'; rg.min = 10; rg.max = 500; rg.step = 1; rg.value = cfg.paginas; rg.style.cssText = 'flex:1;accent-color:#a855f7';
-      var nm = el('input', ST.campo + ';width:64px;text-align:right'); nm.type = 'number'; nm.min = 10; nm.max = 500; nm.value = cfg.paginas;
-      var fija = function (v) { v = Math.max(10, Math.min(500, Math.round(+v || 10))); rg.value = v; nm.value = v; yo.cfg.paginas = v; yo.guardar(); yo.programar(); };
+      var rg = el('input'); rg.type = 'range'; rg.min = 10; rg.max = 1000; rg.step = 1; rg.value = cfg.paginas; rg.style.cssText = 'flex:1;accent-color:#a855f7';
+      var nm = el('input', ST.campo + ';width:64px;text-align:right'); nm.type = 'number'; nm.min = 10; nm.max = 1000; nm.value = cfg.paginas;
+      var fija = function (v) { v = Math.max(10, Math.min(1000, Math.round(+v || 10))); rg.value = v; nm.value = v; yo.cfg.paginas = v; yo.guardar(); yo.programar(); };
       rg.oninput = function () { fija(rg.value); }; nm.onchange = function () { fija(nm.value); };
       fl.appendChild(rg); fl.appendChild(nm); fl.appendChild(el('span', 'font-size:11px;color:#94a3b8', 'págs.'));
       s3.appendChild(fl);
       var atajos = el('div', ST.fila + ';margin-top:7px');
-      [10, 24, 48, 96, 160, 300, 400, 500].forEach(function (v) { var b = el('button', chip(cfg.paginas === v), String(v)); b.onclick = function () { fija(v); yo.construirPanel(); }; atajos.appendChild(b); });
+      [10, 24, 48, 96, 160, 300, 500, 1000].forEach(function (v) { var b = el('button', chip(cfg.paginas === v), String(v)); b.onclick = function () { fija(v); yo.construirPanel(); }; atajos.appendChild(b); });
       s3.appendChild(atajos);
       if (!(pr && pr.papel)) {
         lbl(s3, 'Papel');

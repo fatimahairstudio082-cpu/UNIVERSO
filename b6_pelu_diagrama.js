@@ -52,11 +52,7 @@
     PROM = new Promise(function (ok, mal) {
       var n = 0;
       (function espera() {
-        if (window.customElements.get('guias-3d') && !G) {
-          G = document.createElement('guias-3d'); G.setAttribute('aria-hidden', 'true');
-          G.style.cssText = 'position:fixed;left:-20000px;top:0;width:1280px;pointer-events:none;opacity:0';
-          document.body.appendChild(G);
-        }
+        if (window.customElements.get('guias-3d') && !G) crearG();
         if (G && G.T && G.render3D && G.gl) { T = G.T; return ok(); }
         if (n++ > 150) { if (G) { try { G.remove(); } catch (e) { } } G = null; PROM = null; return mal(new Error('Guías 3D no está disponible (Three.js no cargó).')); }
         setTimeout(espera, 200);
@@ -65,9 +61,27 @@
     return PROM;
   }
   /* Fondos JPEG de las cuatro vistas y sus cámaras (se hacen una vez). */
+  function crearG() {
+    G = document.createElement('guias-3d'); G.setAttribute('aria-hidden', 'true');
+    G.style.cssText = 'position:fixed;left:-20000px;top:0;width:1280px;pointer-events:none;opacity:0';
+    document.body.appendChild(G);
+  }
   function fondos() {
     if (FONDOS) return Promise.resolve(FONDOS);
-    return listo().then(function () {
+    return listo().then(hacerFondos);
+  }
+  /* Versión síncrona para el libro (que se arma sin esperas): solo si el motor 3D ya está cargado. */
+  function fondosYa() {
+    if (FONDOS) return FONDOS;
+    if (!window.customElements.get('guias-3d')) { pedirMotor(); return null; }
+    if (!G) crearG();
+    if (!(G.T && G.render3D && G.gl)) return null;
+    T = G.T; return hacerFondos();
+  }
+  var LIENZO = {};
+  function hacerFondos() {
+    if (FONDOS) return FONDOS;
+    {
       var out = {}, cv = document.createElement('canvas'); cv.width = 1280; cv.height = 720; var x = cv.getContext('2d');
       var cam0 = G.cam, mira0 = G.mira;
       Object.keys(VISTAS).forEach(function (k) {
@@ -76,11 +90,13 @@
         CAM[k] = { cam: G.camara.clone(), pos: G.camara.position.clone() };
         x.fillStyle = FONDO; x.fillRect(0, 0, 1280, 720); x.drawImage(G.gl, 0, 0, 1280, 720);
         out[k] = cv.toDataURL('image/jpeg', 0.86);
+        var cl = document.createElement('canvas'); cl.width = 1280; cl.height = 720; cl.getContext('2d').drawImage(cv, 0, 0);
+        cl.complete = true; cl.naturalWidth = 1280; LIENZO[k] = cl;
       });
       G.cam = cam0; G.mira = mira0;
       try { G.remove(); } catch (e) { }
       FONDOS = out; return out;
-    });
+    }
   }
 
   /* ───────────── geometría sobre el cráneo del motor ───────────── */
@@ -320,7 +336,7 @@
       { tipo: 'frente', vista: 'frente', t: 'El frente · guía ' + A.n, texto: fr, a: escFrente(R) }
     ];
     if (R.oblicua) L.splice(1, 0, { tipo: 'oblicua', vista: 'nuca', t: 'Partición oblicua · box universal', texto: 'Partición oblicua: dos diagonales en X que bajan hacia detrás de las orejas. La nuca se corta en abanico, los lados en secciones diagonales y arriba queda el triángulo.', a: escOblicua(R) });
-    if (R.libre) L[1].texto = 'Línea guía en la nuca a ' + R.guia.g + ' grados, medida desde la caída natural.';
+    if (R.libre) L.forEach(function (e) { if (e.tipo === 'guia') e.texto = 'Línea guía en la nuca a ' + R.guia.g + ' grados, medida desde la caída natural.'; });
     var qs = [{ e: '¿Cómo se toman las secciones del lateral en ' + R.n.toLowerCase() + '?', o: ['Verticales', 'Horizontales'], c: R.liso ? 1 : 0, x: R.liso ? 'Es cabello liso extremo: en vertical el filo deja escalón.' : 'Siempre en vertical, salvo en cabello liso extremo.' }];
     if (R.fuenteAltura !== 'ejemplo') { var ks = Object.keys(ALTURAS).filter(function (k) { return k !== R.altura; }), gi = (R.n.length + pila.length) % ks.length; ks = ks.slice(gi).concat(ks.slice(0, gi)).slice(0, 3); ks.splice((R.n.length) % 4, 0, R.altura); qs.push({ e: '¿Desde dónde se saca la guía del frente en ' + R.n.toLowerCase() + '?', o: ks.map(function (k) { return 'Desde ' + ALTURAS[k].n; }), c: ks.indexOf(R.altura) }); }
     return { R: R, escenas: L, preguntas: qs };
@@ -384,9 +400,26 @@
     });
   }
 
+  /* Igual que construir(), sin esperas: null si el motor 3D aún no está listo. */
+  function construirYa(id) {
+    var F = fondosYa(); if (!F) return null;
+    var E = escenas(id); if (!E) return null;
+    E.fondos = F;
+    E.escenas.forEach(function (e) { e.anim = { crop: RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; });
+    return E;
+  }
+  /* Fotograma final de una escena (JPEG) para el libro impreso. */
+  function foto(e, w, cal) {
+    var im = LIENZO[e.vista]; if (!im || !e.anim) return '';
+    var c = e.anim.crop, h = Math.round(w * c[3] / c[2]), cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    pinta(cv.getContext('2d'), e.anim, im, 0, 0, w, h, 1);
+    return cv.toDataURL('image/jpeg', cal || 0.8);
+  }
+
   window.EU_DIAGRAMA = {
     ALTURAS: ALTURAS, RECETAS: RECETAS, VISTAS: VISTAS,
     receta: receta, desdeGuia: desdeGuia, libre: libre, construir: construir, fondos: fondos, pinta: pinta,
+    construirYa: construirYa, fondosYa: fondosYa, foto: foto,
     /* código del reproductor para el curso descargado (sin dependencias) */
     js: function () { return 'window.CURSO_ANIM={pinta:(' + pinta.toString() + ')};'; }
   };

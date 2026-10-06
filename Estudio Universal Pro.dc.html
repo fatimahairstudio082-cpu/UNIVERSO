@@ -52,7 +52,7 @@ input[type=range]{accent-color:#a855f7}
 <script src="./b6_examen.js?v=1792400000000"></script>
 <script src="./b6_volantes.js?v=1792400000000"></script>
 <script src="./b6_boton_biblioteca.js?v=1795800000002"></script>
-<script src="./b6_pelu_diagrama.js?v=1796100000001"></script>
+<script src="./b6_pelu_diagrama.js?v=1796200000001"></script>
 <script src="./b6_pelu_geometria.js?v=1796100000001"></script>
 <script src="./b6_guias_3d_diagrama.js?v=1796100000001"></script>
 <script>
@@ -60,7 +60,7 @@ input[type=range]{accent-color:#a855f7}
    no hacen falta para abrir el Estudio. Se descargan en segundo plano después del primer pintado,
    en el mismo orden de siempre, y el Editorial espera a que terminen (EU_CARGA_EDITORIAL). */
 window.EU_DIFERIDOS = ["./b6_curriculo.js?v=1792400000000",
-"./b6_editorial_motor.js?v=1796000000001",
+"./b6_editorial_motor.js?v=1796200000001",
 "./b6_idiomas_plus.js?v=1792400000000",
 "./b6_idiomas_plus2.js?v=1792400000000",
 "./b6_cerebro_idiomas.js?v=1792400000000",
@@ -118,6 +118,7 @@ window.EU_DIFERIDOS = ["./b6_curriculo.js?v=1792400000000",
 "./b6_pelu_orden.js?v=1795700000002",
 "./b6_pelu_libro3d.js?v=1796100000001",
 "./b6_pelu_estudios.js?v=1795700000002",
+"./b6_pelu_libro_diagrama.js?v=1796200000001",
 "./b6_lib_matematicas.js?v=1793400000001",
 "./b6_lib_matematicas2.js?v=1793400000001",
 "./b6_lib_matematicas3.js?v=1793400000002",
@@ -196,9 +197,10 @@ window.EU_DIFERIDOS = ["./b6_curriculo.js?v=1792400000000",
 "./b6_portadas_3.js?v=1795000000007",
 "./b6_portadas_editorial.js?v=1795000000007",
 "./b6_curso_premium.js?v=1795900000001",
-"./b6_pelu_diagrama.js?v=1796100000001",
-"./b6_curso_animado.js?v=1796000000001",
-"./b6_vista_previa.js?v=1796000000001",
+"./b6_pelu_diagrama.js?v=1796200000001",
+"./b6_curso_animado.js?v=1796200000001",
+"./b6_vista_previa.js?v=1796200000001",
+"./b6_libro_escaner.js?v=1796200000001",
 "./b6_infantil_interactivo.js?v=1795800000006"];
 /* Antes eran 131 peticiones (una por módulo): el Editorial tardaba medio minuto y la conexión
    se saturaba. Ahora van en DOS archivos: b6_editorial_nucleo.js (motor, currículo, cerebros…,
@@ -1200,7 +1202,7 @@ window.EU_CARGA_EDITORIAL = function (progreso) {
     <sc-if value="{{ esEditorial }}" hint-placeholder-val="{{ false }}">
       <h2 style="font-size:14px;margin:0 0 3px;color:#a855f7">Editorial escolar · libros, cuadernos y trabajos</h2>
       <p style="margin:0 0 12px;font-size:11.5px;color:#94a3b8;line-height:1.6;max-width:860px;text-wrap:pretty">Eliges país, curso y materia, y el editorial arma el material con el <b>currículo oficial</b> de ese país, su moneda, su papel y sus ejemplos. De 10 a 300 páginas, para imprimir, como EPUB o como libro interactivo que se lee en voz alta.</p>
-      <x-import component-from-global-scope="editorial-escolar" from="./b6_editorial.js?v=1795500000001" hint-size="100%,760px"></x-import>
+      <x-import component-from-global-scope="editorial-escolar" from="./b6_editorial.js?v=1796200000001" hint-size="100%,760px"></x-import>
     </sc-if>
 
     <sc-if value="{{ esHerramientas }}" hint-placeholder-val="{{ false }}">

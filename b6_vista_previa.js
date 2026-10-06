@@ -3,6 +3,8 @@
    · el curso premium (para Hotmart): el mismo reproductor de curso/index.html, con sus datos, sus animaciones de
      diagramación (EU_CURSO_ANIM) y su voz, montado en memoria.
    Se abre en una ventana dentro de la app, con botón para cerrar. No cambia ninguna descarga.
+   Además, dos descargas separadas: «📦 Carpeta HOTMART» (el ZIP del curso premium dentro de HOTMART-<título>/) y
+   «📦 Carpeta PARTICULAR» (libro interactivo, imprimible y EPUB dentro de PARTICULAR-<título>/).
    Se engancha a EU_CONECTORES.salidas como b6_curso_premium.js. Cargar después de b6_curso_animado.js. */
 (function () {
   'use strict';
@@ -49,17 +51,47 @@
       }).catch(function (e) { ed.aviso('Vista previa: ' + (e.message || e)); });
   }
 
+  /* ─── descargas separadas: «Hotmart» (curso premium) y «Particular» (libro), cada una en su propia carpeta ─── */
+  function slug(s) { return String(s || 'libro').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'libro'; }
+  /* el ZIP del curso premium tal cual, con todo dentro de HOTMART-<título>/ */
+  function hotmart(ed) {
+    var CP = window.EU_CURSO_PREMIUM; if (!CP || !ed.res) return ed.aviso('Arma primero el libro.');
+    if (!window.JSZip) return ed.aviso('La descarga necesita conexión la primera vez (JSZip).');
+    var dir = 'HOTMART-' + slug(ed.res.C.titulo) + '/';
+    CP.paquete(ed.res, function (t) { ed.aviso(t); }).then(function (r) { return JSZip.loadAsync(r.blob).then(function (zi) {
+      var z = new JSZip(), tareas = [];
+      zi.forEach(function (ruta, f) { if (!f.dir) tareas.push(f.async('uint8array').then(function (b) { z.file(dir + ruta, b); })); });
+      return Promise.all(tareas).then(function () { return z.generateAsync({ type: 'blob' }); }).then(function (b) { ed.bajar(b, 'HOTMART-' + slug(ed.res.C.titulo) + '.zip'); ed.aviso('Carpeta HOTMART descargada: ' + r.D.modulos.length + ' módulos y ' + r.nL + ' lecciones (curso/, hotmart/, libro/, láminas).'); });
+    }); }).catch(function (e) { ed.aviso(e.message || String(e)); });
+  }
+  /* para una persona particular: el libro interactivo, el imprimible (PDF) y el EPUB, en PARTICULAR-<título>/ */
+  function particular(ed) {
+    var ED = window.EU_EDITORIAL; if (!ED || !ed.res) return ed.aviso('Arma primero el libro.');
+    if (!window.JSZip) return ed.aviso('La descarga necesita conexión la primera vez (JSZip).');
+    var res = ed.res, C = res.C, dir = 'PARTICULAR-' + slug(C.titulo) + '/', z = new JSZip();
+    ed.aviso('Carpeta PARTICULAR: preparando el libro…');
+    z.file(dir + '01-libro-interactivo.html', ED.documento(res, 'web'));
+    z.file(dir + '02-libro-para-imprimir-o-PDF.html', ED.documento(res, 'print'));
+    z.file(dir + 'LEEME.txt', C.titulo + '\n' + res.pages.length + ' páginas\n\n01 · Libro interactivo: ábrelo en el navegador (respuestas que se comprueban solas, voz y animaciones).\n02 · Ábrelo en el navegador y pulsa Imprimir → Guardar como PDF (márgenes: ninguno; gráficos de fondo: activados).\n03 · EPUB para lectores de libros electrónicos.\n');
+    (ED.epub ? ED.epub(res).then(function (b) { z.file(dir + '03-libro.epub', b); }, function () { }) : Promise.resolve())
+      .then(function () { return z.generateAsync({ type: 'blob' }); })
+      .then(function (b) { ed.bajar(b, 'PARTICULAR-' + slug(C.titulo) + '.zip'); ed.aviso('Carpeta PARTICULAR descargada: libro interactivo, imprimible (PDF) y EPUB.'); })
+      .catch(function (e) { ed.aviso(e.message || String(e)); });
+  }
+
   function enganchar() {
     var CN = window.EU_CONECTORES; if (!CN || CN.__vista) return !!CN;
     var s0 = CN.salidas; CN.__vista = true;
     CN.salidas = function (ed, b8) {
-      b8('👁 Vista previa · libro interactivo', function () { if (ed.terminarTandas) ed.terminarTandas(); libro(ed); });
-      b8('👁 Vista previa · curso premium', function () { if (ed.terminarTandas) ed.terminarTandas(); curso(ed); });
+      b8('👁 Vista previa · libro interactivo (particular)', function () { if (ed.terminarTandas) ed.terminarTandas(); libro(ed); });
+      b8('📦 Carpeta PARTICULAR (libro)', function () { if (ed.terminarTandas) ed.terminarTandas(); particular(ed); });
+      b8('👁 Vista previa · curso premium (Hotmart)', function () { if (ed.terminarTandas) ed.terminarTandas(); curso(ed); });
+      b8('📦 Carpeta HOTMART (curso)', function () { if (ed.terminarTandas) ed.terminarTandas(); hotmart(ed); });
       return s0.apply(this, arguments);
     };
     return true;
   }
   if (!enganchar()) (function espera(n) { if (!enganchar() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
 
-  window.EU_VISTA_PREVIA = { libro: libro, curso: curso };
+  window.EU_VISTA_PREVIA = { libro: libro, curso: curso, hotmart: hotmart, particular: particular };
 })();

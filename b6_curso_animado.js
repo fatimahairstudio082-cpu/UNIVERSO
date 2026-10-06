@@ -55,6 +55,13 @@
     var DG = window.EU_DIAGRAMA; if (!DG) return Promise.resolve(D);
     var tareas = [];
     D.modulos.forEach(function (M) { M.lecciones.forEach(function (L) { var c = corteDe(L); if (c) tareas.push({ M: M, L: L, c: c }); }); });
+    /* técnicas de geometría capilar y cortes guardados que el libro lleva (páginas pe_diagrama): una lección al final de su módulo */
+    var LD = window.EU_PELU_LIBRO_DG;
+    if (LD && LD.receta) (res.pages || []).forEach(function (p, j) {
+      if (p.tipo !== 'pe_diagrama' || !p.dg || p.dg.k === 'corte' || !p.u) return;
+      var M = D.modulos.filter(function (x) { return x.id === p.u.id; })[0], R = M && LD.receta(p.dg); if (!R || !M.lecciones.length) return;
+      tareas.push({ M: M, L: { id: M.id + '__tec' + j, pag: p.num }, c: R, k: 'tec' + j, fin: true });
+    });
     if (!tareas.length) return Promise.resolve(D);
     var hechos = {}, i = 0;
     return new Promise(function (ok) {
@@ -68,7 +75,7 @@
           D.anim = D.anim || {};
           Object.keys(E.fondos).forEach(function (v) { D.img['dg_' + v] = E.fondos[v]; });
           var esc = E.escenas.map(function (e) {
-            var k = T.c + '_' + e.tipo; D.anim[k] = e.anim;
+            var k = (T.k || T.c) + '_' + e.tipo; D.anim[k] = e.anim;
             return { tipo: 'paso', id: 'dg_' + e.vista, t: e.t, texto: e.texto, rot: [], anim: k };
           });
           var ult = esc[esc.length - 1].id;
@@ -76,8 +83,8 @@
             esc.push({ tipo: 'pregunta', id: ult, t: 'Repaso', texto: 'Antes de seguir, piensa: ' + q.e, rot: [], q: { e: q.e, o: q.o, c: q.c }, sol: 'La respuesta es: ' + q.o[q.c] + '.' + (q.x ? ' ' + q.x : '') });
             if (!T.M.test.some(function (x) { return x.e === q.e; })) T.M.test.push({ e: q.e, o: q.o, c: q.c });
           });
-          var pos = T.M.lecciones.indexOf(T.L);
-          T.M.lecciones.splice(pos, 0, { id: T.L.id + '__diag', t: 'Diagramación · ' + E.R.n, pag: T.L.pag, video: 1, escenas: esc });
+          var pos = T.fin ? T.M.lecciones.length : T.M.lecciones.indexOf(T.L);
+          T.M.lecciones.splice(pos, 0, { id: T.L.id + '__diag', t: (T.fin ? 'Técnica · ' : 'Diagramación · ') + E.R.n, pag: T.L.pag, video: 1, escenas: esc });
         }).catch(function (er) { console.warn('Diagramación', T.c, er); }).then(function () { setTimeout(sig, 0); });
       })();
     });
