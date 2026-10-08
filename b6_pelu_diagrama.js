@@ -450,6 +450,17 @@
         x.textAlign = 'left';
         if (act && T.e && uu > 0.3) { x.font = '600 12px system-ui,sans-serif'; x.fillStyle = '#2C6FD1'; x.fillText(T.e, qx + (T.cc ? -rr - 8 - x.measureText(T.e).width : rr + 10), qy - rr * 0.35); }
       }
+      /* z: zona rellena que aparece (producto aplicado, papel de aluminio); b = borde, a = opacidad final */
+      else if (T.k === 'z') { x.setLineDash([]); x.globalAlpha = (T.a || 0.45) * su(u); camino(T.p, T.p.length); x.closePath(); x.fill(); x.globalAlpha = 1; if (T.b && u > 0.05) { x.strokeStyle = T.b; x.lineWidth = 1.6; x.stroke(); } }
+      /* c: reloj de exposición (minutos que avanzan) */
+      else if (T.k === 'c') {
+        x.setLineDash([]); var Rc = Math.min(54, bh * 0.14), kx = bx + bw - Rc - 46, ky = by + bh * 0.42, fc = Math.min(1, (T.m || 0) / 60) * su(u), ac = -Math.PI / 2 + 2 * Math.PI * fc;
+        x.fillStyle = 'rgba(255,255,255,.94)'; x.beginPath(); x.arc(kx, ky, Rc, 0, 7); x.fill(); x.strokeStyle = '#6B625A'; x.lineWidth = 2; x.stroke();
+        for (var hh = 0; hh < 12; hh++) { var ah = hh * Math.PI / 6; x.beginPath(); x.moveTo(kx + Math.sin(ah) * Rc * 0.84, ky - Math.cos(ah) * Rc * 0.84); x.lineTo(kx + Math.sin(ah) * Rc, ky - Math.cos(ah) * Rc); x.stroke(); }
+        x.fillStyle = T.c; x.globalAlpha = 0.28; x.beginPath(); x.moveTo(kx, ky); x.arc(kx, ky, Rc * 0.8, -Math.PI / 2, ac, false); x.closePath(); x.fill(); x.globalAlpha = 1;
+        x.strokeStyle = T.c; x.lineWidth = 3.5; x.beginPath(); x.moveTo(kx, ky); x.lineTo(kx + Math.cos(ac) * Rc * 0.78, ky + Math.sin(ac) * Rc * 0.78); x.stroke();
+        x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(Math.round((T.m || 0) * su(u)) + ' min', kx, ky - Rc - 14); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(T.s || 'Exposición', kx, ky + Rc + 20); x.textAlign = 'left';
+      }
       else if (T.k === 'r') {
         x.setLineDash([]); var R = Math.min(62, bh * 0.16), cx = bx + bw - R - 46, cy = by + bh * 0.42, g = T.g[0] + (T.g[1] - T.g[0]) * su(u);
         x.strokeStyle = '#9A8F84'; x.lineWidth = 1.5; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2 - 1.25 * Math.PI, Math.PI / 2, false); x.stroke();
@@ -499,8 +510,14 @@
     return cv.toDataURL('image/jpeg', cal || 0.8);
   }
 
+  /* Técnicas como datos (b6_pelu_particiones.js): los mismos ayudantes de dibujo y la misma salida que los cortes. */
+  var KIT = { P: P, N: N, V3: V3, recta: recta, dirElev: dirElev, pr: pr, seVe: seVe, tramos: tramos, plano: plano, bezier: bezier, linea: linea, lineas: lineas, mechon: mechon, tijera: tijera, rotulo: rotulo, regla: regla, chapa: chapa, r1: r1, thCapa: thCapa, CARA: CARA, NUCA: NUCA, IZQ: IZQ, DER: DER, COL: COL, TINTA: TINTA, ROJO: ROJO, VERDE: VERDE, CORTE: CORTE };
+  function armar(fn, F) { if (!F) return null; var E = fn(KIT); if (!E) return null; E.fondos = F; E.escenas.forEach(function (e) { e.anim = { crop: RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; }); return E; }
+
   window.EU_DIAGRAMA = {
     ALTURAS: ALTURAS, RECETAS: RECETAS, VISTAS: VISTAS,
+    construirCon: function (fn) { return fondos().then(function (F) { return armar(fn, F); }); },
+    construirConYa: function (fn) { return armar(fn, fondosYa()); },
     receta: receta, desdeGuia: desdeGuia, libre: libre, construir: construir, fondos: fondos, pinta: pinta,
     construirYa: construirYa, fondosYa: fondosYa, foto: foto,
     /* código del reproductor para el curso descargado (sin dependencias) */

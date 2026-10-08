@@ -179,9 +179,10 @@
     D.modulos.forEach(function (M) {
       var pg = res.pages.filter(function (p) { return p.tipo === 'tutor' && p.u && p.u.id === M.id; })[0]; if (!pg || !pg.tut) return;
       var u = pg.u, t = pg.tut, id = null;
+      var ya = function (s) { return M.lecciones.some(function (l) { return l.id && l.id.indexOf(u.id + s) === 0; }); };
       if (window.EU_ESCANER && !t.sinLam) { var src = window.EU_ESCANER.lamina({ u: u, lam: t.lam }, C); if (src) { id = 'tutor_' + u.id; D.img[id] = src; } }
       var titulo = txt(sub(u.t, C)), L = [];
-      if (t.ej) L.push({ id: u.id + '__tutor_ej', t: 'Ejemplo resuelto · ' + titulo, pag: pg.num, video: 0, escenas: [
+      if (t.ej && !ya('__enc_ej')) L.push({ id: u.id + '__tutor_ej', t: 'Ejemplo resuelto · ' + titulo, pag: pg.num, video: 0, escenas: [
         { tipo: 'idea', id: id, t: 'Ejemplo resuelto', texto: 'Resolvemos juntos. ' + txt(sub(t.ej.e, C)), rot: [] },
         { tipo: 'idea', id: id, t: 'Solución', texto: 'La respuesta es: ' + txt(t.ej.s) + '.' + (t.ej.x ? ' Por qué: ' + txt(t.ej.x) : ''), rot: [] }] });
       var esc = (t.items || []).map(function (x) {
@@ -194,7 +195,7 @@
       });
       if (esc.length) L.push({ id: u.id + '__tutor_pr', t: 'Practica con tu tutor · ' + titulo, pag: pg.num, video: 0, escenas: esc });
       var ks = (u.k || []).map(function (k) { return txt(sub(k, C)); }).filter(Boolean);
-      if (ks.length || (u.i || []).length) L.push({ id: u.id + '__tutor_fin', t: 'Conclusión · ' + titulo, pag: pg.num, video: 0, escenas: [
+      if ((ks.length || (u.i || []).length) && !ya('__enc_con')) L.push({ id: u.id + '__tutor_fin', t: 'Conclusión · ' + titulo, pag: pg.num, video: 0, escenas: [
         { tipo: 'idea', id: id, t: 'Conclusión', texto: (u.i || []).slice(0, 4).map(function (s, k) { return 'Paso ' + (k + 1) + ': ' + txt(sub(s, C)); }).join(' '), rot: ks.slice(0, 4) },
         { tipo: 'idea', id: id, t: 'Lo esencial', texto: 'Lo esencial de «' + titulo + '»: ' + ks.join(', ') + '.', rot: ks.slice(0, 4) }] });
       L.forEach(function (x) { M.lecciones.push(x); n++; });
