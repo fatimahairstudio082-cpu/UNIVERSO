@@ -450,7 +450,7 @@
       var ocupado = false;
       b8('🎓 Curso premium (libro + vídeos + voz)', function () {
         if (ocupado) return; ocupado = true; if (ed.terminarTandas) ed.terminarTandas();
-        paquete(ed.res, function (t) { ed.aviso(t); }).then(function (r) { ed.bajar(r.blob, r.nombre); ed.aviso('Curso premium descargado: ' + r.D.modulos.length + ' módulos, ' + r.nL + ' lecciones y ' + r.nV + ' vídeos. Abre curso/index.html en Chrome.'); })
+        ((window.EU_CURSO_PREMIUM && window.EU_CURSO_PREMIUM.paquete) || paquete)(ed.res, function (t) { ed.aviso(t); }).then(function (r) { ed.bajar(r.blob, r.nombre); ed.aviso('Curso premium descargado: ' + r.D.modulos.length + ' módulos, ' + r.nL + ' lecciones y ' + r.nV + ' vídeos. Abre curso/index.html en Chrome.'); })
           .catch(function (e) { ed.aviso(e.message); }).then(function () { ocupado = false; });
       }, true);
     };
