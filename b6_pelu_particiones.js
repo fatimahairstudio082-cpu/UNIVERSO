@@ -6,7 +6,10 @@
    Entrega 1: seccionado en 4 y 6 secciones (raya central medida desde la nariz, de oreja a oreja por arriba,
    segunda línea de oreja a oreja en la nuca) y escala de elevación 0–225° (225° = 45° sobredirigido).
    Numeración de sus diagramas: 1 delante derecha · 2 delante izquierda · 3 atrás izquierda · 4 atrás derecha ·
-   5 nuca izquierda · 6 nuca derecha. Cargar después de b6_curso_animado.js. */
+   5 nuca izquierda · 6 nuca derecha. Cargar después de b6_curso_animado.js.
+   Entrega 3 (carpeta «para mi clauidia (1)»): particiones horizontales con pivote en la coronilla y sobreproyección
+   (melena de color con perímetro en picos), Long Layers (proyección a un punto encima de la cabeza, marco en V, secciones
+   por colores) y Pixie (abanico de elevaciones, flequillo en triángulo asimétrico, nuca en abanico y espiga). */
 (function () {
   'use strict';
   if (window.EU_PARTICIONES) return;
@@ -253,9 +256,166 @@
     return out;
   }
 
+  /* ═════════ Entrega 3 · diseños de «para mi clauidia (1)»: sobreproyección con pivote, Long Layers y Pixie ═════════
+     Solo la geometría de cada diagrama, dibujada por el motor sobre el maniquí (ninguna imagen copiada).
+     Lo que el dibujo no dice (grados, largos) no se pone: queda «a validar por Fátima». */
+  function W(K, v, x, y, z) { return K.pr(v, K.V3(x, y, z)); }
+  function flecha(K, v, a, b, t, c, w, ext) { return K.linea(K.plano([W(K, v, a[0], a[1], a[2]), W(K, v, b[0], b[1], b[2])]), t, c, w || 3, Object.assign({ fl: 1 }, ext || {})); }
+  /* flecha blanca con borde oscuro (se ve sobre el fondo claro) */
+  function flechaBlanca(K, v, a, b, t) { return [flecha(K, v, a, b, t, '#1F1B18', 6.5), flecha(K, v, a, b, t, '#FFFFFF', 3.2)]; }
+  /* contorno del perfil (plano de la raya): ángulo 0 = coronilla, positivo hacia la cara */
+  function perfil(a, s) { return [0, 1.22 * Math.cos(a) * (s || 1), 1.15 * Math.sin(a) * (s || 1)]; }
+  function paralelos(K, v, ths, t, c, w, ext) { var tr = []; ths.forEach(function (th, i) { var t0 = t[0] + i * (t[1] - t[0]) / ths.length; tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [u * 2 * PI, th]; }, 120), [t0, t0 + (t[1] - t[0]) / ths.length], c, w || 3, ext)); }); return tr; }
+  /* abanico: líneas sobre el cráneo desde un punto [φ,θ] hasta varios puntos [φ,θ] */
+  function abanico(K, v, o, fin, t, c, w) { var tr = []; fin.forEach(function (f, i) { var t0 = t[0] + i * (t[1] - t[0]) / (fin.length + 2); tr = tr.concat(K.lineas(K.tramos(v, K.recta(o, f), 40), [t0, t0 + (t[1] - t[0]) * 3 / (fin.length + 2)], c, w || 2.5)); }); return tr; }
+
+  /* ── «Con efecto colores» · altura total, particiones horizontales, pivote, sobreproyección y melena de color ── */
+  var C_MORADO = '#8E5BD6', C_MORADO_B = '#5B2E91', C_ROJO = '#C0392B';
+  function sobreproy(K) {
+    var v = 'lateral', esc = [], TH = [0.62, 0.95, 1.28, 1.6], PIV = [K.NUCA, 0.32];
+    var frente = 1.5, atras = -1.75;
+    function altura(t) { return [flecha(K, v, [0, 0.16, frente], [0, 1.22, frente], t, C_ROJO, 4), flecha(K, v, [0, 0.16, frente], [0, -0.9, frente], t, C_ROJO, 4)]; }
+    function negras(t) { var tr = paralelos(K, v, TH, t, '#1F1B18', 2.6); TH.forEach(function (th, i) { var y = 1.22 * Math.cos(th); tr.push(flecha(K, v, [0, y, -1.15 * Math.sin(th) * 0.95], [0, y, frente - 0.1], [t[0] + i * 0.05, t[1]], '#1F1B18', 2.6)); }); return tr; }
+    function pivote(t) {
+      var fin = []; for (var i = 0; i <= 8; i++) fin.push([K.NUCA + 1.45 - i * 0.36, 1.95]);
+      var tr = abanico(K, v, PIV, fin.filter(function (f) { return K.seVe(v, f[0], f[1] - 0.2); }), t, C_MORADO_B, 2.4);
+      [0.25, 0.5, 0.75].forEach(function (z, i) { var yt = 1.22 * Math.sqrt(Math.max(0, 1 - z * z / 1.32)); tr.push(K.linea(K.plano([W(K, v, 0, yt * 1.02, z), W(K, v, 0, -0.15, z)]), [t[0] + i * 0.05, t[1]], C_MORADO_B, 2)); });
+      tr.push(K.chapa(K.pr(v, K.P(PIV[0], PIV[1])), '', C_MORADO_B, t[0]));
+      return tr;
+    }
+    function blancas(t) { return flechaBlanca(K, v, [0, 1.12, 0.6], [0, 1.12, atras], t).concat(flechaBlanca(K, v, [0, -0.32, 1.25], [0, -0.32, atras], [t[0] + 0.08, t[1]])); }
+    /* melena: arriba sigue el cráneo, atrás cae por la nuca hasta los hombros; el borde de delante y el de abajo, en picos */
+    function melena(t) {
+      var q = [], a, i;
+      for (a = 0.72; a >= -2.05; a -= 0.12) q.push(perfil(a, 1.06));
+      var picos = [[-1.0, -0.75], [-0.8, -1.45], [-0.62, -1.95], [-0.5, -2.2], [-0.3, -1.9], [-0.12, -2.1], [0.0, -1.7], [0.12, -1.9], [0.2, -1.3], [0.32, -1.45], [0.36, -0.85], [0.5, -0.95], [0.48, -0.35], [0.62, -0.42], [0.6, 0.15], [0.76, 0.12], [0.7, 0.6]];
+      picos.forEach(function (p) { q.push([0, p[1], p[0]]); });
+      var pl = K.plano(q.map(function (c) { return W(K, v, c[0], c[1], c[2]); }));
+      var borde = K.plano(picos.slice(2).map(function (p) { return W(K, v, 0, p[1], p[0]); }));
+      return [{ k: 'z', p: pl, t: t, c: C_MORADO, a: 0.42, b: C_MORADO_B }, K.tijera(borde, [t[0] + (t[1] - t[0]) * 0.55, t[1]], K.CORTE, true)];
+    }
+    esc.push({ tipo: 'sp_altura', vista: v, t: 'La altura total de la cabeza', texto: 'Empezamos de perfil. La flecha roja vertical representa la altura total de la cabeza, desde arriba hasta la barbilla.',
+      a: { v: v, tr: altura([0.05, 0.6]).concat([K.rotulo('Flecha roja: altura total de la cabeza', C_ROJO, 0.05)]) } });
+    esc.push({ tipo: 'sp_secciones', vista: v, t: 'Particiones horizontales', texto: 'Las líneas negras son las particiones horizontales: las secciones del corte, una debajo de otra, de la coronilla hacia la nuca.',
+      a: { v: v, tr: altura([0, 0.02]).concat(negras([0.05, 0.75]), [K.rotulo('Líneas negras: particiones horizontales (secciones)', '#1F1B18', 0.05)]) } });
+    esc.push({ tipo: 'sp_pivote', vista: v, t: 'El pivote en la coronilla', texto: 'Las líneas que salen desde la coronilla son el pivote: marcan la dirección de peinado. Cada mechón se peina desde la coronilla, en abanico, antes de cortar. Delante, las secciones van en vertical.',
+      a: { v: v, tr: negras([0, 0.02]).concat(pivote([0.05, 0.8]), [K.rotulo('Pivote: dirección de peinado desde la coronilla', C_MORADO_B, 0.05)]) } });
+    esc.push({ tipo: 'sp_sobreproy', vista: v, t: 'La sobreproyección', texto: 'Las flechas blancas indican la dirección de sobreproyección: el cabello se peina hacia atrás antes de cortar.',
+      a: { v: v, tr: negras([0, 0.02]).concat(pivote([0, 0.02]), blancas([0.08, 0.6]), [K.rotulo('Flechas blancas: el cabello se peina hacia atrás antes de cortar', '#1F1B18', 0.08)]) } });
+    esc.push({ tipo: 'sp_melena', vista: v, t: 'La forma final con color', texto: 'Al terminar, el color muestra la forma: arriba sigue la curva de la cabeza, atrás cae largo, y el borde de delante y de abajo queda en picos, cortado con desfilado.',
+      a: { v: v, tr: melena([0.04, 0.7]).concat(altura([0, 0.02]), negras([0, 0.02]), pivote([0, 0.02]), blancas([0, 0.02]), [K.rotulo('Forma final: perímetro en picos', C_MORADO_B, 0.04), K.rotulo('Grados y largos: a validar por Fátima', '#8A6D3B', 0.7)]) } });
+    return {
+      R: { id: 'p_sobreproy', n: 'Particiones horizontales, pivote y sobreproyección' },
+      escenas: esc,
+      preguntas: [
+        { e: '¿Qué representa la flecha roja vertical?', o: ['La altura total de la cabeza', 'La dirección del corte', 'El largo de la nuca'], c: 0, x: 'La flecha roja va de arriba de la cabeza hasta la barbilla.' },
+        { e: '¿Qué son las líneas negras?', o: ['Las particiones horizontales (secciones) del corte', 'Las líneas de color', 'La raya central'], c: 0, x: 'Cada línea negra es una sección horizontal.' },
+        { e: '¿Qué indican las flechas blancas?', o: ['La dirección de sobreproyección: se peina hacia atrás antes de cortar', 'El largo final', 'La altura de la cabeza'], c: 0, x: 'Antes de cortar, el cabello se peina hacia atrás.' },
+        { e: '¿Qué marcan las líneas que salen desde la coronilla?', o: ['El pivote: la dirección de peinado', 'Dónde termina el color', 'Las orejas'], c: 0, x: 'Cada mechón se peina desde la coronilla, en abanico.' }
+      ]
+    };
+  }
+
+  /* ── «Long Layers» de frente: proyección a un punto por encima de la cabeza, marco en V, secciones por colores ── */
+  var C_AZUL = '#2C6FD1', C_NARANJA = '#E58A3A';
+  function longLayers(K) {
+    var v = 'frente', esc = [], Q = [0, 1.12, 1.05];
+    function punto(t) { return K.chapa(W(K, v, Q[0], Q[1], Q[2]), '', C_ROJO, t); }
+    var lados = [[-0.98, -1.75, 0.2], [-0.62, -1.7, 0.75], [0.62, -1.7, 0.75], [0.98, -1.75, 0.2]];
+    function proyeccion(t) {
+      var tr = [punto(t[0])];
+      lados.forEach(function (a, i) { tr.push(flecha(K, v, a, Q, [t[0] + i * 0.06, t[1]], C_ROJO, 2.6)); });
+      [[-0.7, 0.62, 0.75], [0.7, 0.62, 0.75]].forEach(function (a, i) { tr.push(K.linea(K.plano([W(K, v, Q[0], Q[1], Q[2]), W(K, v, a[0], a[1], a[2])]), [t[0] + 0.2 + i * 0.05, t[1]], C_ROJO, 2.2, { d: 1 })); });
+      tr.push(K.linea(K.plano([W(K, v, -0.7, 0.62, 0.75), W(K, v, 0, 0.78, 0.95), W(K, v, 0.7, 0.62, 0.75)]), [t[0] + 0.3, t[1]], C_ROJO, 2, { d: 1 }));
+      return tr;
+    }
+    function marco(t) {
+      var tr = [];
+      [-1, 1].forEach(function (s, i) {
+        tr.push(flecha(K, v, [s * 0.55, 0.55, 0.85], [s * 0.58, -1.75, 0.75], [t[0] + i * 0.08, t[1]], C_ROJO, 2.6));
+        tr.push(K.linea(K.plano([W(K, v, s * 0.3, 0.55, 1.0), W(K, v, s * 0.3, -0.62, 1.05), W(K, v, s * 0.62, -1.15, 0.7)]), [t[0] + 0.2 + i * 0.08, t[1]], C_ROJO, 2.6, { fl: 1 }));
+      });
+      return tr;
+    }
+    function colores(t) {
+      var tr = paralelos(K, v, [0.55, 0.78, 1.0], [t[0], t[0] + 0.3], C_AZUL, 2.4, { d: 1 }).concat(paralelos(K, v, [1.3, 1.5, 1.7], [t[0] + 0.3, t[0] + 0.6], C_NARANJA, 2.4, { d: 1 }));
+      [-0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9].forEach(function (x, i) { var c = i % 2 ? C_AZUL : (Math.abs(x) > 0.8 ? C_NARANJA : C_ROJO); tr.push(flecha(K, v, [x, 0.35, 0.4], [x, -1.75, 0.4], [t[0] + 0.45 + i * 0.03, t[1]], c, 2.4)); });
+      tr.push(K.linea(K.plano([W(K, v, -1.02, -1.8, 0.4), W(K, v, 1.02, -1.8, 0.4)]), [t[1] - 0.1, t[1]], '#1F1B18', 4));
+      return tr;
+    }
+    esc.push({ tipo: 'll_punto', vista: v, t: 'Proyección a un punto encima de la cabeza', texto: 'De frente. Los mechones se proyectan hacia arriba, todos al mismo punto, por encima de la cabeza. Arriba, en el centro, queda un triángulo marcado con líneas discontinuas.',
+      a: { v: v, tr: proyeccion([0.05, 0.75]).concat([K.rotulo('Todos los mechones al mismo punto, encima de la cabeza', C_ROJO, 0.05)]) } });
+    esc.push({ tipo: 'll_marco', vista: v, t: 'El marco del rostro', texto: 'Delante, los mechones bajan enmarcando el rostro: los de los lados caen rectos y los del centro se abren hacia afuera, formando una V alrededor de la cara.',
+      a: { v: v, tr: [punto(0)].concat(marco([0.05, 0.75]), [K.rotulo('Marco del rostro en V', C_ROJO, 0.05)]) } });
+    esc.push({ tipo: 'll_colores', vista: v, t: 'Secciones por colores y un solo largo', texto: 'En la segunda forma, las secciones horizontales se marcan por colores: azul arriba y naranja abajo. Desde la coronilla salen líneas hacia el punto de arriba, y todo el cabello cae hasta una misma línea recta.',
+      a: { v: v, tr: [punto(0)].concat([[-0.75, 0.5, 0.75, C_AZUL], [-0.35, 0.62, 0.9, C_ROJO], [0, 0.66, 0.95, C_AZUL], [0.35, 0.62, 0.9, C_ROJO], [0.75, 0.5, 0.75, C_AZUL]].map(function (a, i) { return K.linea(K.plano([W(K, v, a[0], a[1], a[2]), W(K, v, Q[0], Q[1], Q[2])]), [0.02 + i * 0.03, 0.2], a[3], 2.2); }), colores([0.05, 0.85]), [K.rotulo('Azul arriba · naranja abajo', C_AZUL, 0.05), K.rotulo('Todo cae hasta una línea recta', '#1F1B18', 0.75), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85)]) } });
+    return {
+      R: { id: 'p_long_layers', n: 'Long Layers · proyección a un punto' },
+      escenas: esc,
+      preguntas: [
+        { e: 'En «Long Layers», ¿hacia dónde se proyectan los mechones?', o: ['A un mismo punto por encima de la cabeza', 'Hacia la nuca', 'Hacia las orejas'], c: 0, x: 'Todas las flechas van al mismo punto, arriba.' },
+        { e: '¿Qué forma hacen los mechones de delante alrededor de la cara?', o: ['Una V', 'Un círculo', 'Una línea horizontal'], c: 0, x: 'Los del centro se abren hacia afuera y enmarcan el rostro.' },
+        { e: 'En la segunda forma, ¿cómo terminan los mechones abajo?', o: ['En una misma línea recta', 'En picos', 'En diagonal'], c: 0, x: 'Todas las flechas llegan a la línea negra recta.' }
+      ]
+    };
+  }
+
+  /* ── Pixie: perfil (abanico de elevaciones y sobredirección atrás), frente (verticales y flequillo en triángulo), arriba (nuca radial y espiga) ── */
+  function pixie(K) {
+    var esc = [];
+    (function () {
+      var v = 'lateral', tr = [], i;
+      for (i = 0; i <= 9; i++) {
+        var a = -0.05 - i * 0.2, b = perfil(a, 1.03), n = [0, Math.cos(a) / 1.22, Math.sin(a) / 1.15], L = Math.sqrt(n[1] * n[1] + n[2] * n[2]);
+        var c = [0, b[1] + n[1] / L * 0.6, b[2] + n[2] / L * 0.6];
+        tr.push(K.linea(K.plano([W(K, v, b[0], b[1], b[2]), W(K, v, c[0], c[1], c[2])]), [0.05 + i * 0.05, 0.2 + i * 0.05], '#4A4A55', 2));
+      }
+      var arco = []; for (i = 0; i <= 30; i++) { var a2 = -0.05 - i * 1.8 / 30, b2 = perfil(a2, 1.03), n2 = [Math.cos(a2) / 1.22, Math.sin(a2) / 1.15], L2 = Math.sqrt(n2[0] * n2[0] + n2[1] * n2[1]); arco.push(W(K, v, 0, b2[1] + n2[0] / L2 * 0.6, b2[2] + n2[1] / L2 * 0.6)); }
+      tr.push(K.linea(K.plano(arco), [0.55, 0.75], '#4A4A55', 2, { d: 1 }));
+      [-0.25, -0.5, -0.75, -0.95].forEach(function (z, j) { var yt = 1.22 * Math.sqrt(Math.max(0, 1 - z * z / 1.32)); tr.push(K.linea(K.plano([W(K, v, 0, yt * 1.02, z), W(K, v, 0, -0.7, z)]), [0.02 + j * 0.03, 0.2], '#1F1B18', 2)); });
+      [0.3, 0.05, -0.2, -0.45].forEach(function (y, j) { tr.push(flecha(K, v, [0, y, -1.0], [0, y, -1.75], [0.62 + j * 0.04, 0.85], '#1F1B18', 2.2)); });
+      tr.push(K.rotulo('Secciones verticales', '#1F1B18', 0.02), K.rotulo('Abanico de elevaciones siguiendo la curva de la cabeza', '#4A4A55', 0.05), K.rotulo('Atrás: sobredirección hacia atrás', '#1F1B18', 0.62), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85));
+      esc.push({ tipo: 'px_perfil', vista: v, t: 'Pixie de perfil · abanico de elevaciones', texto: 'De perfil, las secciones son verticales. Los mechones se elevan en abanico, siguiendo la curva de la cabeza. En la parte de atrás, las flechas marcan que el cabello se sobredirige hacia atrás.', a: { v: v, tr: tr } });
+    })();
+    (function () {
+      var v = 'frente', tr = [];
+      [-0.55, -0.35, -0.15, 0.05, 0.25, 0.45, 0.65].forEach(function (x, j) { var yt = 1.22 * Math.sqrt(Math.max(0, 1 - x * x / 1.2)); tr.push(K.linea(K.plano([W(K, v, x, yt * 0.98, 0.35), W(K, v, x, 0.35, 0.95)]), [0.04 + j * 0.03, 0.3 + j * 0.03], '#4A4A55', 2)); });
+      tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [K.CARA - 1.3 + u * 2.6, 0.95]; }, 60), [0.4, 0.55], '#4A4A55', 2, { d: 1 }));
+      var A = W(K, v, 0.42, 0.18, 1.0), B = W(K, v, 0.62, -0.75, 0.75), Cq = W(K, v, -0.25, -0.38, 1.1);
+      tr.push(K.linea(K.plano([A, B, Cq, A]), [0.58, 0.85], C_ROJO, 2.6, { d: 1 }));
+      tr.push(K.rotulo('Secciones verticales de frente', '#4A4A55', 0.04), K.rotulo('Flequillo en triángulo asimétrico', C_ROJO, 0.58));
+      esc.push({ tipo: 'px_frente', vista: v, t: 'Pixie de frente · flequillo en triángulo', texto: 'De frente, las secciones también son verticales. El flequillo se marca con un triángulo asimétrico: más largo hacia un lado, cubriendo la frente en diagonal.', a: { v: v, tr: tr } });
+    })();
+    (function () {
+      var v = 'arriba', tr = [], O = [K.NUCA, 1.05], fin = [], i;
+      for (i = 0; i <= 10; i++) fin.push([K.NUCA - 1.45 + i * 0.29, 1.95]);
+      tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [K.NUCA - 1.65 + u * 3.3, 1.05]; }, 60), [0.02, 0.2], '#1F1B18', 2.6));
+      tr = tr.concat(abanico(K, v, O, fin, [0.2, 0.55], '#4A4A55', 2));
+      /* espiga: una línea guía en diagonal y, a los dos lados, secciones que bajan hacia atrás (en pantalla) */
+      var S0 = K.pr(v, K.P(K.NUCA, 1.0)), S1 = K.pr(v, K.P(K.CARA - 0.55, 0.62)), dx = S1[0] - S0[0], dy = S1[1] - S0[1], Lg = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / Lg, uy = dy / Lg;
+      tr.push(K.linea([S0[0], S0[1], S1[0], S1[1]], [0.55, 0.65], '#1F1B18', 2.4));
+      for (i = 1; i <= 6; i++) { var px = S0[0] + dx * i / 7, py = S0[1] + dy * i / 7; [-1, 1].forEach(function (sg) { tr.push(K.linea([px, py, px - ux * 34 - sg * uy * 40, py - uy * 34 + sg * ux * 40], [0.62 + i * 0.04, 0.72 + i * 0.04], '#4A4A55', 2)); }); }
+      tr.push(K.chapa(K.pr(v, K.P(O[0], O[1])), '', '#1F1B18', 0.2));
+      tr.push(K.rotulo('Línea de lado a lado', '#1F1B18', 0.02), K.rotulo('Nuca en abanico desde un punto', '#4A4A55', 0.2), K.rotulo('Arriba: secciones en espiga', '#1F1B18', 0.55));
+      esc.push({ tipo: 'px_arriba', vista: v, t: 'Pixie desde arriba · nuca en abanico y espiga', texto: 'Desde arriba se ve el reparto: una línea de lado a lado separa la nuca. La nuca se divide en abanico, desde un mismo punto. Arriba, las secciones van en espiga, en diagonal a los dos lados de una línea.', a: { v: v, tr: tr } });
+    })();
+    return {
+      R: { id: 'p_pixie', n: 'Pixie · abanico, flequillo en triángulo y espiga' },
+      escenas: esc,
+      preguntas: [
+        { e: 'En el pixie, ¿cómo se divide la nuca vista desde arriba?', o: ['En abanico, desde un mismo punto', 'En horizontal', 'En cuadros'], c: 0, x: 'Todas las líneas de la nuca salen del mismo punto.' },
+        { e: '¿Qué forma tiene el flequillo de este pixie?', o: ['Un triángulo asimétrico', 'Una línea recta', 'Un círculo'], c: 0, x: 'El triángulo es más largo hacia un lado.' },
+        { e: 'De perfil, ¿hacia dónde se sobredirige el cabello de atrás?', o: ['Hacia atrás', 'Hacia la cara', 'Hacia abajo'], c: 0, x: 'Las flechas de la parte de atrás apuntan hacia atrás.' }
+      ]
+    };
+  }
+
   /* catálogo de técnicas como datos (las siguientes entregas se añaden aquí) */
   var TECNICAS = [
-    { id: 'p_seis', n: 'Seccionado en 4 y 6 secciones · escala 0–225°', unidad: 'pe_u_base', uso: ['corte', 'color', 'queratina'], fn: seis, fuente: 'Diagramas de Fátima · formas de dividir un cabello, tipos de diagrama 0–225' }
+    { id: 'p_seis', n: 'Seccionado en 4 y 6 secciones · escala 0–225°', unidad: 'pe_u_base', uso: ['corte', 'color', 'queratina'], fn: seis, fuente: 'Diagramas de Fátima · formas de dividir un cabello, tipos de diagrama 0–225' },
+    { id: 'p_sobreproy', n: 'Particiones horizontales, pivote y sobreproyección', unidad: 'pe_u_base', uso: ['corte', 'color'], fn: sobreproy, fuente: 'Diseño de Fátima · con efecto colores' },
+    { id: 'p_long_layers', n: 'Long Layers · proyección a un punto', unidad: 'pe_u_base', uso: ['corte'], fn: longLayers, fuente: 'Diseño de Fátima · forma de frente (Long Layers)' },
+    { id: 'p_pixie', n: 'Pixie · abanico, flequillo en triángulo y espiga', unidad: 'pe_u_base', uso: ['corte'], fn: pixie, fuente: 'Diseño de Fátima · pixie corte diagrama' }
   ];
   function catalogo() { return TECNICAS.concat(delCerebro()); }
   function tecnica(id) { return catalogo().filter(function (t) { return t.id === id; })[0] || null; }
@@ -266,7 +426,7 @@
   function lecciones(D, res, aviso) {
     var C = res && res.C, mat = C && C.cfg && C.cfg.materia; if (mat !== 'pelu' || !D || !D.modulos) return Promise.resolve(D);
     var tareas = catalogo().map(function (t) { return { t: t, M: D.modulos.filter(function (m) { return m.id === t.unidad; })[0] }; }).filter(function (x) { return x.M; });
-    var i = 0;
+    var i = 0, ins = {};   /* en el orden del catálogo, al principio de la unidad */
     return new Promise(function (ok) {
       (function sig() {
         if (i >= tareas.length) return ok(D);
@@ -283,7 +443,8 @@
             if (T.M.test && !T.M.test.some(function (x) { return x.e === q.e; })) T.M.test.push({ e: q.e, o: q.o, c: q.c });
           });
           var pag = (T.M.lecciones[0] || {}).pag;
-          T.M.lecciones.splice(0, 0, { id: T.M.id + '__' + T.t.id, t: 'Diagramación · ' + E.R.n, pag: pag, video: 1, escenas: esc });
+          var pos = ins[T.M.id] || 0; ins[T.M.id] = pos + 1;
+          T.M.lecciones.splice(pos, 0, { id: T.M.id + '__' + T.t.id, t: 'Diagramación · ' + E.R.n, pag: pag, video: 1, escenas: esc });
         }).catch(function (er) { console.warn('Particiones', T.t.id, er); }).then(function () { setTimeout(sig, 0); });
       })();
     });
