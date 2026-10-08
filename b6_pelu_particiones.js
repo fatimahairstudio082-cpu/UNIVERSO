@@ -417,7 +417,10 @@
     { id: 'p_long_layers', n: 'Long Layers · proyección a un punto', unidad: 'pe_u_base', uso: ['corte'], fn: longLayers, fuente: 'Diseño de Fátima · forma de frente (Long Layers)' },
     { id: 'p_pixie', n: 'Pixie · abanico, flequillo en triángulo y espiga', unidad: 'pe_u_base', uso: ['corte'], fn: pixie, fuente: 'Diseño de Fátima · pixie corte diagrama' }
   ];
-  function catalogo() { return TECNICAS.concat(delCerebro()); }
+  /* técnicas que otros módulos registran (cerebro de colorimetría…): van después de las del Cerebro de su unidad */
+  var EXTRA = [];
+  function registrar(lista) { (lista || []).forEach(function (t) { if (t && t.id && !EXTRA.some(function (x) { return x.id === t.id; })) EXTRA.push(t); }); }
+  function catalogo() { return TECNICAS.concat(delCerebro(), EXTRA); }
   function tecnica(id) { return catalogo().filter(function (t) { return t.id === id; })[0] || null; }
   function construir(id) { var t = tecnica(id); return t ? DG.construirCon(t.fn) : Promise.resolve(null); }
   function construirYa(id) { var t = tecnica(id); return t ? DG.construirConYa(t.fn) : null; }
@@ -444,7 +447,7 @@
           });
           var pag = (T.M.lecciones[0] || {}).pag;
           var pos = ins[T.M.id] || 0; ins[T.M.id] = pos + 1;
-          T.M.lecciones.splice(pos, 0, { id: T.M.id + '__' + T.t.id, t: 'Diagramación · ' + E.R.n, pag: pag, video: 1, escenas: esc });
+          T.M.lecciones.splice(pos, 0, { id: T.M.id + '__' + T.t.id, t: (T.t.pre || 'Diagramación · ') + E.R.n, pag: pag, video: 1, escenas: esc });
         }).catch(function (er) { console.warn('Particiones', T.t.id, er); }).then(function () { setTimeout(sig, 0); });
       })();
     });
@@ -456,5 +459,7 @@
     CA.enriquecer._part = 1;
   }
 
-  window.EU_PARTICIONES = { TECNICAS: TECNICAS, catalogo: catalogo, tecnica: tecnica, construir: construir, construirYa: construirYa, lecciones: lecciones };
+  window.EU_PARTICIONES = { TECNICAS: TECNICAS, catalogo: catalogo, tecnica: tecnica, construir: construir, construirYa: construirYa, lecciones: lecciones, registrar: registrar,
+    /* ayudantes de dibujo para los módulos que registran técnicas (mismos trazos que las del Cerebro) */
+    ayudas: { escAplicar: escAplicar, escCierre: escCierre, zona: zona, mecha: mecha, NIVEL: NIVEL } };
 })();
