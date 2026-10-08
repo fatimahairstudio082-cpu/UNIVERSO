@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ProfemAt GOD — Aprendizaje Paso a Paso v7.0 (Ecuaciones & Explicaciones)</title>
+
+<!-- KaTeX para Renderizado Profesional de Ecuaciones Matemáticas -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#070d19;color:#eef5ff}
+header{background:#111c30;border-bottom:2px solid #283a58;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+h1{margin:0;color:#ffd43b;font-size:22px;display:flex;align-items:center;gap:8px}
+header p{margin:2px 0 0;color:#8fa5c4;font-size:13px}
+select,input,button{font:inherit;border-radius:8px;padding:9px 12px;border:1px solid #3d5272}
+select,input{background:#0a1324;color:#fff}
+button{cursor:pointer;font-weight:bold;transition:all 0.2s ease}
+button:hover{opacity:0.9;transform:translateY(-1px)}
+
+main{max-width:1650px;margin:auto;padding:15px;display:grid;grid-template-columns:1fr 1.1fr;gap:18px}
+@media(max-width:1150px){main{grid-template-columns:1fr}}
+
+.board-card{background:#121f35;border:1px solid #2d4263;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.board-head{padding:12px 16px;border-bottom:1px solid #2d4263;display:flex;justify-content:space-between;align-items:center;background:#172742}
+.pill{color:#39d9ff;border:1px solid #39d9ff;border-radius:16px;padding:3px 8px;font-size:11px;background:rgba(57,217,255,0.1)}
+
+.board{margin:12px;background:#08261e;border:6px solid #5c3818;min-height:420px;max-height:500px;padding:15px;border-radius:10px;box-shadow:inset 0 0 18px rgba(0,0,0,0.7);position:relative;display:flex;flex-direction:column;align-items:center;overflow-y:auto}
+.board h3{color:#ffd43b;font-size:17px;margin:0 0 10px 0;width:100%;display:flex;justify-content:space-between}
+
+.canvas-container{display:flex;justify-content:center;align-items:flex-start;width:100%;min-height:350px;background:rgba(0,0,0,0.25);border-radius:8px;padding:10px;overflow-x:auto}
+canvas{background:transparent}
+
+.student-workspace {
+  display: grid;
+  grid-template-columns: 1fr 230px;
+  gap: 12px;
+  padding: 0 12px 12px 12px;
+}
+@media(max-width:700px){.student-workspace{grid-template-columns:1fr}}
+
+.student-interactive-panel {
+  background: #0d1b2e;
+  border: 1px solid #39d9ff;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.student-step-title {
+  font-size: 14px;
+  color: #ffd43b;
+  font-weight: bold;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.student-explanation-box {
+  background: rgba(0,0,0,0.3);
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: #d2e0f2;
+  font-size: 13px;
+  margin-bottom: 10px;
+  border-left: 3px solid #39d9ff;
+}
+
+.math-equation-box {
+  background: #061121;
+  border: 1px solid #1e3a63;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  text-align: center;
+  color: #ffd43b;
+  font-size: 15px;
+  min-height: 38px;
+}
+
+.student-controls-grid {
+  display: flex;
+  gap: 8px;
+}
+.student-controls-grid input {
+  flex: 1;
+  font-size: 18px;
+  text-align: center;
+  font-weight: bold;
+  color: #ffd43b;
+  border: 2px solid #39d9ff;
+}
+
+.support-box {
+  background: #091424;
+  border: 1px solid #283a58;
+  border-radius: 10px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #39d9ff;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.support-box h5 {
+  margin: 0 0 6px 0;
+  color: #ffd43b;
+  text-align: center;
+  font-family: sans-serif;
+}
+.support-item {
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.support-item.highlight {
+  background: rgba(255, 212, 59, 0.25);
+  color: #ffd43b;
+  font-weight: bold;
+  border-radius: 4px;
+}
+
+.controls{padding:12px;display:flex;gap:8px;flex-wrap:wrap;background:#111c30;border-top:1px solid #2d4263}
+.green{background:#10b981;color:white;border:none}
+.blue{background:#0284c7;color:white;border:none}
+.gold{background:#ffd43b;color:#111;border:none}
+.dark{background:#1e293b;color:white;border:none}
+
+.explain{margin:12px;line-height:1.5;color:#d2e0f2;font-size:14px;background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;border-left:4px solid #ffd43b;min-height:55px}
+
+.prof-math-box {
+  margin: 0 12px 10px 12px;
+  background: #091424;
+  border: 1px solid #2d4263;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #39d9ff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🧠 ProfemAt GOD — Paso a Paso Columna por Columna v7.0</h1>
+    <p>Aprende desde Cero: Unidades, Decenas, Llevadas, Préstamos y Ecuaciones Formales</p>
+  </div>
+  <div>
+    <select id="opType" onchange="changeOperationType()">
+      <option value="+">➕ Suma con Llevadas (Paso a Paso)</option>
+      <option value="-">➖ Resta Prestando (Paso a Paso)</option>
+      <option value="*">✖️ Multiplicación Escolar (Paso a Paso)</option>
+      <option value="/">➗ División Escolar (Paso a Paso)</option>
+    </select>
+  </div>
+</header>
+
+<main>
+  <!-- PIZARRA 1: PROFESOR -->
+  <section class="board-card">
+    <div class="board-head">
+      <b>👨‍🏫 Pizarra del Profesor (Demostración Guiada)</b>
+      <span class="pill" id="profPill">Paso 1</span>
+    </div>
+    
+    <div class="board">
+      <h3>
+        <span>✦ El Profesor te enseña columna por columna</span>
+        <span style="font-size:12px; color:#6ee8bb" id="profStatus">Iniciando...</span>
+      </h3>
+      <div class="canvas-container">
+        <canvas id="profCanvas" width="550" height="500"></canvas>
+      </div>
+    </div>
+
+    <!-- MODELADO MATEMÁTICO EN TIEMPO REAL -->
+    <div class="prof-math-box">
+      <span>📐 <b>Modelo Ecuacional del Paso:</b></span>
+      <div id="profEquationRender">\(U = a_0 + b_0\)</div>
+    </div>
+
+    <div class="explain" id="profSpeech">Observa cómo resolvemos la primera columna.</div>
+
+    <div class="controls">
+      <input id="exerciseInput" value="458 + 275" style="width:140px;" placeholder="Ej: 458 + 275">
+      <button class="green" onclick="loadTeacherLesson()">🧠 Explicar</button>
+      <button class="gold" id="playBtn" onclick="toggleAutoPlay()">▶️ Auto Clase</button>
+      <button class="blue" onclick="toggleVoice()">🔊 Voz</button>
+    </div>
+  </section>
+
+  <!-- PIZARRA 2: ALUMNO ASISTIDO -->
+  <section class="board-card">
+    <div class="board-head">
+      <b>✍️ Pizarra del Alumno (Coloca cifra por cifra)</b>
+      <span class="pill" style="border-color:#ffd43b; color:#ffd43b;" id="studentChallengeBadge">Reto Activo</span>
+    </div>
+
+    <div class="board" style="background:#0a1d33; border-color:#2a4870;">
+      <h3>
+        <span>✦ Coloca cada número y se escribirá en la pizarra</span>
+        <span style="font-size:12px; color:#39d9ff" id="studentStatus">Paso 1</span>
+      </h3>
+      <div class="canvas-container">
+        <canvas id="studentCanvas" width="550" height="500"></canvas>
+      </div>
+    </div>
+
+    <!-- WORKSPACE -->
+    <div class="student-workspace">
+      <div class="student-interactive-panel">
+        <div>
+          <div class="student-step-title" id="studentStepTitle">
+            📌 Paso 1: Unidades
+          </div>
+          <div class="student-explanation-box" id="studentStepExplanation">
+            Cargando guía paso a paso...
+          </div>
+          <div class="math-equation-box" id="studentMathEquation">
+            \(\text{Ecuación del paso...}\)
+          </div>
+        </div>
+        <div class="student-controls-grid">
+          <input id="studentInput" placeholder="Resultado aquí..." onkeydown="if(event.key==='Enter') submitStudentStep()">
+          <button class="green" onclick="submitStudentStep()">Colocar ➔</button>
+        </div>
+      </div>
+
+      <!-- APOYO VISUAL POSICIONAL Y TEÓRICO -->
+      <div class="support-box">
+        <h5 id="supportTitle">Columnas Posicionales</h5>
+        <div id="supportContent">
+          <!-- Dinámico -->
+        </div>
+      </div>
+    </div>
+
+    <div class="controls" style="justify-content:space-between; align-items:center;">
+      <span style="font-size:13px; color:#6ee8bb; font-weight:bold;" id="feedbackMsg">Escribe el resultado de la columna actual.</span>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="gold" onclick="generateNewStudentChallenge()">🎲 Otro Reto</button>
+        <button class="blue" onclick="downloadWorksheet()">📥 Descargar Hoja</button>
+        <button class="dark" onclick="resetStudentBoard()">🔄 Reiniciar</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+let currentOp = '+';
+let profSteps = [];
+let currentProfStep = 0;
+let autoTimer = null;
+let isSpeaking = false;
+
+let studentA = 458, studentB = 275;
+let studentStepsSequence = [];
+let currentStudentStepIdx = 0;
+
+let studentState = { op: '+', A: '458', B: '275', resDigits: [], carryDigits: [], activeCol: -1, borrows: [] };
+
+document.addEventListener('DOMContentLoaded', () => {
+  changeOperationType();
+});
+
+function renderLatex(elementId, latexStr) {
+  let el = document.getElementById(elementId);
+  if (el && window.katex) {
+    try {
+      katex.render(latexStr, el, { throwOnError: false, displayMode: false });
+    } catch(e) {
+      el.textContent = latexStr;
+    }
+  }
+}
+
+function changeOperationType() {
+  currentOp = document.getElementById('opType').value;
+  let input = document.getElementById('exerciseInput');
+
+  if (currentOp === '+') input.value = "458 + 275";
+  else if (currentOp === '-') input.value = "832 - 456";
+  else if (currentOp === '*') input.value = "243 * 6";
+  else if (currentOp === '/') input.value = "684 / 5";
+
+  loadTeacherLesson();
+  generateNewStudentChallenge();
+}
+
+// ------------------------------------------------------------------
+// 1. MOTOR DEL PROFESOR CON ECUACIONES (ENSEÑANZA DESDE CERO)
+// ------------------------------------------------------------------
+function loadTeacherLesson() {
+  let raw = document.getElementById('exerciseInput').value;
+  let clean = raw.replaceAll(' ', '');
+  let symbol = currentOp;
+  let parts = clean.split(symbol);
+
+  let A = parseInt(parts[0]) || 458;
+  let B = parseInt(parts[1]) || 275;
+
+  profSteps = generateStepByStepData(currentOp, A, B);
+  currentProfStep = 0;
+  drawProfStep();
+}
+
+function drawProfStep() {
+  let canvas = document.getElementById('profCanvas');
+  let ctx = canvas.getContext('2d');
+  let step = profSteps[currentProfStep];
+  if (!step) return;
+
+  renderBoardCanvas(ctx, canvas, step.draw, "#ffd43b");
+
+  document.getElementById('profSpeech').textContent = step.speech;
+  document.getElementById('profPill').textContent = `Paso ${currentProfStep + 1} de ${profSteps.length}`;
+  
+  if (step.latex) {
+    renderLatex('profEquationRender', step.latex);
+  } else {
+    renderLatex('profEquationRender', '\\text{Paso Base}');
+  }
+
+  if (isSpeaking) speakText(step.speech);
+}
+
+// ------------------------------------------------------------------
+// 2. MOTOR INTERACTIVO DEL ALUMNO PASO A PASO
+// ------------------------------------------------------------------
+function generateNewStudentChallenge() {
+  if (currentOp === '+') {
+    studentA = Math.floor(Math.random() * 500) + 150;
+    studentB = Math.floor(Math.random() * 300) + 160;
+  } else if (currentOp === '-') {
+    studentA = Math.floor(Math.random() * 500) + 400;
+    studentB = Math.floor(Math.random() * 200) + 150;
+  } else if (currentOp === '*') {
+    studentA = Math.floor(Math.random() * 300) + 110;
+    studentB = Math.floor(Math.random() * 7) + 2;
+  } else {
+    studentA = Math.floor(Math.random() * 800) + 120;
+    studentB = Math.floor(Math.random() * 7) + 2;
+  }
+
+  let symbolDisplay = currentOp === '*' ? '×' : currentOp === '/' ? '÷' : currentOp;
+  document.getElementById('studentChallengeBadge').textContent = `Reto: ${studentA} ${symbolDisplay} ${studentB}`;
+
+  renderSupportBox();
+  studentStepsSequence = buildAssistedStepByStepSequence(currentOp, studentA, studentB);
+  resetStudentBoard();
+}
+
+function renderSupportBox() {
+  let title = document.getElementById('supportTitle');
+  let content = document.getElementById('supportContent');
+
+  if (currentOp === '/') {
+    title.textContent = `Tabla del ${studentB}`;
+    let html = '';
+    for (let i = 1; i <= 9; i++) {
+      html += `<div class="support-item" id="supp-${i}"><span>${studentB} × ${i}</span> <b>= ${studentB * i}</b></div>`;
+    }
+    content.innerHTML = html;
+  } else {
+    title.textContent = 'Columnas Posicionales';
+    content.innerHTML = `
+      <div class="support-item" id="col-0"><span>U</span> <b>Unidades ($10^0$)</b></div>
+      <div class="support-item" id="col-1"><span>D</span> <b>Decenas ($10^1$)</b></div>
+      <div class="support-item" id="col-2"><span>C</span> <b>Centenas ($10^2$)</b></div>
+    `;
+    if (window.katex) {
+      setTimeout(() => {
+        let items = content.querySelectorAll('.support-item span');
+        items.forEach(el => {
+          if (el.innerHTML.includes('$')) {
+            el.innerHTML = el.innerHTML.replace(/\$10\^0\$/, '10⁰').replace(/\$10\^1\$/, '10¹').replace(/\$10\^2\$/, '10²');
+          }
+        });
+      }, 50);
+    }
+  }
+}
+
+function resetStudentBoard() {
+  currentStudentStepIdx = 0;
+  studentState = {
+    op: currentOp,
+    A: studentA.toString(),
+    B: studentB.toString(),
+    arc: null,
+    quotient: "",
+    subs: [],
+    resDigits: [],
+    carryDigits: [],
+    borrows: [],
+    activeCol: -1
+  };
+
+  document.getElementById('feedbackMsg').style.color = "#39d9ff";
+  document.getElementById('feedbackMsg').textContent = "Pizarra lista. Vamos columna por columna.";
+
+  updateStudentUI();
+  drawStudentBoard();
+}
+
+// CONSTRUCTOR DE SECUENCIA DIDÁCTICA CON ECUACIONES (AMPLIADO Y MEJORADO)
+function buildAssistedStepByStepSequence(op, A, B) {
+  let strA = A.toString();
+  let strB = B.toString();
+  let steps = [];
+
+  if (op === '+') {
+    let uA = parseInt(strA.slice(-1)), uB = parseInt(strB.slice(-1));
+    let sumU = uA + uB;
+    let carryU = Math.floor(sumU / 10);
+    let digitU = sumU % 10;
+
+    // Paso 1: Unidades
+    steps.push({
+      title: `📌 Paso 1: Sumar columna de UNIDADES (Derecha)`,
+      explanation: `Sumamos la columna de las Unidades: <b>${uA} + ${uB}</b>.`,
+      latex: `${uA} + ${uB} = ${sumU} \\implies \\text{Escribes } ${digitU} \\text{ y llevas } ${carryU}`,
+      placeholder: `Ej: ${sumU}`,
+      expected: sumU,
+      speechOk: sumU > 9 ? `¡Muy bien! Da ${sumU}. Ponemos el ${digitU} abajo y LLEVAMOS ${carryU} a las decenas.` : `¡Excelente! Colocamos el ${sumU} abajo.`,
+      speechErr: `Suma despacio: ${uA} más ${uB}.`,
+      apply: (s) => {
+        s.resDigits[0] = digitU.toString();
+        if (carryU > 0) s.carryDigits[1] = carryU.toString();
+        s.activeCol = 0;
+      }
+    });
+
+    // Paso 2: Decenas
+    let dA = parseInt(strA.slice(-2, -1)) || 0;
+    let dB = parseInt(strB.slice(-2, -1)) || 0;
+    let sumD = dA + dB + carryU;
+    let carryD = Math.floor(sumD / 10);
+    let digitD = sumD % 10;
+
+    steps.push({
+      title: `📌 Paso 2: Sumar DECENAS (Centro)`,
+      explanation: carryU > 0 ? `Sumamos las decenas <b>${dA} + ${dB}</b> MÁS la llevada (<b>+${carryU}</b>).` : `Sumamos las decenas: <b>${dA} + ${dB}</b>.`,
+      latex: `${dA} + ${dB} + ${carryU} = ${sumD} \\implies \\text{Colocas } ${digitD} ${carryD > 0 ? '\\text{ y llevas } ' + carryD : ''}`,
+      placeholder: `Ej: ${sumD}`,
+      expected: sumD,
+      speechOk: `¡Perfecto! Escribimos el ${digitD} en las decenas.`,
+      speechErr: `Recuerda sumar la llevada si existe: ${dA} + ${dB} + ${carryU}.`,
+      apply: (s) => {
+        s.resDigits[1] = digitD.toString();
+        if (carryD > 0) s.carryDigits[2] = carryD.toString();
+        s.activeCol = 1;
+      }
+    });
+
+    // Paso 3: Centenas
+    let cA = parseInt(strA.slice(-3, -2)) || 0;
+    let cB = parseInt(strB.slice(-3, -2)) || 0;
+    let sumC = cA + cB + carryD;
+
+    steps.push({
+      title: `📌 Paso 3: Sumar CENTENAS (Izquierda)`,
+      explanation: carryD > 0 ? `Sumamos las centenas: <b>${cA} + ${cB}</b> MÁS la llevada (<b>+${carryD}</b>).` : `Sumamos las centenas: <b>${cA} + ${cB}</b>.`,
+      latex: `${cA} + ${cB} + ${carryD} = ${sumC}`,
+      placeholder: `Ej: ${sumC}`,
+      expected: sumC,
+      speechOk: `¡Felicidades! Has completado toda la suma paso a paso.`,
+      speechErr: `Suma la última columna: ${cA} + ${cB} + ${carryD}.`,
+      apply: (s) => {
+        s.resDigits[2] = sumC.toString();
+        s.activeCol = 2;
+      }
+    });
+
+  } else if (op === '-') {
+    let uA = parseInt(strA.slice(-1)), uB = parseInt(strB.slice(-1));
+    let dA = parseInt(strA.slice(-2, -1)) || 0, dB = parseInt(strB.slice(-2, -1)) || 0;
+    let cA = parseInt(strA.slice(-3, -2)) || 0, cB = parseInt(strB.slice(-3, -2)) || 0;
+
+    let needBorrowU = uA < uB;
+    let realUA = needBorrowU ? uA + 10 : uA;
+    let diffU = realUA - uB;
+
+    steps.push({
+      title: `📌 Paso 1: Restar UNIDADES`,
+      explanation: needBorrowU ? `Como <b>${uA} < ${uB}</b>, le pedimos 1 prestado a las decenas. El ${uA} se convierte en <b>${realUA}</b>.` : `Restamos las unidades directamente: <b>${uA} - ${uB}</b>.`,
+      latex: needBorrowU ? `${uA} + 10 = ${realUA} \\implies ${realUA} - ${uB} = ${diffU}` : `${uA} - ${uB} = ${diffU}`,
+      placeholder: `Ej: ${diffU}`,
+      expected: diffU,
+      speechOk: `¡Excelente! Escribimos ${diffU} en las unidades.`,
+      speechErr: `Calcula bien la resta de las unidades: ${realUA} - ${uB}.`,
+      apply: (s) => {
+        s.resDigits[0] = diffU.toString();
+        if (needBorrowU) s.borrows[1] = true;
+        s.activeCol = 0;
+      }
+    });
+
+    let realDA = needBorrowU ? dA - 1 : dA;
+    let needBorrowD = realDA < dB;
+    let realDAFinal = needBorrowD ? realDA + 10 : realDA;
+    let diffD = realDAFinal - dB;
+
+    steps.push({
+      title: `📌 Paso 2: Restar DECENAS`,
+      explanation: needBorrowU ? `Las decenas disminuyeron a <b>${realDA}</b> por el préstamo. Restamos <b>${realDAFinal} - ${dB}</b>.` : `Restamos las decenas: <b>${realDAFinal} - ${dB}</b>.`,
+      latex: `${realDAFinal} - ${dB} = ${diffD}`,
+      placeholder: `Ej: ${diffD}`,
+      expected: diffD,
+      speechOk: `¡Muy bien! Escribimos ${diffD} en las decenas.`,
+      speechErr: `Restar decenas: ${realDAFinal} - ${dB}.`,
+      apply: (s) => {
+        s.resDigits[1] = diffD.toString();
+        if (needBorrowD) s.borrows[2] = true;
+        s.activeCol = 1;
+      }
+    });
+
+    let realCA = needBorrowD ? cA - 1 : cA;
+    let diffC = realCA - cB;
+
+    steps.push({
+      title: `📌 Paso 3: Restar CENTENAS`,
+      explanation: `Finalmente restamos las centenas: <b>${realCA} - ${cB}</b>.`,
+      latex: `${realCA} - ${cB} = ${diffC}`,
+      placeholder: `Ej: ${diffC}`,
+      expected: diffC,
+      speechOk: `¡Perfecto! Resta completada exitosamente.`,
+      speechErr: `Restar centenas: ${realCA} - ${cB}.`,
+      apply: (s) => {
+        s.resDigits[2] = diffC.toString();
+        s.activeCol = 2;
+      }
+    });
+
+  } else if (op === '*') {
+    let prod = A * B;
+    let uA = parseInt(strA.slice(-1)), dA = parseInt(strA.slice(-2, -1)) || 0, cA = parseInt(strA.slice(-3, -2)) || 0;
+    
+    let p1 = uA * B;
+    let carry1 = Math.floor(p1 / 10);
+    let d1 = p1 % 10;
+
+    steps.push({
+      title: `📌 Paso 1: Multiplicar Unidades por ${B}`,
+      explanation: `Multiplicamos <b>${uA} × ${B}</b>.`,
+      latex: `${uA} \\times ${B} = ${p1} \\implies \\text{Escribes } ${d1} \\text{ y llevas } ${carry1}`,
+      placeholder: `Ej: ${p1}`,
+      expected: p1,
+      speechOk: `¡Excelente! Escribimos ${d1} y llevamos ${carry1}.`,
+      speechErr: `Multiplica ${uA} por ${B}.`,
+      apply: (s) => {
+        s.resDigits[0] = d1.toString();
+        if (carry1 > 0) s.carryDigits[1] = carry1.toString();
+      }
+    });
+
+    let p2 = (dA * B) + carry1;
+    let carry2 = Math.floor(p2 / 10);
+    let d2 = p2 % 10;
+
+    steps.push({
+      title: `📌 Paso 2: Multiplicar Decenas MÁS Llevada`,
+      explanation: `Multiplicamos <b>(${dA} × ${B}) + ${carry1}</b>.`,
+      latex: `(${dA} \\times ${B}) + ${carry1} = ${p2}`,
+      placeholder: `Ej: ${p2}`,
+      expected: p2,
+      speechOk: `¡Muy bien!`,
+      speechErr: `Calcula: (${dA} * ${B}) + ${carry1}.`,
+      apply: (s) => {
+        s.resDigits[1] = d2.toString();
+        if (carry2 > 0) s.carryDigits[2] = carry2.toString();
+      }
+    });
+
+    let p3 = (cA * B) + carry2;
+
+    steps.push({
+      title: `📌 Paso 3: Multiplicar Centenas MÁS Llevada`,
+      explanation: `Multiplicamos <b>(${cA} × ${B}) + ${carry2}</b>.`,
+      latex: `(${cA} \\times ${B}) + ${carry2} = ${p3}`,
+      placeholder: `Ej: ${p3}`,
+      expected: p3,
+      speechOk: `¡Multiplicación completada con éxito!`,
+      speechErr: `Calcula: (${cA} * ${B}) + ${carry2}.`,
+      apply: (s) => {
+        s.resDigits[2] = p3.toString();
+      }
+    });
+
+  } else if (op === '/') {
+    let digitsToTake = (parseInt(strA[0]) < B && strA.length > 1) ? 2 : 1;
+    let currentVal = parseInt(strA.substring(0, digitsToTake));
+    let idx = digitsToTake - 1;
+    let quotientStr = "";
+    let subtractions = [];
+
+    steps.push({
+      title: `📌 Paso 1: Tomar cifras con el arquito`,
+      explanation: `Para empezar a dividir entre ${B}, seleccionamos el primer dividendo viables. Tomamos <b>${currentVal}</b>.`,
+      latex: `\\text{Dividendo Seleccionado } = ${currentVal} \\geq ${B}`,
+      placeholder: `Escribe ${currentVal}`,
+      expected: currentVal,
+      speechOk: `¡Muy bien! Le ponemos el arquito al ${currentVal}.`,
+      speechErr: `Escribe ${currentVal}.`,
+      apply: (s) => { s.arc = { start: 0, end: idx }; }
+    });
+
+    while (idx < strA.length) {
+      let qDigit = Math.floor(currentVal / B);
+      let prod = qDigit * B;
+      let rem = currentVal - prod;
+
+      steps.push({
+        title: `📌 Buscar cociente en la tabla del ${B}`,
+        explanation: `¿Cuántas veces cabe ${B} en <b>${currentVal}</b>? Multiplicamos por ${qDigit}.`,
+        latex: `${B} \\times ${qDigit} = ${prod} \\implies \\text{Resto: } ${currentVal} - ${prod} = ${rem}`,
+        placeholder: `Cifra cociente (ej: ${qDigit})`,
+        expected: qDigit,
+        speechOk: `¡Excelente! ${B} × ${qDigit} = ${prod}. Escribimos el resto ${rem}.`,
+        speechErr: `Revisa la tabla del ${B}.`,
+        apply: (s) => {
+          quotientStr += qDigit.toString();
+          s.quotient = quotientStr;
+          subtractions.push({ prod, rem, col: idx });
+          s.subs = [...subtractions];
+        }
+      });
+
+      idx++;
+      if (idx < strA.length) {
+        let nextDigit = strA[idx];
+        currentVal = rem * 10 + parseInt(nextDigit);
+
+        steps.push({
+          title: `📌 Bajar siguiente cifra`,
+          explanation: `Bajamos el <b>${nextDigit}</b> al lado del resto ${rem}, formando el <b>${currentVal}</b>.`,
+          latex: `\\text{Nuevo Valor} = (${rem} \\times 10) + ${nextDigit} = ${currentVal}`,
+          placeholder: `Escribe ${currentVal}`,
+          expected: currentVal,
+          speechOk: `¡Bien! Ahora tenemos ${currentVal}.`,
+          speechErr: `Escribe ${currentVal}.`,
+          apply: (s) => {}
+        });
+      }
+    }
+  }
+
+  return steps;
+}
+
+function updateStudentUI() {
+  let step = studentStepsSequence[currentStudentStepIdx];
+  let input = document.getElementById('studentInput');
+
+  if (step) {
+    document.getElementById('studentStepTitle').textContent = step.title;
+    document.getElementById('studentStepExplanation').innerHTML = step.explanation;
+    renderLatex('studentMathEquation', step.latex || '\\text{Operación Activa}');
+    input.placeholder = step.placeholder;
+    input.value = "";
+    input.disabled = false;
+  } else {
+    document.getElementById('studentStepTitle').textContent = "🎉 ¡FELICITACIONES! OPERACIÓN COMPLETADA";
+    document.getElementById('studentStepExplanation').innerHTML = "¡Has aprendido la mecánica exacta de resolver columna por columna con sustento matemático!";
+    renderLatex('studentMathEquation', '\\text{¡Resultado Final Correcto!}');
+    input.placeholder = "¡Aprobado!";
+    input.value = "";
+    input.disabled = true;
+  }
+}
+
+function submitStudentStep() {
+  let step = studentStepsSequence[currentStudentStepIdx];
+  if (!step) return;
+
+  let userVal = parseInt(document.getElementById('studentInput').value.trim());
+  let feedback = document.getElementById('feedbackMsg');
+
+  if (userVal === step.expected) {
+    feedback.style.color = "#6ee8bb";
+    feedback.textContent = "✅ " + step.speechOk;
+    speakText(step.speechOk);
+
+    step.apply(studentState);
+    drawStudentBoard();
+
+    currentStudentStepIdx++;
+    updateStudentUI();
+  } else {
+    feedback.style.color = "#ff91a6";
+    feedback.textContent = "❌ " + step.speechErr;
+    speakText(step.speechErr);
+  }
+}
+
+function drawStudentBoard() {
+  let canvas = document.getElementById('studentCanvas');
+  let ctx = canvas.getContext('2d');
+  renderBoardCanvas(ctx, canvas, studentState, "#39d9ff");
+}
+
+// ------------------------------------------------------------------
+// 3. RENDERIZADOR UNIVERSAL CON ANIMACIÓN Y DIBUJO AVANZADO
+// ------------------------------------------------------------------
+function generateStepByStepData(op, A, B) {
+  let strA = A.toString(), strB = B.toString();
+  let steps = [];
+
+  if (op === '+') {
+    let sum = A + B;
+    let uA = parseInt(strA.slice(-1)), uB = parseInt(strB.slice(-1));
+    let sumU = uA + uB;
+    let cU = Math.floor(sumU / 10);
+
+    steps.push({
+      speech: `Alineamos los números por columnas: Unidades, Decenas y Centenas.`,
+      latex: `\\text{Estructura Posicional: } 10^2 \\ | \\ 10^1 \\ | \\ 10^0`,
+      draw: { op, A: strA, B: strB, resDigits: [], carryDigits: [] }
+    });
+    steps.push({
+      speech: `Sumamos la columna de Unidades: ${uA} + ${uB} = ${sumU}. Escribimos ${sumU % 10} y llevamos ${cU}.`,
+      latex: `${uA} + ${uB} = ${sumU} \\implies U = ${sumU % 10}, \\text{ Llevada } = ${cU}`,
+      draw: { op, A: strA, B: strB, resDigits: [(sumU % 10).toString()], carryDigits: [undefined, cU > 0 ? cU.toString() : undefined] }
+    });
+    steps.push({
+      speech: `Completamos las siguientes columnas considerando las llevadas hasta obtener el resultado total ${sum}.`,
+      latex: `A + B = ${A} + ${B} = ${sum}`,
+      draw: { op, A: strA, B: strB, resDigits: [sum.toString().slice(-1), sum.toString().slice(-2,-1), sum.toString().slice(-3,-2)], carryDigits: [] }
+    });
+  } else if (op === '/') {
+    let digitsToTake = (parseInt(strA[0]) < B && strA.length > 1) ? 2 : 1;
+    let currentVal = parseInt(strA.substring(0, digitsToTake));
+    let idx = digitsToTake - 1;
+    let quotientStr = "";
+    let subtractions = [];
+
+    steps.push({
+      speech: `Para dividir ${A} entre ${B}, colocamos el arquito sobre la primera cifra suficiente (${currentVal}).`,
+      latex: `\\text{Tomamos } ${currentVal} \\geq ${B}`,
+      draw: { op, A: strA, B: strB, arc: { start: 0, end: idx }, quotient: "", subs: [] }
+    });
+
+    while (idx < strA.length) {
+      let qDigit = Math.floor(currentVal / B);
+      let prod = qDigit * B;
+      let rem = currentVal - prod;
+      quotientStr += qDigit.toString();
+
+      steps.push({
+        speech: `En la tabla del ${B}, multiplicamos por ${qDigit} (${B} × ${qDigit} = ${prod}) y restamos obteniendo ${rem}.`,
+        latex: `${B} \\times ${qDigit} = ${prod} \\implies ${currentVal} - ${prod} = ${rem}`,
+        draw: { op, A: strA, B: strB, arc: { start: 0, end: idx }, quotient: quotientStr, subs: [...subtractions, { prod, rem, col: idx }] }
+      });
+
+      subtractions.push({ prod, rem, col: idx });
+      idx++;
+
+      if (idx < strA.length) {
+        let nextDigit = strA[idx];
+        currentVal = rem * 10 + parseInt(nextDigit);
+        steps.push({
+          speech: `Bajamos la siguiente cifra (${nextDigit}) para formar ${currentVal}.`,
+          latex: `\\text{Nuevo Dividendo Parcial} = ${currentVal}`,
+          draw: { op, A: strA, B: strB, arc: null, quotient: quotientStr, subs: [...subtractions] }
+        });
+      }
+    }
+  } else {
+    let res = op === '-' ? A - B : A * B;
+    steps.push({
+      speech: `Alineamos los números por columnas operando desde las unidades.`,
+      latex: `\\text{Operación: } ${A} ${op === '-' ? '-' : '\\times'} ${B}`,
+      draw: { op, A: strA, B: strB, quotient: "" }
+    });
+    steps.push({
+      speech: `Calculamos el resultado final: ${res}.`,
+      latex: `\\text{Resultado } = ${res}`,
+      draw: { op, A: strA, B: strB, quotient: res.toString() }
+    });
+  }
+
+  return steps;
+}
+
+function renderBoardCanvas(ctx, canvas, state, mainColor) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = "bold 28px monospace";
+  ctx.lineWidth = 3;
+
+  let startX = 60;
+  let startY = 80;
+  let charW = 28;
+
+  if (state.op === '+' || state.op === '-') {
+    let maxLen = Math.max(state.A.length, state.B.length) + 1;
+
+    // Dibujar Llevadas o Préstamos
+    if (state.carryDigits) {
+      ctx.fillStyle = "#39d9ff";
+      ctx.font = "bold 20px monospace";
+      for (let i = 0; i < 4; i++) {
+        if (state.carryDigits[i]) {
+          let posX = startX + (maxLen - 1 - i) * charW + 4;
+          ctx.fillText("+" + state.carryDigits[i], posX, startY - 35);
+        }
+      }
+    }
+
+    if (state.borrows) {
+      ctx.fillStyle = "#ff91a6";
+      ctx.font = "bold 16px monospace";
+      for (let i = 0; i < 4; i++) {
+        if (state.borrows[i]) {
+          let posX = startX + (maxLen - 1 - i) * charW + 4;
+          ctx.fillText("-1", posX, startY - 35);
+        }
+      }
+    }
+
+    ctx.font = "bold 28px monospace";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(state.A.padStart(maxLen, ' '), startX, startY);
+    ctx.fillText((state.op === '-' ? '-' : '+') + state.B.padStart(maxLen - 1, ' '), startX, startY + 40);
+
+    // Línea divisoria
+    ctx.strokeStyle = mainColor;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY + 52);
+    ctx.lineTo(startX + maxLen * charW + 10, startY + 52);
+    ctx.stroke();
+
+    // Cifras del Resultado
+    if (state.resDigits) {
+      ctx.fillStyle = "#ffd43b";
+      for (let i = 0; i < state.resDigits.length; i++) {
+        if (state.resDigits[i] !== undefined) {
+          let posX = startX + (maxLen - 1 - i) * charW + 4;
+          ctx.fillText(state.resDigits[i], posX, startY + 92);
+        }
+      }
+    }
+
+  } else if (state.op === '/') {
+    // Dibujo de División con Arquitos y Restas
+    for (let i = 0; i < state.A.length; i++) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(state.A[i], startX + i * charW, startY);
+    }
+
+    if (state.arc) {
+      ctx.strokeStyle = mainColor;
+      ctx.beginPath();
+      let x1 = startX + state.arc.start * charW - 2;
+      let x2 = startX + state.arc.end * charW + 20;
+      ctx.arc((x1 + x2)/2, startY - 25, (x2 - x1)/2, Math.PI, 0);
+      ctx.stroke();
+    }
+
+    let houseX = startX + state.A.length * charW + 10;
+    ctx.strokeStyle = mainColor;
+    ctx.beginPath();
+    ctx.moveTo(houseX, startY - 28);
+    ctx.lineTo(houseX, startY + 10);
+    ctx.lineTo(houseX + 110, startY + 10);
+    ctx.stroke();
+
+    ctx.fillStyle = "#39d9ff";
+    ctx.fillText(state.B, houseX + 12, startY - 5);
+
+    ctx.fillStyle = "#ffd43b";
+    ctx.fillText(state.quotient, houseX + 12, startY + 48);
+
+    let currY = startY + 48;
+    if (state.subs) {
+      state.subs.forEach(sub => {
+        let alignX = startX + sub.col * charW;
+        ctx.fillStyle = "#ff91a6";
+        ctx.fillText("-" + sub.prod, alignX - charW, currY);
+
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(alignX - charW - 6, currY + 6);
+        ctx.lineTo(alignX + charW + 6, currY + 6);
+        ctx.stroke();
+
+        currY += 40;
+        ctx.fillStyle = "#6ee8bb";
+        ctx.fillText(sub.rem, alignX, currY);
+      });
+    }
+  } else {
+    // Multiplicación Estándar
+    let symbol = '×';
+    let maxLen = Math.max(state.A.length, state.B.length) + 2;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(state.A.padStart(maxLen, ' '), startX, startY);
+    ctx.fillText(symbol + state.B.padStart(maxLen - 1, ' '), startX, startY + 40);
+
+    ctx.strokeStyle = mainColor;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY + 50);
+    ctx.lineTo(startX + maxLen * charW, startY + 50);
+    ctx.stroke();
+
+    if (state.quotient) {
+      ctx.fillStyle = "#ffd43b";
+      ctx.fillText(state.quotient.padStart(maxLen, ' '), startX, startY + 90);
+    }
+  }
+}
+
+// ------------------------------------------------------------------
+// 4. DESCARGAR HOJA DE TRABAJO IMPRESA (CON MODELADO)
+// ------------------------------------------------------------------
+function downloadWorksheet() {
+  let symbolDisplay = currentOp === '*' ? '×' : currentOp === '/' ? '÷' : currentOp;
+  let printWindow = window.open('', '_blank');
+  
+  let htmlContent = `
+    <!doctype html>
+    <html>
+    <head>
+      <title>ProfemAt — Hoja de Trabajo con Ecuaciones</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 30px; color: #000; }
+        h1 { color: #111c30; text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .info { display: flex; justify-content: space-between; margin-bottom: 30px; font-weight: bold; }
+        .exercise-box { border: 2px dashed #000; padding: 25px; border-radius: 10px; text-align: center; margin: 20px 0; }
+        .big-math { font-size: 48px; font-family: monospace; font-weight: bold; letter-spacing: 4px; }
+        .grid-paper { margin-top: 30px; height: 300px; border: 1px solid #ccc; background-image: linear-gradient(#e5e5e5 1px, transparent 1px), linear-gradient(90deg, #e5e5e5 1px, transparent 1px); background-size: 20px 20px; }
+      </style>
+    </head>
+    <body>
+      <h1>🧠 ProfemAt GOD — Hoja de Actividad Práctica</h1>
+      <div class="info">
+        <span>Alumno: ________________________</span>
+        <span>Fecha: ____________</span>
+      </div>
+      <p><b>Instrucciones:</b> Resuelve en la cuadrícula inferior el siguiente ejercicio columna por columna. Escribe las llevadas o préstamos correspondientes.</p>
+
+      <div class="exercise-box">
+        <div class="big-math">${studentA} ${symbolDisplay} ${studentB}</div>
+      </div>
+
+      <h3>Cuadrícula de Desarrollo Posicional:</h3>
+      <div class="grid-paper"></div>
+
+      <script>
+        window.onload = function() { window.print(); }
+      <\/script>
+    </body>
+    </html>
+  `;
+
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+}
+
+function toggleAutoPlay() {
+  let btn = document.getElementById('playBtn');
+  if (autoTimer) {
+    clearInterval(autoTimer);
+    autoTimer = null;
+    btn.textContent = "▶️ Auto Clase";
+  } else {
+    btn.textContent = "⏸️ Pausar";
+    autoTimer = setInterval(() => {
+      if (currentProfStep < profSteps.length - 1) {
+        currentProfStep++;
+        drawProfStep();
+      } else {
+        clearInterval(autoTimer);
+        autoTimer = null;
+        btn.textContent = "▶️ Auto Clase";
+      }
+    }, 4500);
+  }
+}
+
+function speakText(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  let u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>?/gm, ''));
+  u.lang = 'es-ES';
+  window.speechSynthesis.speak(u);
+}
+
+function toggleVoice() {
+  isSpeaking = !isSpeaking;
+  if (isSpeaking) speakText(profSteps[currentProfStep].speech);
+}
+</script>
+</body>
+</html>
