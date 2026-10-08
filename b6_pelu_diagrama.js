@@ -499,8 +499,14 @@
     return cv.toDataURL('image/jpeg', cal || 0.8);
   }
 
+  /* Técnicas como datos (b6_pelu_particiones.js): los mismos ayudantes de dibujo y la misma salida que los cortes. */
+  var KIT = { P: P, N: N, V3: V3, recta: recta, dirElev: dirElev, pr: pr, seVe: seVe, tramos: tramos, plano: plano, bezier: bezier, linea: linea, lineas: lineas, mechon: mechon, tijera: tijera, rotulo: rotulo, regla: regla, chapa: chapa, r1: r1, thCapa: thCapa, CARA: CARA, NUCA: NUCA, IZQ: IZQ, DER: DER, COL: COL, TINTA: TINTA, ROJO: ROJO, VERDE: VERDE, CORTE: CORTE };
+  function armar(fn, F) { if (!F) return null; var E = fn(KIT); if (!E) return null; E.fondos = F; E.escenas.forEach(function (e) { e.anim = { crop: RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; }); return E; }
+
   window.EU_DIAGRAMA = {
     ALTURAS: ALTURAS, RECETAS: RECETAS, VISTAS: VISTAS,
+    construirCon: function (fn) { return fondos().then(function (F) { return armar(fn, F); }); },
+    construirConYa: function (fn) { return armar(fn, fondosYa()); },
     receta: receta, desdeGuia: desdeGuia, libre: libre, construir: construir, fondos: fondos, pinta: pinta,
     construirYa: construirYa, fondosYa: fondosYa, foto: foto,
     /* código del reproductor para el curso descargado (sin dependencias) */
