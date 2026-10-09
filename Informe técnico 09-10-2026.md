@@ -15,6 +15,8 @@ Estudio Universal Pro · rama `claude/admiring-hamilton-7f3nok` · PR #9 (borrad
 | 8 | **El alumno ya no ve «a validar por Fátima»** (escena de colorimetría, rótulos de grados, «(a validar)» en ángulos, ficha del libro). Las notas siguen en los datos; Fátima las ve con el **modo revisión**: en la consola del navegador `localStorage.setItem('eu_revision','si')` (y `removeItem` para quitarlo). | `b6_color_cerebro_motor.js`, `b6_pelu_particiones.js`, `b6_pelu_diagrama.js`, `b6_pelu_libro_diagrama.js` | 0 rótulos visibles en sobreproyección, Long Layers y Pixie |
 | 9 | **Galería de dibujos · «Animaciones»**: carrusel de las técnicas del motor de Guías 2D/3D por clases (Cortes y diagramas · Colorimetría · Mechas · Químicos y tratamientos · Cabello · Seguridad), con voz es-ES. Los motores se cargan **solo al pulsar** «Animaciones». La cuadrícula, «Usar en mi libro» y las descargas no cambian. | `Galería de dibujos.dc.html` | Navegador con el motor 3D real |
 
+| 10 | **Certificado profesional**: PDF A4 apaisado (sin librerías, funciona sin internet), firma de Fátima Caldea, sello «Fátima Hair Studio», horas cronometradas con la narración y los tests (para cursos de 10 a 1000 págs.), nota del examen, fecha y n.º de certificado. Sustituye la descarga PNG. | `b6_curso_premium.js`, `firma-fatima.png` | PDF generado y abierto (A4, 1 página) |
+
 `?v=` subido en `Estudio Universal Pro.dc.html` para cada archivo cambiado. **No se tocaron**: `b6_guias_3d.js`, `support.js`, Firebase, login, créditos, claves de localStorage existentes (solo una nueva: `eu_revision`), descargas, ZIP ni carpeta HOTMART.
 
 ## 2. Para que funcione todo hoy
