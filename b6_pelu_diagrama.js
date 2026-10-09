@@ -310,29 +310,24 @@
   /* perímetro que nace en la guía y baja hacia los lados: recto (diagonal) o redondeado (curva) */
   function bajada(ad, recto) { return recto ? ad : 1 - Math.sqrt(Math.max(0, 1 - ad * ad)); }
   function escFrente(R) {
-    var v = 'frente', tr = [], A = ALTURAS[R.altura], pila = R.frente.pila.length ? R.frente.pila : R.capas.pila, recto = R.forma === 'recto';
-    /* raya central y división de oreja a oreja (lo de delante se trabaja hacia el rostro) */
-    tr = tr.concat(lineas(tramos(v, function (u) { return [CARA, 0.02 + u * 1.0]; }, 20), [0, 0.06], '#5B4B8A', 3));
-    tr = tr.concat(lineas(tramos(v, function (u) { return [CARA - 1.45 + u * 2.9, 1.02]; }, 30), [0.03, 0.09], '#2C6FD1', 3, { d: 1 }));
-    tr.push(rotulo('Clienta de frente · raya central y división de oreja a oreja', '#5B4B8A', 0));
-    /* secciones verticales del frente, por parejas desde el centro */
-    var np = Math.min(4, Math.max(2, pila.length)), grupos = [];
-    for (var k = 0; k < np; k++) {
-      var d = 0.16 + k * 0.27, raices = [];
-      [-1, 1].forEach(function (sg) {
-        var ph = CARA + sg * d; tr = tr.concat(lineas(tramos(v, function (u) { return [ph, 0.12 + u * 0.88]; }, 14), [0.08 + k * 0.02, 0.14 + k * 0.02], TINTA, 2.4));
-        raices.push([ph, 0.55 + k * 0.1, V3(-sg, 0, 0)]);
-      });
-      grupos.push({ g: pila[Math.min(k, pila.length - 1)] || 0, raices: raices });
+    var v = 'frente', tr = [], A = ALTURAS[R.altura], n = 7, abre = 1.05;
+    tr = tr.concat(lineas(tramos(v, function (u) { return [CARA, 0.02 + u * 0.8]; }, 20), [0, 0.08], '#5B4B8A', 3));
+    for (var k = 0; k < 4; k++) [-1, 1].forEach(function (sg) { tr = tr.concat(lineas(tramos(v, recta([CARA, 0.10 + k * 0.16], [CARA + sg * 1.15, 0.65 + k * 0.16]), 16), [0.04 + k * 0.03, 0.14 + k * 0.03], TINTA, 2.2)); });
+    tr = tr.concat(lineas(tramos(v, function (u) { return [CARA - 1.2 + u * 2.4, 0.86]; }, 30), [0.14, 0.2], '#8E847A', 2, { d: 1 }));
+    /* la altura de la guía: línea de referencia sobre el rostro */
+    tr.push(linea(plano([pr(v, V3(-1.15, A.y, 1.25)), pr(v, V3(1.15, A.y, 1.25))]), [0.18, 0.26], VERDE, 2.5, { d: 1 }));
+    tr.push(rotulo('Guía ' + A.n, VERDE, 0.18), rotulo('Espiga diagonal arriba', TINTA, 0.04));
+    var tips = [], caida = R.forma === 'recto' ? 0 : 0.95;
+    for (var i = 0; i < n; i++) {
+      var d = -abre + 2 * abre * i / (n - 1), ph = CARA + d, ad = Math.abs(d) / abre;
+      if (R.liso) tr = tr.concat(lineas(tramos(v, function (u) { return [CARA - abre + u * 2 * abre, 0.9 + i * 0.06]; }, 20), [0.2 + i * 0.015, 0.3 + i * 0.015], ROJO, 2.2));
+      else tr = tr.concat(lineas(tramos(v, function (u) { return [ph, 0.86 + u * 0.42]; }, 12), [0.2 + i * 0.015, 0.3 + i * 0.015], ROJO, 2.6));
+      var a = P(ph, 1.28), tip = V3(a.x * 1.22, A.y - caida * Math.pow(ad, 1.35), Math.max(a.z, 0.2) + 0.55), c = V3(a.x * 1.1, (a.y + tip.y) / 2 + 0.25, a.z + 0.55);
+      tr.push(linea(bezier(v, a, c, tip, 22), [0.32 + i * 0.03, 0.55 + i * 0.03], ROJO, 2.6, { fl: 1 }));
+      tips.push(pr(v, tip));
     }
-    tr.push(rotulo('Secciones verticales · cada mechón se jala a su elevación', TINTA, 0.08));
-    var J = jalar(v, grupos, 0.18, 0.8, 0.7, 'Frente'); tr = tr.concat(J.tr);
-    /* al soltar: el marco nace en la guía y baja hacia los lados */
-    tr.push(linea(plano([pr(v, V3(-1.15, A.y, 1.25)), pr(v, V3(1.15, A.y, 1.25))]), [0.8, 0.85], VERDE, 2.5, { d: 1 }));
-    var pts = [], caida = 0.95;
-    for (var i = 0; i <= 12; i++) { var dd = -1 + i / 6, ad = Math.abs(dd); pts.push(pr(v, V3(dd * 1.2, A.y - caida * bajada(ad, recto), 1.25))); }
-    tr.push(linea(plano(pts), [0.85, 0.98], CORTE, 3.2, { d: 1 }));
-    tr.push(rotulo('Guía ' + A.n + ' · al soltar, el marco baja ' + (recto ? 'recto' : 'redondeado') + ' hacia los lados', VERDE, 0.8));
+    tr.push(rotulo((R.liso ? (R.libre ? 'Secciones horizontales' : 'Liso extremo: secciones horizontales') : n + ' líneas verticales: de cada una sale su mechón'), ROJO, 0.2));
+    tr.push(tijera(plano(tips), [0.72, 0.97], CORTE, R.desg), rotulo('Línea de corte ' + (R.forma === 'recto' ? 'recta' : 'en arco') + (R.desg ? ' · desgrafilado' : ''), CORTE, 0.72));
     return { v: v, tr: tr };
   }
 
@@ -435,8 +430,8 @@
     var recto = R.forma === 'recto';
     var lat = 'El lateral: solo la parte de delante de la división de oreja a oreja; lo de atrás no se toca en este paso. El cabello se lleva hacia delante. ' + (R.liso ? (R.libre ? 'Secciones horizontales. ' : 'Cabello liso extremo: las secciones van horizontales, porque en vertical el filo deja escalón. ') : 'Secciones verticales. ') +
       (R.punto ? 'Cada mechón se lleva al mismo punto y ahí se corta' + (R.desg ? ', desgrafilando.' : '.') : 'Cada mechón se jala a la elevación de su capa, una por una, y se corta en la punta. Al soltar, las puntas de delante quedan ' + (recto ? 'rectas.' : 'redondeadas.'));
-    var fr = 'La clienta de frente. ' + (R.fuenteAltura === 'ejemplo' ? 'En este ejemplo la guía se saca ' + A.n + '; según el corte puede sacarse bajo las cejas, bajo el ojo, bajo la nariz o donde termina el rostro. ' : 'La guía se saca ' + A.n + '. ') +
-      'Secciones verticales: cada mechón se jala a la elevación de su capa, capa 1, capa 2, capa 3, y se corta en la punta. Al soltar, el marco nace en la guía y baja ' + (recto ? 'recto' : 'redondeado') + ' hacia los lados. ' + txt(R.frente.texto);
+    var fr = 'De frente, ' + (R.fuenteAltura === 'ejemplo' ? 'en este ejemplo la guía se saca ' + A.n + '; según el corte puede sacarse bajo las cejas, bajo el ojo, bajo la nariz o donde termina el rostro. ' : 'la guía se saca ' + A.n + '. ') +
+      (R.liso ? 'Secciones horizontales. ' : 'Líneas verticales: de cada una baja su mechón y las puntas marcan la línea de corte' + (R.desg ? ', que se desgrafila. ' : '. ')) + txt(R.frente.texto);
     var L = [
       { tipo: 'seccion', vista: 'tres', t: 'Seccionado', texto: 'Primero se divide la cabeza: raya central de la frente a la nuca, de oreja a oreja por arriba y una línea horizontal en la nuca. El lateral siempre se separa de oreja a oreja: la parte de atrás se corta de una forma y la de delante de otra.', a: escSeccion(R) },
       { tipo: 'guia', vista: 'nuca', t: 'Línea guía en la nuca', texto: 'Línea guía en la nuca a ' + R.guia.g + ' grados. ' + txt(R.guia.texto), a: escGuia(R) },
