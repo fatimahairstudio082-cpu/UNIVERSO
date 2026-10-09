@@ -20,6 +20,9 @@
   function slug(s) { return String(s || 'curso').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'curso'; }
   function txt(s) { return String(s == null ? '' : s).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
   function dos(n) { return String(n).padStart(2, '0'); }
+  /* firma de Fátima Caldea (firma-fatima.png, transparente) para el certificado: se lee una vez como data URL */
+  var FIRMA = '';
+  try { fetch('./firma-fatima.png').then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (!b) return; var fr = new FileReader(); fr.onload = function () { FIRMA = fr.result; }; fr.readAsDataURL(b); }).catch(function () { }); } catch (e) { }
   function svgURL(id) {
     var MO = window.EU_MODELOS; if (!MO || !MO.svg) return '';
     var s = ''; try { s = MO.svg(id, 'color'); } catch (e) { return ''; }
@@ -131,7 +134,7 @@
     return {
       titulo: txt(C.titulo), sub: txt(C.sub || C.curso || ''), autor: txt(C.autor || ''), centro: txt(C.centro || ''),
       T: { acc: T.acc || '#B5476B', bg: T.bg || '#FBF7F2', tit: T.tit || 'Georgia, serif', txt: T.txt || '#1F1B18', soft: T.soft || '#E6DCD2' },
-      clave: 'eu_cp_' + slug(C.titulo), modulos: mods, examen: examen.slice(0, 20), img: {}
+      clave: 'eu_cp_' + slug(C.titulo), modulos: mods, examen: examen.slice(0, 20), img: {}, firma: FIRMA
     };
   }
 
@@ -336,19 +339,67 @@
       };
       window.scrollTo(0, 0);
     }
+    /* certificado profesional (Fátima, 9-10-2026): firma de Fátima Caldea, sello Fátima Hair Studio, horas del curso
+       cronometradas con la narración y los tests, número de certificado y descarga en PDF A4 apaisado (sin librerías) */
+    function horasCurso() {
+      var seg = 0, nq = (D.examen || []).length;
+      D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { L.escenas.forEach(function (e) { seg += String(e.texto || '').length / 14.5 + 2 + (e.tipo === 'pregunta' ? 20 : 0); }); }); });
+      seg += nq * 45;
+      return Math.max(1, Math.ceil(seg / 3600));
+    }
+    function pdfJPEG(url, W, H) {
+      var bin = atob(url.split(',')[1]), pw = 841.89, ph = 595.28, out = '%PDF-1.4\n', off = [];
+      var obj = function (n, cuerpo) { off[n] = out.length; out += n + ' 0 obj\n' + cuerpo + '\nendobj\n'; };
+      var cont = 'q ' + pw + ' 0 0 ' + ph + ' 0 0 cm /Im0 Do Q';
+      obj(1, '<</Type/Catalog/Pages 2 0 R>>');
+      obj(2, '<</Type/Pages/Kids[3 0 R]/Count 1>>');
+      obj(3, '<</Type/Page/Parent 2 0 R/MediaBox[0 0 ' + pw + ' ' + ph + ']/Resources<</XObject<</Im0 4 0 R>>>>/Contents 5 0 R>>');
+      obj(4, '<</Type/XObject/Subtype/Image/Width ' + W + '/Height ' + H + '/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ' + bin.length + '>>stream\n' + bin + '\nendstream');
+      obj(5, '<</Length ' + cont.length + '>>stream\n' + cont + '\nendstream');
+      var x = out.length; out += 'xref\n0 6\n0000000000 65535 f \n';
+      for (var i = 1; i <= 5; i++) out += String(off[i]).padStart(10, '0') + ' 00000 n \n';
+      out += 'trailer\n<</Size 6/Root 1 0 R>>\nstartxref\n' + x + '\n%%EOF';
+      var u8 = new Uint8Array(out.length); for (var j = 0; j < out.length; j++) u8[j] = out.charCodeAt(j) & 255;
+      return new Blob([u8], { type: 'application/pdf' });
+    }
     function certificado() {
       var nom = (prompt('Nombre completo para el certificado:', ST.nombre || '') || '').trim(); if (!nom) return; ST.nombre = nom; guarda();
-      var c = document.createElement('canvas'); c.width = 1754; c.height = 1240; var g = c.getContext('2d');
-      g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, 1754, 1240); g.strokeStyle = T.acc; g.lineWidth = 10; g.strokeRect(50, 50, 1654, 1140); g.lineWidth = 2; g.strokeRect(80, 80, 1594, 1080);
-      g.fillStyle = T.acc; g.font = '600 40px ' + T.tit; g.fillText('CERTIFICADO DE APROVECHAMIENTO', 160, 260);
-      g.fillStyle = T.txt; g.font = '34px ' + T.tit; g.fillText('Se certifica que', 160, 380);
-      g.font = '600 92px ' + T.tit; g.fillText(nom, 160, 500);
-      g.font = '34px ' + T.tit; g.fillText('ha completado el curso', 160, 600);
-      g.font = '600 56px ' + T.tit; g.fillText(D.titulo.slice(0, 48), 160, 690);
-      g.font = '30px ' + T.tit; g.fillText(LEC.length + ' lecciones · ' + D.modulos.length + ' módulos · examen final: ' + ST.examen + ' %', 160, 780);
-      g.fillText('Fecha: ' + new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }), 160, 960);
-      if (D.autor) g.fillText('Firma: ' + D.autor + (D.centro ? ' · ' + D.centro : ''), 160, 1020);
-      var a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'certificado-' + nom.toLowerCase().replace(/\s+/g, '-') + '.png'; a.click();
+      var W = 2339, H = 1654, c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d');
+      var ORO = '#B08D57', AUTORA = 'Fátima Caldea', SELLO = 'FÁTIMA HAIR STUDIO', horas = horasCurso();
+      var h = 0; (nom + '|' + D.titulo).split('').forEach(function (ch) { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
+      var num = 'FHS-' + new Date().getFullYear() + '-' + String(h % 1000000).padStart(6, '0') + (D.derechos && D.derechos.codigo ? ' · ' + D.derechos.codigo : '');
+      var centro = function (t, y, f, col) { g.font = f; g.fillStyle = col; g.textAlign = 'center'; g.fillText(t, W / 2, y); g.textAlign = 'start'; };
+      var ajustaT = function (t, w, f) { g.font = f; var pal = String(t).split(' '), l = [], a = ''; pal.forEach(function (p) { var b = a ? a + ' ' + p : p; if (g.measureText(b).width > w && a) { l.push(a); a = p; } else a = b; }); if (a) l.push(a); return l; };
+      g.fillStyle = '#FFFDF8'; g.fillRect(0, 0, W, H);
+      g.strokeStyle = T.acc; g.lineWidth = 14; g.strokeRect(60, 60, W - 120, H - 120);
+      g.strokeStyle = ORO; g.lineWidth = 3; g.strokeRect(100, 100, W - 200, H - 200);
+      [[100, 100, 1, 1], [W - 100, 100, -1, 1], [100, H - 100, 1, -1], [W - 100, H - 100, -1, -1]].forEach(function (q) {
+        g.strokeStyle = ORO; g.lineWidth = 4; g.beginPath(); g.moveTo(q[0] + q[2] * 20, q[1] + q[3] * 140); g.lineTo(q[0] + q[2] * 20, q[1] + q[3] * 20); g.lineTo(q[0] + q[2] * 140, q[1] + q[3] * 20); g.stroke();
+        g.fillStyle = ORO; g.beginPath(); g.arc(q[0] + q[2] * 20, q[1] + q[3] * 20, 9, 0, 7); g.fill();
+      });
+      centro('CERTIFICADO', 330, '600 112px ' + T.tit, T.acc);
+      centro('DE APROVECHAMIENTO', 400, '500 40px ' + T.tit, ORO);
+      centro('Se certifica que', 530, 'italic 42px ' + T.tit, T.txt);
+      var fn = 128; g.font = '600 ' + fn + 'px ' + T.tit; while (g.measureText(nom).width > W - 520 && fn > 60) { fn -= 4; g.font = '600 ' + fn + 'px ' + T.tit; }
+      centro(nom, 680, '600 ' + fn + 'px ' + T.tit, T.txt);
+      g.strokeStyle = ORO; g.lineWidth = 2; g.beginPath(); g.moveTo(W / 2 - 600, 720); g.lineTo(W / 2 + 600, 720); g.stroke();
+      centro('ha completado con éxito el curso', 800, 'italic 42px ' + T.tit, T.txt);
+      ajustaT(D.titulo, W - 600, '600 66px ' + T.tit).slice(0, 2).forEach(function (l, i) { centro(l, 890 + i * 78, '600 66px ' + T.tit, T.acc); });
+      centro(D.modulos.length + ' módulos · ' + LEC.length + ' lecciones · ' + horas + (horas === 1 ? ' hora' : ' horas') + ' · examen final: ' + ST.examen + ' %', 1060, '36px ' + T.tit, T.txt);
+      centro('Expedido el ' + new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }), 1120, '34px ' + T.tit, T.txt);
+      /* firma y sello */
+      var fx = 560, ly = 1390;
+      g.strokeStyle = T.txt; g.lineWidth = 2; g.beginPath(); g.moveTo(fx - 300, ly); g.lineTo(fx + 300, ly); g.stroke();
+      g.textAlign = 'center'; g.fillStyle = T.txt; g.font = '600 40px ' + T.tit; g.fillText(AUTORA, fx, ly + 56); g.font = '30px ' + T.tit; g.fillText('Fátima Hair Studio', fx, ly + 100);
+      var sx = W - 560, sy = 1330; g.strokeStyle = ORO; g.lineWidth = 6; g.beginPath(); g.arc(sx, sy, 170, 0, 7); g.stroke(); g.lineWidth = 2; g.beginPath(); g.arc(sx, sy, 140, 0, 7); g.stroke();
+      g.fillStyle = ORO; g.font = '600 30px ' + T.tit; for (var k = 0; k < SELLO.length; k++) { var an = -Math.PI * 0.86 + k * (Math.PI * 0.86 * 2 / (SELLO.length - 1)); g.save(); g.translate(sx + Math.cos(an - Math.PI / 2) * 112 * 0 + Math.sin(an) * 155, sy - Math.cos(an) * 155); g.rotate(an); g.fillText(SELLO[k], 0, 10); g.restore(); }
+      g.font = '600 92px ' + T.tit; g.fillText('FC', sx, sy + 32); g.font = '26px ' + T.tit; g.fillText(String(new Date().getFullYear()), sx, sy + 80);
+      g.font = '26px ' + T.tit; g.fillStyle = T.txt; g.fillText('Certificado n.º ' + num, W / 2, H - 150); g.textAlign = 'start';
+      var bajar = function () {
+        var url = c.toDataURL('image/jpeg', 0.92), b = pdfJPEG(url, W, H), u = URL.createObjectURL(b), a = document.createElement('a');
+        a.href = u; a.download = 'certificado-' + nom.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-') + '.pdf'; a.click(); setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+      };
+      if (D.firma) { var im = new Image(); im.onload = function () { var r = Math.min(520 / im.width, 210 / im.height); g.drawImage(im, fx - im.width * r / 2, ly - im.height * r - 6, im.width * r, im.height * r); bajar(); }; im.onerror = bajar; im.src = D.firma; } else bajar();
     }
 
     /* grabar: el lienzo + el audio de la pestaña (la voz de Google sale por ahí) */
