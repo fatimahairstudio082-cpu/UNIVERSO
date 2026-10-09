@@ -20,6 +20,9 @@
   function slug(s) { return String(s || 'curso').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'curso'; }
   function txt(s) { return String(s == null ? '' : s).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
   function dos(n) { return String(n).padStart(2, '0'); }
+  /* firma de Fátima Caldea (firma-fatima.png, transparente) para el certificado: se lee una vez como data URL */
+  var FIRMA = '';
+  try { fetch('./firma-fatima.png').then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (!b) return; var fr = new FileReader(); fr.onload = function () { FIRMA = fr.result; }; fr.readAsDataURL(b); }).catch(function () { }); } catch (e) { }
   function svgURL(id) {
     var MO = window.EU_MODELOS; if (!MO || !MO.svg) return '';
     var s = ''; try { s = MO.svg(id, 'color'); } catch (e) { return ''; }
@@ -27,6 +30,16 @@
     if (!/<svg[^>]*\swidth=/.test(s)) s = s.replace('<svg', '<svg width="800" height="600"');
     if (!/xmlns=/.test(s)) s = s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+  }
+  /* «Completa: « ___: descripción»» con el hueco al principio = el nombre del término: se pregunta como «¿Qué es?» con opciones de la unidad */
+  function ident(q, u) {
+    if (!q || !q.a) return q;
+    var m = q.e.match(/^Completa: «[\s\u00a0]*[:·—-][\s\u00a0]*([\s\S]+)»$/); if (!m) return q;
+    var k = (u.k || []).map(txt).filter(Boolean), ok = q.a[0], otras = k.filter(function (w) { return w.toLowerCase() !== String(ok).toLowerCase(); });
+    if (otras.length < 2) return null;
+    var g = ok.length, o = [ok, otras[g % otras.length], otras[(g + 1) % otras.length]], s = g % 3;
+    o = o.slice(s).concat(o.slice(0, s));
+    return { e: '¿A qué corresponde? «' + m[1].trim() + '»', o: o.map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }), c: (3 - s) % 3 };
   }
   function itemQ(x) {
     if (!x || !x.e) return null;
@@ -113,7 +126,7 @@
         M.lecciones.unshift({ id: u.id + '__ideas', t: 'Ideas clave · ' + M.t, pag: M.pag, video: 0, escenas: escI });
       }
       var qs = (u.rep || []).map(itemQ).filter(Boolean);
-      try { ED.quiz(res, u.id, 10, C.semilla).items.forEach(function (x) { var q = itemQ(x); if (q) qs.push(q); }); } catch (e) { }
+      try { ED.quiz(res, u.id, 10, C.semilla).items.forEach(function (x) { var q = ident(itemQ(x), u); if (q) qs.push(q); }); } catch (e) { }
       var vis = {}; M.test = qs.filter(function (q) { var k = q.e.toLowerCase(); if (vis[k]) return false; vis[k] = 1; return true; }).slice(0, 10);
       examen = examen.concat(M.test.slice(0, 3));
       if (M.lecciones.length || M.test.length) mods.push(M);
@@ -121,7 +134,7 @@
     return {
       titulo: txt(C.titulo), sub: txt(C.sub || C.curso || ''), autor: txt(C.autor || ''), centro: txt(C.centro || ''),
       T: { acc: T.acc || '#B5476B', bg: T.bg || '#FBF7F2', tit: T.tit || 'Georgia, serif', txt: T.txt || '#1F1B18', soft: T.soft || '#E6DCD2' },
-      clave: 'eu_cp_' + slug(C.titulo), modulos: mods, examen: examen.slice(0, 20), img: {}
+      clave: 'eu_cp_' + slug(C.titulo), modulos: mods, examen: examen.slice(0, 20), img: {}, firma: FIRMA
     };
   }
 
@@ -216,7 +229,24 @@
       });
       x.fillStyle = T.acc; x.fillRect(0, 714, 1280 * ((cur.k + (cur.fin ? 1 : Math.min(.99, cur.pos / Math.max(1, e.texto.length)))) / L.escenas.length), 6);
     }
-    var raf = 0; function bucle() { if (cur.play && !cur.b && !cur.fin) { cur.pos = Math.max(cur.pos, (performance.now() - cur.t0) / 1000 * 14.5 * (cur.vel || 1)); } pinta(); raf = requestAnimationFrame(bucle); }
+    /* carrusel de escenas: cada tarjeta repite su animación; la de la escena que suena va al paso de la voz */
+    var MINI = [], kMini = -1, nCuadro = 0, VIS = window.IntersectionObserver ? new IntersectionObserver(function (ls) { ls.forEach(function (l) { if (l.target._m) l.target._m.vis = l.isIntersecting; }); }, { root: null }) : null;
+    function mini(m, i, t) {
+      var e = m.e, g = m.g, im = img(e.id); g.fillStyle = T.bg; g.fillRect(0, 0, 320, 180);
+      if (e.tipo === 'pregunta') { g.fillStyle = T.acc; g.font = '600 96px ' + T.tit; g.textAlign = 'center'; g.fillText('?', 160, 124); g.textAlign = 'start'; return; }
+      var p = i === cur.k && cur.play ? (cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
+      if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(g, D.anim[e.anim], im, 0, 0, 320, 180, p);
+      else if (im && im.complete && im.naturalWidth) { var r = Math.min(320 / im.naturalWidth, 180 / im.naturalHeight); g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 180); g.drawImage(im, (320 - im.naturalWidth * r) / 2, (180 - im.naturalHeight * r) / 2, im.naturalWidth * r, im.naturalHeight * r); }
+      else { g.fillStyle = T.txt; g.font = '600 22px ' + T.tit; ajustaEn(g, e.t, 290).slice(0, 4).forEach(function (l, j) { g.fillText(l, 16, 44 + j * 30); }); }
+    }
+    function ajustaEn(g, t, w) { var pal = String(t).split(' '), l = [], a = ''; pal.forEach(function (q) { var b = a ? a + ' ' + q : q; if (g.measureText(b).width > w && a) { l.push(a); a = q; } else a = b; }); if (a) l.push(a); return l; }
+    function minis() {
+      if (!MINI.length) return;
+      if (kMini !== cur.k) { kMini = cur.k; MINI.forEach(function (m, i) { m.b.classList.toggle('on', i === cur.k); }); var a = MINI[cur.k]; if (a) { var tira = $('#escenas'); tira.scrollTo({ left: a.b.offsetLeft - (tira.clientWidth - a.b.offsetWidth) / 2, behavior: 'smooth' }); } }
+      if (++nCuadro % 3) return;
+      var t = performance.now(); MINI.forEach(function (m, i) { if (m.vis) mini(m, i, t); });
+    }
+    var raf = 0; function bucle() { if (cur.play && !cur.b && !cur.fin) { cur.pos = Math.max(cur.pos, (performance.now() - cur.t0) / 1000 * 14.5 * (cur.vel || 1)); } pinta(); minis(); raf = requestAnimationFrame(bucle); }
     bucle();
 
     function escena(k, alAcabar) {
@@ -268,13 +298,23 @@
     function textoBajo(e) { $('#bajo').textContent = e.tipo === 'pregunta' && cur.rev ? e.sol : e.texto; }
     function abre(L) {
       para(); cur.L = L; cur.k = 0; cur.pos = 0; cur.fin = false;
-      $('#tl').textContent = L.t; $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
+      $('#tl').textContent = L.t; var ix = LEC.indexOf(L); $('#pos').textContent = 'Módulo ' + (L.mi + 1) + ' · Lección ' + (L.li + 1) + ' de ' + D.modulos[L.mi].lecciones.length + ' · ' + (ix + 1) + '/' + LEC.length;
+      $('#ant').disabled = ix <= 0; $('#sig').disabled = ix >= LEC.length - 1; document.body.classList.remove('verMenu'); $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
       $('#reproductor').style.display = ''; $('#zonaTest').style.display = 'none'; textoBajo(L.escenas[0]); pintaPregunta(L.escenas[0]);
-      $('#escenas').innerHTML = ''; L.escenas.forEach(function (e, k) { var b = document.createElement('button'); b.className = 'esc'; b.textContent = (k + 1) + '. ' + e.t; b.onclick = function () { reproduce(k); }; $('#escenas').appendChild(b); });
+      $('#escenas').innerHTML = ''; MINI = []; kMini = -1;
+      L.escenas.forEach(function (e, k) {
+        var b = document.createElement('button'), c = document.createElement('canvas'), t = document.createElement('b'); b.className = 'card'; c.width = 320; c.height = 180;
+        t.textContent = (k + 1) + '. ' + e.t; b.appendChild(c); b.appendChild(t); b.onclick = function () { reproduce(k); }; $('#escenas').appendChild(b);
+        var m = { e: e, b: b, g: c.getContext('2d'), vis: true }; MINI.push(m); if (VIS) VIS.observe(b); b._m = m;
+      });
       window.scrollTo(0, 0);
     }
     $('#play').onclick = function () { if (!cur.L) return abre(LEC[0]); if (cur.play) para(); else reproduce(cur.fin || cur.k >= cur.L.escenas.length - 1 ? 0 : cur.k); };
     $('#vel').onchange = function () { cur.vel = +this.value; };
+    var mueve = function (d) { var L = LEC[LEC.indexOf(cur.L) + d]; if (L) { abre(L); menu(); } };
+    $('#ant').onclick = function () { mueve(-1); }; $('#sig').onclick = function () { if (!cur.L) { abre(LEC[0]); menu(); } else mueve(1); };
+    $('#btnMenu').onclick = function () { document.body.classList.add('verMenu'); }; $('#cerrarMenu').onclick = function () { document.body.classList.remove('verMenu'); };
+    if (/grabar/.test(location.hash)) $('#autora').style.display = 'flex';
 
     /* tests y examen */
     function nrm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s.,;:()$€¡!¿?]/g, ''); }
@@ -299,19 +339,67 @@
       };
       window.scrollTo(0, 0);
     }
+    /* certificado profesional (Fátima, 9-10-2026): firma y sello de Fátima Caldea, horas del curso
+       cronometradas con la narración y los tests, número de certificado y descarga en PDF A4 apaisado (sin librerías) */
+    function horasCurso() {
+      var seg = 0, nq = (D.examen || []).length;
+      D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { L.escenas.forEach(function (e) { seg += String(e.texto || '').length / 14.5 + 2 + (e.tipo === 'pregunta' ? 20 : 0); }); }); });
+      seg += nq * 45;
+      return Math.max(1, Math.ceil(seg / 3600));
+    }
+    function pdfJPEG(url, W, H) {
+      var bin = atob(url.split(',')[1]), pw = 841.89, ph = 595.28, out = '%PDF-1.4\n', off = [];
+      var obj = function (n, cuerpo) { off[n] = out.length; out += n + ' 0 obj\n' + cuerpo + '\nendobj\n'; };
+      var cont = 'q ' + pw + ' 0 0 ' + ph + ' 0 0 cm /Im0 Do Q';
+      obj(1, '<</Type/Catalog/Pages 2 0 R>>');
+      obj(2, '<</Type/Pages/Kids[3 0 R]/Count 1>>');
+      obj(3, '<</Type/Page/Parent 2 0 R/MediaBox[0 0 ' + pw + ' ' + ph + ']/Resources<</XObject<</Im0 4 0 R>>>>/Contents 5 0 R>>');
+      obj(4, '<</Type/XObject/Subtype/Image/Width ' + W + '/Height ' + H + '/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ' + bin.length + '>>stream\n' + bin + '\nendstream');
+      obj(5, '<</Length ' + cont.length + '>>stream\n' + cont + '\nendstream');
+      var x = out.length; out += 'xref\n0 6\n0000000000 65535 f \n';
+      for (var i = 1; i <= 5; i++) out += String(off[i]).padStart(10, '0') + ' 00000 n \n';
+      out += 'trailer\n<</Size 6/Root 1 0 R>>\nstartxref\n' + x + '\n%%EOF';
+      var u8 = new Uint8Array(out.length); for (var j = 0; j < out.length; j++) u8[j] = out.charCodeAt(j) & 255;
+      return new Blob([u8], { type: 'application/pdf' });
+    }
     function certificado() {
       var nom = (prompt('Nombre completo para el certificado:', ST.nombre || '') || '').trim(); if (!nom) return; ST.nombre = nom; guarda();
-      var c = document.createElement('canvas'); c.width = 1754; c.height = 1240; var g = c.getContext('2d');
-      g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, 1754, 1240); g.strokeStyle = T.acc; g.lineWidth = 10; g.strokeRect(50, 50, 1654, 1140); g.lineWidth = 2; g.strokeRect(80, 80, 1594, 1080);
-      g.fillStyle = T.acc; g.font = '600 40px ' + T.tit; g.fillText('CERTIFICADO DE APROVECHAMIENTO', 160, 260);
-      g.fillStyle = T.txt; g.font = '34px ' + T.tit; g.fillText('Se certifica que', 160, 380);
-      g.font = '600 92px ' + T.tit; g.fillText(nom, 160, 500);
-      g.font = '34px ' + T.tit; g.fillText('ha completado el curso', 160, 600);
-      g.font = '600 56px ' + T.tit; g.fillText(D.titulo.slice(0, 48), 160, 690);
-      g.font = '30px ' + T.tit; g.fillText(LEC.length + ' lecciones · ' + D.modulos.length + ' módulos · examen final: ' + ST.examen + ' %', 160, 780);
-      g.fillText('Fecha: ' + new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }), 160, 960);
-      if (D.autor) g.fillText('Firma: ' + D.autor + (D.centro ? ' · ' + D.centro : ''), 160, 1020);
-      var a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'certificado-' + nom.toLowerCase().replace(/\s+/g, '-') + '.png'; a.click();
+      var W = 2339, H = 1654, c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d');
+      var ORO = '#B08D57', AUTORA = 'Fátima Caldea', SELLO = 'FÁTIMA CALDEA', horas = horasCurso();
+      var h = 0; (nom + '|' + D.titulo).split('').forEach(function (ch) { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
+      var num = 'FC-' + new Date().getFullYear() + '-' + String(h % 1000000).padStart(6, '0') + (D.derechos && D.derechos.codigo ? ' · ' + D.derechos.codigo : '');
+      var centro = function (t, y, f, col) { g.font = f; g.fillStyle = col; g.textAlign = 'center'; g.fillText(t, W / 2, y); g.textAlign = 'start'; };
+      var ajustaT = function (t, w, f) { g.font = f; var pal = String(t).split(' '), l = [], a = ''; pal.forEach(function (p) { var b = a ? a + ' ' + p : p; if (g.measureText(b).width > w && a) { l.push(a); a = p; } else a = b; }); if (a) l.push(a); return l; };
+      g.fillStyle = '#FFFDF8'; g.fillRect(0, 0, W, H);
+      g.strokeStyle = T.acc; g.lineWidth = 14; g.strokeRect(60, 60, W - 120, H - 120);
+      g.strokeStyle = ORO; g.lineWidth = 3; g.strokeRect(100, 100, W - 200, H - 200);
+      [[100, 100, 1, 1], [W - 100, 100, -1, 1], [100, H - 100, 1, -1], [W - 100, H - 100, -1, -1]].forEach(function (q) {
+        g.strokeStyle = ORO; g.lineWidth = 4; g.beginPath(); g.moveTo(q[0] + q[2] * 20, q[1] + q[3] * 140); g.lineTo(q[0] + q[2] * 20, q[1] + q[3] * 20); g.lineTo(q[0] + q[2] * 140, q[1] + q[3] * 20); g.stroke();
+        g.fillStyle = ORO; g.beginPath(); g.arc(q[0] + q[2] * 20, q[1] + q[3] * 20, 9, 0, 7); g.fill();
+      });
+      centro('CERTIFICADO', 330, '600 112px ' + T.tit, T.acc);
+      centro('DE APROVECHAMIENTO', 400, '500 40px ' + T.tit, ORO);
+      centro('Se certifica que', 530, 'italic 42px ' + T.tit, T.txt);
+      var fn = 128; g.font = '600 ' + fn + 'px ' + T.tit; while (g.measureText(nom).width > W - 520 && fn > 60) { fn -= 4; g.font = '600 ' + fn + 'px ' + T.tit; }
+      centro(nom, 680, '600 ' + fn + 'px ' + T.tit, T.txt);
+      g.strokeStyle = ORO; g.lineWidth = 2; g.beginPath(); g.moveTo(W / 2 - 600, 720); g.lineTo(W / 2 + 600, 720); g.stroke();
+      centro('ha completado con éxito el curso', 800, 'italic 42px ' + T.tit, T.txt);
+      ajustaT(D.titulo, W - 600, '600 66px ' + T.tit).slice(0, 2).forEach(function (l, i) { centro(l, 890 + i * 78, '600 66px ' + T.tit, T.acc); });
+      centro(D.modulos.length + ' módulos · ' + LEC.length + ' lecciones · ' + horas + (horas === 1 ? ' hora' : ' horas') + ' · examen final: ' + ST.examen + ' %', 1060, '36px ' + T.tit, T.txt);
+      centro('Expedido el ' + new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }), 1120, '34px ' + T.tit, T.txt);
+      /* firma y sello */
+      var fx = 560, ly = 1390;
+      g.strokeStyle = T.txt; g.lineWidth = 2; g.beginPath(); g.moveTo(fx - 300, ly); g.lineTo(fx + 300, ly); g.stroke();
+      g.textAlign = 'center'; g.fillStyle = T.txt; g.font = '600 40px ' + T.tit; g.fillText(AUTORA, fx, ly + 56);
+      var sx = W - 560, sy = 1330; g.strokeStyle = ORO; g.lineWidth = 6; g.beginPath(); g.arc(sx, sy, 170, 0, 7); g.stroke(); g.lineWidth = 2; g.beginPath(); g.arc(sx, sy, 140, 0, 7); g.stroke();
+      g.fillStyle = ORO; g.font = '600 30px ' + T.tit; for (var k = 0; k < SELLO.length; k++) { var an = -Math.PI * 0.86 + k * (Math.PI * 0.86 * 2 / (SELLO.length - 1)); g.save(); g.translate(sx + Math.cos(an - Math.PI / 2) * 112 * 0 + Math.sin(an) * 155, sy - Math.cos(an) * 155); g.rotate(an); g.fillText(SELLO[k], 0, 10); g.restore(); }
+      g.font = '600 92px ' + T.tit; g.fillText('FC', sx, sy + 32); g.font = '26px ' + T.tit; g.fillText(String(new Date().getFullYear()), sx, sy + 80);
+      g.font = '26px ' + T.tit; g.fillStyle = T.txt; g.fillText('Certificado n.º ' + num, W / 2, H - 150); g.textAlign = 'start';
+      var bajar = function () {
+        var url = c.toDataURL('image/jpeg', 0.92), b = pdfJPEG(url, W, H), u = URL.createObjectURL(b), a = document.createElement('a');
+        a.href = u; a.download = 'certificado-' + nom.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-') + '.pdf'; a.click(); setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+      };
+      if (D.firma) { var im = new Image(); im.onload = function () { var r = Math.min(520 / im.width, 210 / im.height); g.drawImage(im, fx - im.width * r / 2, ly - im.height * r - 6, im.width * r, im.height * r); bajar(); }; im.onerror = bajar; im.src = D.firma; } else bajar();
     }
 
     /* grabar: el lienzo + el audio de la pestaña (la voz de Google sale por ahí) */
@@ -353,9 +441,12 @@
       var m = $('#menu'), hechas = LEC.filter(function (L) { return ST.vistas[L.id]; }).length; m.innerHTML = '';
       var pr = document.createElement('div'); pr.className = 'prog'; pr.innerHTML = '<b>' + Math.round(hechas / Math.max(1, LEC.length) * 100) + ' %</b> completado · ' + hechas + '/' + LEC.length + ' lecciones'; m.appendChild(pr);
       D.modulos.forEach(function (M, i) {
-        var h = document.createElement('div'); h.className = 'mod'; h.textContent = (i + 1) + '. ' + M.t; m.appendChild(h);
-        M.lecciones.forEach(function (L) { var b = document.createElement('button'); b.className = 'lec' + (cur.L === L ? ' on' : ''); b.innerHTML = (ST.vistas[L.id] ? '✓ ' : (L.video ? '▶ ' : '• ')) + L.t.replace(/</g, '&lt;') + (L.pag ? ' <span>p. ' + L.pag + '</span>' : ''); b.onclick = function () { abre(L); menu(); }; m.appendChild(b); });
+        var h = document.createElement('details'), sm = document.createElement('summary'), vh = M.lecciones.filter(function (L) { return ST.vistas[L.id]; }).length;
+        h.open = cur.L ? cur.L.mi === i : i === 0; sm.innerHTML = (i + 1) + '. ' + M.t.replace(/</g, '&lt;') + '<small>' + vh + '/' + M.lecciones.length + (vh === M.lecciones.length ? ' ✓' : '') + '</small>'; h.appendChild(sm); m.appendChild(h);
+        var m0 = m; m = h;
+        M.lecciones.forEach(function (L) { var b = document.createElement('button'); b.className = 'lec' + (cur.L === L ? ' on' : ''); b.innerHTML = (ST.vistas[L.id] ? '✓ ' : (L.video ? '▶ ' : '• ')) + L.t.replace(/</g, '&lt;'); b.onclick = function () { abre(L); menu(); }; m.appendChild(b); });
         if (M.test.length) { var t = document.createElement('button'); t.className = 'lec tst'; t.textContent = (ST.tests[M.id] >= 70 ? '✓ ' : '✎ ') + 'Test del módulo' + (ST.tests[M.id] != null ? ' · ' + ST.tests[M.id] + ' %' : ''); t.onclick = function () { test('Test · ' + M.t, M.test, function (n) { ST.tests[M.id] = Math.max(n, ST.tests[M.id] || 0); }); }; m.appendChild(t); }
+        m = m0;
       });
       var ex = document.createElement('button'); ex.className = 'lec fin'; ex.textContent = (ST.examen >= 70 ? '✓ ' : '★ ') + 'Examen final' + (ST.examen != null ? ' · ' + ST.examen + ' %' : ''); ex.onclick = function () { test('Examen final', D.examen, function (n) { ST.examen = Math.max(n, ST.examen || 0); }); }; m.appendChild(ex);
       var listo = hechas === LEC.length && ST.examen >= 70, ce = document.createElement('button'); ce.className = 'lec fin'; ce.textContent = '🎓 Certificado' + (listo ? '' : ' (completa lecciones y examen)'); ce.disabled = !listo; ce.onclick = certificado; m.appendChild(ce);
@@ -368,34 +459,37 @@
     var css = 'body{margin:0;background:' + T.bg + ';color:' + T.txt + ';font-family:' + T.tit + ';}' +
       'a{color:' + T.acc + '}a:hover{opacity:.8}' +
       '.wrap{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);min-height:100vh}' +
-      '@media(max-width:820px){.wrap{grid-template-columns:1fr}}' +
-      '#menu{padding:18px;border-right:1px solid ' + T.soft + ';display:flex;flex-direction:column;gap:4px;background:#fff}' +
+      '#menu{padding:18px;border-right:1px solid ' + T.soft + ';display:flex;flex-direction:column;gap:4px;background:#fff;position:sticky;top:0;height:100vh;overflow-y:auto;box-sizing:border-box}' +
+      '#menu details{border-bottom:1px solid ' + T.soft + ';padding:4px 0}#menu summary{cursor:pointer;font-weight:700;font-size:15px;padding:8px 4px;list-style-position:inside}#menu summary small{font-weight:400;margin-left:6px}' +
+      '#btnMenu,#cerrarMenu{display:none}.nav{display:flex;gap:8px;flex-wrap:wrap}' +
+      '@media(max-width:820px){.wrap{grid-template-columns:minmax(0,1fr)}#menu{display:none;position:fixed;inset:0;z-index:20;height:auto;border:0}body.verMenu #menu{display:flex}#btnMenu,body.verMenu #cerrarMenu{display:inline-block}' +
+      '#cv{position:sticky;top:0;z-index:5}main{padding:12px}main h1{font-size:22px!important}}' +
       '.prog{font-size:14px;margin-bottom:10px}.mod{font-weight:700;margin:14px 0 4px;font-size:15px}' +
       '.lec{all:unset;cursor:pointer;padding:6px 8px;font-size:14px;border-radius:4px;display:block}.lec:hover{background:' + T.soft + '}.lec.on{background:' + T.acc + ';color:#fff}.lec span{opacity:.6;font-size:12px}.lec.tst{font-style:italic}.lec.fin{font-weight:700;margin-top:8px}.lec:disabled{opacity:.45;cursor:default}' +
       'main{padding:22px;display:flex;flex-direction:column;gap:12px;max-width:1100px}' +
       'canvas{width:100%;height:auto;display:block;border:1px solid ' + T.soft + ';background:#fff}' +
       '.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.bar button,.cta,.op,.esc{font:inherit;cursor:pointer;border:1px solid ' + T.acc + ';background:#fff;color:' + T.txt + ';padding:8px 14px;border-radius:4px;white-space:nowrap}.op{white-space:normal;text-align:left}' +
       '.bar button:hover,.op:hover,.esc:hover{background:' + T.soft + '}.cta{background:' + T.acc + ';color:#fff}' +
-      '#preg{display:flex;flex-direction:column;gap:6px}#escenas{display:flex;gap:6px;flex-wrap:wrap}.esc{font-size:13px;padding:5px 9px;white-space:normal;text-align:left;max-width:260px}' +
+      '#preg{display:flex;flex-direction:column;gap:6px}#escenas{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;-webkit-overflow-scrolling:touch}.card{all:unset;cursor:pointer;flex:0 0 176px;scroll-snap-align:center;display:flex;flex-direction:column;gap:6px;background:#fff;border:2px solid ' + T.soft + ';border-radius:8px;padding:6px;box-sizing:border-box}.card canvas{width:100%;height:auto;border:0;border-radius:4px}.card b{font-size:13px;line-height:1.25;font-weight:600}.card.on{border-color:' + T.acc + ';box-shadow:0 0 0 2px ' + T.acc + '}.esc{font-size:13px;padding:5px 9px;white-space:normal;text-align:left;max-width:260px}' +
       '#bajo{font-size:17px;line-height:1.55;max-width:70ch}.pq{border-left:4px solid ' + T.soft + ';padding:6px 12px;margin:10px 0;display:flex;flex-direction:column;gap:4px}.in{font:inherit;padding:6px;max-width:320px}.sol{color:#C0392B;font-size:14px}.nota{font-size:20px;font-weight:700}' +
       'small{opacity:.7}';
     return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + e(D.titulo) + ' · curso</title><style>' + css + '</style>' +
       '<script src="datos.js"></script>' + (D.anim ? '<script src="anim.js"></script>' : '') + '</head><body><div class="wrap"><nav id="menu"></nav><main>' +
-      '<div><small>' + e(D.sub) + '</small><h1 style="margin:2px 0 0;font-size:30px">' + e(D.titulo) + '</h1></div>' +
-      '<div id="reproductor" style="display:flex;flex-direction:column;gap:12px"><h2 id="tl" style="margin:0;font-size:22px">Bienvenida</h2>' +
+      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><small>' + e(D.sub) + '</small><h1 style="margin:2px 0 0;font-size:30px">' + e(D.titulo) + '</h1></div><button id="btnMenu" class="cta">☰ Temario</button></div>' +
+      '<div id="reproductor" style="display:flex;flex-direction:column;gap:12px"><div><small id="pos"></small><h2 id="tl" style="margin:0;font-size:22px">Bienvenida</h2></div>' +
       '<canvas id="cv" width="1280" height="720"></canvas>' +
       '<div class="bar"><button id="play" class="cta">▶ Reproducir</button><label>Velocidad <select id="vel"><option value="0.85">0,85×</option><option value="1" selected>1×</option><option value="1.15">1,15×</option></select></label><label><input id="mudo" type="checkbox"> Sin voz</label><small id="voz"></small></div>' +
-      '<div id="escenas"></div><div id="preg"></div><p id="bajo"></p><p id="pag"></p>' +
-      '<div class="bar"><button id="grabV">⏺ Grabar vídeo de la lección</button><button id="grabA">🎙 Grabar audio</button><button id="grabT">⏺ Grabar todos los vídeos</button></div>' +
-      '<small>Para grabar con la voz «Google español», usa Chrome de escritorio y comparte «Esta pestaña» con su audio. Los vídeos salen en MP4 si el navegador lo permite (si no, WebM) y el audio en M4A o WebM.</small>' +
+      '<div class="nav"><button id="ant" class="esc">‹ Anterior</button><button id="sig" class="esc">Siguiente ›</button></div><div id="escenas"></div><div id="preg"></div><p id="bajo"></p><p id="pag"></p>' +
+      '<div id="autora" style="display:none;flex-direction:column;gap:8px"><div class="bar"><button id="grabV">⏺ Grabar vídeo de la lección</button><button id="grabA">🎙 Grabar audio</button><button id="grabT">⏺ Grabar todos los vídeos</button></div>' +
+      '<small>Para grabar con la voz «Google español», usa Chrome de escritorio y comparte «Esta pestaña» con su audio. Los vídeos salen en MP4 si el navegador lo permite (si no, WebM) y el audio en M4A o WebM.</small></div>' +
       '<p><b>Descargas</b> · <a href="../libro/libro-imprimible.html" target="_blank">Libro para imprimir o guardar en PDF</a> · <a href="../libro/libro-interactivo.html" target="_blank">Libro interactivo</a> · <a href="../laminas/" target="_blank">Láminas</a> · <a href="../guion-voz.txt" target="_blank">Guion de voz</a></p></div>' +
-      '<div id="zonaTest" style="display:none"></div></main></div><script>(' + REPRODUCTOR.toString() + ')();<\/script></body></html>';
+      '<div id="zonaTest" style="display:none"></div></main></div><button id="cerrarMenu" class="cta" style="position:fixed;top:10px;right:10px;z-index:21">✕ Cerrar</button><script>(' + REPRODUCTOR.toString() + ')();<\/script></body></html>';
   }
 
   function hotmart(z, D) {
     var raiz = 'hotmart/';
     z.file(raiz + 'LEEME.txt', 'Estructura para Hotmart, Teachable o similar.\nCada carpeta es un módulo y cada .txt una lección: título, descripción, página del libro y guion.\n' +
-      'Graba los vídeos desde curso/index.html («Grabar todos los vídeos»): cada archivo sale con el mismo nombre que su lección (M01-L02-…).\nGuárdalos en su carpeta y súbelos lección por lección. Adjunta el libro en PDF como material descargable.\n');
+      'Graba los vídeos abriendo curso/index.html#grabar («Grabar todos los vídeos»): cada archivo sale con el mismo nombre que su lección (M01-L02-…).\nGuárdalos en su carpeta y súbelos lección por lección. Adjunta el libro en PDF como material descargable.\n');
     D.modulos.forEach(function (M, i) {
       var dir = raiz + 'Modulo-' + dos(i + 1) + '-' + slug(M.t) + '/';
       M.lecciones.forEach(function (L, j) {
@@ -415,7 +509,10 @@
       return imagenes(D, function (f) { aviso('Curso premium: dibujos ' + Math.round(f * 100) + ' %'); });
     }).then(function () {
       var z = new JSZip(), base = slug(D.titulo) + '-premium/';
-      z.file(base + 'curso/index.html', cursoHTML(D));
+      /* index.html autónomo: datos y animaciones dentro (abierto desde el gestor de archivos del móvil, los <script src> sueltos no cargan) */
+      var datosIn = '<script>window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';<\/script>';
+      var animIn = D.anim && window.EU_CURSO_ANIM ? '<script>' + EU_CURSO_ANIM.js().replace(/<\//g, '<\\/') + '<\/script>' : '';
+      z.file(base + 'curso/index.html', cursoHTML(D).replace('<script src="datos.js"></script>', function () { return datosIn; }).replace('<script src="anim.js"></script>', function () { return animIn; }));
       if (D.anim && window.EU_CURSO_ANIM) z.file(base + 'curso/anim.js', EU_CURSO_ANIM.js());
       z.file(base + 'curso/datos.js', 'window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';');
       z.file(base + 'libro/libro-imprimible.html', ED.documento(res, 'print'));
@@ -436,7 +533,7 @@
         '2. libro/ — libro-imprimible.html: ábrelo y elige Imprimir → Guardar como PDF. libro-interactivo.html: versión en pantalla.\n' +
         '3. laminas/ — todos los dibujos del curso (JPG de Guías 3D y SVG vectoriales).\n' +
         '4. guion-voz.txt — el texto que narra cada escena.\n' +
-        '5. hotmart/ — módulos y lecciones listos para subir. Los vídeos y audios se graban desde el curso (botones «Grabar»).\n');
+        '5. hotmart/ — módulos y lecciones listos para subir. Los vídeos y audios se graban abriendo curso/index.html#grabar (botones «Grabar»; el alumno no los ve).\n');
       aviso('Curso premium: comprimiendo…');
       return z.generateAsync({ type: 'blob' }).then(function (b) { return { blob: b, nombre: slug(D.titulo) + '-curso-premium.zip', D: D, nL: nL, nV: nV }; });
     });

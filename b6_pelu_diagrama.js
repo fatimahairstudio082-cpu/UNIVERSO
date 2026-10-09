@@ -12,6 +12,8 @@
    tal cual al curso (anim.js). Cargar después de b6_cortes.js. */
 (function () {
   'use strict';
+  /* modo revisión de Fátima: las notas «a validar» solo se ven si ella lo activa (localStorage eu_revision = 'si'); el alumno nunca las ve */
+  function rev() { try { return localStorage.getItem('eu_revision') === 'si'; } catch (e) { return false; } }
   if (window.EU_DIAGRAMA) return;
 
   var CARA = Math.PI / 2, NUCA = -Math.PI / 2, IZQ = 0, DER = Math.PI;
@@ -406,7 +408,7 @@
       tr.push({ k: 'n', x: tp[0] + 30, y: tp[1] + 26, s: EU_CALCULO_CAPILAR.fmt(c.ang) + '°', c: z ? CORTE : VERDE, t: [ta + d * 0.6, 1] });
       tr.push(rotulo('Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + (z ? 'guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) : 'guía') + ' · se corta 1 o 2 dedos', COL[z % 7], ta, ext));
     });
-    tr.push(rotulo('Forma: ' + calc.forma + ' (a validar)', CORTE, 0.93));
+    tr.push(rotulo('Forma: ' + calc.forma + (rev() ? ' (a validar)' : ''), CORTE, 0.93));
     return { v: v, tr: tr };
   }
   /* Coronilla en triángulo (imagen «en triángulo» de Fátima): triángulo pequeño, base delante sin tocar los laterales

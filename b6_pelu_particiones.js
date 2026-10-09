@@ -12,6 +12,8 @@
    por colores) y Pixie (abanico de elevaciones, flequillo en triángulo asimétrico, nuca en abanico y espiga). */
 (function () {
   'use strict';
+  /* modo revisión de Fátima: las notas «a validar» solo se ven si ella lo activa (localStorage eu_revision = 'si'); el alumno nunca las ve */
+  function rev() { try { return localStorage.getItem('eu_revision') === 'si'; } catch (e) { return false; } }
   if (window.EU_PARTICIONES) return;
   var DG = window.EU_DIAGRAMA; if (!DG || !DG.construirCon) return;
 
@@ -219,6 +221,17 @@
   function deCerebro(K, id) {
     var CB = window.EU_CEREBRO, t = CB && CB.obtener(id); if (!t || !(t.pasos || []).length) return null;
     var modo = MODO[id] || 'global', col = tono(t, modo), divs = CB.divisiones ? CB.divisiones(id) : [], esc = [], na = 0;
+    /* preparación como una receta (Fátima): si la técnica no trae su paso de preparación, se abre con sus herramientas,
+       productos y cantidades de la ficha — qué se prepara antes de tocar el cabello */
+    var fr = t.ficha || {}, yaPrep = t.pasos.some(function (p) { return p.fase === 'preparacion' && !/lav|champ/i.test(p.n || ''); });
+    if (!yaPrep && ((fr.herramientas || []).length || (fr.productos || []).length)) {
+      var trR = [K.rotulo('Preparación · como una receta', C_RAYA, 0)], yR = 0.08, her = (fr.herramientas || []).slice(0, 5), pro = (fr.productos || []).slice(0, 3);
+      her.forEach(function (h) { trR.push(K.rotulo('✔ ' + h, '#18906A', yR)); yR += 0.08; });
+      pro.forEach(function (h) { trR.push(K.rotulo('Producto: ' + h, col === '#E9C979' ? '#9A7B2E' : C_RAYA, yR)); yR += 0.08; });
+      if (fr.cantidades) trR.push(K.rotulo('Cantidad: ' + fr.cantidades, C_RAYA, Math.min(0.9, yR)));
+      esc.push({ tipo: 'cb_receta', vista: 'tres', t: 'Preparación · como una receta', a: { v: 'tres', tr: trR },
+        texto: 'Antes de tocar el cabello se prepara todo, como en una receta.' + (her.length ? ' Herramientas: ' + her.join(', ') + '.' : '') + (pro.length ? ' Productos: ' + pro.join(', ') + '.' : '') + (fr.cantidades ? ' Cantidad: ' + fr.cantidades + '.' : '') });
+    }
     t.pasos.forEach(function (p, i) {
       var f = p.fase || 'aplicacion', a, tipo = 'cb' + i + '_' + f;
       if (f === 'divisiones') a = escDivisiones(K, t, divs.length ? divs : [{ id: 'cuatro', n: 'Cuatro secciones' }], 0.02, 0.8);
@@ -303,7 +316,7 @@
     esc.push({ tipo: 'sp_sobreproy', vista: v, t: 'La sobreproyección', texto: 'Las flechas blancas indican la dirección de sobreproyección: el cabello se peina hacia atrás antes de cortar.',
       a: { v: v, tr: negras([0, 0.02]).concat(pivote([0, 0.02]), blancas([0.08, 0.6]), [K.rotulo('Flechas blancas: el cabello se peina hacia atrás antes de cortar', '#1F1B18', 0.08)]) } });
     esc.push({ tipo: 'sp_melena', vista: v, t: 'La forma final con color', texto: 'Al terminar, el color muestra la forma: arriba sigue la curva de la cabeza, atrás cae largo, y el borde de delante y de abajo queda en picos, cortado con desfilado.',
-      a: { v: v, tr: melena([0.04, 0.7]).concat(altura([0, 0.02]), negras([0, 0.02]), pivote([0, 0.02]), blancas([0, 0.02]), [K.rotulo('Forma final: perímetro en picos', C_MORADO_B, 0.04), K.rotulo('Grados y largos: a validar por Fátima', '#8A6D3B', 0.7)]) } });
+      a: { v: v, tr: melena([0.04, 0.7]).concat(altura([0, 0.02]), negras([0, 0.02]), pivote([0, 0.02]), blancas([0, 0.02]), [K.rotulo('Forma final: perímetro en picos', C_MORADO_B, 0.04), K.rotulo('Grados y largos: a validar por Fátima', '#8A6D3B', 0.7, rev() ? undefined : { x: -1 })]) } });
     return {
       R: { id: 'p_sobreproy', n: 'Particiones horizontales, pivote y sobreproyección' },
       escenas: esc,
@@ -348,7 +361,7 @@
     esc.push({ tipo: 'll_marco', vista: v, t: 'El marco del rostro', texto: 'Delante, los mechones bajan enmarcando el rostro: los de los lados caen rectos y los del centro se abren hacia afuera, formando una V alrededor de la cara.',
       a: { v: v, tr: [punto(0)].concat(marco([0.05, 0.75]), [K.rotulo('Marco del rostro en V', C_ROJO, 0.05)]) } });
     esc.push({ tipo: 'll_colores', vista: v, t: 'Secciones por colores y un solo largo', texto: 'En la segunda forma, las secciones horizontales se marcan por colores: azul arriba y naranja abajo. Desde la coronilla salen líneas hacia el punto de arriba, y todo el cabello cae hasta una misma línea recta.',
-      a: { v: v, tr: [punto(0)].concat([[-0.75, 0.5, 0.75, C_AZUL], [-0.35, 0.62, 0.9, C_ROJO], [0, 0.66, 0.95, C_AZUL], [0.35, 0.62, 0.9, C_ROJO], [0.75, 0.5, 0.75, C_AZUL]].map(function (a, i) { return K.linea(K.plano([W(K, v, a[0], a[1], a[2]), W(K, v, Q[0], Q[1], Q[2])]), [0.02 + i * 0.03, 0.2], a[3], 2.2); }), colores([0.05, 0.85]), [K.rotulo('Azul arriba · naranja abajo', C_AZUL, 0.05), K.rotulo('Todo cae hasta una línea recta', '#1F1B18', 0.75), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85)]) } });
+      a: { v: v, tr: [punto(0)].concat([[-0.75, 0.5, 0.75, C_AZUL], [-0.35, 0.62, 0.9, C_ROJO], [0, 0.66, 0.95, C_AZUL], [0.35, 0.62, 0.9, C_ROJO], [0.75, 0.5, 0.75, C_AZUL]].map(function (a, i) { return K.linea(K.plano([W(K, v, a[0], a[1], a[2]), W(K, v, Q[0], Q[1], Q[2])]), [0.02 + i * 0.03, 0.2], a[3], 2.2); }), colores([0.05, 0.85]), [K.rotulo('Azul arriba · naranja abajo', C_AZUL, 0.05), K.rotulo('Todo cae hasta una línea recta', '#1F1B18', 0.75), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85, rev() ? undefined : { x: -1 })]) } });
     return {
       R: { id: 'p_long_layers', n: 'Long Layers · proyección a un punto' },
       escenas: esc,
@@ -374,7 +387,7 @@
       tr.push(K.linea(K.plano(arco), [0.55, 0.75], '#4A4A55', 2, { d: 1 }));
       [-0.25, -0.5, -0.75, -0.95].forEach(function (z, j) { var yt = 1.22 * Math.sqrt(Math.max(0, 1 - z * z / 1.32)); tr.push(K.linea(K.plano([W(K, v, 0, yt * 1.02, z), W(K, v, 0, -0.7, z)]), [0.02 + j * 0.03, 0.2], '#1F1B18', 2)); });
       [0.3, 0.05, -0.2, -0.45].forEach(function (y, j) { tr.push(flecha(K, v, [0, y, -1.0], [0, y, -1.75], [0.62 + j * 0.04, 0.85], '#1F1B18', 2.2)); });
-      tr.push(K.rotulo('Secciones verticales', '#1F1B18', 0.02), K.rotulo('Abanico de elevaciones siguiendo la curva de la cabeza', '#4A4A55', 0.05), K.rotulo('Atrás: sobredirección hacia atrás', '#1F1B18', 0.62), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85));
+      tr.push(K.rotulo('Secciones verticales', '#1F1B18', 0.02), K.rotulo('Abanico de elevaciones siguiendo la curva de la cabeza', '#4A4A55', 0.05), K.rotulo('Atrás: sobredirección hacia atrás', '#1F1B18', 0.62), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85, rev() ? undefined : { x: -1 }));
       esc.push({ tipo: 'px_perfil', vista: v, t: 'Pixie de perfil · abanico de elevaciones', texto: 'De perfil, las secciones son verticales. Los mechones se elevan en abanico, siguiendo la curva de la cabeza. En la parte de atrás, las flechas marcan que el cabello se sobredirige hacia atrás.', a: { v: v, tr: tr } });
     })();
     (function () {
@@ -410,12 +423,56 @@
     };
   }
 
+  /* ═════════ Seguridad en los químicos (reglas de Fátima, 9-10-2026) ═════════
+     Prueba de mechón, guantes, embarazadas, revisar las mechas cada 15 minutos y cantidades exactas,
+     con un «antes y después» de lo que pasa si no se tiene la precaución. Solo usa los ayudantes del maniquí. */
+  function segQuimica(K) {
+    var esc = [], ROJO = '#B01E45', VERDE = '#18906A', SANO = '#6A4428', QUEMA = '#3F3833', HUMO = '#7E7770';
+    var v = 'nuca', cols = [-0.6, -0.3, 0, 0.3, 0.6];
+    function mechas(a, b, c, w, t, x) { var tr = []; cols.forEach(function (d, j) { var q = mecha(K, v, K.NUCA + d, 1.2, a, b); if (q) tr.push(K.linea(q, [t[0] + j * 0.03, t[1]], c, w, x ? { x: x } : undefined)); }); return tr; }
+    /* 1 · prueba de mechón */
+    (function () {
+      var tr = [], q = mecha(K, v, K.NUCA + 0.3, 1.5, 0, 1);
+      if (q) { tr.push(K.linea(q, [0.1, 0.35], SANO, 5)); var bx = caja(mecha(K, v, K.NUCA + 0.3, 1.5, 0.25, 0.85), 12); if (bx) tr.push(zona(bx, [0.4, 0.7], '#E9C979', 0.85, '#9A7B2E')); tr.push(K.chapa([q[0], q[1]], '1', ROJO, 0.1)); }
+      tr.push(K.rotulo('Prueba de mechón', ROJO, 0.02), K.rotulo('Antes de cualquier químico', ROJO, 0.2), K.rotulo('En todo tipo de cabello', ROJO, 0.4));
+      esc.push({ tipo: 'sq_mechon', vista: v, t: 'Prueba de mechón antes de cualquier químico', texto: 'Antes de cualquier proceso químico, en todo tipo de cabello, se hace una prueba de mechón. Los productos químicos no tienen el mismo efecto en todas las personas y pueden dar una reacción alérgica.', a: { v: v, tr: tr } });
+    })();
+    /* 2 · guantes · 3 · embarazadas */
+    esc.push({ tipo: 'sq_guantes', vista: v, t: 'Guantes en todo procedimiento químico', texto: 'El peluquero usa guantes para cualquier procedimiento químico: tinte, mechas, decoloración, queratina.', a: { v: v, tr: mechas(0, 0.5, SANO, 4, [0.05, 0.4]).concat([K.rotulo('Guantes siempre', VERDE, 0.02), K.rotulo('✔ Tinte', VERDE, 0.2), K.rotulo('✔ Mechas', VERDE, 0.32), K.rotulo('✔ Decoloración', VERDE, 0.44), K.rotulo('✔ Queratina', VERDE, 0.56)]) } });
+    esc.push({ tipo: 'sq_embarazo', vista: v, t: 'Embarazo: ningún producto químico', texto: 'A una mujer embarazada no se le aplica ningún producto químico: corre el riesgo de calvicie.', a: { v: v, tr: [K.rotulo('Embarazada', ROJO, 0.02), K.rotulo('Ningún producto químico', ROJO, 0.25)] } });
+    /* 4 · revisar cada 15 minutos */
+    esc.push({ tipo: 'sq_revisar', vista: v, t: 'Revisar las mechas cada 15 minutos', texto: 'Las mechas se revisan cada 15 minutos. No revisarlas es un error común.', a: { v: v, tr: mechas(0.2, 1, '#E9C979', 5, [0, 0.1]).concat([{ k: 'c', m: 15, t: [0.1, 0.95], c: ROJO, s: 'Revisar' }, K.rotulo('Cada 15 minutos', ROJO, 0.05), K.rotulo('Error común: no revisarlas', ROJO, 0.5)]) } });
+    /* 5 · cantidades exactas: antes y después */
+    (function () {
+      var tr = mechas(0, 1, SANO, 5, [0.02, 0.3], 0.5);
+      tr.push(K.rotulo('Antes · cabello sano', VERDE, 0.02, { x: 0.5 }));
+      cols.forEach(function (d, j) {
+        var q = mecha(K, v, K.NUCA + d, 1.2, 0, 0.42); if (!q) return;
+        tr.push(K.linea(q, [0.52 + j * 0.02, 0.62], QUEMA, 4.5));
+        var x0 = q[q.length - 2], y0 = q[q.length - 1];
+        [0, 1].forEach(function (h) { var pts = []; for (var i = 0; i <= 6; i++) pts.push(x0 + Math.sin(i * 1.2 + j + h * 2) * 10 + h * 14, y0 - 12 - i * 18); tr.push(K.linea(pts, [0.62 + j * 0.03, 0.85 + h * 0.05], HUMO, 3, { d: 1 })); });
+      });
+      tr.push(K.rotulo('Después · cantidad no exacta', ROJO, 0.5), K.rotulo('Echa humo, se quema y se pierde', ROJO, 0.65));
+      esc.push({ tipo: 'sq_antes_despues', vista: v, t: 'Cantidades exactas · antes y después', texto: 'Las cantidades de producto deben ser exactas. Si no, el cabello empieza a echar humo, se quema y se pierde. Así se ve antes y después cuando no se tiene la precaución.', a: { v: v, tr: tr } });
+    })();
+    return {
+      R: { id: 'p_seg_quimica', n: 'Seguridad en los químicos · antes y después' },
+      escenas: esc,
+      preguntas: [
+        { e: '¿Cuándo se hace la prueba de mechón?', o: ['Solo en cabello rubio', 'Antes de cualquier proceso químico, en todo tipo de cabello', 'Después del servicio'], c: 1, x: 'Los productos no tienen el mismo efecto en todas las personas y pueden dar reacción alérgica.' },
+        { e: '¿Cada cuánto se revisan las mechas?', o: ['Cada 15 minutos', 'Solo al final', 'Cada hora'], c: 0, x: 'No revisarlas es un error común.' },
+        { e: '¿Qué pasa si la cantidad de producto no es exacta?', o: ['Nada', 'El color sale más bonito', 'El cabello echa humo, se quema y se pierde'], c: 2, x: 'Por eso las cantidades deben ser exactas.' }
+      ]
+    };
+  }
+
   /* catálogo de técnicas como datos (las siguientes entregas se añaden aquí) */
   var TECNICAS = [
     { id: 'p_seis', n: 'Seccionado en 4 y 6 secciones · escala 0–225°', unidad: 'pe_u_base', uso: ['corte', 'color', 'queratina'], fn: seis, fuente: 'Diagramas de Fátima · formas de dividir un cabello, tipos de diagrama 0–225' },
     { id: 'p_sobreproy', n: 'Particiones horizontales, pivote y sobreproyección', unidad: 'pe_u_base', uso: ['corte', 'color'], fn: sobreproy, fuente: 'Diseño de Fátima · con efecto colores' },
     { id: 'p_long_layers', n: 'Long Layers · proyección a un punto', unidad: 'pe_u_base', uso: ['corte'], fn: longLayers, fuente: 'Diseño de Fátima · forma de frente (Long Layers)' },
-    { id: 'p_pixie', n: 'Pixie · abanico, flequillo en triángulo y espiga', unidad: 'pe_u_base', uso: ['corte'], fn: pixie, fuente: 'Diseño de Fátima · pixie corte diagrama' }
+    { id: 'p_pixie', n: 'Pixie · abanico, flequillo en triángulo y espiga', unidad: 'pe_u_base', uso: ['corte'], fn: pixie, fuente: 'Diseño de Fátima · pixie corte diagrama' },
+    { id: 'p_seg_quimica', n: 'Seguridad en los químicos · antes y después', unidad: 'pe_u_fund', uso: ['color', 'queratina'], fn: segQuimica, fuente: 'Reglas de Fátima · seguridad y errores comunes (9-10-2026)' }
   ];
   /* técnicas que otros módulos registran (cerebro de colorimetría…): van después de las del Cerebro de su unidad */
   var EXTRA = [];

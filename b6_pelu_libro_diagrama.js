@@ -11,6 +11,8 @@
    Cargar después de b6_pelu_libro3d.js, b6_pelu_diagrama.js y b6_pelu_geometria.js. */
 (function () {
   'use strict';
+  /* modo revisión de Fátima: las notas «a validar» solo se ven si ella lo activa (localStorage eu_revision = 'si'); el alumno nunca las ve */
+  function rev() { try { return localStorage.getItem('eu_revision') === 'si'; } catch (e) { return false; } }
   var ED = window.EU_EDITORIAL; if (!ED || window.EU_PELU_LIBRO_DG) return;
   var ALT_N = { cejas: 'bajo las cejas', ojo: 'bajo el ojo', nariz: 'bajo la nariz', labio: 'bajo el labio', barbilla: 'en la barbilla', rostro: 'donde termina el rostro', cuello: 'en el cuello' };
   var VISTAS = ['lateral', 'frente', 'capas'];
@@ -73,7 +75,7 @@
       (R.linea ? '<div><b>Línea de corte:</b> ' + (R.linea === 'recta' ? 'recta (queda cuadrado)' : 'hacia delante (queda redondeado)') + '</div>' : '') +
       '<div><b>Acabado:</b> ' + (R.desg ? 'desgrafilado' : 'recto') + (R.punto ? ' · lateral llevado a un punto' : '') + '</div>' +
       (t && t.variante ? '<div>Atrás como en «' + es(GC.tecnica(t.base[0]).n) + '»; delante como en «' + es(GC.tecnica(t.base[1]).n) + '».</div>' : t && t.texto ? '<div>' + es(t.texto) + '</div>' : '') +
-      (t && t.validar ? '<div style="color:#A0522D;font-weight:700">Elevaciones de ejemplo, a validar por Fátima.</div>' : '') + '</div>';
+      (t && t.validar && rev() ? '<div style="color:#A0522D;font-weight:700">Elevaciones de ejemplo, a validar por Fátima.</div>' : '') + '</div>';
   }
 
   var SCRIPT = '<script>(function(){if(window.__dgLibro)return;window.__dgLibro=1;var V=null,act=null;' +
