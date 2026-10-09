@@ -182,7 +182,7 @@
   var FORMAS_ATRAS = {
     recta: { n: 'recta', y: function () { return 0; }, th: function () { return 0; } },
     redondeada: { n: 'redondeada (U)', y: function (d) { return -46 * d * d; }, th: function (d) { return -0.22 * d * d; } },
-    v: { n: 'en V', y: function (d) { return -62 * d; }, th: function (d) { return -0.3 * d; } },
+    v: { n: 'en V', y: function (d) { return -110 * d; }, th: function (d) { return -0.5 * d; } },
     a: { n: 'en A (V invertida)', y: function (d) { return 62 * d - 20; }, th: function (d) { return 0.22 * d; } },
     diag_delante: { n: 'diagonal hacia delante', lat: 1, s: 1 },
     diag_atras: { n: 'diagonal hacia atrás', lat: 1, s: -1 }
@@ -392,33 +392,114 @@
     tr.push(linea(plano(roots), [0, 0.08], '#5B4B8A', 2.5, { d: 1 }));
     tr.push(rotulo('Compás · curva de la cabeza (R = ' + EU_CALCULO_CAPILAR.fmt(calc.R) + ' cm)', '#5B4B8A', 0));
     calc.capas.forEach(function (c, z) {
-      var ta = 0.08 + 0.8 * z / n, tb = 0.08 + 0.8 * (z + 1) / n, sx = c.dir[0] * bx, sy = c.dir[0] * by - c.dir[1], sl = Math.sqrt(sx * sx + sy * sy) || 1, l = Math.min(260, c.largo * px), q = roots[z];
+      var ta = 0.08 + 0.84 * z / n, tb = 0.08 + 0.84 * (z + 1) / n, d = tb - ta, sx = c.dir[0] * bx, sy = c.dir[0] * by - c.dir[1], sl = Math.sqrt(sx * sx + sy * sy) || 1, l = Math.min(260, c.largo * px), q = roots[z];
       sx /= sl; sy /= sl;
       /* guía fija que rodea el cráneo: el camino (arco + tramo recto) se pasa a la pantalla con la misma escala */
       var pl = null;
       if (c.camino) { pl = []; c.camino.forEach(function (Q) { var vx = Q[0] - c.raiz[0], vy = Q[1] - c.raiz[1]; pl.push(r1(q[0] + px * (vx * bx)), r1(q[1] + px * (vx * by - vy))); }); if (tips[0]) { pl[pl.length - 2] = tips[0][0]; pl[pl.length - 1] = tips[0][1]; } }
       tips.push(pl ? [pl[pl.length - 2], pl[pl.length - 1]] : [r1(q[0] + sx * l), r1(q[1] + sy * l)]);
-      var tz = { k: 'i', x: q[0], y: q[1], dx: r1(sx * 1000) / 1000, dy: r1(sy * 1000) / 1000, l: r1(l), g: c.ang, e: c.escuadra, cm: EU_CALCULO_CAPILAR.fmt(c.largo) + ' cm', cpx: r1(px), cc: bx > 0 ? 1 : 0, t: [ta, tb], c: COL[z % 7], x2: z < n - 1 ? tb + 0.02 : 0 };
+      var tz = { k: 'i', x: q[0], y: q[1], dx: r1(sx * 1000) / 1000, dy: r1(sy * 1000) / 1000, l: r1(l), g: c.ang, e: c.escuadra, cm: EU_CALCULO_CAPILAR.fmt(c.largo) + ' cm', cpx: r1(px), cc: bx > 0 ? 1 : 0, t: [ta, ta + d * 0.55], c: COL[z % 7], x2: z < n - 1 ? tb + 0.02 : 0 };
       if (pl) tz.pl = pl; tr.push(tz);
-      tr.push(rotulo('Capa ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + EU_CALCULO_CAPILAR.fmt(c.largo) + ' cm · ' + (z ? 'guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) : 'guía'), COL[z % 7], ta, z < n - 1 ? { x: tb } : {}));
+      /* como en el frente y el lateral: una línea cada vez; la tijera corta solo la punta (1 o 2 dedos) y aparece su número */
+      var tp = tips[z], ext = z < n - 1 ? { x: tb } : {};
+      tr.push(tijera(plano([[tp[0] + sy * 16, tp[1] - sx * 16], [tp[0] - sy * 16, tp[1] + sx * 16]]), [ta + d * 0.6, tb], CORTE, R.desg));
+      tr.push({ k: 'n', x: tp[0] + 30, y: tp[1] + 26, s: EU_CALCULO_CAPILAR.fmt(c.ang) + '°', c: z ? CORTE : VERDE, t: [ta + d * 0.6, 1] });
+      tr.push(rotulo('Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + (z ? 'guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) : 'guía') + ' · se corta 1 o 2 dedos', COL[z % 7], ta, ext));
     });
-    tr.push(tijera(plano(tips), [0.88, 0.99], CORTE, R.desg), rotulo('Forma: ' + calc.forma + ' (a validar)', CORTE, 0.88));
+    tr.push(rotulo('Forma: ' + calc.forma + ' (a validar)', CORTE, 0.93));
     return { v: v, tr: tr };
   }
-  /* Coronilla en triángulo oblicuo: vértice delante, base atrás; secciones oblicuas y mechones a su elevación */
+  /* Coronilla en triángulo (imagen «en triángulo» de Fátima): triángulo pequeño, base delante sin tocar los laterales
+     de la frente y vértice en la coronilla; secciones oblicuas paralelas a un lado */
+  var COR_V = [NUCA, 0.5], COR_B1 = [CARA + 1.1, 0.36], COR_B2 = [CARA - 1.1, 0.36];
   function escCoronilla(R) {
-    /* vista desde arriba (cenit) para que el triángulo se vea derecho; vértice hacia la frente, base atrás */
-    var v = 'cenit', tr = [], g = R.coronilla.g, A = [CARA, 0.5], B = [NUCA + 0.62, 0.95], Cc = [NUCA - 0.62, 0.95];
-    [[A, B], [B, Cc], [Cc, A]].forEach(function (e) { tr = tr.concat(lineas(tramos(v, recta(e[0], e[1]), 26), [0, 0.18], ROJO, 4)); });
+    var v = 'cenit', tr = [], g = R.coronilla.g, Vx = COR_V, B1 = COR_B1, B2 = COR_B2;
+    [[B1, B2], [B2, Vx], [Vx, B1]].forEach(function (e) { tr = tr.concat(lineas(tramos(v, recta(e[0], e[1]), 26), [0, 0.12], ROJO, 4)); });
     for (var k = 1; k <= 4; k++) {
-      var f = k / 5, p0 = recta(A, Cc)(f), p1 = recta(B, Cc)(f), ta = 0.2 + (k - 1) * 0.17, tb = ta + 0.17, c = COL[(k - 1) % 7], ext = k < 4 ? { x: tb } : {};
+      var f = k / 5, p0 = recta(B1, B2)(f), p1 = recta(B2, Vx)(1 - f), ta = 0.14 + (k - 1) * 0.21, tb = ta + 0.21, d = tb - ta, c = COL[(k - 1) % 7], ext = k < 4 ? { x: tb } : {};
       var sec = tramos(v, recta(p0, p1), 16);
-      tr = tr.concat(lineas(sec, [ta, ta + 0.05], '#8E847A', 2.2));
-      sec.forEach(function (q) { tr.push(tijera(q, [ta + 0.07, tb], CORTE, R.desg, ext)); });
-      var m = recta(p0, p1)(0.5); if (seVe(v, m[0], m[1])) { var qm = pr(v, P(m[0], m[1])); tr.push({ k: 'n', x: qm[0], y: qm[1] - 16, s: String(k), c: c, t: [ta + 0.04, 1] }); }
+      tr = tr.concat(lineas(sec, [ta, ta + d * 0.3], '#8E847A', 2.2));
+      sec.forEach(function (q) { tr.push(tijera(q, [ta + d * 0.35, tb], CORTE, R.desg, ext)); });
+      /* el número aparece cuando la tijera corta esa sección */
+      var m = recta(p0, p1)(0.5); if (seVe(v, m[0], m[1])) { var qm = pr(v, P(m[0], m[1])); tr.push({ k: 'n', x: qm[0], y: qm[1] - 16, s: g + '°', c: c, t: [ta + d * 0.6, 1] }); }
       tr.push(rotulo('Sección oblicua ' + k + ' · ' + g + '°', c, ta, ext));
     }
-    tr.push(rotulo('Coronilla · triángulo oblicuo', ROJO, 0), regla(0, g, [0.2, 0.4], CORTE, 'Coronilla'));
+    tr.push(rotulo('Coronilla · triángulo pequeño', ROJO, 0), regla(0, g, [0.14, 0.3], CORTE, 'Coronilla'));
+    return { v: v, tr: tr };
+  }
+  /* El triángulo visto de atrás: la V que baja del vértice de la coronilla y las secciones en espiga a cada lado de la raya.
+     Cada sección lleva el número de su capa (los de atrás, los que pone quien hace el corte) y aparece al cortarla. */
+  function escCoronillaAtras(R) {
+    var v = 'nuca', tr = [], pila = R.capas.pila, n = Math.max(2, Math.min(6, pila.length));
+    [[COR_V, [NUCA + 0.6, 0.3]], [COR_V, [NUCA - 0.6, 0.3]]].forEach(function (e) { tr = tr.concat(lineas(tramos(v, recta(e[0], e[1]), 20), [0, 0.1], ROJO, 4)); });
+    tr = tr.concat(lineas(tramos(v, function (u) { return [NUCA, COR_V[1] + u * (1.85 - COR_V[1])]; }, 24), [0.04, 0.12], '#5B4B8A', 3));
+    tr.push(rotulo('Vértice de la coronilla · raya central', ROJO, 0));
+    for (var k = 0; k < n; k++) {
+      var th = COR_V[1] + 0.3 + (n - 1 - k) * (0.85 / (n - 1)), ta = 0.14 + 0.82 * k / n, tb = 0.14 + 0.82 * (k + 1) / n, d = tb - ta, g = pila[k] || 0, ext = k < n - 1 ? { x: tb } : {}, c = COL[k % 7];
+      [1, -1].forEach(function (sg) {
+        var a = [NUCA + sg * 0.85, th - 0.2], b = [NUCA + sg * 0.03, th + 0.06], sec = tramos(v, recta(a, b), 14);
+        tr = tr.concat(lineas(sec, [ta, ta + d * 0.3], '#8E847A', 2.2));
+        sec.forEach(function (q) { tr.push(tijera(q, [ta + d * 0.35, tb], CORTE, R.desg, ext)); });
+        if (seVe(v, a[0], a[1])) { var qa = pr(v, P(a[0], a[1])); tr.push({ k: 'n', x: qa[0] + sg * 18, y: qa[1], s: g + '°', c: k ? CORTE : VERDE, t: [ta + d * 0.6, 1] }); }
+      });
+      tr.push(rotulo('Sección ' + (k + 1) + ' en espiga · ' + g + '°' + (k ? '' : ' · abajo'), c, ta, ext));
+    }
+    return { v: v, tr: tr };
+  }
+  /* Después de los laterales: se empareja a 0° (0° = hacia el suelo, sin elevar). El mechón de delante cae a 0° hasta la guía;
+     un mechón de atrás se peina hacia delante, también cayendo a 0°, hasta la misma punta, y se corta solo lo que sobra. */
+  function escEmparejar(R) {
+    var v = 'lateral', tr = [], yG = ALTURAS[R.altura].y;
+    tr = tr.concat(lineas(tramos(v, function (u) { return [DER + 0.12, u * 1.62]; }, 30), [0, 0.1], '#2C6FD1', 4));
+    tr.push(rotulo('División de oreja a oreja', '#2C6FD1', 0));
+    /* delante: cae a 0° hasta la guía */
+    var aF = P(DER - 0.4, 0.8), tip = V3(1.08, yG, aF.z + 0.1), qT = pr(v, tip);
+    tr.push(linea(bezier(v, aF, V3((aF.x + tip.x) / 2 + 0.08, (aF.y + tip.y) / 2, (aF.z + tip.z) / 2), tip, 16), [0.08, 0.24], VERDE, 3));
+    tr.push(chapa([qT[0] - 26, qT[1]], '0°', VERDE, 0.2), rotulo('Delante · 0°, cae al suelo hasta la guía', VERDE, 0.08));
+    var aB = P(DER + 0.5, 0.85);
+    if (R.emparejar === 'atras') {
+      /* emparejar atrás (corte redondo): atrás cae a 0°; el de delante se peina hacia atrás a 0°, sin elevar, y se une */
+      var tA = V3(aB.x + 0.06, yG, aB.z - 0.05), qA = pr(v, tA), tF = V3(tA.x + 0.03, yG - 0.06, tA.z + 0.04);
+      tr.push(linea(bezier(v, aB, V3((aB.x + tA.x) / 2 + 0.08, (aB.y + tA.y) / 2, (aB.z + tA.z) / 2), tA, 16), [0.28, 0.44], '#8E847A', 3));
+      tr.push(chapa([qA[0] + 26, qA[1]], '0°', '#8E847A', 0.4), rotulo('Atrás · 0°, cae al suelo', '#8E847A', 0.28));
+      var cF = V3((aF.x + tF.x) / 2 + 0.12, (aF.y + tF.y) / 2 - 0.05, (aF.z + tF.z) / 2);
+      tr.push(linea(bezier(v, aF, cF, tF, 22), [0.46, 0.62], ROJO, 3), rotulo('Mechón de delante peinado hacia atrás a 0°, sin elevar', ROJO, 0.46));
+      tr.push(tijera(plano([[qA[0] - 22, qA[1]], [qA[0] + 22, qA[1]]]), [0.66, 0.92], CORTE, false));
+      tr.push(chapa([qA[0], qA[1] + 26], '=', CORTE, 0.82), rotulo('Se empareja con el de atrás: corte redondo', CORTE, 0.66));
+      return { v: v, tr: tr };
+    }
+    /* emparejar delante: el de atrás se peina hacia delante, cayendo a 0°, sin elevar */
+    var tB = V3(tip.x + 0.03, yG - 0.06, tip.z - 0.04), cB = V3((aB.x + tB.x) / 2 + 0.12, (aB.y + tB.y) / 2 - 0.05, (aB.z + tB.z) / 2);
+    tr.push(linea(bezier(v, aB, cB, tB, 22), [0.28, 0.56], ROJO, 3), chapa(pr(v, aB), 'atrás', ROJO, 0.28));
+    tr.push(rotulo('Mechón de atrás peinado hacia delante a 0°, sin elevar', ROJO, 0.28));
+    var qB = pr(v, tB);
+    tr.push(chapa([qB[0] + 26, qB[1] + 6], '0°', ROJO, 0.5));
+    /* se corta solo la punta que sobra, a la altura de la guía */
+    tr.push(tijera(plano([[qT[0] - 22, qT[1]], [qT[0] + 22, qT[1]]]), [0.64, 0.92], CORTE, false));
+    tr.push(chapa([qT[0], qT[1] + 26], '=', CORTE, 0.82), rotulo('Se empareja con el de delante: se corta solo la punta que sobra', CORTE, 0.64));
+    return { v: v, tr: tr };
+  }
+
+  /* Error común en cabello liso extremo (Fátima): en vertical deja trasquilado; todas las capas se cortan en horizontal */
+  function escErrorLiso(R) {
+    var v = 'nuca', tr = [];
+    tr = tr.concat(lineas(tramos(v, function (u) { return [NUCA, 0.7 + u * 1.15]; }, 20), [0, 0.06], '#5B4B8A', 3));
+    /* así no: secciones verticales y tijera en vertical */
+    for (var k = 0; k < 4; k++) {
+      var ph = NUCA - 0.16 - k * 0.2, ta = 0.06 + k * 0.07, sec = tramos(v, function (u) { return [ph, 0.85 + u * 0.95]; }, 14);
+      tr = tr.concat(lineas(sec, [ta, ta + 0.05], ROJO, 2.4));
+      sec.forEach(function (q) { tr.push(tijera(q, [ta + 0.05, ta + 0.1], ROJO, false, { x: 0.5 })); });
+    }
+    var qn = pr(v, P(NUCA - 0.45, 0.75)); tr.push(chapa(qn, 'NO', ROJO, 0.06));
+    tr.push(rotulo('Así no: en liso extremo, cortar en vertical deja trasquilado', ROJO, 0.06, { x: 0.5 }));
+    /* así sí: todas las capas en horizontal, de abajo arriba */
+    for (var h = 0; h < 5; h++) {
+      var th = 1.75 - h * 0.2, tb0 = 0.5 + h * 0.09, sh = tramos(v, function (u) { return [NUCA + 0.08 + u * 0.85, th]; }, 14);
+      tr = tr.concat(lineas(sh, [tb0, tb0 + 0.04], VERDE, 2.6));
+      sh.forEach(function (q) { tr.push(tijera(q, [tb0 + 0.04, tb0 + 0.09], CORTE, false)); });
+    }
+    var qs = pr(v, P(NUCA + 0.45, 0.75)); tr.push(chapa(qs, 'SÍ', VERDE, 0.5));
+    tr.push(rotulo('Así sí: liso extremo, todas las capas en horizontal, de abajo arriba', VERDE, 0.5));
     return { v: v, tr: tr };
   }
 
@@ -437,6 +518,7 @@
       capas: { part: part === 'oblicua' ? 'horizontal' : part, pila: capas, texto: '' },
       frente: { part: part, pila: frente, dir: 'Hacia el rostro', texto: '' },
       lateral: { pila: (o.lateral && o.lateral.length ? o.lateral : frente).map(function (g) { return Math.max(0, Math.min(225, +g || 0)); }) },
+      emparejar: o.emparejar === 'atras' || o.emparejar === 'no' ? o.emparejar : 'delante',
       guias: (o.guias || []).slice(), ref: o.ref === 'suelo' ? 'suelo' : 'craneo', medidas: o.medidas || null,
       coronilla: o.coronilla ? { g: Math.max(0, Math.min(225, +o.coronillaG || Math.max.apply(null, capas))) } : null
     };
@@ -463,6 +545,10 @@
       { tipo: 'frente', vista: 'frente', t: 'El frente · guía ' + A.n, texto: fr, a: escFrente(R) },
       { tipo: 'pulir', vista: 'lateral', t: 'Pulir puntas', texto: 'Para terminar se pulen las puntas: se agarra el cabello de atrás y el de delante, nada más en la punta, para nivelar el cabello.', a: escPulir(R) }
     ];
+    if (R.liso) L.splice(L.map(function (e) { return e.tipo; }).indexOf('capas') + 1, 0, { tipo: 'error_liso', vista: 'nuca', t: 'Error común · cabello liso extremo', texto: 'Error común: en cabello liso extremo no se corta en vertical, porque deja trasquilado. En liso extremo todas las capas se cortan en horizontal, de abajo arriba. En cabello normal u ondulado, las secciones van en vertical.', a: escErrorLiso(R) });
+    if (!R.liso && !R.punto && R.emparejar !== 'no') L.splice(L.map(function (e) { return e.tipo; }).indexOf('lateral') + 1, 0, R.emparejar === 'atras' ?
+      { tipo: 'emparejar', vista: 'lateral', t: 'Emparejar delante con atrás · corte redondo', texto: 'Después de cortar los laterales se agarra un mechón de delante y se peina hacia atrás a cero grados, hacia el suelo, sin elevarlo, y se une con el de atrás, que también cae a cero grados. Así sale el corte redondo.', a: escEmparejar(R) } :
+      { tipo: 'emparejar', vista: 'lateral', t: 'Emparejar atrás con delante', texto: 'Después de cortar los laterales se agarra un mechón de la parte de atrás y se peina hacia delante a cero grados, hacia el suelo, sin elevarlo, y se empareja con el de delante, que también cae a cero grados: se corta solo la punta que sobra.', a: escEmparejar(R) });
     L.forEach(function (e) { if (e.a && e.a.v) e.vista = e.a.v; });
     if (R.oblicua) L.splice(1, 0, { tipo: 'oblicua', vista: 'nuca', t: 'Partición oblicua · box universal', texto: 'Partición oblicua: dos diagonales en X que bajan hacia detrás de las orejas. La nuca se corta en abanico, los lados en secciones diagonales y arriba queda el triángulo.', a: escOblicua(R) });
     if (R.libre) L.forEach(function (e) { if (e.tipo === 'guia') e.texto = 'Línea guía en la nuca a ' + R.guia.g + ' grados, medida desde la caída natural.'; });
@@ -470,7 +556,10 @@
     var CC = window.EU_CALCULO_CAPILAR, calc = null;
     try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias, ref: R.ref }, R.medidas) : null; } catch (e) { calc = null; }
     var ic = L.map(function (e) { return e.tipo; }).indexOf('capas') + 1;
-    if (R.coronilla) L.splice(ic++, 0, { tipo: 'coronilla', vista: 'cenit', t: 'Coronilla · triángulo oblicuo', texto: 'La coronilla se corta en triángulo: el vértice hacia la frente y la base atrás, con secciones oblicuas. Cada mechón se eleva a ' + R.coronilla.g + ' grados.', a: escCoronilla(R) });
+    if (R.coronilla) {
+      L.splice(ic++, 0, { tipo: 'coronilla', vista: 'cenit', t: 'Coronilla · triángulo', texto: 'La coronilla se corta en un triángulo pequeño: la base hacia delante, sin tocar los laterales de la frente, y el vértice en la coronilla, con secciones oblicuas. Cada mechón se eleva a ' + R.coronilla.g + ' grados.', a: escCoronilla(R) });
+      L.splice(ic++, 0, { tipo: 'coronilla_atras', vista: 'nuca', t: 'Coronilla · vista de atrás', texto: 'Visto de atrás, del vértice de la coronilla baja la raya central y a cada lado las secciones en espiga, de arriba abajo. Cada sección se corta con su número: ' + pila.slice(0, 6).map(function (g, k) { return 'sección ' + (k + 1) + ' a ' + g + ' grados'; }).join(', ') + '.', a: escCoronillaAtras(R) });
+    }
     if (calc) {
       var esq = []; calc.capas.forEach(function (c) { var t = CC.fmt(c.ang) + '°: ' + c.escuadra; if (c.ang && esq.indexOf(t) < 0) esq.push(t); });
       L.splice(ic, 0, { tipo: 'angulos', vista: 'lateral', t: 'Ángulos y largos · escuadra y transportador', texto: 'Ángulos y largos de cada capa, de abajo arriba, medidos ' + (calc.ref === 'suelo' ? 'desde el suelo' : 'desde el cráneo') + '. ' + calc.texto + (esq.length ? ' Cómo se trazan: ' + esq.join('; ') + '.' : ''), a: escAngulos(R, calc) });

@@ -44,6 +44,7 @@
       hay.push({ k: 'catalogo', id: c.id, n: c.n, fam: fams[c.fam] || c.fam, atras: t.elev || [], delante: t.elevF || [], tec: [t.tipo, t.dir, t.her].filter(Boolean).join(' · '), cab: (c.mejor || [])[0] || '' });
     });
     ((GC && GC.mios()) || []).forEach(function (o) { hay.push({ k: 'mio', n: o.n, fam: 'Mis cortes', atras: o.capas || [], delante: (o.frente && o.frente.length ? o.frente : o.capas) || [], tec: [o.part, o.acabado].filter(Boolean).join(' · '), o: o }); });
+    var CC = window.EU_CATALOGO_CORTES; if (CC) CC.lista().forEach(function (c) { hay.push({ k: 'tecnica', n: c.n, fam: 'Catálogo · ' + CC.familia(c.fam).n + ' · a validar por Fátima', atras: c.capas, delante: c.frente || c.capas, tec: c.texto, o: c }); });
     ((GC && GC.TECNICAS) || []).forEach(function (t) { hay.push({ k: 'tecnica', n: t.n, fam: t.validar ? 'Técnica · a validar por Fátima' : 'Técnica', atras: t.capas, delante: t.frente || t.capas, tec: t.texto, o: t }); });
     return hay;
   }

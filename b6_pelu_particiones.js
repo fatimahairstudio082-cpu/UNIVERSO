@@ -238,8 +238,8 @@
         else { tr3.push(K.rotulo('Preparación', C_RAYA, 0)); (fi2.herramientas || []).slice(0, 4).forEach(function (h, j) { tr3.push(K.rotulo('✔ ' + h, '#18906A', 0.1 + j * 0.12)); }); if ((fi2.seguridad || [])[0]) tr3.push(K.rotulo('Seguridad: ' + String(fi2.seguridad[0]).replace(/\.$/, ''), '#B01E45', 0.62)); a = { v: 'tres', tr: tr3 }; }
       }
       else a = escAplicar(K, t, modo, col, na++);
-      if (p.e) a.tr.push(K.rotulo('Cuidado: ' + String(p.e).replace(/\.$/, ''), '#B01E45', 0.86));
-      esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || '') + (p.e ? ' Cuidado: ' + p.e : ''), a: a });
+      /* sin cartel rojo «Cuidado» (Fátima: alerta genérica); el error típico sigue en la ficha */
+      esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || ''), a: a });
     });
     return {
       R: { id: 'cb_' + id, n: t.n },
