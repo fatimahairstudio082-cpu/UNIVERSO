@@ -92,10 +92,10 @@
 
   function pagina(pg, C, modo) {
     var H = ED.H, T = C.T, dg = pg.dg || {}, d = datos(dg), web = modo === 'web', rad = Math.min(T.r || 4, 6);
-    if (!d) return H.cabecera(C, pg) + H.h1(C, es(pg.titulo || 'Diagramación')) + '<p style="font-size:.85em">La diagramación se prepara con el maniquí de Guías 3D: vuelve a abrir esta página en un momento.</p>' + H.folio(C, pg);
+    if (!d) return H.cabecera(C, pg) + H.h1(C, es(pg.titulo || 'Técnica del corte')) + '<p style="font-size:.85em">La diagramación se prepara con el maniquí de Guías 3D: vuelve a abrir esta página en un momento.</p>' + H.folio(C, pg);
     /* una vista igual a otra ya impresa en el libro se cambia por otra escena del mismo corte (pg.alt, lo fija el escáner) */
     if (pg.alt) { d = Object.assign({}, d, { vis: d.vis.slice(), fotos: d.fotos.slice() }); Object.keys(pg.alt).forEach(function (i) { var e = escena(d, pg.alt[i]); if (e) { d.vis[i] = e; d.fotos[i] = fotoEscena(dg, pg.alt[i]); } }); }
-    var R = d.R, tipo = dg.k === 'corte' ? 'Diagramación del corte' : dg.k === 'mio' ? 'Mi corte · diagramación' : dg.k === 'var' ? 'Variante de técnica' : 'Geometría capilar · técnica';
+    var R = d.R, tipo = dg.k === 'corte' ? 'Técnica del corte · paso a paso' : dg.k === 'mio' ? 'Mi corte · paso a paso' : dg.k === 'var' ? 'Técnica del corte · otra elevación' : 'Técnica del corte · paso a paso';
     var cab = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">' + tipo + ' · lateral, frente y capas</div>' + H.h1(C, es(R.n));
     var ctrl = web ? '<div style="display:flex;gap:3mm;align-items:center;margin:0 0 2.5mm"><button data-dg-play="1" style="font:inherit;font-size:.86em;padding:1.5mm 4mm;border:0;border-radius:' + rad + 'px;background:' + T.acc + ';color:#fff;cursor:pointer;white-space:nowrap;flex:none">▶ Ver diagramación</button><span data-dg-sub="1" style="font-size:.8em;font-style:italic;opacity:.85;min-width:0"></span></div>'
       : '<div style="font-size:.76em;opacity:.8;margin:0 0 2.5mm">Animación con voz de esta diagramación en el libro interactivo y en el curso premium.</div>';

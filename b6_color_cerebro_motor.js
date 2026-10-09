@@ -5,7 +5,7 @@
    · paso (punto)  → la animación de su tema: liga de tonos con barra de proporción (mezclas), rueda de neutralización
                      (matización y corrección), pincel / papel / barrido / plancha / producto sobre el maniquí (tinte, mechas,
                      balayage, queratina, hidratación) o ficha de alerta (diagnóstico y alertas);
-   · alerta        → «⚠ Por qué no» · importante → «📌 Importante» · tip → «Consejo de Fátima».
+   · alerta        → «Por qué no» · importante → «Importante» · tip → «Consejo de Fátima» (solo texto, sin señales).
    Donde sus fuentes no coinciden, la escena lo dice y queda «a validar por Fátima» (NOTAS). No se inventa ningún dato.
    Entran solas en el curso premium (lección en su unidad), en el libro (página pe_animada) y en el libro interactivo.
    Cargar después de b6_pelu_particiones.js y de los tres b6_color_cerebro_*.js, antes de b6_pelu_libro_animado.js. */
@@ -102,18 +102,10 @@
     return { v: 'tres', tr: tr };
   }
 
-  /* ── ficha (alertas, diagnóstico): solo el texto, sobre el perfil del maniquí ── */
+  /* ── ficha (alertas, diagnóstico): solo el texto, sobre el perfil del maniquí.
+     Sin señales (triángulo / círculo con «!»): Fátima, 9-10-2026, parecían de tráfico. ── */
   function escFicha(K, tipo, col) {
-    var tr = [], cx = 880, cy = 430;
-    if (tipo === 'alerta') {
-      tr.push(A.zona([cx, cy - 115, cx + 125, cy + 100, cx - 125, cy + 100], [0.02, 0.14], col, 0.92, '#FFFFFF'));
-      tr.push(A.zona(rect(cx - 11, cy - 48, 22, 90), [0.14, 0.2], '#FFFFFF', 1), A.zona(circ(cx, cy + 66, 13), [0.18, 0.22], '#FFFFFF', 1));
-    } else {
-      tr.push(A.zona(circ(cx, cy, 105), [0.02, 0.14], col, 0.92, '#FFFFFF'));
-      if (tipo === 'tip') tr.push(K.linea([cx - 50, cy, cx - 12, cy + 40, cx + 55, cy - 45], [0.14, 0.26], '#FFFFFF', 13));
-      else tr.push(A.zona(rect(cx - 11, cy - 62, 22, 85), [0.14, 0.2], '#FFFFFF', 1), A.zona(circ(cx, cy + 52, 13), [0.18, 0.22], '#FFFFFF', 1));
-    }
-    return { v: 'lateral', tr: tr };
+    return { v: 'lateral', tr: [] };
   }
 
   /* una escena por bloque de la clase */
@@ -129,7 +121,7 @@
         a.tr = a.tr.filter(function (s) { return s.k !== 'e'; });
       } else a = escFicha(K, 'importante', '#5B5650');
     } else {
-      t = tipo === 'alerta' ? '⚠ Por qué no' : tipo === 'importante' ? '📌 Importante' : 'Consejo de Fátima';
+      t = tipo === 'alerta' ? 'Por qué no' : tipo === 'importante' ? 'Importante' : 'Consejo de Fátima';
       col = tipo === 'alerta' ? ROJO : tipo === 'importante' ? AMBAR : VERDE;
       voz = (tipo === 'alerta' ? 'Atención. ' : tipo === 'importante' ? 'Importante. ' : 'Consejo de Fátima. ') + txt;
       a = c.t === 'correccion' || c.t === 'matizacion' ? escRueda(K, txt) : escFicha(K, tipo, col);
