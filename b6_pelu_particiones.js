@@ -425,7 +425,7 @@
   function construir(id) { var t = tecnica(id); return t ? DG.construirCon(t.fn) : Promise.resolve(null); }
   function construirYa(id) { var t = tecnica(id); return t ? DG.construirConYa(t.fn) : null; }
 
-  /* ───────── curso premium: una lección «Diagramación · técnica» en su unidad (Peluquería) ───────── */
+  /* ───────── curso premium: una lección «Técnica paso a paso · técnica» en su unidad (Peluquería) ───────── */
   function lecciones(D, res, aviso) {
     var C = res && res.C, mat = C && C.cfg && C.cfg.materia; if (mat !== 'pelu' || !D || !D.modulos) return Promise.resolve(D);
     var tareas = catalogo().map(function (t) { return { t: t, M: D.modulos.filter(function (m) { return m.id === t.unidad; })[0] }; }).filter(function (x) { return x.M; });
@@ -437,6 +437,9 @@
         if (aviso) aviso('Curso premium: técnica ' + T.t.n + '…');
         construir(T.t.id).then(function (E) {
           if (!E || T.M.lecciones.some(function (l) { return l.id === T.M.id + '__' + T.t.id; })) return;
+          /* Fátima, 9-10-2026: sin lecciones repetidas. Si la unidad ya tiene la lección de Estudios de esta técnica
+             (id <unidad>__<técnica>), no se añade otra con la misma técnica. */
+          if (/^cb_/.test(T.t.id) && T.M.lecciones.some(function (l) { return l.id === T.M.id + '__' + T.t.id.slice(3); })) return;
           D.anim = D.anim || {}; D.img = D.img || {};
           Object.keys(E.fondos).forEach(function (v) { D.img['dg_' + v] = E.fondos[v]; });
           var esc = E.escenas.map(function (e) { var k = T.t.id + '_' + e.tipo; D.anim[k] = e.anim; return { tipo: 'paso', id: 'dg_' + e.vista, t: e.t, texto: e.texto, rot: [], anim: k }; });
@@ -447,7 +450,7 @@
           });
           var pag = (T.M.lecciones[0] || {}).pag;
           var pos = ins[T.M.id] || 0; ins[T.M.id] = pos + 1;
-          T.M.lecciones.splice(pos, 0, { id: T.M.id + '__' + T.t.id, t: (T.t.pre || 'Diagramación · ') + E.R.n, pag: pag, video: 1, escenas: esc });
+          T.M.lecciones.splice(pos, 0, { id: T.M.id + '__' + T.t.id, t: (T.t.pre || 'Técnica paso a paso · ') + E.R.n, pag: pag, video: 1, escenas: esc });
         }).catch(function (er) { console.warn('Particiones', T.t.id, er); }).then(function () { setTimeout(sig, 0); });
       })();
     });

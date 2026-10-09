@@ -1,6 +1,6 @@
 /* b6_curso_animado.js — animaciones del «🎓 Curso premium» (window.EU_CURSO_ANIM).
    Para cada lección de corte (pasos de Guías 3D, pe_g3d_<corte>_<k>) añade antes una lección
-   «Diagramación · <corte>» hecha con el motor de diagramación (b6_pelu_diagrama.js): seccionado, línea guía
+   «Técnica del corte <corte> · paso a paso» hecha con el motor de diagramación (b6_pelu_diagrama.js): seccionado, línea guía
    en la nuca, capas de abajo arriba, lateral y frente, cada escena animada y sincronizada con la voz, más
    preguntas de repaso que también pasan al test del módulo.
    El curso premium la llama en dos puntos (enriquecer antes de las imágenes y js() para curso/anim.js).
@@ -60,18 +60,34 @@
     if (LD && LD.receta) (res.pages || []).forEach(function (p, j) {
       if (p.tipo !== 'pe_diagrama' || !p.dg || p.dg.k === 'corte' || !p.u) return;
       var M = D.modulos.filter(function (x) { return x.id === p.u.id; })[0], R = M && LD.receta(p.dg); if (!R || !M.lecciones.length) return;
-      tareas.push({ M: M, L: { id: M.id + '__tec' + j, pag: p.num }, c: R, k: 'tec' + j, fin: p.dg.k === 'var' ? 'Variante · ' : 'Técnica · ' });
+      tareas.push({ M: M, L: { id: M.id + '__tec' + j, pag: p.num }, c: R, k: 'tec' + j, fin: 'tec' });
     });
     if (!tareas.length) return Promise.resolve(D);
-    var hechos = {}, i = 0;
+    var hechos = {}, i = 0, firmas = {}, nombres = {};
+    /* Fátima, 9-10-2026: la misma técnica (misma guía, capas, elevaciones y frente) sale una sola vez en el curso.
+       Puede repetirse el nombre si cambia la elevación: entonces el título lleva las elevaciones. */
+    function firma(R) {
+      var f = function (o) { return o ? [o.part, o.g, o.pila, o.dir] : null; };
+      return JSON.stringify([f(R.guia), f(R.capas), f(R.frente), R.liso || 0, R.linea || '', R.acabado || '', R.coronilla || 0, R.emparejar || '']);
+    }
+    function titulo(R, fs) {
+      var n = String(R.n || '').replace(/^(técnica del |corte )/i, ''), base = 'Técnica del corte ' + n;
+      if (nombres[n] && nombres[n] !== fs) {
+        var p = (R.capas && R.capas.pila || []).join('·');
+        if (p) base += ' · elevación ' + p + '°';
+      } else nombres[n] = fs;
+      return base + ' · paso a paso';
+    }
     return new Promise(function (ok) {
       (function sig() {
         if (i >= tareas.length) return ok(D);
         var T = tareas[i++];
-        if (aviso) aviso('Curso premium: diagramación ' + i + ' de ' + tareas.length + '…');
+        if (aviso) aviso('Curso premium: técnica de corte ' + i + ' de ' + tareas.length + '…');
         DG.construir(T.c).then(function (E) {
           if (!E || hechos[T.L.id]) return;
-          hechos[T.L.id] = 1;
+          var fs = firma(E.R || {});
+          if (firmas[fs]) return;   /* mismo corte, mismas elevaciones: el vídeo ya está en el curso */
+          hechos[T.L.id] = 1; firmas[fs] = 1;
           D.anim = D.anim || {};
           Object.keys(E.fondos).forEach(function (v) { D.img['dg_' + v] = E.fondos[v]; });
           var esc = E.escenas.map(function (e) {
@@ -83,8 +99,15 @@
             esc.push({ tipo: 'pregunta', id: ult, t: 'Repaso', texto: 'Antes de seguir, piensa: ' + q.e, rot: [], q: { e: q.e, o: q.o, c: q.c }, sol: 'La respuesta es: ' + q.o[q.c] + '.' + (q.x ? ' ' + q.x : '') });
             if (!T.M.test.some(function (x) { return x.e === q.e; })) T.M.test.push({ e: q.e, o: q.o, c: q.c });
           });
+          /* corte con lección de pasos de Guías 3D: una sola lección por corte (técnica animada + sus pasos + repaso) */
+          if (!T.fin && T.M.lecciones.indexOf(T.L) >= 0) {
+            var pasos = esc.filter(function (e) { return e.tipo !== 'pregunta'; }), preg = esc.filter(function (e) { return e.tipo === 'pregunta'; });
+            var ori = (T.L.escenas || []).slice(), port = ori[0] && ori[0].tipo === 'portada' ? ori.splice(0, 1) : [];
+            T.L.escenas = port.concat(pasos, ori, preg); T.L.t = titulo(E.R, fs); T.L.video = 1;
+            return;
+          }
           var pos = T.fin ? T.M.lecciones.length : T.M.lecciones.indexOf(T.L);
-          T.M.lecciones.splice(pos, 0, { id: T.L.id + '__diag', t: (T.fin || 'Diagramación · ') + E.R.n, pag: T.L.pag, video: 1, escenas: esc });
+          T.M.lecciones.splice(pos, 0, { id: T.L.id + '__diag', t: titulo(E.R, fs), pag: T.L.pag, video: 1, escenas: esc });
         }).catch(function (er) { console.warn('Diagramación', T.c, er); }).then(function () { setTimeout(sig, 0); });
       })();
     });
