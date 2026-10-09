@@ -11,7 +11,7 @@
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
-  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['dos', '◫ Lateral + nuca']];
+  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['dos', '◫ Lateral + nuca']];
   var DUR = 15000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
@@ -143,6 +143,7 @@
     var bor = document.createElement('button'); bor.textContent = '⌫ quitar última'; bor.style.cssText = CHIP_OFF + ';padding:3px 8px'; bor.onclick = function (e) { e.preventDefault(); cap.value = cap.value.replace(/,?\s*[^,]*$/, ''); }; rap.appendChild(bor);
     d.appendChild(rap);
     var fre = fila('Capas (frente)', ent('vacío = igual que atrás', 300));
+    var latC = fila('Capas (lateral)', ent('una cifra por línea · vacío = igual que el frente', 300));
     var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
     var alt = fila('Guía del frente', sel(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; })));
     var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Redondeada (U)'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
@@ -163,13 +164,13 @@
     var nota = document.createElement('div'); nota.style.cssText = 'margin:6px 0;color:#fbbf24;min-height:14px'; d.appendChild(nota);
     function nums(t) { return String(t || '').split(/[^0-9.]+/).filter(Boolean).map(Number).filter(function (n) { return !isNaN(n); }); }
     function leer() {
-      var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), part: par.value, altura: alt.value, linea: lin.value, acabado: aca.value,
+      var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), lateral: nums(latC.value), part: par.value, altura: alt.value, linea: lin.value, acabado: aca.value,
         medidas: { guia: +mg.value || med0.guia, contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
         lineaFrente: lfr.value, guias: String(gui.value || '').split(/[^a-zA-Z]+/).filter(Boolean).map(function (x) { return /^f/i.test(x) ? 'f' : 'm'; }), ref: ref.value };
       if (cor.checked) { o.coronilla = true; var cg = nums(corG.value)[0]; if (cg != null) o.coronillaG = cg; }
       return o;
     }
-    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || 'nariz'; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
+    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); latC.value = (o.lateral || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || 'nariz'; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
       lfr.value = o.lineaFrente || ''; gui.value = (o.guias || []).join(', '); ref.value = o.ref || 'craneo'; cor.checked = !!o.coronilla; corG.value = o.coronillaG != null ? o.coronillaG : ''; nota.textContent = o.validar ? 'Elevaciones propuestas: a validar por Fátima. Cámbialas capa a capa si hace falta.' : (o.texto || ''); }
     tec.onchange = function () { var v = tec.value; if (!v) return; var o = v.slice(0, 2) === 't:' ? GC.tecnica(v.slice(2)) : GC.mios().filter(function (m) { return m.n === v.slice(2); })[0]; if (o) poner(o); };
     var bar = document.createElement('div'); bar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px';
