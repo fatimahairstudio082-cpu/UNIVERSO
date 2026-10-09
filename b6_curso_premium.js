@@ -28,6 +28,16 @@
     if (!/xmlns=/.test(s)) s = s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
   }
+  /* «Completa: « ___: descripción»» con el hueco al principio = el nombre del término: se pregunta como «¿Qué es?» con opciones de la unidad */
+  function ident(q, u) {
+    if (!q || !q.a) return q;
+    var m = q.e.match(/^Completa: «[\s\u00a0]*[:·—-][\s\u00a0]*([\s\S]+)»$/); if (!m) return q;
+    var k = (u.k || []).map(txt).filter(Boolean), ok = q.a[0], otras = k.filter(function (w) { return w.toLowerCase() !== String(ok).toLowerCase(); });
+    if (otras.length < 2) return null;
+    var g = ok.length, o = [ok, otras[g % otras.length], otras[(g + 1) % otras.length]], s = g % 3;
+    o = o.slice(s).concat(o.slice(0, s));
+    return { e: '¿A qué corresponde? «' + m[1].trim() + '»', o: o.map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }), c: (3 - s) % 3 };
+  }
   function itemQ(x) {
     if (!x || !x.e) return null;
     if (x.tipo === 'mc' && x.o) return { e: txt(x.e), o: x.o.map(txt), c: x.c };
@@ -113,7 +123,7 @@
         M.lecciones.unshift({ id: u.id + '__ideas', t: 'Ideas clave · ' + M.t, pag: M.pag, video: 0, escenas: escI });
       }
       var qs = (u.rep || []).map(itemQ).filter(Boolean);
-      try { ED.quiz(res, u.id, 10, C.semilla).items.forEach(function (x) { var q = itemQ(x); if (q) qs.push(q); }); } catch (e) { }
+      try { ED.quiz(res, u.id, 10, C.semilla).items.forEach(function (x) { var q = ident(itemQ(x), u); if (q) qs.push(q); }); } catch (e) { }
       var vis = {}; M.test = qs.filter(function (q) { var k = q.e.toLowerCase(); if (vis[k]) return false; vis[k] = 1; return true; }).slice(0, 10);
       examen = examen.concat(M.test.slice(0, 3));
       if (M.lecciones.length || M.test.length) mods.push(M);

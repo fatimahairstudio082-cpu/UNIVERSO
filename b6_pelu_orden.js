@@ -101,9 +101,17 @@
       var elev = mx === mn ? 'Elevación de ' + mx + '° en toda la cabeza' : 'Nuca a ' + ev[0] + '° y ' + ZN[iz] + ' a ' + mx + '°';
       ideas.push(c.n + ': ' + c.d + ' ' + elev + '; ' + (T.her || 'tijera').toLowerCase() + ', corte ' + (T.tipo || 'recto').toLowerCase() + '.');
       var g = 0; for (var q = 0; q < c.id.length; q++) g += c.id.charCodeAt(q);
-      rep.push(mezcla(R('En «' + c.n + '», ¿a qué elevación se corta la nuca?', [ev[0], (ev[0] + 45) % 225, (ev[0] + 90) % 225].map(function (x) { return x + '°'; }), 0, 'La ficha técnica marca la nuca (Z0) a ' + ev[0] + '°.'), g));
-      rep.push(mezcla(R('¿Qué herramienta se usa en «' + c.n + '»?', [T.her || 'Tijera', T.her === 'Navaja' ? 'Máquina' : 'Navaja', T.her === 'Máquina' ? 'Tijera de entresacar' : 'Máquina'], 0, (T.her || 'Tijera') + ', con acabado ' + (T.acabado || 'punteado').toLowerCase() + '.'), g + 1));
+      /* preguntas que distinguen un corte de otro (antes: herramienta y nuca en cada corte, casi siempre «Tijera» y «0°») */
+      var otros = L.filter(function (o) { return o !== c; }).map(function (o) { return o.n; });
+      if (c.d && otros.length >= 2) rep.push(mezcla(R('¿Qué corte es? «' + c.d + '»', [c.n, otros[g % otros.length], otros[(g + 1) % otros.length]], 0, 'Es «' + c.n + '»: ' + elev.toLowerCase() + '.'), g));
+      var nucas = []; L.forEach(function (o) { var e0 = ((CO.tecnica(o.id) || {}).elev || [0])[0]; if (nucas.indexOf(e0) < 0) nucas.push(e0); });
+      if (nucas.length > 1) rep.push(mezcla(R('En «' + c.n + '», ¿a qué elevación se corta la nuca?', [ev[0]].concat(nucas.filter(function (x) { return x !== ev[0]; }).slice(0, 2)).map(function (x) { return x + '°'; }), 0, 'La ficha técnica marca la nuca (Z0) a ' + ev[0] + '°.'), g + 1));
+      if (T.her && !/^tijera$/i.test(T.her)) rep.push(mezcla(R('¿Qué herramienta se usa en «' + c.n + '»?', [T.her, T.her === 'Navaja' ? 'Máquina' : 'Navaja', 'Tijera'], 0, T.her + ', con acabado ' + (T.acabado || 'punteado').toLowerCase() + '.'), g + 2));
     });
+    /* si toda la familia comparte nuca o herramienta, se pregunta una sola vez para la familia */
+    var ev0 = (CO.tecnica((L[0] || {}).id) || {}).elev || [0];
+    if (L.length && L.every(function (o) { return (((CO.tecnica(o.id) || {}).elev || [0])[0]) === ev0[0]; }))
+      rep.push(mezcla(R('En los cortes de «' + fa.n + '», ¿a qué elevación se corta la nuca?', [ev0[0], (ev0[0] + 45) % 225, (ev0[0] + 90) % 225].map(function (x) { return x + '°'; }), 0, 'En todos los cortes de esta familia la ficha marca la nuca (Z0) a ' + ev0[0] + '°.'), fa.id.length));
     return uni('pe_u_c_' + fa.id, 'Cortes · ' + fa.n, ideas, L.map(function (c) { return c.n.toLowerCase(); }), rep, mods,
       { t: 'flujo', p: ['Diagnóstico', 'Secciones', 'Mecha guía', 'Elevación', 'Corte', 'Repaso'] });
   }
