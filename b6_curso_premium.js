@@ -339,7 +339,7 @@
       };
       window.scrollTo(0, 0);
     }
-    /* certificado profesional (Fátima, 9-10-2026): firma de Fátima Caldea, sello Fátima Hair Studio, horas del curso
+    /* certificado profesional (Fátima, 9-10-2026): firma y sello de Fátima Caldea, horas del curso
        cronometradas con la narración y los tests, número de certificado y descarga en PDF A4 apaisado (sin librerías) */
     function horasCurso() {
       var seg = 0, nq = (D.examen || []).length;
@@ -365,9 +365,9 @@
     function certificado() {
       var nom = (prompt('Nombre completo para el certificado:', ST.nombre || '') || '').trim(); if (!nom) return; ST.nombre = nom; guarda();
       var W = 2339, H = 1654, c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d');
-      var ORO = '#B08D57', AUTORA = 'Fátima Caldea', SELLO = 'FÁTIMA HAIR STUDIO', horas = horasCurso();
+      var ORO = '#B08D57', AUTORA = 'Fátima Caldea', SELLO = 'FÁTIMA CALDEA', horas = horasCurso();
       var h = 0; (nom + '|' + D.titulo).split('').forEach(function (ch) { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
-      var num = 'FHS-' + new Date().getFullYear() + '-' + String(h % 1000000).padStart(6, '0') + (D.derechos && D.derechos.codigo ? ' · ' + D.derechos.codigo : '');
+      var num = 'FC-' + new Date().getFullYear() + '-' + String(h % 1000000).padStart(6, '0') + (D.derechos && D.derechos.codigo ? ' · ' + D.derechos.codigo : '');
       var centro = function (t, y, f, col) { g.font = f; g.fillStyle = col; g.textAlign = 'center'; g.fillText(t, W / 2, y); g.textAlign = 'start'; };
       var ajustaT = function (t, w, f) { g.font = f; var pal = String(t).split(' '), l = [], a = ''; pal.forEach(function (p) { var b = a ? a + ' ' + p : p; if (g.measureText(b).width > w && a) { l.push(a); a = p; } else a = b; }); if (a) l.push(a); return l; };
       g.fillStyle = '#FFFDF8'; g.fillRect(0, 0, W, H);
@@ -390,7 +390,7 @@
       /* firma y sello */
       var fx = 560, ly = 1390;
       g.strokeStyle = T.txt; g.lineWidth = 2; g.beginPath(); g.moveTo(fx - 300, ly); g.lineTo(fx + 300, ly); g.stroke();
-      g.textAlign = 'center'; g.fillStyle = T.txt; g.font = '600 40px ' + T.tit; g.fillText(AUTORA, fx, ly + 56); g.font = '30px ' + T.tit; g.fillText('Fátima Hair Studio', fx, ly + 100);
+      g.textAlign = 'center'; g.fillStyle = T.txt; g.font = '600 40px ' + T.tit; g.fillText(AUTORA, fx, ly + 56);
       var sx = W - 560, sy = 1330; g.strokeStyle = ORO; g.lineWidth = 6; g.beginPath(); g.arc(sx, sy, 170, 0, 7); g.stroke(); g.lineWidth = 2; g.beginPath(); g.arc(sx, sy, 140, 0, 7); g.stroke();
       g.fillStyle = ORO; g.font = '600 30px ' + T.tit; for (var k = 0; k < SELLO.length; k++) { var an = -Math.PI * 0.86 + k * (Math.PI * 0.86 * 2 / (SELLO.length - 1)); g.save(); g.translate(sx + Math.cos(an - Math.PI / 2) * 112 * 0 + Math.sin(an) * 155, sy - Math.cos(an) * 155); g.rotate(an); g.fillText(SELLO[k], 0, 10); g.restore(); }
       g.font = '600 92px ' + T.tit; g.fillText('FC', sx, sy + 32); g.font = '26px ' + T.tit; g.fillText(String(new Date().getFullYear()), sx, sy + 80);
