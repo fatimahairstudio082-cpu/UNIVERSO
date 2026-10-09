@@ -24,7 +24,7 @@
       for (var i = 0; i < n; i++) capas.push(Math.round((gMin + Math.floor(r() * nv) * paso) * 10) / 10);
       if (op.orden === 'rampa') capas.sort(function (a, b) { return a - b; });
       var guias = capas.map(function () { return op.guia === 'fija' ? 'f' : op.guia === 'mezcla' ? (r() < 0.3 ? 'f' : 'm') : 'm'; });
-      var cor = op.coronilla === 'si' || (op.coronilla === 'mezcla' && r() < 0.5), lin = op.linea === 'mezcla' ? ['', 'recta', 'redondeada'][Math.floor(r() * 3)] : (op.linea || '');
+      var cor = op.coronilla === 'si' || (op.coronilla === 'mezcla' && r() < 0.5), lin = op.linea === 'mezcla' ? ['', 'recta', 'redondeada', 'v', 'a', 'diag_delante', 'diag_atras'][Math.floor(r() * 7)] : (op.linea || '');
       var clave = capas.join(',') + '|' + guias.join('') + '|' + (cor ? 1 : 0) + lin; if (vistos[clave]) continue; vistos[clave] = 1;
       var o = { capas: capas, guias: guias, ref: op.ref, part: 'vertical', linea: lin, acabado: 'recto', altura: 'nariz' };
       if (cor) o.coronilla = true;
@@ -59,7 +59,7 @@
     var cant = campo('Cortes', num(2000)), cmi = campo('Capas de', num(3)), cma = campo('a', num(10)), gmi = campo('Elevación de', num(0)), gma = campo('a', num(225)), pas = campo('cada', num(5));
     var ord = campo('Orden', sel([['rampa', 'Sube de abajo arriba'], ['libre', 'Cualquier orden']])), gui = campo('Guía', sel([['movil', 'Móvil'], ['fija', 'Fija'], ['mezcla', 'Mezcla']]));
     var ref = campo('Ángulo', sel([['craneo', 'Desde el cráneo'], ['suelo', 'Desde el suelo']])), cor = campo('Coronilla △', sel([['no', 'No'], ['si', 'Sí'], ['mezcla', 'Mezcla']]));
-    var lin = campo('Línea', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrada)'], ['redondeada', 'Redondeada'], ['mezcla', 'Mezcla']]));
+    var lin = campo('Línea', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrada)'], ['redondeada', 'Redondeada (U)'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás'], ['mezcla', 'Mezcla']]));
     var go = h('button', EST.b, '🧪 Generar'); f.appendChild(go); caja.appendChild(f);
     var res = h('div'); caja.appendChild(res);
     var R = null, filtro = '';

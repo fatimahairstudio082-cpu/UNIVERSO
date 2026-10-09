@@ -11,8 +11,8 @@
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
-  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['frente', 'Frente · guía'], ['dos', '◫ Lateral + nuca']];
-  var DUR = 9000, CACHE = {}, IMG = {};
+  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['dos', '◫ Lateral + nuca']];
+  var DUR = 15000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
 
@@ -130,10 +130,16 @@
     function fila(et, nodo) { var f = document.createElement('label'); f.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:5px 0'; var s = document.createElement('span'); s.textContent = et; s.style.cssText = 'min-width:118px;color:#a5a5c8;font-weight:700'; f.appendChild(s); f.appendChild(nodo); d.appendChild(f); return nodo; }
     function sel(ops) { var x = document.createElement('select'); x.style.cssText = CAMPO; ops.forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; x.appendChild(op); }); return x; }
     function ent(ph, w) { var x = document.createElement('input'); x.placeholder = ph; x.style.cssText = CAMPO + ';width:' + (w || 260) + 'px'; return x; }
-    var tec = fila('Técnica', sel([['', '— elige una técnica o un corte mío —']]));
+    var tec = fila('Técnica', sel([['', '— elige un corte, una técnica o un corte mío —']]));
     function llenarTec() {
-      tec.innerHTML = ''; [['', '— elige una técnica o un corte mío —']].concat(GC.TECNICAS.map(function (t) { return ['t:' + t.id, t.n + (t.validar ? ' (a validar por Fátima)' : '')]; }), GC.mios().map(function (m) { return ['m:' + m.n, '★ ' + m.n]; }))
+      tec.innerHTML = ''; [['', '— elige un corte, una técnica o un corte mío —']].concat(GC.TECNICAS.map(function (t) { return ['t:' + t.id, t.n + (t.validar ? ' (a validar por Fátima)' : '')]; }), GC.mios().map(function (m) { return ['m:' + m.n, '★ ' + m.n]; }))
         .forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; tec.appendChild(op); });
+      /* catálogo grande de cortes (b6_pelu_cortes_catalogo.js), agrupado por familia */
+      var CC = window.EU_CATALOGO_CORTES; if (CC) CC.FAMILIAS.forEach(function (f) {
+        var g = document.createElement('optgroup'); g.label = f.n + ' · a validar por Fátima';
+        CC.lista().filter(function (c) { return c.fam === f.id; }).forEach(function (c) { var op = document.createElement('option'); op.value = 'c:' + c.id; op.textContent = c.n; g.appendChild(op); });
+        if (g.children.length) tec.appendChild(g);
+      });
     }
     llenarTec();
     var nom = fila('Nombre', ent('Mi corte'));
@@ -143,12 +149,14 @@
     var bor = document.createElement('button'); bor.textContent = '⌫ quitar última'; bor.style.cssText = CHIP_OFF + ';padding:3px 8px'; bor.onclick = function (e) { e.preventDefault(); cap.value = cap.value.replace(/,?\s*[^,]*$/, ''); }; rap.appendChild(bor);
     d.appendChild(rap);
     var fre = fila('Capas (frente)', ent('vacío = igual que atrás', 300));
+    var latC = fila('Capas (lateral)', ent('una cifra por línea · vacío = igual que el frente', 300));
     var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
     var alt = fila('Guía del frente', sel(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; })));
-    var lin = fila('Línea de corte', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Hacia delante (redondeado)']]));
+    var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Redondeada (U)'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
     alt.value = 'nariz';
     var aca = fila('Acabado', sel([['recto', 'Recto'], ['desgrafilado', 'Desgrafilado']]));
-    var lfr = fila('Línea del frente', sel([['', 'En arco'], ['recta', 'Recta (cuadrada)']]));
+    var lfr = fila('Puntas de delante', sel([['', 'Redondeadas'], ['recta', 'Rectas']]));
+    var emp = fila('Emparejar', sel([['delante', 'Delante (atrás → delante)'], ['atras', 'Atrás (delante → atrás) · corte redondo'], ['no', 'No']]));
     var gui = fila('Guía por capa', ent('m = móvil, f = fija · ej.: m, m, f (vacío = todas móviles)', 300));
     var ref = fila('Ángulo medido', sel([['craneo', 'Desde el cráneo (90° = perpendicular a la curva)'], ['suelo', 'Desde el suelo (90° = horizontal)']]));
     var cor = document.createElement('input'); cor.type = 'checkbox'; var corG = ent('grados (vacío = la capa más alta)', 200);
@@ -163,15 +171,15 @@
     var nota = document.createElement('div'); nota.style.cssText = 'margin:6px 0;color:#fbbf24;min-height:14px'; d.appendChild(nota);
     function nums(t) { return String(t || '').split(/[^0-9.]+/).filter(Boolean).map(Number).filter(function (n) { return !isNaN(n); }); }
     function leer() {
-      var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), part: par.value, altura: alt.value, linea: lin.value, acabado: aca.value,
+      var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), lateral: nums(latC.value), part: par.value, altura: alt.value, linea: lin.value, acabado: aca.value,
         medidas: { guia: +mg.value || med0.guia, contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
-        lineaFrente: lfr.value, guias: String(gui.value || '').split(/[^a-zA-Z]+/).filter(Boolean).map(function (x) { return /^f/i.test(x) ? 'f' : 'm'; }), ref: ref.value };
+        lineaFrente: lfr.value, emparejar: emp.value, guias: String(gui.value || '').split(/[^a-zA-Z]+/).filter(Boolean).map(function (x) { return /^f/i.test(x) ? 'f' : 'm'; }), ref: ref.value };
       if (cor.checked) { o.coronilla = true; var cg = nums(corG.value)[0]; if (cg != null) o.coronillaG = cg; }
       return o;
     }
-    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || 'nariz'; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
-      lfr.value = o.lineaFrente || ''; gui.value = (o.guias || []).join(', '); ref.value = o.ref || 'craneo'; cor.checked = !!o.coronilla; corG.value = o.coronillaG != null ? o.coronillaG : ''; nota.textContent = o.validar ? 'Elevaciones propuestas: a validar por Fátima. Cámbialas capa a capa si hace falta.' : (o.texto || ''); }
-    tec.onchange = function () { var v = tec.value; if (!v) return; var o = v.slice(0, 2) === 't:' ? GC.tecnica(v.slice(2)) : GC.mios().filter(function (m) { return m.n === v.slice(2); })[0]; if (o) poner(o); };
+    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); latC.value = (o.lateral || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || 'nariz'; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
+      lfr.value = o.lineaFrente || ''; emp.value = o.emparejar || 'delante'; gui.value = (o.guias || []).join(', '); ref.value = o.ref || 'craneo'; cor.checked = !!o.coronilla; corG.value = o.coronillaG != null ? o.coronillaG : ''; nota.textContent = o.validar ? 'Elevaciones propuestas: a validar por Fátima. Cámbialas capa a capa si hace falta.' : (o.texto || ''); }
+    tec.onchange = function () { var v = tec.value; if (!v) return; var o = v.slice(0, 2) === 't:' ? GC.tecnica(v.slice(2)) : v.slice(0, 2) === 'c:' ? (window.EU_CATALOGO_CORTES && EU_CATALOGO_CORTES.corte(v.slice(2))) : GC.mios().filter(function (m) { return m.n === v.slice(2); })[0]; if (o) poner(o); };
     var bar = document.createElement('div'); bar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px';
     var ver = document.createElement('button'); ver.textContent = '▶ Ver mi corte'; ver.style.cssText = CHIP_ON;
     ver.onclick = function (e) {
