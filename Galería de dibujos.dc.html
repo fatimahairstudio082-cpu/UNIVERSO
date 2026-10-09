@@ -45,6 +45,37 @@
       <button class="btn btn-ghost" onClick="{{ quitarTodos }}" style="padding:4px 10px;font-size:12px;height:auto;white-space:nowrap">Quitar todos</button>
     </div>
   </sc-if>
+  <sc-if value="{{ esAnim }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-2)">
+        <sc-for list="{{ an.clases }}" as="c" hint-placeholder-count="5">
+          <button onClick="{{ c.pick }}" style="{{ c.estilo }}">{{ c.n }} · {{ c.total }}</button>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:2px solid var(--color-text);display:flex;flex-direction:column">
+        <canvas ref="{{ an.ref }}" width="1280" height="720" style="width:100%;height:auto;display:block;background:#F3EDE4"></canvas>
+        <div style="padding:var(--space-3) var(--space-4);display:flex;flex-direction:column;gap:var(--space-2);border-top:2px solid var(--color-text)">
+          <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-700);font-weight:700">{{ an.pos }}</div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1.2">{{ an.titulo }}</div>
+          <div style="font-size:16px;line-height:1.5;min-height:48px">{{ an.sub }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-2)">
+            <button class="btn btn-secondary" onClick="{{ an.ant }}" style="height:auto;padding:10px 14px">‹ Escena anterior</button>
+            <button class="btn btn-primary" onClick="{{ an.play }}" style="height:auto;padding:10px 18px">{{ an.playTxt }}</button>
+            <button class="btn btn-secondary" onClick="{{ an.sig }}" style="height:auto;padding:10px 14px">Escena siguiente ›</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:var(--space-3);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:var(--space-2)">
+        <sc-for list="{{ an.items }}" as="t" hint-placeholder-count="6">
+          <button onClick="{{ t.pick }}" style="{{ t.estilo }}">
+            <span style="font-size:11px;color:var(--color-neutral-700)">{{ t.clase }}</span>
+            <span style="font-size:14px;font-weight:700;line-height:1.25">{{ t.n }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ noAnim }}" hint-placeholder-val="{{ true }}">
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-4)">
     <sc-for list="{{ items }}" as="it" hint-placeholder-count="12">
       <div style="display:flex;flex-direction:column;gap:var(--space-2);background:#fff;border:2px solid var(--color-text);padding:var(--space-3)">
@@ -62,6 +93,7 @@
       </div>
     </sc-for>
   </div>
+  </sc-if>
   <sc-if value="{{ hayDetalle }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ cerrar }}" style="position:fixed;inset:0;background:rgba(32,30,29,.55);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:10">
       <div onClick="{{ parar }}" style="background:#fff;max-width:860px;width:100%;border:2px solid var(--color-text);padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-4)">
@@ -98,6 +130,58 @@ class Component extends DCLogic {
   guardarLibro(L) { try { localStorage.setItem('eu_mi_libro', JSON.stringify(L)); } catch (e) { } this.setState({ libro: L }); }
   alternar(mat, id) { const L = Object.assign({}, this.leerLibro()), a = (L[mat] || []).slice(), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); if (a.length) L[mat] = a; else delete L[mat]; this.guardarLibro(L); }
   LIBS = ['b6_modelos.js', 'b6_lib_panaderia.js', 'b6_lib_panaderia2.js', 'b6_lib_panaderia3.js', 'b6_lib_pasteleria.js', 'b6_lib_pasteleria2.js', 'b6_lib_pasteleria3.js', 'b6_lib_cocina.js', 'b6_lib_cocina2.js', 'b6_lib_cocina3.js', 'b6_lib_batidos.js', 'b6_lib_batidos2.js', 'b6_lib_batidos3.js', 'b6_lib_peluqueria.js', 'b6_lib_peluqueria2.js', 'b6_lib_peluqueria3.js', 'b6_lib_peluqueria4.js', 'b6_lib_matematicas.js', 'b6_lib_matematicas2.js', 'b6_lib_matematicas3.js', 'b6_lib_ciencias.js', 'b6_lib_ciencias2.js', 'b6_lib_ciencias3.js', 'b6_lib_sociales.js', 'b6_lib_sociales2.js', 'b6_lib_sociales3.js', 'b6_lib_anatomia.js', 'b6_lib_anatomia2.js', 'b6_lib_anatomia3.js', 'b6_lib_lengua.js', 'b6_lib_lengua2.js', 'b6_lib_lengua3.js', 'b6_lib_ingles.js', 'b6_lib_ingles2.js', 'b6_lib_ingles3.js', 'b6_lib_fisica.js', 'b6_lib_fisica2.js', 'b6_lib_fisica3.js', 'b6_lib_quimica.js', 'b6_lib_quimica2.js', 'b6_lib_quimica3.js', 'b6_lib_biologia.js', 'b6_lib_biologia2.js', 'b6_lib_biologia3.js', 'b6_lib_artistica.js', 'b6_lib_artistica2.js', 'b6_lib_artistica3.js', 'b6_lib_contabilidad.js', 'b6_lib_contabilidad2.js', 'b6_lib_contabilidad3.js', 'b6_lib_musica.js', 'b6_lib_musica2.js', 'b6_lib_tecnologia.js', 'b6_lib_tecnologia2.js', 'b6_lib_efisica.js', 'b6_lib_efisica2.js', 'b6_lib_valores.js', 'b6_lib_religion.js', 'b6_lib_religion2.js', 'b6_lib_calculo.js', 'b6_lib_calculo2.js', 'b6_lib_calculo3.js', 'b6_lib_emprendimiento.js', 'b6_lib_emprendimiento2.js', 'b6_lib_emprendimiento3.js', 'b6_lib_marketing.js', 'b6_lib_marketing2.js', 'b6_lib_marketing3.js', 'b6_lib_ecommerce.js', 'b6_lib_ecommerce2.js', 'b6_lib_ecommerce3.js', 'b6_lib_redes.js', 'b6_lib_redes2.js', 'b6_lib_ia.js', 'b6_lib_ia2.js', 'b6_lib_idiomas.js', 'b6_lib_idiomas2.js', 'b6_lib_infantil.js', 'b6_lib_infantil2.js', 'b6_boton_biblioteca.js'];
+  /* ─── Animaciones: las técnicas del motor de Guías 2D/3D (EU_PARTICIONES + EU_DIAGRAMA), en carrusel y por clases.
+     Los motores se cargan solo la primera vez que se pulsa «Animaciones»; no se toca ningún motor. ─── */
+  refAnim = React.createRef(); AN = { A: null, k: 0, t0: 0, dur: 5000, voz: false, hab: true, raf: 0, IM: {} };
+  CLASES = [['cortes', 'Cortes y diagramas', /^p_(?!seg)/], ['color', 'Colorimetría', /^cb_color_/], ['mechas', 'Mechas', /^cb_mechas_/], ['quim', 'Químicos y tratamientos', /^cb_(hidra|quera|quim)_/], ['cabello', 'Cabello', /^cb_cab_/], ['seguridad', 'Seguridad', /^p_seg/]];
+  claseDe(id) { const c = this.CLASES.find(x => x[2].test(id)); return c ? c[0] : 'otras'; }
+  cargarMotores() {
+    if (this.motores) return this.motores;
+    const V = '?v=1797000000019', L = ['b6_cerebro.js', 'b6_cortes.js', 'b6_pelu_diagrama.js', 'b6_pelu_particiones.js'];
+    this.motores = new Promise(ok => { const sig = (i) => { if (i >= L.length || (i === 0 && window.EU_PARTICIONES)) return ok(); const s = document.createElement('script'); s.src = './' + L[i] + V; s.onload = s.onerror = () => sig(i + 1); document.head.appendChild(s); }; sig(0); });
+    return this.motores;
+  }
+  abrirAnim() {
+    this.setState({ modo: 'anim', anMsg: 'Cargando el motor de Guías 2D/3D…' });
+    this.cargarMotores().then(() => {
+      const PA = window.EU_PARTICIONES; if (!PA) return this.setState({ anMsg: 'No se pudo cargar el motor de animaciones.' });
+      const cat = PA.catalogo().map(t => ({ id: t.id, n: t.n, clase: this.claseDe(t.id) }));
+      this.setState({ anCat: cat, anClase: this.state.anClase || 'cortes', anMsg: '' }, () => { const pri = cat.find(t => t.clase === this.state.anClase); if (pri) this.elegirAnim(pri.id); });
+    });
+  }
+  elegirAnim(id) {
+    const PA = window.EU_PARTICIONES; this.pararAnim(); this.AN.A = null;
+    this.setState({ anId: id, anK: 0, anMsg: 'Preparando la animación sobre el maniquí…' });
+    PA.construir(id).then(A => {
+      if (!A || this.state.anId !== id) return; this.AN.A = A; this.AN.IM = {};
+      Object.keys(A.fondos || {}).forEach(v => { const im = new Image(); im.src = A.fondos[v]; this.AN.IM[v] = im; });
+      this.setState({ anMsg: '' }); this.escenaAnim(0, false); this.bucleAnim();
+    }).catch(e => this.setState({ anMsg: 'No se pudo preparar: ' + e.message }));
+  }
+  escenaAnim(k, voz) {
+    const A = this.AN.A; if (!A) return; const n = A.escenas.length; k = Math.max(0, Math.min(n - 1, k)); const e = A.escenas[k];
+    Object.assign(this.AN, { k, t0: performance.now(), dur: Math.max(5000, (e.texto || '').length * 65), hab: true });
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    if (voz && window.speechSynthesis) {
+      const vs = speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang)), V0 = vs.find(v => /google/i.test(v.name) && /es-ES/i.test(v.lang)) || vs.find(v => /es-ES/i.test(v.lang)) || vs[0];
+      const u = new SpeechSynthesisUtterance(e.t + '. ' + (e.texto || '')); if (V0) u.voice = V0; u.lang = 'es-ES'; this.AN.hab = false;
+      u.onend = u.onerror = () => { this.AN.hab = true; }; speechSynthesis.speak(u);
+    }
+    this.setState({ anK: k });
+  }
+  bucleAnim() {
+    cancelAnimationFrame(this.AN.raf);
+    const paso = () => {
+      const A = this.AN.A, cv = this.refAnim.current; if (!A || !cv || this.state.modo !== 'anim') return;
+      const e = A.escenas[this.AN.k], p = Math.min(1, (performance.now() - this.AN.t0) / this.AN.dur);
+      window.EU_DIAGRAMA.pinta(cv.getContext('2d'), e.anim, this.AN.IM[(e.anim && e.anim.v) || e.vista], 0, 0, 1280, 720, p);
+      if (this.AN.voz && p >= 1 && this.AN.hab) { if (this.AN.k < A.escenas.length - 1) this.escenaAnim(this.AN.k + 1, true); else { this.AN.voz = false; this.setState({ anPlay: false }); } }
+      this.AN.raf = requestAnimationFrame(paso);
+    };
+    this.AN.raf = requestAnimationFrame(paso);
+  }
+  pararAnim() { this.AN.voz = false; if (window.speechSynthesis) speechSynthesis.cancel(); if (this.state.anPlay) this.setState({ anPlay: false }); }
+  componentWillUnmount() { cancelAnimationFrame(this.AN.raf); if (window.speechSynthesis) speechSynthesis.cancel(); }
   componentDidMount() {
     const V = '?v=1795000000001';
     const sig = (i) => {
@@ -111,10 +195,23 @@ class Component extends DCLogic {
     const btn = (on) => ({ padding: '8px 14px', border: 0, cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 700, background: on ? 'var(--color-text)' : 'transparent', color: on ? 'var(--color-bg)' : 'var(--color-text)' });
     const chip = (on) => ({ padding: '6px 10px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '13px', border: '2px solid ' + (on ? 'var(--color-accent)' : 'var(--color-neutral-400)'), background: on ? 'var(--color-accent-100)' : 'transparent', color: 'var(--color-text)' });
     const matBtn = (on) => ({ whiteSpace: 'nowrap', height: 'auto', minHeight: '36px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '15px', fontWeight: 700, border: '2px solid var(--color-text)', background: on ? 'var(--color-accent)' : 'transparent', color: on ? '#fff' : 'var(--color-text)' });
-    const MODOS = [['color', '2D plano'], ['3d', '3D con volumen'], ['linea', 'Para colorear']];
+    const MODOS = [['color', '2D plano'], ['3d', '3D con volumen'], ['linea', 'Para colorear'], ['anim', 'Animaciones']];
     const modoN = (MODOS.find(m => m[0] === st.modo) || [])[1];
-    const modos = MODOS.map(([k, n]) => ({ n, estilo: btn(st.modo === k), pick: () => this.setState({ modo: k }) }));
-    const vacio = { hayLibro: false, libroTxt: '', quitarTodos: () => {}, modos, materias: [], familias: [], items: [], titulo: 'Galería de dibujos', estado: 'Cargando la biblioteca…', pdf: () => {}, pdfTxt: 'PDF', hayDetalle: false, det: {}, cerrar: () => {}, parar: () => {} };
+    const modos = MODOS.map(([k, n]) => ({ n, estilo: btn(st.modo === k), pick: () => { if (k === 'anim') return this.abrirAnim(); this.pararAnim(); this.setState({ modo: k }); } }));
+    const esAnim = st.modo === 'anim', modoD = esAnim ? '3d' : st.modo, cat = st.anCat || [], clase = st.anClase || 'cortes', A = this.AN.A, eA = A && A.escenas[st.anK || 0];
+    const cardEst = (on) => ({ flex: '0 0 200px', scrollSnapAlign: 'start', minHeight: '76px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start', textAlign: 'left', padding: '10px 12px', cursor: 'pointer', fontFamily: 'var(--font-body)', color: 'var(--color-text)', background: on ? 'var(--color-accent-100)' : '#fff', border: '2px solid ' + (on ? 'var(--color-accent)' : 'var(--color-neutral-400)') });
+    const an = {
+      ref: this.refAnim,
+      clases: this.CLASES.map(c => ({ n: c[1], total: cat.filter(t => t.clase === c[0]).length, estilo: chip(clase === c[0]), pick: () => { this.setState({ anClase: c[0] }); const pri = cat.find(t => t.clase === c[0]); if (pri) this.elegirAnim(pri.id); } })).filter(c => c.total),
+      items: cat.filter(t => t.clase === clase).map(t => ({ n: t.n, clase: (this.CLASES.find(c => c[0] === t.clase) || [0, ''])[1], estilo: cardEst(t.id === st.anId), pick: () => this.elegirAnim(t.id) })),
+      titulo: st.anMsg ? st.anMsg : (eA ? eA.t : ''), sub: eA && !st.anMsg ? (eA.texto || '') : '',
+      pos: A ? (A.R.n + ' · escena ' + ((st.anK || 0) + 1) + ' de ' + A.escenas.length) : 'Animaciones del motor de Guías 2D/3D',
+      playTxt: st.anPlay ? '❚❚ Pausa' : '▶ Ver y escuchar',
+      play: () => { if (!this.AN.A) return; if (st.anPlay) return this.pararAnim(); this.AN.voz = true; this.setState({ anPlay: true }); this.escenaAnim(this.AN.k >= this.AN.A.escenas.length - 1 ? 0 : this.AN.k, true); },
+      ant: () => { this.pararAnim(); this.escenaAnim((st.anK || 0) - 1, false); },
+      sig: () => { this.pararAnim(); this.escenaAnim((st.anK || 0) + 1, false); }
+    };
+    const vacio = { esAnim: false, noAnim: true, an: { clases: [], items: [] }, hayLibro: false, libroTxt: '', quitarTodos: () => {}, modos, materias: [], familias: [], items: [], titulo: 'Galería de dibujos', estado: 'Cargando la biblioteca…', pdf: () => {}, pdfTxt: 'PDF', hayDetalle: false, det: {}, cerrar: () => {}, parar: () => {} };
     if (!st.listo || !MO) return vacio;
     const mats = MO.materias();
     const mat = mats.indexOf(st.mat) >= 0 ? st.mat : mats[0];
@@ -128,20 +225,21 @@ class Component extends DCLogic {
     const usar = (id) => { const on = enLibro.indexOf(id) >= 0; return { usar: () => this.alternar(mat, id), usarEst: usarEst(on), usarTxt: on ? '✓ En mi libro' : '+ Usar en mi libro' }; };
     const items = lista.map(m => ({
       n: m.n, fam: MO.nombreFamilia(mat, m.fam), num: String(todos.indexOf(m) + 1).padStart(3, '0'),
-      html: { __html: MO.svg(m.id, st.modo) },
+      html: { __html: MO.svg(m.id, modoD) },
       abrir: () => this.setState({ det: m.id }),
-      svg: () => MO.descargarSVG(m.id, st.modo),
-      png: () => MO.descargarPNG(m.id, st.modo, 300),
+      svg: () => MO.descargarSVG(m.id, modoD),
+      png: () => MO.descargarPNG(m.id, modoD, 300),
       ...usar(m.id)
     }));
     const m = st.det && MO.modelo(st.det);
-    const det = m ? { n: m.n, fam: MO.nombreFamilia(mat, m.fam), modoN, intro: m.intro, porque: m.porque, html: { __html: MO.svg(m.id, st.modo, { rot: st.modo !== 'linea' }) }, q: (m.q || []).map(q => ({ p: q[0], r: q[1] })), ...usar(m.id) } : {};
+    const det = m ? { n: m.n, fam: MO.nombreFamilia(mat, m.fam), modoN, intro: m.intro, porque: m.porque, html: { __html: MO.svg(m.id, modoD, { rot: modoD !== 'linea' }) }, q: (m.q || []).map(q => ({ p: q[0], r: q[1] })), ...usar(m.id) } : {};
     return {
+      esAnim, noAnim: !esAnim, an,
       modos, materias, familias, items, det, hayDetalle: !!m,
       hayLibro: enLibro.length > 0, libroTxt: 'En mi libro: ' + enLibro.length + (enLibro.length === 1 ? ' dibujo' : ' dibujos') + ' de ' + nomMat(mat),
       quitarTodos: () => { const L = Object.assign({}, this.leerLibro()); delete L[mat]; this.guardarLibro(L); },
       titulo: nomMat(mat) + ': ' + todos.length + ' dibujos',
-      estado: st.trabajando || (lista.length + ' dibujos · vista: ' + modoN + '. Pulsa un dibujo para ver la lámina con sus rótulos, preguntas y «por qué».'),
+      estado: st.trabajando || (esAnim ? 'Animaciones del motor de Guías 2D/3D, ordenadas por clases. Elige una técnica y pulsa «▶ Ver y escuchar».' : lista.length + ' dibujos · vista: ' + modoN + '. Pulsa un dibujo para ver la lámina con sus rótulos, preguntas y «por qué».'),
       pdfTxt: 'PDF carta · ' + (st.fam ? MO.nombreFamilia(mat, st.fam) : 'todos'),
       pdf: () => { this.setState({ trabajando: 'Generando PDF a 300 ppp de ' + lista.length + ' dibujos…' }); MO.descargarPDF(lista.map(x => x.id), st.modo, mat + '_' + (st.fam || 'todos') + '_' + (st.modo === 'linea' ? 'colorear' : st.modo) + '.pdf').then(() => this.setState({ trabajando: '' })); },
       cerrar: () => this.setState({ det: null }), parar: (e) => e.stopPropagation()
