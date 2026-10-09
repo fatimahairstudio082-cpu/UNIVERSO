@@ -45,16 +45,19 @@
   function uni(id, t, i, k, rep, mods, f) { return { m: 'pelu', id: id, b: BANDA, t: t, i: i, k: k, rep: rep || [], err: [], f: f || null, mods: mods, fam: 'Peluquería', _ajuste: 0 }; }
 
   function fijas() {
-    return {
+    var F0 = {
       fund: uni('pe_u_fund', 'Higiene, seguridad y herramientas', [
         'El puesto de trabajo se prepara antes de cada cliente: herramientas limpias, desinfectadas y a mano.',
         'Tijera, navaja, máquina y peines tienen cada uno su uso; elegir mal la herramienta cambia el resultado del corte.',
         'Guantes y protección para los ojos con cualquier producto químico; capa y toalla para la clienta.',
-        'La postura cuenta: altura del sillón, peso repartido y muñeca recta para trabajar muchas horas sin lesiones.'],
+        'La postura cuenta: altura del sillón, peso repartido y muñeca recta para trabajar muchas horas sin lesiones.',
+        'Las herramientas se lavan y desinfectan después de atender a cada cliente: así no se pasan restos de producto (su pH), hongos ni piojos de una persona a otra.',
+        'Un cabello enchiclado o maltratado no admite un proceso químico agresivo: ni keratina ni decoloración hasta recuperarlo.'],
         ['desinfección', 'EPI', 'tijera', 'navaja', 'máquina', 'peine de corte', 'postura'],
-        [R('¿Cuándo se desinfectan las herramientas?', ['Al final del día', 'Entre cliente y cliente', 'Una vez por semana'], 1, 'Cada cliente empieza con herramientas limpias y desinfectadas.'),
-         R('¿Qué herramienta deja la punta más suave y desfilada?', ['Tijera recta', 'Navaja', 'Máquina sin peine'], 1, 'La navaja corta en bisel y deja la punta afinada.'),
-         R('¿Qué protección es obligatoria con químicos?', ['Guantes', 'Gafas de sol', 'Delantal de tela'], 0, 'Los guantes evitan dermatitis por contacto.')], M.fund),
+        [R('¿Qué herramienta deja la punta más suave y desfilada?', ['Tijera recta', 'Navaja', 'Máquina sin peine'], 1, 'La navaja corta en bisel y deja la punta afinada.'),
+         R('¿Qué protección es obligatoria con químicos?', ['Guantes', 'Gafas de sol', 'Delantal de tela'], 0, 'Los guantes evitan dermatitis por contacto.'),
+         R('¿Por qué se lavan y desinfectan las herramientas después de cada cliente?', ['Para que brillen más', 'Solo hace falta si se ven sucias', 'Para no pasar restos de producto, hongos ni piojos a la siguiente persona'], 2, 'Lo que queda en peines y tijeras viaja de una cabeza a otra: producto con otro pH, hongos o piojos.'),
+         R('Un cabello enchiclado o maltratado, ¿admite keratina o decoloración?', ['Sí, con más producto', 'No: primero hay que recuperarlo', 'Sí, si se hace rápido'], 1, 'Un proceso químico agresivo sobre un cabello así lo rompe.')], M.fund),
       cab: uni('pe_u_cab', 'El cabello y el diagnóstico', [
         'Cada pelo tiene cutícula, corteza y médula; la cutícula cerrada da brillo y la abierta absorbe más producto.',
         'Antes de cortar o teñir se mira el tipo de cabello (liso, ondulado, rizado, afro), su grosor, densidad y porosidad.',
@@ -72,7 +75,8 @@
         ['sección', 'zona', 'elevación', 'mecha guía', 'grados', 'diagonal', 'forma de la cara'],
         [R('¿Qué elevación deja todo el peso en el borde?', ['0°', '90°', '180°'], 0, 'Sin elevación todas las mechas caen a la misma línea.'),
          R('¿Para qué sirve la mecha guía?', ['Para marcar el largo de referencia', 'Para sujetar el pelo', 'Para medir el color'], 0, 'Todas las mechas se cortan comparándolas con la guía.'),
-         R('Cuanto más se eleva una mecha…', ['más larga queda', 'más corta queda respecto a la de abajo', 'no cambia'], 1, 'Por eso la elevación crea capas.')], M.base,
+         R('Cuanto más se eleva una mecha…', ['más larga queda', 'más corta queda respecto a la de abajo', 'no cambia'], 1, 'Por eso la elevación crea capas.'),
+         R('¿Qué pasa si se corta sin llevar la guía?', ['Queda más parejo', 'No cambia nada', 'El corte pierde el rumbo'], 2, 'Cada mecha nueva se compara con la guía; sin ella no hay referencia.')], M.base,
         { t: 'flujo', p: ['Diagnóstico', 'Secciones', 'Mecha guía', 'Elevación', 'Corte', 'Repaso'] }),
       neg: uni('pe_u_neg', 'El salón como negocio', [
         'El precio de un servicio suma el tiempo de trabajo, el producto gastado y los gastos fijos del salón.',
@@ -83,6 +87,10 @@
         [R('¿Qué entra en el precio de un servicio?', ['Solo el producto', 'Tiempo, producto y gastos fijos', 'Lo que cobre la competencia'], 1, 'Si falta algún coste el servicio da pérdidas.'),
          R('¿Cómo se reserva la agenda?', ['Con la duración real de cada servicio', 'Cada 15 minutos sin mirar el servicio', 'Sin cita'], 0, 'Evita esperas y huecos muertos.')], M.neg)
     };
+    /* errores comunes (Fátima, 9-10-2026): salen en «Error frecuente: … ¿Qué harías para evitarlo?» */
+    F0.fund.err = ['Atender a la siguiente clienta con las herramientas sin lavar ni desinfectar', 'Hacer keratina o decoloración sobre un cabello enchiclado o maltratado'];
+    F0.base.err = ['Cortar sin llevar la guía: el corte pierde el rumbo'];
+    return F0;
   }
 
   function unidadCorte(fa) {
