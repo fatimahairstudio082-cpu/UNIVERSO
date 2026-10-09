@@ -268,13 +268,18 @@
     function textoBajo(e) { $('#bajo').textContent = e.tipo === 'pregunta' && cur.rev ? e.sol : e.texto; }
     function abre(L) {
       para(); cur.L = L; cur.k = 0; cur.pos = 0; cur.fin = false;
-      $('#tl').textContent = L.t; $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
+      $('#tl').textContent = L.t; var ix = LEC.indexOf(L); $('#pos').textContent = 'Módulo ' + (L.mi + 1) + ' · Lección ' + (L.li + 1) + ' de ' + D.modulos[L.mi].lecciones.length + ' · ' + (ix + 1) + '/' + LEC.length;
+      $('#ant').disabled = ix <= 0; $('#sig').disabled = ix >= LEC.length - 1; document.body.classList.remove('verMenu'); $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
       $('#reproductor').style.display = ''; $('#zonaTest').style.display = 'none'; textoBajo(L.escenas[0]); pintaPregunta(L.escenas[0]);
       $('#escenas').innerHTML = ''; L.escenas.forEach(function (e, k) { var b = document.createElement('button'); b.className = 'esc'; b.textContent = (k + 1) + '. ' + e.t; b.onclick = function () { reproduce(k); }; $('#escenas').appendChild(b); });
       window.scrollTo(0, 0);
     }
     $('#play').onclick = function () { if (!cur.L) return abre(LEC[0]); if (cur.play) para(); else reproduce(cur.fin || cur.k >= cur.L.escenas.length - 1 ? 0 : cur.k); };
     $('#vel').onchange = function () { cur.vel = +this.value; };
+    var mueve = function (d) { var L = LEC[LEC.indexOf(cur.L) + d]; if (L) { abre(L); menu(); } };
+    $('#ant').onclick = function () { mueve(-1); }; $('#sig').onclick = function () { if (!cur.L) { abre(LEC[0]); menu(); } else mueve(1); };
+    $('#btnMenu').onclick = function () { document.body.classList.add('verMenu'); }; $('#cerrarMenu').onclick = function () { document.body.classList.remove('verMenu'); };
+    if (/grabar/.test(location.hash)) $('#autora').style.display = 'flex';
 
     /* tests y examen */
     function nrm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s.,;:()$€¡!¿?]/g, ''); }
@@ -353,9 +358,12 @@
       var m = $('#menu'), hechas = LEC.filter(function (L) { return ST.vistas[L.id]; }).length; m.innerHTML = '';
       var pr = document.createElement('div'); pr.className = 'prog'; pr.innerHTML = '<b>' + Math.round(hechas / Math.max(1, LEC.length) * 100) + ' %</b> completado · ' + hechas + '/' + LEC.length + ' lecciones'; m.appendChild(pr);
       D.modulos.forEach(function (M, i) {
-        var h = document.createElement('div'); h.className = 'mod'; h.textContent = (i + 1) + '. ' + M.t; m.appendChild(h);
-        M.lecciones.forEach(function (L) { var b = document.createElement('button'); b.className = 'lec' + (cur.L === L ? ' on' : ''); b.innerHTML = (ST.vistas[L.id] ? '✓ ' : (L.video ? '▶ ' : '• ')) + L.t.replace(/</g, '&lt;') + (L.pag ? ' <span>p. ' + L.pag + '</span>' : ''); b.onclick = function () { abre(L); menu(); }; m.appendChild(b); });
+        var h = document.createElement('details'), sm = document.createElement('summary'), vh = M.lecciones.filter(function (L) { return ST.vistas[L.id]; }).length;
+        h.open = cur.L ? cur.L.mi === i : i === 0; sm.innerHTML = (i + 1) + '. ' + M.t.replace(/</g, '&lt;') + '<small>' + vh + '/' + M.lecciones.length + (vh === M.lecciones.length ? ' ✓' : '') + '</small>'; h.appendChild(sm); m.appendChild(h);
+        var m0 = m; m = h;
+        M.lecciones.forEach(function (L) { var b = document.createElement('button'); b.className = 'lec' + (cur.L === L ? ' on' : ''); b.innerHTML = (ST.vistas[L.id] ? '✓ ' : (L.video ? '▶ ' : '• ')) + L.t.replace(/</g, '&lt;'); b.onclick = function () { abre(L); menu(); }; m.appendChild(b); });
         if (M.test.length) { var t = document.createElement('button'); t.className = 'lec tst'; t.textContent = (ST.tests[M.id] >= 70 ? '✓ ' : '✎ ') + 'Test del módulo' + (ST.tests[M.id] != null ? ' · ' + ST.tests[M.id] + ' %' : ''); t.onclick = function () { test('Test · ' + M.t, M.test, function (n) { ST.tests[M.id] = Math.max(n, ST.tests[M.id] || 0); }); }; m.appendChild(t); }
+        m = m0;
       });
       var ex = document.createElement('button'); ex.className = 'lec fin'; ex.textContent = (ST.examen >= 70 ? '✓ ' : '★ ') + 'Examen final' + (ST.examen != null ? ' · ' + ST.examen + ' %' : ''); ex.onclick = function () { test('Examen final', D.examen, function (n) { ST.examen = Math.max(n, ST.examen || 0); }); }; m.appendChild(ex);
       var listo = hechas === LEC.length && ST.examen >= 70, ce = document.createElement('button'); ce.className = 'lec fin'; ce.textContent = '🎓 Certificado' + (listo ? '' : ' (completa lecciones y examen)'); ce.disabled = !listo; ce.onclick = certificado; m.appendChild(ce);
@@ -368,8 +376,11 @@
     var css = 'body{margin:0;background:' + T.bg + ';color:' + T.txt + ';font-family:' + T.tit + ';}' +
       'a{color:' + T.acc + '}a:hover{opacity:.8}' +
       '.wrap{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);min-height:100vh}' +
-      '@media(max-width:820px){.wrap{grid-template-columns:1fr}}' +
-      '#menu{padding:18px;border-right:1px solid ' + T.soft + ';display:flex;flex-direction:column;gap:4px;background:#fff}' +
+      '#menu{padding:18px;border-right:1px solid ' + T.soft + ';display:flex;flex-direction:column;gap:4px;background:#fff;position:sticky;top:0;height:100vh;overflow-y:auto;box-sizing:border-box}' +
+      '#menu details{border-bottom:1px solid ' + T.soft + ';padding:4px 0}#menu summary{cursor:pointer;font-weight:700;font-size:15px;padding:8px 4px;list-style-position:inside}#menu summary small{font-weight:400;margin-left:6px}' +
+      '#btnMenu,#cerrarMenu{display:none}.nav{display:flex;gap:8px;flex-wrap:wrap}' +
+      '@media(max-width:820px){.wrap{grid-template-columns:1fr}#menu{display:none;position:fixed;inset:0;z-index:20;height:auto;border:0}body.verMenu #menu{display:flex}#btnMenu,body.verMenu #cerrarMenu{display:inline-block}' +
+      '#cv{position:sticky;top:0;z-index:5}main{padding:12px}main h1{font-size:22px!important}}' +
       '.prog{font-size:14px;margin-bottom:10px}.mod{font-weight:700;margin:14px 0 4px;font-size:15px}' +
       '.lec{all:unset;cursor:pointer;padding:6px 8px;font-size:14px;border-radius:4px;display:block}.lec:hover{background:' + T.soft + '}.lec.on{background:' + T.acc + ';color:#fff}.lec span{opacity:.6;font-size:12px}.lec.tst{font-style:italic}.lec.fin{font-weight:700;margin-top:8px}.lec:disabled{opacity:.45;cursor:default}' +
       'main{padding:22px;display:flex;flex-direction:column;gap:12px;max-width:1100px}' +
@@ -381,21 +392,21 @@
       'small{opacity:.7}';
     return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + e(D.titulo) + ' · curso</title><style>' + css + '</style>' +
       '<script src="datos.js"></script>' + (D.anim ? '<script src="anim.js"></script>' : '') + '</head><body><div class="wrap"><nav id="menu"></nav><main>' +
-      '<div><small>' + e(D.sub) + '</small><h1 style="margin:2px 0 0;font-size:30px">' + e(D.titulo) + '</h1></div>' +
-      '<div id="reproductor" style="display:flex;flex-direction:column;gap:12px"><h2 id="tl" style="margin:0;font-size:22px">Bienvenida</h2>' +
+      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><small>' + e(D.sub) + '</small><h1 style="margin:2px 0 0;font-size:30px">' + e(D.titulo) + '</h1></div><button id="btnMenu" class="cta">☰ Temario</button></div>' +
+      '<div id="reproductor" style="display:flex;flex-direction:column;gap:12px"><div><small id="pos"></small><h2 id="tl" style="margin:0;font-size:22px">Bienvenida</h2></div>' +
       '<canvas id="cv" width="1280" height="720"></canvas>' +
       '<div class="bar"><button id="play" class="cta">▶ Reproducir</button><label>Velocidad <select id="vel"><option value="0.85">0,85×</option><option value="1" selected>1×</option><option value="1.15">1,15×</option></select></label><label><input id="mudo" type="checkbox"> Sin voz</label><small id="voz"></small></div>' +
-      '<div id="escenas"></div><div id="preg"></div><p id="bajo"></p><p id="pag"></p>' +
-      '<div class="bar"><button id="grabV">⏺ Grabar vídeo de la lección</button><button id="grabA">🎙 Grabar audio</button><button id="grabT">⏺ Grabar todos los vídeos</button></div>' +
-      '<small>Para grabar con la voz «Google español», usa Chrome de escritorio y comparte «Esta pestaña» con su audio. Los vídeos salen en MP4 si el navegador lo permite (si no, WebM) y el audio en M4A o WebM.</small>' +
+      '<div class="nav"><button id="ant" class="esc">‹ Anterior</button><button id="sig" class="esc">Siguiente ›</button></div><div id="escenas"></div><div id="preg"></div><p id="bajo"></p><p id="pag"></p>' +
+      '<div id="autora" style="display:none;flex-direction:column;gap:8px"><div class="bar"><button id="grabV">⏺ Grabar vídeo de la lección</button><button id="grabA">🎙 Grabar audio</button><button id="grabT">⏺ Grabar todos los vídeos</button></div>' +
+      '<small>Para grabar con la voz «Google español», usa Chrome de escritorio y comparte «Esta pestaña» con su audio. Los vídeos salen en MP4 si el navegador lo permite (si no, WebM) y el audio en M4A o WebM.</small></div>' +
       '<p><b>Descargas</b> · <a href="../libro/libro-imprimible.html" target="_blank">Libro para imprimir o guardar en PDF</a> · <a href="../libro/libro-interactivo.html" target="_blank">Libro interactivo</a> · <a href="../laminas/" target="_blank">Láminas</a> · <a href="../guion-voz.txt" target="_blank">Guion de voz</a></p></div>' +
-      '<div id="zonaTest" style="display:none"></div></main></div><script>(' + REPRODUCTOR.toString() + ')();<\/script></body></html>';
+      '<div id="zonaTest" style="display:none"></div></main></div><button id="cerrarMenu" class="cta" style="position:fixed;top:10px;right:10px;z-index:21">✕ Cerrar</button><script>(' + REPRODUCTOR.toString() + ')();<\/script></body></html>';
   }
 
   function hotmart(z, D) {
     var raiz = 'hotmart/';
     z.file(raiz + 'LEEME.txt', 'Estructura para Hotmart, Teachable o similar.\nCada carpeta es un módulo y cada .txt una lección: título, descripción, página del libro y guion.\n' +
-      'Graba los vídeos desde curso/index.html («Grabar todos los vídeos»): cada archivo sale con el mismo nombre que su lección (M01-L02-…).\nGuárdalos en su carpeta y súbelos lección por lección. Adjunta el libro en PDF como material descargable.\n');
+      'Graba los vídeos abriendo curso/index.html#grabar («Grabar todos los vídeos»): cada archivo sale con el mismo nombre que su lección (M01-L02-…).\nGuárdalos en su carpeta y súbelos lección por lección. Adjunta el libro en PDF como material descargable.\n');
     D.modulos.forEach(function (M, i) {
       var dir = raiz + 'Modulo-' + dos(i + 1) + '-' + slug(M.t) + '/';
       M.lecciones.forEach(function (L, j) {
@@ -436,7 +447,7 @@
         '2. libro/ — libro-imprimible.html: ábrelo y elige Imprimir → Guardar como PDF. libro-interactivo.html: versión en pantalla.\n' +
         '3. laminas/ — todos los dibujos del curso (JPG de Guías 3D y SVG vectoriales).\n' +
         '4. guion-voz.txt — el texto que narra cada escena.\n' +
-        '5. hotmart/ — módulos y lecciones listos para subir. Los vídeos y audios se graban desde el curso (botones «Grabar»).\n');
+        '5. hotmart/ — módulos y lecciones listos para subir. Los vídeos y audios se graban abriendo curso/index.html#grabar (botones «Grabar»; el alumno no los ve).\n');
       aviso('Curso premium: comprimiendo…');
       return z.generateAsync({ type: 'blob' }).then(function (b) { return { blob: b, nombre: slug(D.titulo) + '-curso-premium.zip', D: D, nL: nL, nV: nV }; });
     });
