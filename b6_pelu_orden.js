@@ -117,7 +117,9 @@
       u.mods = M[m[0]]; bloques[m[1]].push(u);
     });
     var out = [F.fund, F.cab, F.base];
-    if (window.EU_CORTES) window.EU_CORTES.familias().forEach(function (fa) { try { out.push(unidadCorte(fa)); } catch (e) { } });
+    /* Cortes de caballero ocultos en el libro y el curso de dama (Fátima, 9-10-2026): se cortan con máquina y otras
+       técnicas; siguen en EU_CORTES y en Guías 3D. Para volver a mostrarlos: window.EU_PELU_CABALLERO = true. */
+    if (window.EU_CORTES) window.EU_CORTES.familias().forEach(function (fa) { if (/^cab_/.test(fa.id) && !window.EU_PELU_CABALLERO) return; try { out.push(unidadCorte(fa)); } catch (e) { } });
     [1, 2, 3, 4].forEach(function (b) { out = out.concat(bloques[b]); });
     out.push(F.neg);
     if (EST) { var e = bloques[9]; if (e.length) e[0].mods = M.est; out = out.concat(e); }
