@@ -69,11 +69,13 @@
          R('¿Dónde se anota lo que se aplicó a la clienta?', ['En la ficha técnica', 'En la factura', 'En ningún sitio'], 0, 'La ficha permite repetir o corregir el servicio.')], M.cab),
       base: uni('pe_u_base', 'Secciones, elevación y mecha guía', [
         'Todo corte empieza dividiendo la cabeza en zonas: nuca, occipital, parietales, laterales, coronilla y flequillo (Z0–Z6).',
+        'Las divisiones del cabello son la base del corte: mantienen el orden de las secciones y la guía del corte que se está realizando, para no perder el contexto.',
         'La elevación es el ángulo al que se levanta la mecha respecto a la cabeza: 0° deja peso, 90° reparte capas, 180° acorta arriba.',
         'La mecha guía marca el largo; cada mecha nueva se compara con ella para que el corte sea parejo.',
         'La dirección de la sección (horizontal, vertical, diagonal) la decide el tipo de cabello y la forma que se busca.'],
         ['sección', 'zona', 'elevación', 'mecha guía', 'grados', 'diagonal', 'forma de la cara'],
         [R('¿Qué elevación deja todo el peso en el borde?', ['0°', '90°', '180°'], 0, 'Sin elevación todas las mechas caen a la misma línea.'),
+         R('¿Para qué sirven las divisiones del cabello en un corte?', ['Para que el pelo seque antes', 'Para no perder el contexto ni la guía del corte que se está realizando', 'Solo para sujetar con pinzas'], 1, 'Cada sección se trabaja en orden y siempre con la referencia de la guía.'),
          R('¿Para qué sirve la mecha guía?', ['Para marcar el largo de referencia', 'Para sujetar el pelo', 'Para medir el color'], 0, 'Todas las mechas se cortan comparándolas con la guía.'),
          R('Cuanto más se eleva una mecha…', ['más larga queda', 'más corta queda respecto a la de abajo', 'no cambia'], 1, 'Por eso la elevación crea capas.'),
          R('¿Qué pasa si se corta sin llevar la guía?', ['Queda más parejo', 'No cambia nada', 'El corte pierde el rumbo'], 2, 'Cada mecha nueva se compara con la guía; sin ella no hay referencia.')], M.base,

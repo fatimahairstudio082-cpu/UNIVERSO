@@ -12,6 +12,8 @@
    por colores) y Pixie (abanico de elevaciones, flequillo en triángulo asimétrico, nuca en abanico y espiga). */
 (function () {
   'use strict';
+  /* modo revisión de Fátima: las notas «a validar» solo se ven si ella lo activa (localStorage eu_revision = 'si'); el alumno nunca las ve */
+  function rev() { try { return localStorage.getItem('eu_revision') === 'si'; } catch (e) { return false; } }
   if (window.EU_PARTICIONES) return;
   var DG = window.EU_DIAGRAMA; if (!DG || !DG.construirCon) return;
 
@@ -314,7 +316,7 @@
     esc.push({ tipo: 'sp_sobreproy', vista: v, t: 'La sobreproyección', texto: 'Las flechas blancas indican la dirección de sobreproyección: el cabello se peina hacia atrás antes de cortar.',
       a: { v: v, tr: negras([0, 0.02]).concat(pivote([0, 0.02]), blancas([0.08, 0.6]), [K.rotulo('Flechas blancas: el cabello se peina hacia atrás antes de cortar', '#1F1B18', 0.08)]) } });
     esc.push({ tipo: 'sp_melena', vista: v, t: 'La forma final con color', texto: 'Al terminar, el color muestra la forma: arriba sigue la curva de la cabeza, atrás cae largo, y el borde de delante y de abajo queda en picos, cortado con desfilado.',
-      a: { v: v, tr: melena([0.04, 0.7]).concat(altura([0, 0.02]), negras([0, 0.02]), pivote([0, 0.02]), blancas([0, 0.02]), [K.rotulo('Forma final: perímetro en picos', C_MORADO_B, 0.04), K.rotulo('Grados y largos: a validar por Fátima', '#8A6D3B', 0.7)]) } });
+      a: { v: v, tr: melena([0.04, 0.7]).concat(altura([0, 0.02]), negras([0, 0.02]), pivote([0, 0.02]), blancas([0, 0.02]), [K.rotulo('Forma final: perímetro en picos', C_MORADO_B, 0.04), K.rotulo('Grados y largos: a validar por Fátima', '#8A6D3B', 0.7, rev() ? undefined : { x: -1 })]) } });
     return {
       R: { id: 'p_sobreproy', n: 'Particiones horizontales, pivote y sobreproyección' },
       escenas: esc,
@@ -359,7 +361,7 @@
     esc.push({ tipo: 'll_marco', vista: v, t: 'El marco del rostro', texto: 'Delante, los mechones bajan enmarcando el rostro: los de los lados caen rectos y los del centro se abren hacia afuera, formando una V alrededor de la cara.',
       a: { v: v, tr: [punto(0)].concat(marco([0.05, 0.75]), [K.rotulo('Marco del rostro en V', C_ROJO, 0.05)]) } });
     esc.push({ tipo: 'll_colores', vista: v, t: 'Secciones por colores y un solo largo', texto: 'En la segunda forma, las secciones horizontales se marcan por colores: azul arriba y naranja abajo. Desde la coronilla salen líneas hacia el punto de arriba, y todo el cabello cae hasta una misma línea recta.',
-      a: { v: v, tr: [punto(0)].concat([[-0.75, 0.5, 0.75, C_AZUL], [-0.35, 0.62, 0.9, C_ROJO], [0, 0.66, 0.95, C_AZUL], [0.35, 0.62, 0.9, C_ROJO], [0.75, 0.5, 0.75, C_AZUL]].map(function (a, i) { return K.linea(K.plano([W(K, v, a[0], a[1], a[2]), W(K, v, Q[0], Q[1], Q[2])]), [0.02 + i * 0.03, 0.2], a[3], 2.2); }), colores([0.05, 0.85]), [K.rotulo('Azul arriba · naranja abajo', C_AZUL, 0.05), K.rotulo('Todo cae hasta una línea recta', '#1F1B18', 0.75), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85)]) } });
+      a: { v: v, tr: [punto(0)].concat([[-0.75, 0.5, 0.75, C_AZUL], [-0.35, 0.62, 0.9, C_ROJO], [0, 0.66, 0.95, C_AZUL], [0.35, 0.62, 0.9, C_ROJO], [0.75, 0.5, 0.75, C_AZUL]].map(function (a, i) { return K.linea(K.plano([W(K, v, a[0], a[1], a[2]), W(K, v, Q[0], Q[1], Q[2])]), [0.02 + i * 0.03, 0.2], a[3], 2.2); }), colores([0.05, 0.85]), [K.rotulo('Azul arriba · naranja abajo', C_AZUL, 0.05), K.rotulo('Todo cae hasta una línea recta', '#1F1B18', 0.75), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85, rev() ? undefined : { x: -1 })]) } });
     return {
       R: { id: 'p_long_layers', n: 'Long Layers · proyección a un punto' },
       escenas: esc,
@@ -385,7 +387,7 @@
       tr.push(K.linea(K.plano(arco), [0.55, 0.75], '#4A4A55', 2, { d: 1 }));
       [-0.25, -0.5, -0.75, -0.95].forEach(function (z, j) { var yt = 1.22 * Math.sqrt(Math.max(0, 1 - z * z / 1.32)); tr.push(K.linea(K.plano([W(K, v, 0, yt * 1.02, z), W(K, v, 0, -0.7, z)]), [0.02 + j * 0.03, 0.2], '#1F1B18', 2)); });
       [0.3, 0.05, -0.2, -0.45].forEach(function (y, j) { tr.push(flecha(K, v, [0, y, -1.0], [0, y, -1.75], [0.62 + j * 0.04, 0.85], '#1F1B18', 2.2)); });
-      tr.push(K.rotulo('Secciones verticales', '#1F1B18', 0.02), K.rotulo('Abanico de elevaciones siguiendo la curva de la cabeza', '#4A4A55', 0.05), K.rotulo('Atrás: sobredirección hacia atrás', '#1F1B18', 0.62), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85));
+      tr.push(K.rotulo('Secciones verticales', '#1F1B18', 0.02), K.rotulo('Abanico de elevaciones siguiendo la curva de la cabeza', '#4A4A55', 0.05), K.rotulo('Atrás: sobredirección hacia atrás', '#1F1B18', 0.62), K.rotulo('Grados: a validar por Fátima', '#8A6D3B', 0.85, rev() ? undefined : { x: -1 }));
       esc.push({ tipo: 'px_perfil', vista: v, t: 'Pixie de perfil · abanico de elevaciones', texto: 'De perfil, las secciones son verticales. Los mechones se elevan en abanico, siguiendo la curva de la cabeza. En la parte de atrás, las flechas marcan que el cabello se sobredirige hacia atrás.', a: { v: v, tr: tr } });
     })();
     (function () {

@@ -11,6 +11,8 @@
    Cargar después de b6_pelu_particiones.js y de los tres b6_color_cerebro_*.js, antes de b6_pelu_libro_animado.js. */
 (function () {
   'use strict';
+  /* modo revisión de Fátima: las notas «a validar» solo se ven si ella lo activa (localStorage eu_revision = 'si'); el alumno nunca las ve */
+  function rev() { try { return localStorage.getItem('eu_revision') === 'si'; } catch (e) { return false; } }
   var B = window.EU_COLOR_CEREBRO, PA = window.EU_PARTICIONES;
   if (!B || !PA || !PA.registrar || !PA.ayudas || B.tecnicas) return;
   var A = PA.ayudas, CALC = B.calc || {};
@@ -142,7 +144,7 @@
   function deClase(K, c) {
     var esc = [], k = 0;
     c.b.forEach(function (blq, i) { if (blq[0] === 'punto') k++; esc.push(escena(K, c, blq, i, k)); });
-    if (NOTAS[c.id]) { var e = escFicha(K, 'importante', AMBAR); e.tr = e.tr.concat([K.rotulo('A validar por Fátima', AMBAR, 0)], rotulos(K, NOTAS[c.id], AMBAR, 0.04)); esc.push({ tipo: 'cc_validar', vista: e.v, t: 'A validar por Fátima', texto: 'Ojo. ' + NOTAS[c.id], a: e }); }
+    if (NOTAS[c.id] && rev()) { var e = escFicha(K, 'importante', AMBAR); e.tr = e.tr.concat([K.rotulo('A validar por Fátima', AMBAR, 0)], rotulos(K, NOTAS[c.id], AMBAR, 0.04)); esc.push({ tipo: 'cc_validar', vista: e.v, t: 'A validar por Fátima', texto: 'Ojo. ' + NOTAS[c.id], a: e }); }
     return { R: { id: 'cc_' + c.id, n: c.n }, escenas: esc, preguntas: preguntas(c) };
   }
 
