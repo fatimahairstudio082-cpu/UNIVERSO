@@ -11,8 +11,8 @@
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
-  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['frente', 'Frente · guía'], ['dos', '◫ Lateral + nuca']];
-  var DUR = 9000, CACHE = {}, IMG = {};
+  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['dos', '◫ Lateral + nuca']];
+  var DUR = 15000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
 
@@ -145,10 +145,10 @@
     var fre = fila('Capas (frente)', ent('vacío = igual que atrás', 300));
     var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
     var alt = fila('Guía del frente', sel(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; })));
-    var lin = fila('Línea de corte', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Hacia delante (redondeado)']]));
+    var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Redondeada (U)'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
     alt.value = 'nariz';
     var aca = fila('Acabado', sel([['recto', 'Recto'], ['desgrafilado', 'Desgrafilado']]));
-    var lfr = fila('Línea del frente', sel([['', 'En arco'], ['recta', 'Recta (cuadrada)']]));
+    var lfr = fila('Puntas de delante', sel([['', 'Redondeadas'], ['recta', 'Rectas']]));
     var gui = fila('Guía por capa', ent('m = móvil, f = fija · ej.: m, m, f (vacío = todas móviles)', 300));
     var ref = fila('Ángulo medido', sel([['craneo', 'Desde el cráneo (90° = perpendicular a la curva)'], ['suelo', 'Desde el suelo (90° = horizontal)']]));
     var cor = document.createElement('input'); cor.type = 'checkbox'; var corG = ent('grados (vacío = la capa más alta)', 200);
