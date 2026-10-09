@@ -219,6 +219,17 @@
   function deCerebro(K, id) {
     var CB = window.EU_CEREBRO, t = CB && CB.obtener(id); if (!t || !(t.pasos || []).length) return null;
     var modo = MODO[id] || 'global', col = tono(t, modo), divs = CB.divisiones ? CB.divisiones(id) : [], esc = [], na = 0;
+    /* preparación como una receta (Fátima): si la técnica no trae su paso de preparación, se abre con sus herramientas,
+       productos y cantidades de la ficha — qué se prepara antes de tocar el cabello */
+    var fr = t.ficha || {}, yaPrep = t.pasos.some(function (p) { return p.fase === 'preparacion' && !/lav|champ/i.test(p.n || ''); });
+    if (!yaPrep && ((fr.herramientas || []).length || (fr.productos || []).length)) {
+      var trR = [K.rotulo('Preparación · como una receta', C_RAYA, 0)], yR = 0.08, her = (fr.herramientas || []).slice(0, 5), pro = (fr.productos || []).slice(0, 3);
+      her.forEach(function (h) { trR.push(K.rotulo('✔ ' + h, '#18906A', yR)); yR += 0.08; });
+      pro.forEach(function (h) { trR.push(K.rotulo('Producto: ' + h, col === '#E9C979' ? '#9A7B2E' : C_RAYA, yR)); yR += 0.08; });
+      if (fr.cantidades) trR.push(K.rotulo('Cantidad: ' + fr.cantidades, C_RAYA, Math.min(0.9, yR)));
+      esc.push({ tipo: 'cb_receta', vista: 'tres', t: 'Preparación · como una receta', a: { v: 'tres', tr: trR },
+        texto: 'Antes de tocar el cabello se prepara todo, como en una receta.' + (her.length ? ' Herramientas: ' + her.join(', ') + '.' : '') + (pro.length ? ' Productos: ' + pro.join(', ') + '.' : '') + (fr.cantidades ? ' Cantidad: ' + fr.cantidades + '.' : '') });
+    }
     t.pasos.forEach(function (p, i) {
       var f = p.fase || 'aplicacion', a, tipo = 'cb' + i + '_' + f;
       if (f === 'divisiones') a = escDivisiones(K, t, divs.length ? divs : [{ id: 'cuatro', n: 'Cuatro secciones' }], 0.02, 0.8);
