@@ -850,8 +850,10 @@
         construir(T.t.id).then(function (E) {
           if (!E || T.M.lecciones.some(function (l) { return l.id === T.M.id + '__' + T.t.id; })) return;
           /* Fátima, 9-10-2026: sin lecciones repetidas. Si la unidad ya tiene la lección de Estudios de esta técnica
-             (id <unidad>__<técnica>), no se añade otra con la misma técnica. */
-          if (/^cb_/.test(T.t.id) && T.M.lecciones.some(function (l) { return l.id === T.M.id + '__' + T.t.id.slice(3); })) return;
+             (id <unidad>__<técnica>), no se añade otra con la misma técnica.
+             Fátima, 10-10-2026: esa lección (mismo nombre, mismo sitio) pasa a llevar las escenas animadas nuevas
+             (zigzag, arranque, cómo queda, alisado a 0°, gorro, neutralizar…) en vez de los fotogramas fijos de Estudios. */
+          var vieja = /^cb_/.test(T.t.id) ? T.M.lecciones.filter(function (l) { return l.id === T.M.id + '__' + T.t.id.slice(3); })[0] : null;
           D.anim = D.anim || {}; D.img = D.img || {};
           Object.keys(E.fondos).forEach(function (v) { D.img['dg_' + v] = E.fondos[v]; });
           var esc = E.escenas.map(function (e) { var k = T.t.id + '_' + e.tipo; D.anim[k] = e.anim; return { tipo: 'paso', id: 'dg_' + e.vista, t: e.t, texto: e.texto, rot: [], anim: k }; });
@@ -860,6 +862,7 @@
             esc.push({ tipo: 'pregunta', id: ult, t: 'Repaso', texto: 'Antes de seguir, piensa: ' + q.e, rot: [], q: { e: q.e, o: q.o, c: q.c }, sol: 'La respuesta es: ' + q.o[q.c] + '.' + (q.x ? ' ' + q.x : '') });
             if (T.M.test && !T.M.test.some(function (x) { return x.e === q.e; })) T.M.test.push({ e: q.e, o: q.o, c: q.c });
           });
+          if (vieja) { vieja.escenas = esc; vieja.video = 1; vieja.animada = 1; return; }
           var pag = (T.M.lecciones[0] || {}).pag;
           var pos = ins[T.M.id] || 0; ins[T.M.id] = pos + 1;
           T.M.lecciones.splice(pos, 0, { id: T.M.id + '__' + T.t.id, t: (T.t.pre || 'Técnica paso a paso · ') + E.R.n, pag: pag, video: 1, escenas: esc });

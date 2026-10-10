@@ -14,16 +14,22 @@
   function es(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
   /* escenas de una técnica (se guardan: el libro se repinta muchas veces) */
-  var CACHE = {};
+  var CACHE = {}, NO_IMPRESO = /^cb_receta$|_preparacion$|_cierre$/;
   function datos(id) {
     if (CACHE[id]) return CACHE[id];
     var PA = window.EU_PARTICIONES, DG = window.EU_DIAGRAMA; if (!PA || !DG || !PA.construirYa) return null;
     var E = null; try { E = PA.construirYa(id); } catch (e) { console.warn('Técnica animada', id, e); }
     if (!E || !E.escenas || !E.escenas.length) return null;
     /* impreso: hasta 4 escenas repartidas a lo largo de la técnica, siempre con la última (la forma final) */
-    var n = E.escenas.length, sel = [];
-    if (n <= 4) for (var i = 0; i < n; i++) sel.push(i);
-    else [0, Math.round((n - 1) / 3), Math.round(2 * (n - 1) / 3), n - 1].forEach(function (k) { if (sel.indexOf(k) < 0) sel.push(k); });
+    /* Fátima, 10-10-2026: sin imágenes repetidas en el PDF. Las escenas de preparación (cabeza sin cabello y lista
+       de materiales) y de aclarado eran iguales en muchas técnicas: en el impreso se eligen escenas de trabajo y el
+       resultado; en la animación siguen todas. */
+    var n = E.escenas.length, sel = [], cand = [];
+    for (var c0 = 0; c0 < n; c0++) if (!NO_IMPRESO.test(E.escenas[c0].tipo || '')) cand.push(c0);
+    if (!cand.length) for (var c1 = 0; c1 < n; c1++) cand.push(c1);
+    var m = cand.length;
+    if (m <= 4) sel = cand.slice();
+    else [0, Math.round((m - 1) / 3), Math.round(2 * (m - 1) / 3), m - 1].forEach(function (k) { if (sel.indexOf(cand[k]) < 0) sel.push(cand[k]); });
     var fotos = sel.map(function (k) { try { return DG.foto(E.escenas[k], 640, 0.8); } catch (e) { return ''; } });
     return (CACHE[id] = { E: E, sel: sel, fotos: fotos });
   }
@@ -145,5 +151,12 @@
   function esperar() { if (ED.__peluLibroDg || !window.EU_PELU_LIBRO_DG) enganchar(); else setTimeout(esperar, 300); }
   if (document.readyState === 'complete') setTimeout(esperar, 80); else window.addEventListener('load', function () { setTimeout(esperar, 80); });
 
-  window.EU_PELU_LIBRO_ANIM = { pagina: pagina, repartir: repartir, datos: datos };
+  /* fotograma final de cualquier escena de una técnica (para que otras páginas usen imágenes distintas a las de esta) */
+  function foto(id, k, w) {
+    var d = datos(id); if (!d || !d.E.escenas[k]) return '';
+    var key = k + '|' + (w || 480); d.extra = d.extra || {};
+    if (d.extra[key] == null) { try { d.extra[key] = window.EU_DIAGRAMA.foto(d.E.escenas[k], w || 480, 0.8) || ''; } catch (e) { d.extra[key] = ''; } }
+    return d.extra[key];
+  }
+  window.EU_PELU_LIBRO_ANIM = { pagina: pagina, repartir: repartir, datos: datos, foto: foto, NO_IMPRESO: NO_IMPRESO };
 })();
