@@ -244,6 +244,63 @@
     var cant = t && t.ficha && t.ficha.cantidades; if (cant) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
     return { v: v, tr: tr };
   }
+  /* Fátima, 10-10-2026 · mechas universales con papel de aluminio, por el lateral.
+     Desde la raya de atrás, líneas en diagonal de un centímetro (un dedo o menos) de la nuca a la coronilla.
+     En una línea se hace el zigzag pequeño, se saca el mechón a 90°, se coloca el producto y el papel (en plantilla).
+     La línea siguiente se deja libre, sin zigzag ni papel. Y así, alternando, hasta la coronilla: los papeles quedan montados. */
+  function escUniversales(K, t, col) {
+    var v = 'tres', s = K.seVe(v, K.NUCA + 0.9, 1.2) ? 1 : -1, tr = [], n = 12, th0 = 1.92, th1 = 0.62, d = (th0 - th1) / (n - 1), con = 0, nCon = Math.ceil(n / 2);
+    var cP = col === '#E9C979' ? '#F2C14E' : col;
+    function lin(th) { return function (u) { return [K.NUCA + s * 1.25 * u, th + 0.32 * u]; }; }
+    tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [K.NUCA, 0.45 + u * 1.6]; }, 30), [0, 0.04], C_RAYA, 2.4));
+    for (var i = 0; i < n; i++) {
+      var th = th0 - i * d, ta = 0.05 + i * 0.93 / n, tb = ta + 0.93 / n, dt = tb - ta, sac = i % 2 === 0, cc = sac ? C_CAPA[con % 3] : '#8E847A';
+      tr = tr.concat(K.lineas(K.tramos(v, lin(th), 20), [ta, ta + dt * 0.15], sac ? cc : '#8E847A', sac ? 2.2 : 1.6, sac ? {} : { d: 1 }));
+      if (!sac) continue;
+      con++;
+      /* zigzag pequeño sobre la línea: un centímetro */
+      var z = [], r = [];
+      for (var k = 0; k <= 16; k++) { var u = 0.06 + 0.8 * k / 16, q = lin(th)(u); z.push([q[0], q[1] - (k % 2 ? 0.035 : 0)]); if (k % 2) r.push([q[0], q[1] - 0.035]); }
+      for (var j = 0; j < z.length - 1; j++) tr = tr.concat(K.lineas(K.tramos(v, K.recta(z[j], z[j + 1]), 3), [ta + dt * 0.1, ta + dt * 0.22], cc, 1.8));
+      /* el mechón se saca a 90°, producto; después se coloca el papel y queda montado */
+      var mc = lin(th)(0.46), ext = { x: ta + dt * 0.78, lev: 1 }, c0 = K.P(mc[0], mc[1] - 0.02), fin = [];
+      for (var k2 = 0; k2 <= 5; k2++) fin.push(c0.clone().add(K.dirElev(mc[0], mc[1], 90 * k2 / 5).multiplyScalar(0.55)));
+      r.forEach(function (rr) { var a = K.P(rr[0], rr[1]), ks = fin.map(function (b) { return [].concat(K.pr(v, a), K.pr(v, a.clone().lerp(b, 0.97))); });
+        tr.push(K.mechon(ks, [ta + dt * 0.22, ta + dt * 0.42], C_HALO, 4.6, ext), K.mechon(ks, [ta + dt * 0.22, ta + dt * 0.42], C_NAT, 1.8, ext));
+        tr.push(K.linea([].concat(K.pr(v, a), K.pr(v, a.clone().lerp(fin[5], 0.97))), [ta + dt * 0.44, ta + dt * 0.62], cP, 2.6, ext)); });
+      var e0 = K.seVe(v, lin(th)(0.08)[0], lin(th)(0.08)[1]) ? K.pr(v, K.P.apply(null, lin(th)(0.08))) : null, e1 = K.seVe(v, lin(th)(0.86)[0], lin(th)(0.86)[1]) ? K.pr(v, K.P.apply(null, lin(th)(0.86))) : null;
+      if (e0 && e1) {
+        var dx = e1[0] - e0[0], dy = e1[1] - e0[1], L = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / L, ny = dx / L; if (ny < 0) { nx = -nx; ny = -ny; }
+        var H = 46, papel = [e0[0], e0[1], e1[0], e1[1], e1[0] + nx * H, e1[1] + ny * H, e0[0] + nx * H, e0[1] + ny * H];
+        tr.push(zona(papel, [ta + dt * 0.62, ta + dt * 0.8], C_PAPEL, 0.96, C_PAPEL_B));
+        for (var w = 1; w <= 3; w++) { var f0 = w / 4; tr.push(K.linea([e0[0] + dx * f0 + nx * 6, e0[1] + dy * f0 + ny * 6, e0[0] + dx * f0 + nx * (H - 6), e0[1] + dy * f0 + ny * (H - 6)], [ta + dt * 0.8, tb], cP, 2)); }
+      }
+      tr.push(Object.assign({ k: 'n', x: K.pr(v, K.P(mc[0], mc[1]))[0], y: K.pr(v, K.P(mc[0], mc[1]))[1], s: String(con), c: cc, t: [ta + dt * 0.15, 1] }));
+      tr.push(K.rotulo('Línea ' + (i + 1) + ' · zigzag pequeño, mechón a 90°, producto y papel', cc, ta, con < nCon ? { x: tb } : {}));
+      if (i + 1 < n) tr.push(K.rotulo('Línea ' + (i + 2) + ' · se deja libre: sin zigzag ni papel', '#8E847A', tb - dt * 0.05, { x: tb + 0.93 / n }));
+    }
+    var cant = t && t.ficha && t.ficha.cantidades;
+    tr.push(K.rotulo('Mechas universales · líneas en diagonal de 1 cm, de la nuca a la coronilla', '#1F1B18', 0));
+    if (cant) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
+    return { v: v, tr: tr };
+  }
+  /* Fátima, 10-10-2026 · balayage por el frente: en el frente la división es un cuadrado; dentro, el zigzag,
+     el mechón a 90° y el producto desde el arranque hasta las puntas. */
+  function escBalFrente(K, t, col) {
+    var v = 'frente', tr = [], ph0 = K.CARA - 0.34, ph1 = K.CARA + 0.34, thA = 0.5, thB = 1.05, filas = [0.95, 0.78, 0.62];
+    tr = tr.concat(contornoM(K, v, [[ph0, thA], [ph1, thA], [ph1, thB], [ph0, thB], [ph0, thA]], [0.02, 0.14], '#C0392B', 3));
+    filas.forEach(function (th, f) {
+      var ta = 0.16 + f * 0.82 / filas.length, tb = ta + 0.82 / filas.length, cc = C_CAPA[f % 3], z = [];
+      for (var k = 0; k <= 10; k++) z.push([ph0 + (ph1 - ph0) * (0.05 + 0.9 * k / 10), th - (k % 2 ? 0.06 : 0)]);
+      tr = tr.concat(contornoM(K, v, z, [ta, ta + (tb - ta) * 0.16], cc, 2.2));
+      var q = K.pr(v, K.P(K.CARA, th - 0.03)); tr.push({ k: 'n', x: q[0], y: q[1], s: String(f + 1), c: cc, t: [ta + (tb - ta) * 0.16, 1] });
+      tr.push(K.rotulo('Frente · línea ' + (f + 1) + ' · zigzag dentro del cuadrado; el mechón sale a 90° con el producto', cc, ta, f < filas.length - 1 ? { x: tb } : {}));
+    });
+    var cant = t && t.ficha && t.ficha.cantidades;
+    tr.push(K.rotulo('Balayage · en el frente la división es un cuadrado', '#1F1B18', 0));
+    if (cant) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
+    return { v: v, tr: tr };
+  }
   /* aplicación: pincel, papel, plancha, bigudíes… según la técnica */
   function escAplicar(K, t, modo, col, k) {
     if ((modo === 'barrido' || modo === 'papel' || modo === 'finas') && K.dirElev && K.mechon) return escMechones(K, modo, col, t);
@@ -317,6 +374,14 @@
       esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || ''), a: a });
       /* Fátima, 10-10-2026: el balayage también se hace profundo — se empieza a unos 5 cm del cuello, atrás, con zigzag grande;
          el mechón se eleva a 90° y se coloca el producto. Se añade como escena propia; la de arriba no cambia. */
+      if (id === 'mechas_aluminio' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_universales'; }) && K.dirElev && K.mechon) {
+        esc.push({ tipo: 'cb_universales', vista: 'tres', t: 'Mechas universales · por el lateral', a: escUniversales(K, t, col),
+          texto: 'Mechas universales con papel de aluminio. Desde la raya de atrás se sacan líneas en diagonal de un centímetro, un dedo o menos, de la nuca hacia la coronilla. En una línea se hace un zigzag pequeño, se saca el mechón a 90 grados, se coloca el producto y se pone el papel de aluminio, en plantilla o enrollado. La línea siguiente se deja libre, sin zigzag ni papel. En la tercera se vuelve a hacer el zigzag, y así hasta llegar a la coronilla: los papeles quedan montados uno sobre otro.' });
+      }
+      if (id === 'color_balayage' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_bal_frente'; }) && K.dirElev && K.mechon) {
+        esc.push({ tipo: 'cb_bal_frente', vista: 'frente', t: 'Balayage · el frente en cuadrado', a: escBalFrente(K, t, col),
+          texto: 'En el frente, la división del balayage es un cuadrado. Dentro del cuadrado se hace el zigzag, se saca el mechón a 90 grados y se coloca el producto desde el arranque hasta las puntas. Se repite línea a línea hasta el final del cuadrado.' });
+      }
       if (id === 'color_balayage' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_bal_profundo'; }) && K.dirElev && K.mechon) {
         var fp = t.ficha || {};
         esc.push({ tipo: 'cb_bal_profundo', vista: 'arriba', t: 'Balayage profundo · zigzag grande', a: escMechones(K, 'barrido', col, t, { profundo: true }),
