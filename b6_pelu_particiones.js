@@ -412,18 +412,20 @@
       });
       if (medio) {
         var fr = []; for (var k = 0; k <= 8; k++) { var u0 = k / 8 * 0.85, a = puntoQ(medio, u0), b = puntoQ(medio, u0 + 0.13); fr.push([a[0], a[1], b[0], b[1]]); }
-        tr.push(K.mechon(fr, [ta + dt * 0.36, ta + dt * 0.6], plancha ? '#2B2A2E' : '#6B5E52', plancha ? 11 : 5, { x: ta + dt * 0.64 }));
+        tr.push(K.mechon(fr, [ta + dt * 0.36, ta + dt * 0.6], plancha ? '#2B2A2E' : '#E2B897', plancha ? 11 : 14, { x: ta + dt * 0.64 }));
       }
-      tr.push(K.rotulo('División ' + (f + 1) + (prod ? ' · producto mechón a mechón' : '') + (plancha ? ' · plancha a 0°, se prensa y se estira hacia abajo' : ' · se estira a 0° con el peine, sin calor'), C_CAPA[f % 3], ta, f < nf - 1 ? { x: tb } : { x: 0.86 }));
+      tr.push(K.rotulo('División ' + (f + 1) + (prod ? ' · producto mechón a mechón' : '') + (plancha ? ' · plancha a 0°, se prensa y se estira hacia abajo' : ' · se peina y se prensa con la mano a 0°, sin calor'), C_CAPA[f % 3], ta, f < nf - 1 ? { x: tb } : { x: 0.86 }));
     });
     tr.push(K.rotulo('Antes: cabello ondulado', '#8E847A', 0, { x: T0 + 0.04 }), K.rotulo('Después: cabello liso', '#18906A', 0.86));
+    if (prod === 'derriz') tr.push(K.rotulo('Si el cabello se pone frágil o chicloso: retirar el producto de inmediato', '#B01E45', 0.3), K.rotulo('Se busca quitar volumen al cabello abundante', '#18906A', 0.86));
+    if (prod === 'queratina') tr.push(K.rotulo('Se deja de 3 días a una semana · dura de 3 a 6 meses según el producto', '#18906A', 0.9));
     var cant = t && t.ficha && t.ficha.cantidades; if (cant && prod) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
     return { v: v, tr: tr };
   }
   /* Fátima, 10-10-2026 · DECOLORACIÓN por capas: del frente hacia atrás, en cada capa el producto desde unos 5 cm de la
      raíz hasta las puntas y papel de aluminio. Sobre cabello negro el fondo sube a amarillo; se neutraliza con violeta
      (curso: «Amarillo: neutralizar con violeta. Matizadores violeta o tintes .2»). */
-  var NEGRO = '#161112', AMARILLO = '#E6C24A', VIOLETA = '#7B4FA0', PERLA = '#EAE4D6';
+  var NEGRO = '#161112', AMARILLO = '#E6C24A', VIOLETA = '#7B4FA0', PERLA = '#EAE4D6', NARANJA = '#D9822B', AZUL = '#3F6FB5', CENIZA = '#C9C2B4';
   function escDecoCapas(K, t) {
     var v = 'lateral', tr = [], phs = []; for (var d = -1.0; d <= 1.3; d += 0.115) if (K.seVe(v, K.DER - d, 1.0)) phs.push(K.DER - d);
     phs.sort(function (a, b) { return Math.abs(b - K.CARA) - Math.abs(a - K.CARA); }).reverse();
@@ -437,26 +439,47 @@
       tr.push(zona([a[0] + nx, a[1] + ny, b[0] + nx, b[1] + ny, b[0] - nx, b[1] - ny, a[0] - nx, a[1] - ny], [ta + dt * 0.5, ta + dt * 0.8], C_PAPEL, 0.95, C_PAPEL_B));
       tr.push(K.rotulo('Capa ' + (i + 1) + ' · producto desde 5 cm de la raíz y papel de aluminio', C_CAPA[i % 3], ta, i < n - 1 ? { x: tb } : {}));
     });
-    tr.push(K.rotulo('Decoloración por capas · del frente hacia atrás', '#1F1B18', 0));
+    tr.push(K.rotulo('Decoloración por capas · del frente hacia atrás', '#1F1B18', 0), K.rotulo('Antes: prueba de mechón · el producto preparado se aplica de inmediato', '#B01E45', 0));
     var cant = t && t.ficha && t.ficha.cantidades; if (cant) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
     return { v: v, tr: tr };
   }
-  function escDecoColor(K, neutro) {
+  function escDecoColor(K, neutro, naranja) {
+    var FONDO_C = naranja ? NARANJA : AMARILLO, CONTRA = naranja ? AZUL : VIOLETA, FIN_C = naranja ? CENIZA : PERLA, rgbC = naranja ? 'rgba(63,111,181,0.85)' : 'rgba(123,79,160,0.85)';
     var v = 'lateral', tr = [], phs = []; for (var d = -1.0; d <= 1.3; d += 0.06) if (K.seVe(v, K.DER - d, 1.0)) phs.push(K.DER - d);
     phs.forEach(function (ph, i) {
       var q = mecha(K, v, ph, 0.35, 0, 1), q2 = mecha(K, v, ph, 0.35, 0.25, 1); if (!q) return;
-      if (!neutro) { tr.push(K.linea(q, [0, 0.12], NEGRO, 4.2)); if (q2) tr.push(K.linea(q2, [0.25 + 0.4 * i / phs.length, 0.45 + 0.4 * i / phs.length], AMARILLO, 4.2)); }
+      if (!neutro) { tr.push(K.linea(q, [0, 0.12], NEGRO, 4.2)); if (q2) tr.push(K.linea(q2, [0.25 + 0.4 * i / phs.length, 0.45 + 0.4 * i / phs.length], FONDO_C, 4.2)); }
       else {
         tr.push(K.linea(q, [0, 0.05], NEGRO, 4.2)); if (!q2) return;
-        tr.push(K.linea(q2, [0, 0.05], AMARILLO, 4.2, { x: 0.68 }));
-        tr.push(K.linea(q2, [0.15 + 0.3 * i / phs.length, 0.3 + 0.3 * i / phs.length], 'rgba(123,79,160,0.85)', 5, { x: 0.7 }));
-        tr.push(K.linea(q2, [0.62, 0.66], PERLA, 4.2));
+        tr.push(K.linea(q2, [0, 0.05], FONDO_C, 4.2, { x: 0.68 }));
+        tr.push(K.linea(q2, [0.15 + 0.3 * i / phs.length, 0.3 + 0.3 * i / phs.length], rgbC, 5, { x: 0.7 }));
+        tr.push(K.linea(q2, [0.62, 0.66], FIN_C, 4.2));
         tr.push(K.linea(q2, [0.86, 0.97], 'rgba(255,255,255,0.45)', 1.4));
       }
     });
-    if (!neutro) tr.push(K.rotulo('Resultado: sobre cabello negro, el fondo sube a amarillo', '#9A7B2E', 0), K.rotulo('Hay que neutralizar ese amarillo', '#1F1B18', 0.7));
+    if (!neutro) tr.push(K.rotulo(naranja ? 'Resultado: el fondo queda naranja' : 'Resultado: sobre cabello negro, el fondo sube a amarillo', '#9A7B2E', 0), K.rotulo(naranja ? 'Hay que neutralizar ese naranja' : 'Hay que neutralizar ese amarillo', '#1F1B18', 0.7));
+    else if (naranja) tr.push(K.rotulo('Neutralizar el naranja con azul (ceniza)', AZUL, 0), K.rotulo('Tintes .1 o .11', AZUL, 0.15), K.rotulo('Resultado: sin naranja, tono ceniza', '#18906A', 0.62));
     else tr.push(K.rotulo('Neutralizar el amarillo con violeta', VIOLETA, 0), K.rotulo('Matizador violeta o tinte .2', VIOLETA, 0.15), K.rotulo('Resultado: rubio neutro, sin amarillo', '#18906A', 0.62));
     return { v: v, tr: tr };
+  }
+  /* Fátima, 10-10-2026 · en vez de papel, gorro plástico o térmico; se revisa a los 5, 10, 15 y 20 minutos */
+  function escDecoGorro(K) {
+    var v = 'lateral', tr = [], phs = []; for (var d = -1.0; d <= 1.3; d += 0.06) if (K.seVe(v, K.DER - d, 1.0)) phs.push(K.DER - d);
+    phs.forEach(function (ph) { var q = mecha(K, v, ph, 0.35, 0, 1), q2 = mecha(K, v, ph, 0.35, 0.25, 1); if (q) tr.push(K.linea(q, [0, 0.05], NEGRO, 4.2)); if (q2) tr.push(K.linea(q2, [0, 0.05], 'rgba(240,236,228,0.9)', 4.2)); });
+    var cas = []; for (var a = 0; a <= 24; a++) { var ph = K.DER - 1.0 + 2.3 * a / 24; if (K.seVe(v, ph, 0.9)) { var p0 = K.P(ph, 0.25, 1.12); cas.push(K.pr(v, p0)); } }
+    var bord = []; for (var b = 24; b >= 0; b--) { var ph2 = K.DER - 1.0 + 2.3 * b / 24; if (K.seVe(v, ph2, 1.6)) bord.push(K.pr(v, K.P(ph2, 1.75, 1.12))); }
+    var poly = []; cas.concat(bord).forEach(function (q) { poly.push(q[0], q[1]); });
+    if (poly.length > 6) tr.push(zona(poly, [0.06, 0.18], 'rgba(205,225,240,0.55)', 0.6, '#8EA7BC'));
+    tr.push({ k: 'c', m: 20, t: [0.2, 0.95], c: '#B01E45', s: 'Revisar' });
+    [5, 10, 15, 20].forEach(function (m, i) { tr.push(K.rotulo('A los ' + m + ' minutos: se limpia un mechón y se mira cómo procesa', '#B01E45', 0.2 + i * 0.18, i < 3 ? { x: 0.38 + i * 0.18 } : {})); });
+    tr.push(K.rotulo('Gorro plástico o térmico en lugar de papel', '#1F1B18', 0));
+    return { v: v, tr: tr };
+  }
+  /* Fátima, 10-10-2026 · queratina: antes del producto se deshidrata el cabello con el champú de la queratina */
+  function escQueraLavado(K) {
+    var a = escCierre(K, true, 'Deshidratar: 4 o 5 lavados con el champú de la queratina');
+    a.tr.push(K.rotulo('Hasta 6 si el cabello es muy graso · agua tibia', C_AGUA, 0.15), K.rotulo('Se abre la cutícula y el cabello queda deshidratado', '#1F1B18', 0.45), K.rotulo('Después: secar y aplicar el producto mechón a mechón', '#18906A', 0.75));
+    return a;
   }
   /* aplicación: pincel, papel, plancha, bigudíes… según la técnica */
   function escAplicar(K, t, modo, col, k) {
@@ -545,17 +568,25 @@
       if ((id === 'cab_derriz' || id === 'quera_alisado' || id === 'cab_planchado') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_alisado_nuca'; }) && K.mechon) {
         var prodA = id === 'cab_derriz' ? 'derriz' : id === 'quera_alisado' ? 'queratina' : '', planA = id !== 'cab_derriz';
         var txA = 'Antes, el cabello ondulado. Se toman divisiones finas, de abajo arriba.' + (prodA ? ' Se aplica el producto mechón a mechón.' : '') +
-          (planA ? ' La plancha se pasa a cero grados, sin elevar: se prensa bien el cabello y se estira hacia abajo, y detrás de la plancha el cabello queda liso.' : ' El derriz no lleva calor: el mechón se estira a cero grados con el peine, hacia abajo.') + ' Después, todo el cabello liso y con brillo.';
+          (planA ? ' La plancha se pasa a cero grados, sin elevar: se prensa bien el cabello y se estira hacia abajo, y detrás de la plancha el cabello queda liso.' : ' En el derriz, mientras se peina y se aplica el producto, con la mano se prensa el cabello a cero grados, todo a cero grados, para que quede bien estirado y pierda volumen. Se deja procesar según el tipo de cabello; si se pone frágil o chicloso, se retira el producto de inmediato.') + ' Después, todo el cabello liso y con brillo.' + (id === 'quera_alisado' ? ' La queratina se deja de tres días a una semana y el alisado dura de tres a seis meses, según el producto.' : '');
+        if (id === 'quera_alisado') esc.push({ tipo: 'cb_quera_lavado', vista: 'lateral', t: 'Queratina · deshidratar el cabello', a: escQueraLavado(K),
+          texto: 'Antes del producto se deshidrata el cabello: se lava cuatro o cinco veces con el champú de la queratina, hasta seis si es muy graso, con agua tibia. Así se abre la cutícula. Después se seca y se aplica el producto mechón a mechón, y se empieza a estirar con la plancha. Fátima recomienda la queratina orgánica, sin formol.' });
         esc.push({ tipo: 'cb_alisado_nuca', vista: 'nuca', t: 'Alisado a 0° · antes y después', a: escAlisado(K, t, 'nuca', prodA, planA), texto: txA },
           { tipo: 'cb_alisado_lat', vista: 'lateral', t: 'Alisado a 0° · de lado', a: escAlisado(K, t, 'lateral', prodA, planA), texto: 'De lado se ve igual: del ondulado al liso, división a división, estirando siempre hacia abajo.' });
       }
       if (id === 'quim_decoloracion' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_deco_neutro'; }) && K.mechon) {
         esc.push({ tipo: 'cb_deco_capas', vista: 'lateral', t: 'Decoloración por capas · del frente hacia atrás', a: escDecoCapas(K, t),
-          texto: 'Se divide el cabello en capas, del frente hacia atrás. En cada capa se aplica el producto desde unos cinco centímetros de la raíz hasta las puntas y se coloca el papel de aluminio. Así hasta terminar atrás.' },
+          texto: 'Antes de empezar se hace una prueba de mechón para ver si el cabello resiste. Se prepara el polvo decolorante con el oxidante de 20, 30 o 40 volúmenes, según la ficha, y se aplica de inmediato: si se deja esperar, pierde consistencia. Se divide el cabello en capas finas, del frente hacia atrás. En cada capa se aplica el producto, mechón a mechón, desde unos cinco centímetros de la raíz hasta las puntas, y se coloca el papel de aluminio. Así hasta terminar atrás.' },
           { tipo: 'cb_deco_amarillo', vista: 'lateral', t: 'Resultado · el negro sube a amarillo', a: escDecoColor(K, false),
           texto: 'Sobre un cabello negro, al decolorar el fondo sube y probablemente queda amarillo. Ese amarillo hay que neutralizarlo.' },
           { tipo: 'cb_deco_neutro', vista: 'lateral', t: 'Neutralizar el amarillo con violeta', a: escDecoColor(K, true),
           texto: 'El amarillo se neutraliza con violeta: matizador violeta o tinte punto dos. Al neutralizar, el amarillo desaparece y queda un rubio neutro.' });
+        esc.splice(esc.length - 2, 0, { tipo: 'cb_deco_gorro', vista: 'lateral', t: 'Gorro y revisión cada 5 minutos', a: escDecoGorro(K),
+          texto: 'En lugar de papel de aluminio también se puede poner una bolsa o un gorro, plástico o térmico. Se va revisando a los cinco, diez, quince y veinte minutos para ver cómo procesa.' });
+        esc.push({ tipo: 'cb_deco_naranja', vista: 'lateral', t: 'Resultado · si queda naranja', a: escDecoColor(K, false, true),
+          texto: 'Si el fondo queda naranja, también hay que neutralizarlo.' },
+          { tipo: 'cb_deco_neutro_nar', vista: 'lateral', t: 'Neutralizar el naranja con azul', a: escDecoColor(K, true, true),
+          texto: 'El naranja se neutraliza con azul, es decir, con ceniza: tintes punto uno o punto once. Así desaparece el naranja y queda un tono ceniza.' });
       }
       if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_queda_frente'; }) && K.dirElev && K.mechon) {
         var dq = id === 'color_balayage' ? ARRANQUE : 0.1;
