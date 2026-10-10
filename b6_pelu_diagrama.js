@@ -752,10 +752,10 @@
     return E;
   }
   /* Fotograma final de una escena (JPEG) para el libro impreso. */
-  function foto(e, w, cal) {
+  function foto(e, w, cal, prog) {   /* prog (opcional, 0–1): fotograma a mitad de la escena; por defecto el final */
     var im = LIENZO[e.vista]; if (!im || !e.anim) return '';
     var c = e.anim.crop, h = Math.round(w * c[3] / c[2]), cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-    pinta(cv.getContext('2d'), e.anim, im, 0, 0, w, h, 1);
+    pinta(cv.getContext('2d'), e.anim, im, 0, 0, w, h, prog == null ? 1 : prog);
     return cv.toDataURL('image/jpeg', cal || 0.8);
   }
 
