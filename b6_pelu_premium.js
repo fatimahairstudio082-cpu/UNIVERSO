@@ -92,5 +92,36 @@
     CA.enriquecer._premiumPelu = 1;
   }
 
-  window.EU_PELU_PREMIUM = { PAL: PAL, ORO: ORO, activo: activo, variedad: variedad };
+  /* ─── tema del libro de Peluquería (Fátima, 10-10-2026): en libros de 10–200 hojas entran primero las unidades del tema
+     elegido, con sus técnicas animadas, resultados y neutralización; las demás siguen detrás (no se quita ninguna) y lo que no
+     quepa va al anexo. «Todo» = el orden de siempre. Opción `op.tema` en «Qué fabrico». ─── */
+  var TEMAS = {
+    cortes: [/^pe_u_c_/],
+    color: [/^cb_color_/, /^cb_mechas_/, /^cb_quim_decoloracion$/],
+    quimica: [/^cb_quera_/, /^cb_quim_/, /^cb_hidra_/, /^cb_cab_/]
+  };
+  var BASE = /^pe_u_(fund|cab)$/, TEMA = null;
+  var CU = window.EU_CURRICULO;
+  if (CU && CU.unidades && !CU.unidades._temaPelu) {
+    var uds0 = CU.unidades;
+    CU.unidades = function (mat) {
+      var L = uds0.apply(this, arguments);
+      if (mat !== 'pelu' || !TEMA || !TEMAS[TEMA] || !L || !L.slice) return L;
+      var es = function (u) { return TEMAS[TEMA].some(function (r) { return r.test(u.id); }); };
+      return L.filter(function (u) { return BASE.test(u.id); }).concat(L.filter(function (u) { return !BASE.test(u.id) && es(u); }), L.filter(function (u) { return !BASE.test(u.id) && !es(u); }));
+    };
+    CU.unidades._temaPelu = 1;
+    var M = CU.materia && CU.materia('pelu');
+    if (M) { M.opciones = (M.opciones || []).filter(function (x) { return x.k !== 'tema'; }); M.opciones.unshift({ k: 'tema', n: 'Tema del libro', tipo: 'chips', def: 'todo', ops: [['todo', 'Todo'], ['cortes', 'Cortes'], ['color', 'Colorimetría y mechas'], ['quimica', 'Queratina, alisados y decoloración']] }); }
+  }
+  if (!ED.ensamblar._temaPelu) {
+    var ens = ED.ensamblar;
+    ED.ensamblar = function (cfg) {
+      var prev = TEMA; TEMA = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.tema && cfg.op.tema !== 'todo' ? cfg.op.tema : null;
+      try { return ens.apply(this, arguments); } finally { TEMA = prev; }
+    };
+    ED.ensamblar._temaPelu = 1;
+  }
+
+  window.EU_PELU_PREMIUM = { PAL: PAL, ORO: ORO, activo: activo, variedad: variedad, TEMAS: TEMAS };
 })();

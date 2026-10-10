@@ -840,7 +840,18 @@
   /* ───────── curso premium: una lección «Técnica paso a paso · técnica» en su unidad (Peluquería) ───────── */
   function lecciones(D, res, aviso) {
     var C = res && res.C, mat = C && C.cfg && C.cfg.materia; if (mat !== 'pelu' || !D || !D.modulos) return Promise.resolve(D);
-    var tareas = catalogo().map(function (t) { return { t: t, M: D.modulos.filter(function (m) { return m.id === t.unidad; })[0] }; }).filter(function (x) { return x.M; });
+    /* Fátima, 10-10-2026: las técnicas que el libro lleva en su ANEXO porque su unidad no entró (libros de 10–200 hojas)
+       van también al curso, en un módulo final «Anexo · Técnicas y clases» (libro = curso). */
+    var enAnexo = {}, MA = null;
+    (res.pages || []).forEach(function (p) { if (p.tipo === 'pe_animada' && p.fuera && !enAnexo[p.tec]) enAnexo[p.tec] = p.num || 1; });
+    var tareas = catalogo().map(function (t) {
+      var M = D.modulos.filter(function (m) { return m.id === t.unidad; })[0];
+      if (!M && enAnexo[t.id]) {
+        if (!MA) { MA = { id: 'pe_anexo', t: 'Anexo · Técnicas y clases', pag: enAnexo[t.id], lecciones: [], test: [] }; D.modulos.push(MA); }
+        M = MA;
+      }
+      return { t: t, M: M };
+    }).filter(function (x) { return x.M; });
     var i = 0, ins = {};   /* en el orden del catálogo, al principio de la unidad */
     return new Promise(function (ok) {
       (function sig() {
@@ -863,7 +874,7 @@
             if (T.M.test && !T.M.test.some(function (x) { return x.e === q.e; })) T.M.test.push({ e: q.e, o: q.o, c: q.c });
           });
           if (vieja) { vieja.escenas = esc; vieja.video = 1; vieja.animada = 1; return; }
-          var pag = (T.M.lecciones[0] || {}).pag;
+          var pag = T.M === MA ? enAnexo[T.t.id] : (T.M.lecciones[0] || {}).pag;
           var pos = ins[T.M.id] || 0; ins[T.M.id] = pos + 1;
           T.M.lecciones.splice(pos, 0, { id: T.M.id + '__' + T.t.id, t: (T.t.pre || 'Técnica paso a paso · ') + E.R.n, pag: pag, video: 1, escenas: esc });
         }).catch(function (er) { console.warn('Particiones', T.t.id, er); }).then(function () { setTimeout(sig, 0); });
