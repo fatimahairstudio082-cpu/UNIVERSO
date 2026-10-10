@@ -616,5 +616,7 @@
     escenas: ESC
   });
 
-  window.EU_INFANTIL = { FIG: FIG, PUNTOS: PUNTOS, PIX: PIX, figSVG: figSVG, mandalaSVG: mandalaSVG, laberinto: laberinto, sopa: sopa, renglon: renglon };
+  window.EU_INFANTIL = { FIG: FIG, PUNTOS: PUNTOS, PIX: PIX, figSVG: figSVG, mandalaSVG: mandalaSVG, laberinto: laberinto, sopa: sopa, renglon: renglon,
+    /* (10-10-2026) para b6_hojas_llenas.js: misma pauta y mismas palabras que las hojas */
+    altoRenglon: altoRenglon, palabraFig: palabraFig, letraCal: letraCal };
 })();

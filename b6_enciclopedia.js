@@ -25,6 +25,8 @@
     var B = window.EU_TEXTO_BANCO || {}; if (!u) return null;
     if (B[C.mat] && B[C.mat][u.id]) return B[C.mat][u.id];
     for (var k in B) if (B[k] && B[k][u.id]) return B[k][u.id];
+    /* (10-10-2026) materias sin banco escrito: banco armado con lo que ya tiene el sistema (b6_texto_auto.js) */
+    if (window.EU_TEXTO_AUTO) { try { return EU_TEXTO_AUTO.banco(C, u); } catch (e) { return null; } }
     return null;
   }
   function parte(C, u) { var B = window.EU_TEXTO_BANCO || {}; for (var k in B) { var P = B[k] && B[k]._partes; if (P && P[u.id]) return P[u.id]; } return ''; }
