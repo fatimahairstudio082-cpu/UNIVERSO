@@ -341,8 +341,8 @@
     /* ─── voz ─── */
     var S = W.speechSynthesis;
     function voz() { if (!S) return null; var v = S.getVoices().filter(function (x) { return /^es/i.test(x.lang); }); return v.filter(function (x) { return /google/i.test(x.name) && /es[-_]ES/i.test(x.lang); })[0] || v.filter(function (x) { return /es[-_]ES/i.test(x.lang); })[0] || v[0] || null; }
-    function di(t, cb) { var hecho = 0, f = function () { if (!hecho) { hecho = 1; cb && cb(); } }; if (!S || !t || !UI.voz) { setTimeout(f, Math.max(1800, String(t || '').length * 60)); return; } try { S.cancel(); } catch (e) { } var u = new SpeechSynthesisUtterance(String(t).replace(/<[^>]+>/g, '')); u.lang = 'es-ES'; var v = voz(); if (v) u.voice = v; u.rate = 0.95; u.onend = f; u.onerror = f; setTimeout(f, Math.max(3000, t.length * 95)); S.speak(u); }
-    function calla() { try { S && S.cancel(); } catch (e) { } }
+    function di(t, cb) { var hecho = 0, f = function () { if (!hecho) { hecho = 1; cb && cb(); } }; if (!S || !t || !UI.voz) { setTimeout(f, Math.max(1800, String(t || '').length * 60)); return; } try { S.cancel(); } catch (e) { } if (W.EU_BIL && W.EU_BIL.activo) W.EU_BIL.parar(); /* (10-10-2026) Inglés: lo escrito en inglés con voz inglesa (b6_voz_bilingue.js) */ if (W.EU_BIL && W.EU_BIL.activo && W.EU_BIL.hay(String(t))) { W.EU_BIL.decir(String(t).replace(/<[^>]+>/g, ''), { rate: 0.95, es: voz() }, f); setTimeout(f, Math.max(3000, String(t).length * 110)); return; } var u = new SpeechSynthesisUtterance(String(t).replace(/<[^>]+>/g, '')); u.lang = 'es-ES'; var v = voz(); if (v) u.voice = v; u.rate = 0.95; u.onend = f; u.onerror = f; setTimeout(f, Math.max(3000, t.length * 95)); S.speak(u); }
+    function calla() { if (W.EU_BIL && W.EU_BIL.activo) W.EU_BIL.parar(); try { S && S.cancel(); } catch (e) { } }
 
     /* ─── ventana con las dos pizarras ─── */
     var UI = { voz: true };

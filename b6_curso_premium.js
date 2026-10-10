@@ -181,6 +181,8 @@
     var LEC = []; D.modulos.forEach(function (M, i) { M.lecciones.forEach(function (L, j) { L.mi = i; L.li = j; LEC.push(L); }); });
     var cur = { L: null, k: 0, pos: 0, voz: false, rev: false, play: false, t0: 0, b: false };
     var VOZ = null;
+    /* (10-10-2026) Inglés: voz bilingüe (b6_voz_bilingue.js); el motor viaja en datos.js como D.bil */
+    if (D.bil && !window.EU_BIL) { try { (new Function(D.bil))(); } catch (e) { } }
     function eligeVoz() {
       var vs = speechSynthesis.getVoices().filter(function (v) { return /^es/i.test(v.lang); });
       VOZ = vs.filter(function (v) { return /google/i.test(v.name) && /es-ES/i.test(v.lang); })[0] || vs.filter(function (v) { return /es-ES/i.test(v.lang); })[0] || vs[0] || null;
@@ -267,6 +269,7 @@
         if (i >= fr.length) { cur.pos = t.length; if (cur.play) fin(); return; }
         if (!cur.play) return;
         var f = fr[i], off = base; base += f.length;
+        if (window.EU_BIL && EU_BIL.activo && EU_BIL.hay(f)) { cur.t0 = performance.now() - off / 14.5 * 1000; cur.pos = Math.max(cur.pos, off); EU_BIL.decir(f.trim(), { rate: cur.vel || 1, es: VOZ }, function () { cur.b = false; if (cur.play) sig(i + 1); }); return; }
         u = new SpeechSynthesisUtterance(f.trim()); u.voice = VOZ; u.lang = 'es-ES'; u.rate = cur.vel || 1;
         cur.t0 = performance.now() - off / 14.5 * 1000; cur.pos = Math.max(cur.pos, off);
         u.onboundary = function (ev) { if (ev.charIndex != null) { cur.b = true; cur.pos = off + ev.charIndex; } };
@@ -275,7 +278,7 @@
         speechSynthesis.speak(u);
       })(0);
     }
-    function para() { cur.play = false; clearTimeout(cur.h); if (window.speechSynthesis) speechSynthesis.cancel(); $('#play').textContent = '▶ Reproducir'; }
+    function para() { cur.play = false; clearTimeout(cur.h); if (window.EU_BIL) EU_BIL.parar(); if (window.speechSynthesis) speechSynthesis.cancel(); $('#play').textContent = '▶ Reproducir'; }
     function reproduce(desde, alTerminar) {
       para(); cur.play = true; $('#play').textContent = '❚❚ Pausa';
       var k = desde || 0, L = cur.L;

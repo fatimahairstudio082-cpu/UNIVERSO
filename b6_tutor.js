@@ -155,6 +155,8 @@
     var vistos = {}, hay = false, visto = { lam: {}, dg: res._fotos || {} }, ES = window.EU_ESCANER;
     if (ES && ES.firma) res.pages.forEach(function (p) { if (p.tipo === 'esc_lamina' && p.u) visto.lam[ES.firma(p.u, C, p.lam || 0)] = 1; });
     res.pages.forEach(function (p) { (p.items || []).forEach(function (x) { if (x && x.e) vistos[txt(x.e)] = 1; }); });
+    /* (10-10-2026) cuaderno, fichas y libro profesional no traen «repaso»: b6_interactivo_todos.js marca una hoja por unidad */
+    if (window.EU_INTERACTIVO_TODOS) { try { EU_INTERACTIVO_TODOS.repasos(res); } catch (e) { console.warn('Tutor · todos', e); } }
     res.pages.forEach(function (p, i) {
       if (p.tipo !== 'repaso' || !p.u) return;
       var n = { tipo: 'tutor', u: p.u, n: p.n, num: p.num, fill2: { nada: 1 } };

@@ -46,14 +46,16 @@
       'var F=n(f),c=F.indexOf(":"),w=F.split(" "),ks=[F.slice(0,38),c>0&&c<28?F.slice(c+1).trim().slice(0,30):"",w.slice(1,6).join(" "),w.slice(-5).join(" ")].filter(function(k){return k.length>8}),m=null,es=[].slice.call(p.querySelectorAll("p,li,td,h1,h2,h3,div,span,b"));' +
       'for(var q=0;q<ks.length&&!m;q++)es.forEach(function(e){var t=n(e.textContent);if(t.indexOf(ks[q])>=0&&(!m||t.length<=n(m.textContent).length))m=e});' +
       'if(m&&n(m.textContent).length<1200){m.dataset.bg=m.style.background||"";m.style.background="rgba(255,213,79,.38)";m.style.boxShadow="0 0 0 2px rgba(255,193,7,.5)";marca=m}}' +
-      'var E={p:null,f:[],i:0,on:0,libro:0,b:null};' +
+      'var E={p:null,f:[],i:0,on:0,libro:0,b:null,ses:0};' +
       'function boton(p){return p.querySelector("button[data-vyl]")}' +
-      'function parar(){E.on=0;E.libro=0;S.cancel();luz();[].slice.call(document.querySelectorAll("button[data-vyl]")).forEach(function(b){b.textContent="\\u25b6 Ver y escuchar"});if(G)G.textContent="\\u25b6 Escuchar el libro"}' +
+      'function parar(){E.ses=(E.ses||0)+1;E.on=0;E.libro=0;if(window.EU_BIL)EU_BIL.parar();S.cancel();luz();[].slice.call(document.querySelectorAll("button[data-vyl]")).forEach(function(b){b.textContent="\\u25b6 Ver y escuchar"});if(G)G.textContent="\\u25b6 Escuchar el libro"}' +
       'function dice(){if(!E.on)return;if(E.i>=E.f.length){luz();var b=boton(E.p);if(b)b.textContent="\\u25b6 Ver y escuchar";if(E.libro)siguiente();else E.on=0;return}' +
       'var f=E.f[E.i],vv=V(),otra=POD&&(/\\?\\s*$/.test(f)||/^(pista|respuesta|la respuesta|piensa)/i.test(f)),u=new SpeechSynthesisUtterance(f);' +
+      /* (10-10-2026) Inglés e Idiomas: lo escrito en inglés se dice con voz inglesa (b6_voz_bilingue.js) */
+      'if(window.EU_BIL&&EU_BIL.activo&&EU_BIL.hay(f)){var ss=E.ses;luz(E.p,f);EU_BIL.decir(f,{rate:.95,es:otra&&vv[1]?vv[1]:vv[0],pitch:otra&&!vv[1]?.82:1},function(){if(ss!==E.ses)return;E.i++;setTimeout(function(){if(ss===E.ses)dice()},f.length>60?420:300)});return}' +
       'u.lang="es-ES";var v=otra&&vv[1]?vv[1]:vv[0];if(v)u.voice=v;u.rate=.95;u.pitch=otra&&!vv[1]?.82:1;luz(E.p,f);' +
-      'u.onend=function(){E.i++;setTimeout(dice,f.length>60?420:300)};u.onerror=function(){E.i++;setTimeout(dice,200)};S.speak(u)}' +
-      'function empieza(p){S.cancel();E.p=p;E.f=frases(txt(p));E.i=0;E.on=1;var b=boton(p);if(b)b.textContent="\\u25a0 Parar";p.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(dice,250)}' +
+      'var s1=E.ses;u.onend=function(){if(s1!==E.ses)return;E.i++;setTimeout(function(){if(s1===E.ses)dice()},f.length>60?420:300)};u.onerror=function(){if(s1!==E.ses)return;E.i++;setTimeout(function(){if(s1===E.ses)dice()},200)};S.speak(u)}' +
+      'function empieza(p){if(window.EU_BIL)EU_BIL.parar();E.ses=(E.ses||0)+1;S.cancel();E.p=p;E.f=frases(txt(p));E.i=0;E.on=1;var b=boton(p);if(b)b.textContent="\\u25a0 Parar";p.scrollIntoView({behavior:"smooth",block:"start"});var s0=E.ses;setTimeout(function(){if(s0===E.ses)dice()},250)}' +
       'function siguiente(){var ps=[].slice.call(document.querySelectorAll(".pg")),k=ps.indexOf(E.p)+1;while(k<ps.length&&!frases(txt(ps[k])).length)k++;if(k>=ps.length){parar();return}empieza(ps[k])}' +
       '[].slice.call(document.querySelectorAll(".pg")).forEach(function(p){[].slice.call(p.children).forEach(function(b){if(b.tagName==="BUTTON"&&b.textContent==="Escuchar")b.remove()});' +
       'if([].slice.call(p.querySelectorAll("button")).some(function(b){return /ver y escuchar/i.test(b.textContent)}))return;if(!frases(txt(p)).length)return;' +
