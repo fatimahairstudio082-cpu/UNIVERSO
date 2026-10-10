@@ -170,6 +170,8 @@
       ['curso', '🎓 Curso premium', 'Pulsa ▶ Reproducir. Los enlaces a libro y láminas funcionan en la descarga.', function () { return curD().then(function (D) { return urlHTML(htmlCurso(D)); }); }],
       ['hotmart', '📦 Carpeta HOTMART', 'Lo que lleva la carpeta para Hotmart, antes de descargarla.', null]
     ];
+    /* asesor de precio (b6_asesor_precio.js, Fátima 10-10-2026): pestaña más, solo si el módulo está cargado */
+    if (window.EU_ASESOR_PRECIO) PEST.push(['precio', '💰 Asesor de precio', 'Cuánto cobrar por el libro y por el curso, en Hotmart y en Instagram/Facebook, por país (orientativo).', null]);
     function curD() { if (!Dp) Dp = prepCurso(ed); return Dp; }
     var botones = {}, actual = null;
     function abre(k) {
@@ -177,9 +179,9 @@
       var P = PEST.filter(function (p) { return p[0] === k; })[0];
       Object.keys(botones).forEach(function (b) { botones[b].style.background = b === k ? '#B08D57' : '#16223A'; });
       nota.textContent = P[2];
-      if (k === 'hotmart') {
+      if (k === 'hotmart' || k === 'precio') {
         fr.style.display = 'none'; caja.style.display = 'block'; caja.innerHTML = '<div style="color:#fff;padding:10px">Preparando el curso…</div>';
-        curD().then(function (D) { resumenHotmart(ed, D, caja); }).catch(function (e) { caja.innerHTML = '<div style="color:#fff;padding:10px">' + esc(e.message || e) + '</div>'; });
+        curD().then(function (D) { if (actual !== k) return; if (k === 'precio') window.EU_ASESOR_PRECIO.panel(ed, D, caja); else resumenHotmart(ed, D, caja); }).catch(function (e) { caja.innerHTML = '<div style="color:#fff;padding:10px">' + esc(e.message || e) + '</div>'; });
         return;
       }
       caja.style.display = 'none'; fr.style.display = 'block';
