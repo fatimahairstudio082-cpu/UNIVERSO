@@ -452,9 +452,11 @@
     pas_sol: function (pg, C, modo, ctx) {
       var T = C.T, todos = (ctx && ctx.pages || []).filter(function (p) { return p.sol === true; }), sols = (ctx && ctx.pages || []).filter(function (p) { return p.tipo === 'pas_sol'; });
       var cuantas = Math.ceil(todos.length / Math.max(1, sols.length)), trozo = todos.slice(pg.parte * cuantas, (pg.parte + 1) * cuantas), cols = cuantas > 6 ? 3 : 2;
+      /* (10-10-2026) en el PDF el solucionario se salía 30 mm por abajo: cada solución cabe en su hueco (alto de la hoja ÷ filas) */
+      var cajaH = Math.max(28, (C.papel.h - 36 - 30 - 8) / Math.max(1, Math.ceil(trozo.length / cols)) - 6 - 7), topeSvg = function (s) { return s.replace('style="width:100%;height:auto;', 'style="width:100%;height:auto;max-height:' + cajaH.toFixed(1) + 'mm;'); };
       return H.cabecera(C, pg) + titulo(C, pg.parte ? 'Solucionario (sigue)' : 'Solucionario', 'font-size:' + (C.fs * 1.6) + 'px') +
         '<div style="display:grid;grid-template-columns:repeat(' + cols + ',minmax(0,1fr));gap:6mm">' + trozo.map(function (p) {
-          var h = p.tipo === 'pas_sopa' ? sopaTabla(p.S, C, true, Math.min(5.5, (ancho(C) / cols - 6) / p.S.n)) : p.tipo === 'pas_laberinto' ? laberintoSVG(p.M, C, true, p.a, p.b) : p.tipo === 'pas_simetria' ? simSVG(p.p, C, true) : puntosSVG(p.pts, C, true);
+          var h = p.tipo === 'pas_sopa' ? sopaTabla(p.S, C, true, Math.min(5.5, (ancho(C) / cols - 6) / p.S.n, cajaH / p.S.n)) : topeSvg(p.tipo === 'pas_laberinto' ? laberintoSVG(p.M, C, true, p.a, p.b) : p.tipo === 'pas_simetria' ? simSVG(p.p, C, true) : puntosSVG(p.pts, C, true));
           var n = p.tipo === 'pas_simetria' ? PIX[p.p][0] : p.tipo === 'pas_puntos' ? PUNTOS[p.forma][0] : '';
           return '<div style="break-inside:avoid"><div style="font-size:.8em;font-weight:700;color:' + T.acc + ';margin-bottom:1.5mm">' + p.pz + ' · ' + esc(p.tipo === 'pas_sopa' ? p.t : p.tipo === 'pas_laberinto' ? 'Laberinto' : n ? 'Sale ' + n : '') + ' <span style="opacity:.6;font-weight:400">(pág. ' + p.num + ')</span></div><div style="max-width:' + (ancho(C) / cols - 4) + 'mm">' + h + '</div></div>';
         }).join('') + '</div>' + H.folio(C, pg);
