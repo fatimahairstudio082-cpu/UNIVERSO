@@ -5,8 +5,8 @@
    · Impreso (PDF/EPUB): hasta 4 fotogramas finales con el título y la explicación de cada paso, y el repaso con soluciones.
    · Libro interactivo (web): «▶ Ver y escuchar» reproduce todas las escenas en un lienzo, frase a frase con voz es-ES,
      y las preguntas se corrigen al tocarlas.
-   Solo ocupa huecos (páginas sin contenido, relleno, lecturas sobrantes) de su unidad: el número de hojas no cambia;
-   si la unidad no tiene hueco, la técnica queda solo en el curso. No toca pe_tecnica, pe_guia3d ni pe_diagrama.
+   Primero ocupa huecos (páginas sin contenido, relleno, lecturas sobrantes) de su unidad; las técnicas que no caben
+   van en un anexo antes del solucionario, una hoja por técnica (Fátima, 10-10-2026; `cfg.acab.anexo = 'no'` lo apaga). No toca pe_tecnica, pe_guia3d ni pe_diagrama.
    `cfg.acab.animadas = 'no'` lo apaga. Cargar después de b6_pelu_particiones.js y b6_pelu_libro_diagrama.js. */
 (function () {
   'use strict';
@@ -102,15 +102,15 @@
     var PA = window.EU_PARTICIONES;
     if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || !PA || !window.EU_DIAGRAMA || (((cfg.acab || {}).animadas) === 'no')) return res;
     if (!window.EU_DIAGRAMA.fondosYa()) { prepararMotor(); return res; }
-    var hay = {}, ya = {}, quitadas = {}, n = 0, solo = [];
-    res.pages.forEach(function (p) { if (p.u) hay[p.u.id] = 1; if (p.tipo === 'pe_animada') ya[p.tec] = 1; });
+    var hay = {}, ya = {}, quitadas = {}, n = 0, solo = [], unidad = {};
+    res.pages.forEach(function (p) { if (p.u) { hay[p.u.id] = 1; if (!unidad[p.u.id]) unidad[p.u.id] = p; } if (p.tipo === 'pe_animada') ya[p.tec] = 1; });
     /* por unidad: se eligen los huecos y las técnicas van en ellos en el orden del catálogo (el mismo del curso) */
     var porU = {}, orden = [];
     PA.catalogo().forEach(function (t) { if (!hay[t.unidad] || ya[t.id]) return; if (!porU[t.unidad]) { porU[t.unidad] = []; orden.push(t.unidad); } porU[t.unidad].push(t); });
     orden.forEach(function (uid) {
       var T = porU[uid], idx = huecos(res, uid).slice(0, T.length).map(function (h) { return h[1]; }).sort(function (a, b) { return a - b; });
       T.forEach(function (t, j) {
-        if (j >= idx.length) { solo.push(t.id); return; }
+        if (j >= idx.length) { solo.push(t); return; }
         var i = idx[j], p = res.pages[i];
         res.pages[i] = { tipo: 'pe_animada', u: p.u, n: p.n, num: p.num, tec: t.id, titulo: t.n, fill2: { nada: 1 } };
         quitadas[p.num] = 1; ya[t.id] = 1; n++;
@@ -118,7 +118,22 @@
     });
     /* las soluciones de las páginas sustituidas salen del solucionario (la página nueva lleva las suyas) */
     res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return !quitadas[e.p]; }); });
-    res.animadas = { libro: n, soloCurso: solo };
+    /* Fátima, 10-10-2026 · ANEXO: las técnicas y clases que no caben en los huecos de su unidad van en hojas nuevas,
+       una por técnica, antes del solucionario. El libro crece en esas hojas (libro web, PDF imprimible y paquete).
+       `cfg.acab.anexo = 'no'` lo apaga y vuelve al comportamiento anterior (solo en el curso). */
+    var anexo = [];
+    if (solo.length && ((cfg.acab || {}).anexo) !== 'no') {
+      solo.forEach(function (t) { var ref = unidad[t.unidad]; anexo.push({ tipo: 'pe_animada', u: ref.u, n: ref.n, tec: t.id, titulo: t.n, anexo: 1, fill2: { nada: 1 } }); ya[t.id] = 1; });
+      var tipos = res.pages.map(function (p) { return p.tipo; }), pos = tipos.indexOf('solucion');
+      if (pos < 0) pos = tipos.indexOf('bibliografia'); if (pos < 0) pos = tipos.indexOf('contra'); if (pos < 0) pos = res.pages.length;
+      res.pages.splice.apply(res.pages, [pos, 0].concat(anexo));
+      /* nueva numeración; el solucionario sigue apuntando a sus páginas */
+      var nueva = {};
+      res.pages.forEach(function (p, i) { if (p.num != null) nueva[p.num] = i + 1; });
+      res.pages.forEach(function (p, i) { p.num = i + 1; });
+      res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas.forEach(function (e) { if (nueva[e.p]) e.p = nueva[e.p]; }); });
+    }
+    res.animadas = { libro: n, anexo: anexo.length, soloCurso: anexo.length ? [] : solo.map(function (t) { return t.id; }) };
     return res;
   }
   function enganchar() {
