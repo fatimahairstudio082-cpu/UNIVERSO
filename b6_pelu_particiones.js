@@ -301,6 +301,69 @@
     if (cant) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
     return { v: v, tr: tr };
   }
+  /* Fátima, 10-10-2026 · la misma técnica por el LATERAL (balayage y mechas con papel).
+     Horizontal: líneas de medio centímetro de la oreja hacia el rostro; una con zigzag pequeño, mechón a 90°, producto
+     y papel; la siguiente libre. Vertical: líneas verticales solo en el lateral, papel enrollado en vertical, sin pasar
+     la línea de oreja a oreja y sin tocar la coronilla. El arranque lo decide la clienta: 10 % de la raíz para líneas
+     bien profundas; 25, 45 o 50 %; 65 % para iluminaciones. Después, cómo queda: el aclarado resalta en blanco
+     difuminado sobre el cabello oscuro. */
+  function lineaLat(vert, i, n) {
+    /* DER es la oreja que ven las vistas 'tres' y 'lateral'; hacia el rostro el ángulo baja (CARA = π/2) */
+    if (vert) { var ph = Math.PI - 0.08 - i * (0.82 / (n - 1)); return function (u) { return [ph, 0.98 + u * 0.66]; }; }
+    var th = 1.0 + i * (0.58 / (n - 1)); return function (u) { return [Math.PI - 0.04 - u * 0.86, th]; };
+  }
+  function escLatAccion(K, t, col, vert, desde) {
+    /* de lado: se ven la oreja, las líneas hacia el rostro, el zigzag y el papel */
+    var v = 'lateral', tr = [], n = vert ? 9 : 11, con = 0, nCon = Math.ceil(n / 2), cP = '#F4D27A';
+    /* la línea de oreja a oreja (no se pasa): sube de una oreja, cruza por arriba y baja a la otra */
+    [Math.PI, 0].forEach(function (ph) { tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [ph, 0.02 + u * 1.58]; }, 30), [0, 0.05], '#2C6FD1', 3)); });
+    for (var i = 0; i < n; i++) {
+      var L = lineaLat(vert, i, n), ta = 0.06 + i * 0.92 / n, tb = ta + 0.92 / n, dt = tb - ta, sac = i % 2 === 0, cc = sac ? C_CAPA[con % 3] : '#8E847A';
+      tr = tr.concat(K.lineas(K.tramos(v, L, 20), [ta, ta + dt * 0.15], cc, sac ? 2.2 : 1.5, sac ? {} : { d: 1 }));
+      if (!sac) continue;
+      con++;
+      var z = [], r = [];
+      for (var k = 0; k <= 18; k++) { var q = L(0.04 + 0.86 * k / 18), off = k % 2 ? 0.03 : 0; z.push(vert ? [q[0] - off, q[1]] : [q[0], q[1] - off]); if (k % 2) r.push(z[z.length - 1]); }
+      for (var j = 0; j < z.length - 1; j++) tr = tr.concat(K.lineas(K.tramos(v, K.recta(z[j], z[j + 1]), 3), [ta + dt * 0.1, ta + dt * 0.22], cc, 1.7));
+      var mc = L(0.45), ext = { x: ta + dt * 0.8, lev: 1 }, c0 = K.P(mc[0], mc[1]), fin = [];
+      for (var k2 = 0; k2 <= 5; k2++) fin.push(c0.clone().add(K.dirElev(mc[0], mc[1], 90 * k2 / 5).multiplyScalar(0.6)));
+      r.forEach(function (rr) { if (!K.seVe(v, rr[0], rr[1])) return; var a = K.P(rr[0], rr[1]), b5 = a.clone().lerp(fin[5], 0.97), ks = fin.map(function (b) { return [].concat(K.pr(v, a), K.pr(v, a.clone().lerp(b, 0.97))); });
+        tr.push(K.mechon(ks, [ta + dt * 0.22, ta + dt * 0.42], C_HALO, 4.6, ext), K.mechon(ks, [ta + dt * 0.22, ta + dt * 0.42], C_NAT, 1.8, ext));
+        tr.push(K.linea([].concat(K.pr(v, a.clone().lerp(b5, desde)), K.pr(v, b5)), [ta + dt * 0.44, ta + dt * 0.62], cP, 2.6, ext)); });
+      /* el papel: en plantilla (horizontal) o enrollado en vertical; queda puesto */
+      var p0 = L(0.06), p1 = L(0.86);
+      if (K.seVe(v, p0[0], p0[1]) && K.seVe(v, p1[0], p1[1])) {
+        var e0 = K.pr(v, K.P(p0[0], p0[1])), e1 = K.pr(v, K.P(p1[0], p1[1])), dx = e1[0] - e0[0], dy = e1[1] - e0[1], Ln = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / Ln, ny = dx / Ln, H = vert ? 12 : 30;
+        if (!vert && ny < 0) { nx = -nx; ny = -ny; }
+        var papel = vert ? [e0[0] + nx * H, e0[1] + ny * H, e1[0] + nx * H, e1[1] + ny * H, e1[0] - nx * H, e1[1] - ny * H, e0[0] - nx * H, e0[1] - ny * H] : [e0[0], e0[1], e1[0], e1[1], e1[0] + nx * H, e1[1] + ny * H, e0[0] + nx * H, e0[1] + ny * H];
+        tr.push(zona(papel, [ta + dt * 0.62, ta + dt * 0.8], C_PAPEL, 0.96, C_PAPEL_B));
+        if (vert) [-0.5, 0, 0.5].forEach(function (f) { tr.push(K.linea([e0[0] + nx * H * f, e0[1] + ny * H * f, e1[0] + nx * H * f, e1[1] + ny * H * f], [ta + dt * 0.8, tb], C_PAPEL_B, 1.2)); });
+      }
+      var qn = K.pr(v, K.P(mc[0], mc[1])); tr.push({ k: 'n', x: qn[0], y: qn[1], s: String(con), c: cc, t: [ta + dt * 0.15, 1] });
+      tr.push(K.rotulo('Línea ' + (i + 1) + ' · zigzag pequeño, mechón a 90°, producto y papel' + (vert ? ' enrollado' : ''), cc, ta, con < nCon ? { x: tb } : {}));
+      if (i + 1 < n) tr.push(K.rotulo('Línea ' + (i + 2) + ' · libre: sin zigzag ni papel', '#8E847A', tb - dt * 0.05, { x: tb + 0.92 / n }));
+    }
+    var cant = t && t.ficha && t.ficha.cantidades;
+    tr.push(K.rotulo(vert ? 'Lateral en vertical · sin pasar la línea de oreja a oreja ni tocar la coronilla' : 'Lateral · líneas de medio centímetro de la oreja hacia el rostro', '#1F1B18', 0),
+      K.rotulo('Arranque ' + Math.round(desde * 100) + ' %' + (desde <= 0.15 ? ' · líneas bien profundas' : desde >= 0.6 ? ' · iluminaciones' : '') + (cant ? ' · producto ' + cant : ''), '#9A7B2E', 0));
+    return { v: v, tr: tr };
+  }
+  function escLatQueda(K, vert, desde) {
+    /* cómo queda: primero el cabello oscuro, luego el aclarado en blanco difuminado desde el arranque hasta las puntas */
+    var v = 'lateral', tr = [], n = vert ? 9 : 11, ph, i, j;
+    /* el cabello oscuro cubre todo el lado que se ve, de atrás hasta delante de la oreja (sin tapar la cara) */
+    for (ph = Math.PI + 1.0; ph > Math.PI - 0.75; ph -= 0.03) { var q = mecha(K, v, ph, 0.35, 0, 1); if (q) tr.push(K.linea(q, [0.02, 0.3], '#3A2418', 4.2)); }
+    for (i = 0; i < n; i += 2) {
+      var L = lineaLat(vert, i, n), t0 = 0.32 + 0.6 * i / n;
+      for (j = 0; j < 5; j++) {
+        var pt = L(0.1 + 0.16 * j); if (pt[0] < Math.PI - 0.75) continue; var q2 = mecha(K, v, pt[0], pt[1], desde, 1); if (!q2) continue;
+        tr.push(K.linea(q2, [t0, t0 + 0.2], 'rgba(255,250,235,0.45)', 10), K.linea(q2, [t0 + 0.02, t0 + 0.22], '#F7E6BA', 3.4));
+      }
+    }
+    tr.push(K.rotulo(vert ? 'Cómo queda · lateral en vertical' : 'Cómo queda · lateral en horizontal', '#1F1B18', 0),
+      K.rotulo('El aclarado resalta en blanco desde el ' + Math.round(desde * 100) + ' % hasta las puntas', '#9A7B2E', 0.3));
+    return { v: v, tr: tr };
+  }
   /* aplicación: pincel, papel, plancha, bigudíes… según la técnica */
   function escAplicar(K, t, modo, col, k) {
     if ((modo === 'barrido' || modo === 'papel' || modo === 'finas') && K.dirElev && K.mechon) return escMechones(K, modo, col, t);
@@ -374,6 +437,17 @@
       esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || ''), a: a });
       /* Fátima, 10-10-2026: el balayage también se hace profundo — se empieza a unos 5 cm del cuello, atrás, con zigzag grande;
          el mechón se eleva a 90° y se coloca el producto. Se añade como escena propia; la de arriba no cambia. */
+      if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_lat_h'; }) && K.dirElev && K.mechon) {
+        var tecLat = id === 'color_balayage' ? 'balayage' : 'mechas con papel';
+        esc.push({ tipo: 'cb_lat_h', vista: 'lateral', t: 'Lateral en horizontal · arranque 10 %', a: escLatAccion(K, t, col, false, 0.10),
+          texto: 'Por el lateral, en ' + tecLat + ': líneas horizontales de medio centímetro, de la oreja hacia el rostro. En una línea se hace un zigzag pequeño, se saca el mechón a 90 grados, se coloca el producto y el papel de aluminio. La siguiente línea se deja libre. Para líneas bien profundas el producto se coloca desde el 10 por ciento de la raíz.' },
+          { tipo: 'cb_lat_h_queda', vista: 'lateral', t: 'Lateral en horizontal · cómo queda', a: escLatQueda(K, false, 0.10),
+          texto: 'Así queda: el aclarado resalta en blanco, difuminado sobre el cabello, desde el 10 por ciento hasta las puntas.' },
+          { tipo: 'cb_lat_v', vista: 'lateral', t: 'Lateral en vertical · arranque 65 %', a: escLatAccion(K, t, col, true, 0.65),
+          texto: 'La misma técnica en vertical, solo en los laterales: se dibuja el zigzag, se coloca el producto y el papel de aluminio enrollado en vertical, sin pasar la línea que sube de una oreja a la otra y sin tocar la coronilla. Para iluminaciones el producto se coloca desde el 65 por ciento. El arranque lo decide la clienta: 10, 25, 45, 50 o 65 por ciento.' },
+          { tipo: 'cb_lat_v_queda', vista: 'lateral', t: 'Lateral en vertical · cómo queda', a: escLatQueda(K, true, 0.65),
+          texto: 'Así quedan las iluminaciones: el aclarado resalta en blanco desde el 65 por ciento hasta las puntas.' });
+      }
       if (id === 'mechas_aluminio' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_universales'; }) && K.dirElev && K.mechon) {
         esc.push({ tipo: 'cb_universales', vista: 'tres', t: 'Mechas universales · por el lateral', a: escUniversales(K, t, col),
           texto: 'Mechas universales con papel de aluminio. Desde la raya de atrás se sacan líneas en diagonal de un centímetro, un dedo o menos, de la nuca hacia la coronilla. En una línea se hace un zigzag pequeño, se saca el mechón a 90 grados, se coloca el producto y se pone el papel de aluminio, en plantilla o enrollado. La línea siguiente se deja libre, sin zigzag ni papel. En la tercera se vuelve a hacer el zigzag, y así hasta llegar a la coronilla: los papeles quedan montados uno sobre otro.' });
