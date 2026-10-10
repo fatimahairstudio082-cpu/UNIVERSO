@@ -25,7 +25,9 @@
     if (CACHE[id]) return CACHE[id];
     var DV = window.EU_DIVISIONES; if (!DV || typeof document === 'undefined') return '';
     var W = 800, H = 600, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-    try { DV.dibujarUna(cv.getContext('2d'), id, W * .5, H * .47, 190, 1, {}); } catch (e) { return ''; }
+    /* Balayage (Fátima, 10-10-2026): más pequeña y más arriba para que la escala 25 / 50 / 75 % y el arranque quepan en la imagen */
+    var bal = id === 'plantaBalayage';
+    try { DV.dibujarUna(cv.getContext('2d'), id, W * .5, bal ? 197 : H * .47, bal ? 165 : 190, 1, {}); } catch (e) { return ''; }
     return (CACHE[id] = cv.toDataURL('image/png'));
   }
   var VISTA = {
