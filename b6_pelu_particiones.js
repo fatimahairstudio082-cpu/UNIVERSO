@@ -207,20 +207,23 @@
     tr.push(Object.assign({ k: 'n', x: q[0], y: q[1], s: '', c: col, t: [tl, 1] }, ext), Object.assign({ k: 'n', x: qr[0] + 34, y: qr[1] - 4, s: g + '°', c: col, t: [tu, 1] }, ext));
     return tr;
   }
-  function escMechones(K, modo, col) {
-    var v = 'nuca', tr = [], filas = [1.7, 1.4, 1.1], n = filas.length, bal = modo === 'barrido', papel = !bal, fina = modo === 'finas';
+  function escMechones(K, modo, col, t, o) {
+    o = o || {};
+    var v = o.profundo ? 'arriba' : 'nuca', tr = [], filas = o.profundo ? [1.5, 1.1, 0.72] : [1.7, 1.4, 1.1], n = filas.length, bal = modo === 'barrido', papel = !bal, fina = modo === 'finas';
+    var AMP = o.profundo ? 0.28 : 0.22, ANCHO = o.profundo ? 0.3 : 0.2;
     var desde = bal ? ARRANQUE : 0;
     filas.forEach(function (th, f) {
       var ta = 0.03 + f * 0.95 / n, tb = ta + 0.95 / n, cc = C_CAPA[f % 3], ts = [ta, ta + (tb - ta) * 0.16], ult = f === n - 1;
       if (bal) {
         /* zigzag grande en el cráneo: picos hacia arriba; de cada pico sale un mechón en triángulo */
         var picos = [K.NUCA - 0.45, K.NUCA, K.NUCA + 0.45], zz = [[K.NUCA - 0.7, th]];
-        picos.forEach(function (ph) { zz.push([ph - 0.2, th], [ph, th - 0.22], [ph + 0.2, th]); }); zz.push([K.NUCA + 0.7, th]);
+        picos.forEach(function (ph) { zz.push([ph - ANCHO, th], [ph, th - AMP], [ph + ANCHO, th]); }); zz.push([K.NUCA + 0.7, th]);
         tr = tr.concat(contornoM(K, v, zz, ts, cc, 3));
         [picos[0], picos[2]].forEach(function (ph) {
           if (!K.seVe(v, ph, th - 0.1)) return; var r = [];
-          for (var i = 0; i <= 6; i++) { var u = i / 6; r.push(u < 0.5 ? [ph - 0.18 + 0.18 * u * 2, th - 0.2 * u * 2 + 0.01] : [ph + 0.18 * (u - 0.5) * 2, th - 0.2 + 0.2 * (u - 0.5) * 2 + 0.01]); }
-          tr = tr.concat(mechonFuera(K, v, r, ph, th - 0.08, ELEV_COLOR, ta, tb, desde, false, cc));
+          var aw = ANCHO * 0.9, ah = AMP * 0.9;
+          for (var i = 0; i <= 6; i++) { var u = i / 6; r.push(u < 0.5 ? [ph - aw + aw * u * 2, th - ah * u * 2 + 0.01] : [ph + aw * (u - 0.5) * 2, th - ah + ah * (u - 0.5) * 2 + 0.01]); }
+          tr = tr.concat(mechonFuera(K, v, r, ph, th - AMP * 0.4, ELEV_COLOR, ta, tb, desde, false, cc));
         });
       } else {
         /* tejido en zigzag dentro de la sección; el papel va debajo del mechón */
@@ -237,12 +240,13 @@
       tr.push(K.rotulo('Capa ' + (f + 1) + ' · mechón a ' + ELEV_COLOR + '°' + (bal ? ' · arranque ' + Math.round(desde * 100) + ' %' : ''), cc, ta, ult ? {} : { x: tb }));
     });
     var NOMM = { barrido: 'Balayage · zigzag grande en el cráneo, de cada pico sale el mechón', papel: 'Mechas · tejido en zigzag, papel debajo y producto', finas: 'Babylights · tejido finísimo, papel debajo y producto' };
-    tr.push(K.rotulo(NOMM[modo], '#1F1B18', 0), K.rotulo(bal ? 'El arranque (25, 50 o 75 %) y la cantidad los decide la clienta' : 'De la nuca hacia arriba · la cantidad la decide la clienta', C_RAYA, 0));
+    tr.push(K.rotulo(o.profundo ? 'Balayage profundo · empieza a unos 5 cm del cuello, zigzag grande' : NOMM[modo], '#1F1B18', 0), K.rotulo(bal ? 'El arranque (25, 50 o 75 %) y la cantidad los decide la clienta' : 'De la nuca hacia arriba · la cantidad la decide la clienta', C_RAYA, 0));
+    var cant = t && t.ficha && t.ficha.cantidades; if (cant) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
     return { v: v, tr: tr };
   }
   /* aplicación: pincel, papel, plancha, bigudíes… según la técnica */
   function escAplicar(K, t, modo, col, k) {
-    if ((modo === 'barrido' || modo === 'papel' || modo === 'finas') && K.dirElev && K.mechon) return escMechones(K, modo, col);
+    if ((modo === 'barrido' || modo === 'papel' || modo === 'finas') && K.dirElev && K.mechon) return escMechones(K, modo, col, t);
     var v = k % 2 ? 'lateral' : 'nuca', tr = [], filas = [1.85, 1.6, 1.35, 1.1], cols = v === 'nuca' ? [-0.75, -0.45, -0.15, 0.15, 0.45, 0.75] : [-0.6, -0.3, 0, 0.3];
     var base = v === 'nuca' ? K.NUCA : [K.NUCA + 0.75, K.NUCA - 0.75, K.DER - 0.4, K.IZQ + 0.4].filter(function (p) { return K.seVe(v, p, 1.4); })[0];
     if (base == null) base = K.NUCA;
@@ -311,6 +315,13 @@
       else a = escAplicar(K, t, modo, col, na++);
       /* sin cartel rojo «Cuidado» (Fátima: alerta genérica); el error típico sigue en la ficha */
       esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || ''), a: a });
+      /* Fátima, 10-10-2026: el balayage también se hace profundo — se empieza a unos 5 cm del cuello, atrás, con zigzag grande;
+         el mechón se eleva a 90° y se coloca el producto. Se añade como escena propia; la de arriba no cambia. */
+      if (id === 'color_balayage' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_bal_profundo'; }) && K.dirElev && K.mechon) {
+        var fp = t.ficha || {};
+        esc.push({ tipo: 'cb_bal_profundo', vista: 'arriba', t: 'Balayage profundo · zigzag grande', a: escMechones(K, 'barrido', col, t, { profundo: true }),
+          texto: 'También se puede hacer profundo. Se empieza atrás, a unos 5 centímetros del cuello, con un zigzag grande en el cráneo. De cada pico se saca un mechón, se eleva a 90 grados y se coloca el producto desde el arranque hasta las puntas.' + (fp.cantidades ? ' Producto: ' + fp.cantidades + '.' : '') + ' Poco o profundo, la cantidad la decide la clienta.' });
+      }
     });
     return {
       R: { id: 'cb_' + id, n: t.n },
