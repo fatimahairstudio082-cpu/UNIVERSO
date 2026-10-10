@@ -183,8 +183,66 @@
     tr = dibujar(K, v, lin, sec, Z).concat(tr);
     return { v: v, tr: tr };
   }
+  /* Fátima, 10-10-2026 · mechones que se SACAN de la sección, como en el motor de corte.
+     En colorimetría el mechón se eleva a 90° para sacar las líneas: lo que se aprende son las divisiones del cráneo
+     y la división del propio mechón. Balayage: zigzag grande en el cráneo y de cada pico sale un mechón en triángulo;
+     el producto entra desde el arranque hasta las puntas. Mechas y babylights: tejido en zigzag, papel debajo y producto.
+     Cada capa, de la nuca hacia arriba, con su número; al terminar el mechón baja con su aclarado.
+     La cantidad de mechones y la profundidad las decide la clienta: aquí es un ejemplo de tres capas. */
+  var C_HALO = '#FFFFFF', C_NAT = '#4A2E1E', ELEV_COLOR = 90, ARRANQUE = 0.5, C_CAPA = ['#C0392B', '#2C6FD1', '#18906A'];
+  function contornoM(K, v, pts, t, c, w) { var tr = []; for (var i = 0; i < pts.length - 1; i++) tr = tr.concat(K.lineas(K.tramos(v, K.recta(pts[i], pts[i + 1]), 14), t, c, w)); return tr; }
+  function mechonFuera(K, v, raices, phc, thc, g, ta, tb, desde, papel, col) {
+    var tr = [], c0 = K.P(phc, thc), tl = ta + (tb - ta) * 0.18, tu = ta + (tb - ta) * 0.5, ext = { x: tb, lev: 1 }, fin = [];
+    for (var k = 0; k <= 5; k++) fin.push(c0.clone().add(K.dirElev(phc, thc, g * k / 5).multiplyScalar(0.72)));
+    if (papel) {
+      var a0 = K.pr(v, c0), b0 = K.pr(v, fin[5]), dx = b0[0] - a0[0], dy = b0[1] - a0[1], l = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / l * 26, ny = dx / l * 26;
+      tr.push(Object.assign(zona([a0[0] + nx, a0[1] + ny, b0[0] + nx, b0[1] + ny, b0[0] - nx, b0[1] - ny, a0[0] - nx, a0[1] - ny], [tu - 0.02, tu + 0.04], C_PAPEL, 0.95, C_PAPEL_B), ext));
+    }
+    raices.forEach(function (r) {
+      var a = K.P(r[0], r[1]), ks = fin.map(function (b) { return [].concat(K.pr(v, a), K.pr(v, a.clone().lerp(b, 0.97))); }), b5 = a.clone().lerp(fin[5], 0.97);
+      tr.push(K.mechon(ks, [tl, tu], C_HALO, 5.4, ext), K.mechon(ks, [tl, tu], C_NAT, 2.2, ext));
+      tr.push(K.linea([].concat(K.pr(v, a.clone().lerp(b5, desde)), K.pr(v, b5)), [tu + 0.02, tb - 0.05], '#F2C14E', 3.2, ext));
+    });
+    var q = K.pr(v, fin[5]), qr = K.pr(v, c0);
+    tr.push(Object.assign({ k: 'n', x: q[0], y: q[1], s: '', c: col, t: [tl, 1] }, ext), Object.assign({ k: 'n', x: qr[0] + 34, y: qr[1] - 4, s: g + '°', c: col, t: [tu, 1] }, ext));
+    return tr;
+  }
+  function escMechones(K, modo, col) {
+    var v = 'nuca', tr = [], filas = [1.7, 1.4, 1.1], n = filas.length, bal = modo === 'barrido', papel = !bal, fina = modo === 'finas';
+    var desde = bal ? ARRANQUE : 0;
+    filas.forEach(function (th, f) {
+      var ta = 0.03 + f * 0.95 / n, tb = ta + 0.95 / n, cc = C_CAPA[f % 3], ts = [ta, ta + (tb - ta) * 0.16], ult = f === n - 1;
+      if (bal) {
+        /* zigzag grande en el cráneo: picos hacia arriba; de cada pico sale un mechón en triángulo */
+        var picos = [K.NUCA - 0.45, K.NUCA, K.NUCA + 0.45], zz = [[K.NUCA - 0.7, th]];
+        picos.forEach(function (ph) { zz.push([ph - 0.2, th], [ph, th - 0.22], [ph + 0.2, th]); }); zz.push([K.NUCA + 0.7, th]);
+        tr = tr.concat(contornoM(K, v, zz, ts, cc, 3));
+        [picos[0], picos[2]].forEach(function (ph) {
+          if (!K.seVe(v, ph, th - 0.1)) return; var r = [];
+          for (var i = 0; i <= 6; i++) { var u = i / 6; r.push(u < 0.5 ? [ph - 0.18 + 0.18 * u * 2, th - 0.2 * u * 2 + 0.01] : [ph + 0.18 * (u - 0.5) * 2, th - 0.2 + 0.2 * (u - 0.5) * 2 + 0.01]); }
+          tr = tr.concat(mechonFuera(K, v, r, ph, th - 0.08, ELEV_COLOR, ta, tb, desde, false, cc));
+        });
+      } else {
+        /* tejido en zigzag dentro de la sección; el papel va debajo del mechón */
+        [K.NUCA - 0.42, K.NUCA + 0.42].forEach(function (ph) {
+          if (!K.seVe(v, ph, th - 0.06)) return; var w = 0.22, dn = fina ? 8 : 5, r = [], z = [];
+          tr = tr.concat(contornoM(K, v, [[ph - w, th - 0.13], [ph + w, th - 0.13], [ph + w, th], [ph - w, th], [ph - w, th - 0.13]], ts, cc, 1.8));
+          for (var i = 0; i <= dn * 2; i++) { var pz = [ph - w + 2 * w * i / (dn * 2), i % 2 ? th - 0.11 : th - 0.02]; z.push(pz); if (i % 2) r.push(pz); }
+          tr = tr.concat(contornoM(K, v, z, ts, cc, fina ? 1.8 : 2.6));
+          tr = tr.concat(mechonFuera(K, v, r, ph, th - 0.07, ELEV_COLOR, ta, tb, desde, papel, cc));
+        });
+      }
+      /* lo ya trabajado baja y queda con su aclarado */
+      [K.NUCA - 0.45, K.NUCA + 0.45].forEach(function (ph) { [-0.06, 0, 0.06].forEach(function (e) { var q = mecha(K, v, ph + e, th, bal ? desde * 0.6 : 0, 1); if (q) tr.push(K.linea(q, [tb - 0.05, tb], col === '#E9C979' ? '#F2C14E' : col, 3)); }); });
+      tr.push(K.rotulo('Capa ' + (f + 1) + ' · mechón a ' + ELEV_COLOR + '°' + (bal ? ' · arranque ' + Math.round(desde * 100) + ' %' : ''), cc, ta, ult ? {} : { x: tb }));
+    });
+    var NOMM = { barrido: 'Balayage · zigzag grande en el cráneo, de cada pico sale el mechón', papel: 'Mechas · tejido en zigzag, papel debajo y producto', finas: 'Babylights · tejido finísimo, papel debajo y producto' };
+    tr.push(K.rotulo(NOMM[modo], '#1F1B18', 0), K.rotulo(bal ? 'El arranque (25, 50 o 75 %) y la cantidad los decide la clienta' : 'De la nuca hacia arriba · la cantidad la decide la clienta', C_RAYA, 0));
+    return { v: v, tr: tr };
+  }
   /* aplicación: pincel, papel, plancha, bigudíes… según la técnica */
   function escAplicar(K, t, modo, col, k) {
+    if ((modo === 'barrido' || modo === 'papel' || modo === 'finas') && K.dirElev && K.mechon) return escMechones(K, modo, col);
     var v = k % 2 ? 'lateral' : 'nuca', tr = [], filas = [1.85, 1.6, 1.35, 1.1], cols = v === 'nuca' ? [-0.75, -0.45, -0.15, 0.15, 0.45, 0.75] : [-0.6, -0.3, 0, 0.3];
     var base = v === 'nuca' ? K.NUCA : [K.NUCA + 0.75, K.NUCA - 0.75, K.DER - 0.4, K.IZQ + 0.4].filter(function (p) { return K.seVe(v, p, 1.4); })[0];
     if (base == null) base = K.NUCA;
@@ -243,7 +301,7 @@
         if (pr) { var W = 420, x0 = 430, y0 = 600, w1 = W * pr[0] / (pr[0] + pr[1]); tr.push(zona([x0, y0, x0 + w1, y0, x0 + w1, y0 + 44, x0, y0 + 44], [0.32, 0.6], col, 0.9, C_RAYA), zona([x0 + w1, y0, x0 + W, y0, x0 + W, y0 + 44, x0 + w1, y0 + 44], [0.6, 0.85], '#F4F7FA', 0.95, C_PAPEL_B), K.rotulo('Color ' + pr[0] + ' : ' + pr[1] + ' oxidante', col === '#E9C979' ? '#9A7B2E' : col, 0.32)); }
         a = { v: 'tres', tr: tr };
       }
-      else if (f === 'tiempo') { var b = escAplicar(K, t, modo, col, 0); b.tr = b.tr.filter(function (s) { return s.k !== 'e' && s.c !== C_PLANCHA; }); b.tr.forEach(function (s) { s.t = [0, 0.08]; delete s.x; }); b.tr.push({ k: 'c', m: minutos(t, p), t: [0.1, 0.95], c: '#B01E45', s: 'Exposición' }, K.rotulo(minutos(t, p) ? minutos(t, p) + ' minutos de exposición' : 'Tiempo de exposición', '#B01E45', 0.1)); a = b; }
+      else if (f === 'tiempo') { var b = escAplicar(K, t, modo, col, 0); b.tr = b.tr.filter(function (s) { return s.k !== 'e' && s.c !== C_PLANCHA && !s.lev; }); b.tr.forEach(function (s) { s.t = [0, 0.08]; delete s.x; }); b.tr.push({ k: 'c', m: minutos(t, p), t: [0.1, 0.95], c: '#B01E45', s: 'Exposición' }, K.rotulo(minutos(t, p) ? minutos(t, p) + ' minutos de exposición' : 'Tiempo de exposición', '#B01E45', 0.1)); a = b; }
       else if (f === 'cierre') { a = escCierre(K, /aclar|lav|emulsi|agua|enjuag/i.test(p.n || '')); }
       else if (f === 'preparacion') {
         var fi2 = t.ficha || {}, tr3 = [], lava = /lav|champ/i.test(p.n || '');
