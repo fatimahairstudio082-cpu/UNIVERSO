@@ -380,6 +380,84 @@
     tr.push(K.rotulo(tit, '#1F1B18', 0), K.rotulo('Los mechones aclarados resaltan en blanco desde el ' + Math.round(desde * 100) + ' % hasta las puntas', '#9A7B2E', 0.3));
     return { v: v, tr: tr };
   }
+  /* Fátima, 10-10-2026 · ALISADO a 0°: antes el cabello ondulado; divisiones finas de abajo arriba; en queratina y
+     derriz el producto mechón a mechón; la plancha (queratina, planchado) baja a 0° prensando y estirando hacia abajo y
+     detrás de ella el cabello queda liso. En el derriz no hay calor (ficha del Cerebro: «Ambiente. Nunca calor»):
+     el mechón se estira a 0° con el peine. Al final, el después: todo liso y con brillo. */
+  function ondas(q, amp, fase) {
+    var o = [], n = q.length / 2, i;
+    for (i = 0; i < n; i++) {
+      var a = Math.max(0, i - 1), b = Math.min(n - 1, i + 1), dx = q[b * 2] - q[a * 2], dy = q[b * 2 + 1] - q[a * 2 + 1], L = Math.sqrt(dx * dx + dy * dy) || 1, u = i / (n - 1);
+      var off = amp * Math.min(1, u * 1.6) * Math.sin(u * 15 + fase);
+      o.push(Math.round((q[i * 2] - dy / L * off) * 10) / 10, Math.round((q[i * 2 + 1] + dx / L * off) * 10) / 10);
+    }
+    return o;
+  }
+  function puntoQ(q, u) { var n = q.length / 2 - 1, f = Math.max(0, Math.min(n, u * n)), i = Math.min(n - 1, Math.floor(f)), w = f - i; return [q[i * 2] + (q[i * 2 + 2] - q[i * 2]) * w, q[i * 2 + 1] + (q[i * 2 + 3] - q[i * 2 + 1]) * w]; }
+  function escAlisado(K, t, v, prod, plancha) {
+    var tr = [], C0 = v === 'nuca' ? K.NUCA : K.DER, filas = [1.8, 1.6, 1.4, 1.2, 1.0, 0.8], nf = filas.length, T0 = 0.07, NAT = '#3A2418';
+    var phs = []; for (var d = -1.05; d <= 1.06; d += 0.09) if (K.seVe(v, C0 + d, 1.2)) phs.push(C0 + d);
+    var cP = prod === 'queratina' ? 'rgba(236,226,206,0.75)' : 'rgba(214,224,236,0.75)';
+    filas.forEach(function (th, f) {
+      var ta = T0 + f * (0.85 - T0) / nf, tb = ta + (0.85 - T0) / nf, dt = tb - ta, medio = null;
+      tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [phs[0] + (phs[phs.length - 1] - phs[0]) * u, th - 0.03]; }, 30), [ta, ta + dt * 0.1], '#FFFFFF', 1.4));
+      phs.forEach(function (ph, j) {
+        var q = mecha(K, v, ph, th, 0, 1); if (!q) return;
+        var w = ondas(q, 9, ph * 7 + th * 3);
+        tr.push(K.linea(w, [0, T0], NAT, 3.2, { x: ta + dt * 0.62 }));
+        if (prod) tr.push(K.linea(w, [ta + dt * 0.12, ta + dt * 0.3], cP, 5, { x: ta + dt * 0.62 }));
+        tr.push(K.linea(q, [ta + dt * 0.36, ta + dt * 0.6], NAT, 3.2));
+        tr.push(K.linea(q.slice(Math.floor(q.length * 0.1 / 2) * 2), [ta + dt * 0.62, ta + dt * 0.8], 'rgba(255,240,220,0.45)', 1.3));
+        if (j === Math.floor(phs.length / 2)) medio = q;
+      });
+      if (medio) {
+        var fr = []; for (var k = 0; k <= 8; k++) { var u0 = k / 8 * 0.85, a = puntoQ(medio, u0), b = puntoQ(medio, u0 + 0.13); fr.push([a[0], a[1], b[0], b[1]]); }
+        tr.push(K.mechon(fr, [ta + dt * 0.36, ta + dt * 0.6], plancha ? '#2B2A2E' : '#6B5E52', plancha ? 11 : 5, { x: ta + dt * 0.64 }));
+      }
+      tr.push(K.rotulo('División ' + (f + 1) + (prod ? ' · producto mechón a mechón' : '') + (plancha ? ' · plancha a 0°, se prensa y se estira hacia abajo' : ' · se estira a 0° con el peine, sin calor'), C_CAPA[f % 3], ta, f < nf - 1 ? { x: tb } : { x: 0.86 }));
+    });
+    tr.push(K.rotulo('Antes: cabello ondulado', '#8E847A', 0, { x: T0 + 0.04 }), K.rotulo('Después: cabello liso', '#18906A', 0.86));
+    var cant = t && t.ficha && t.ficha.cantidades; if (cant && prod) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
+    return { v: v, tr: tr };
+  }
+  /* Fátima, 10-10-2026 · DECOLORACIÓN por capas: del frente hacia atrás, en cada capa el producto desde unos 5 cm de la
+     raíz hasta las puntas y papel de aluminio. Sobre cabello negro el fondo sube a amarillo; se neutraliza con violeta
+     (curso: «Amarillo: neutralizar con violeta. Matizadores violeta o tintes .2»). */
+  var NEGRO = '#161112', AMARILLO = '#E6C24A', VIOLETA = '#7B4FA0', PERLA = '#EAE4D6';
+  function escDecoCapas(K, t) {
+    var v = 'lateral', tr = [], phs = []; for (var d = -1.0; d <= 1.3; d += 0.115) if (K.seVe(v, K.DER - d, 1.0)) phs.push(K.DER - d);
+    phs.sort(function (a, b) { return Math.abs(b - K.CARA) - Math.abs(a - K.CARA); }).reverse();
+    var n = phs.length, desde = 0.25;
+    phs.forEach(function (ph) { var q = mecha(K, v, ph, 0.35, 0, 1); if (q) tr.push(K.linea(q, [0, 0.05], NEGRO, 4)); });
+    phs.forEach(function (ph, i) {
+      var ta = 0.06 + i * 0.86 / n, tb = ta + 0.86 / n, dt = tb - ta, q = mecha(K, v, ph, 0.35, desde, 1); if (!q) return;
+      tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [ph + 0.05, 0.3 + u * 1.2]; }, 16), [ta, ta + dt * 0.15], '#FFFFFF', 1.4, { x: tb }));
+      tr.push(K.linea(q, [ta + dt * 0.15, ta + dt * 0.45], 'rgba(240,236,228,0.9)', 5));
+      var a = puntoQ(q, 0), b = puntoQ(q, 1), dx = b[0] - a[0], dy = b[1] - a[1], L = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / L * 9, ny = dx / L * 9;
+      tr.push(zona([a[0] + nx, a[1] + ny, b[0] + nx, b[1] + ny, b[0] - nx, b[1] - ny, a[0] - nx, a[1] - ny], [ta + dt * 0.5, ta + dt * 0.8], C_PAPEL, 0.95, C_PAPEL_B));
+      tr.push(K.rotulo('Capa ' + (i + 1) + ' · producto desde 5 cm de la raíz y papel de aluminio', C_CAPA[i % 3], ta, i < n - 1 ? { x: tb } : {}));
+    });
+    tr.push(K.rotulo('Decoloración por capas · del frente hacia atrás', '#1F1B18', 0));
+    var cant = t && t.ficha && t.ficha.cantidades; if (cant) tr.push(K.rotulo('Producto: ' + cant, '#9A7B2E', 0));
+    return { v: v, tr: tr };
+  }
+  function escDecoColor(K, neutro) {
+    var v = 'lateral', tr = [], phs = []; for (var d = -1.0; d <= 1.3; d += 0.06) if (K.seVe(v, K.DER - d, 1.0)) phs.push(K.DER - d);
+    phs.forEach(function (ph, i) {
+      var q = mecha(K, v, ph, 0.35, 0, 1), q2 = mecha(K, v, ph, 0.35, 0.25, 1); if (!q) return;
+      if (!neutro) { tr.push(K.linea(q, [0, 0.12], NEGRO, 4.2)); if (q2) tr.push(K.linea(q2, [0.25 + 0.4 * i / phs.length, 0.45 + 0.4 * i / phs.length], AMARILLO, 4.2)); }
+      else {
+        tr.push(K.linea(q, [0, 0.05], NEGRO, 4.2)); if (!q2) return;
+        tr.push(K.linea(q2, [0, 0.05], AMARILLO, 4.2, { x: 0.68 }));
+        tr.push(K.linea(q2, [0.15 + 0.3 * i / phs.length, 0.3 + 0.3 * i / phs.length], 'rgba(123,79,160,0.85)', 5, { x: 0.7 }));
+        tr.push(K.linea(q2, [0.62, 0.66], PERLA, 4.2));
+        tr.push(K.linea(q2, [0.86, 0.97], 'rgba(255,255,255,0.45)', 1.4));
+      }
+    });
+    if (!neutro) tr.push(K.rotulo('Resultado: sobre cabello negro, el fondo sube a amarillo', '#9A7B2E', 0), K.rotulo('Hay que neutralizar ese amarillo', '#1F1B18', 0.7));
+    else tr.push(K.rotulo('Neutralizar el amarillo con violeta', VIOLETA, 0), K.rotulo('Matizador violeta o tinte .2', VIOLETA, 0.15), K.rotulo('Resultado: rubio neutro, sin amarillo', '#18906A', 0.62));
+    return { v: v, tr: tr };
+  }
   /* aplicación: pincel, papel, plancha, bigudíes… según la técnica */
   function escAplicar(K, t, modo, col, k) {
     if ((modo === 'barrido' || modo === 'papel' || modo === 'finas') && K.dirElev && K.mechon) return escMechones(K, modo, col, t);
@@ -463,6 +541,21 @@
           texto: 'La misma técnica en vertical, solo en los laterales: se dibuja el zigzag, se coloca el producto y el papel de aluminio enrollado en vertical, sin pasar la línea que sube de una oreja a la otra y sin tocar la coronilla. Para iluminaciones el producto se coloca desde el 65 por ciento. El arranque lo decide la clienta: 10, 25, 45, 50 o 65 por ciento.' },
           { tipo: 'cb_lat_v_queda', vista: 'lateral', t: 'Lateral en vertical · cómo queda', a: escLatQueda(K, true, 0.65),
           texto: 'Así quedan las iluminaciones: el aclarado resalta en blanco desde el 65 por ciento hasta las puntas.' });
+      }
+      if ((id === 'cab_derriz' || id === 'quera_alisado' || id === 'cab_planchado') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_alisado_nuca'; }) && K.mechon) {
+        var prodA = id === 'cab_derriz' ? 'derriz' : id === 'quera_alisado' ? 'queratina' : '', planA = id !== 'cab_derriz';
+        var txA = 'Antes, el cabello ondulado. Se toman divisiones finas, de abajo arriba.' + (prodA ? ' Se aplica el producto mechón a mechón.' : '') +
+          (planA ? ' La plancha se pasa a cero grados, sin elevar: se prensa bien el cabello y se estira hacia abajo, y detrás de la plancha el cabello queda liso.' : ' El derriz no lleva calor: el mechón se estira a cero grados con el peine, hacia abajo.') + ' Después, todo el cabello liso y con brillo.';
+        esc.push({ tipo: 'cb_alisado_nuca', vista: 'nuca', t: 'Alisado a 0° · antes y después', a: escAlisado(K, t, 'nuca', prodA, planA), texto: txA },
+          { tipo: 'cb_alisado_lat', vista: 'lateral', t: 'Alisado a 0° · de lado', a: escAlisado(K, t, 'lateral', prodA, planA), texto: 'De lado se ve igual: del ondulado al liso, división a división, estirando siempre hacia abajo.' });
+      }
+      if (id === 'quim_decoloracion' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_deco_neutro'; }) && K.mechon) {
+        esc.push({ tipo: 'cb_deco_capas', vista: 'lateral', t: 'Decoloración por capas · del frente hacia atrás', a: escDecoCapas(K, t),
+          texto: 'Se divide el cabello en capas, del frente hacia atrás. En cada capa se aplica el producto desde unos cinco centímetros de la raíz hasta las puntas y se coloca el papel de aluminio. Así hasta terminar atrás.' },
+          { tipo: 'cb_deco_amarillo', vista: 'lateral', t: 'Resultado · el negro sube a amarillo', a: escDecoColor(K, false),
+          texto: 'Sobre un cabello negro, al decolorar el fondo sube y probablemente queda amarillo. Ese amarillo hay que neutralizarlo.' },
+          { tipo: 'cb_deco_neutro', vista: 'lateral', t: 'Neutralizar el amarillo con violeta', a: escDecoColor(K, true),
+          texto: 'El amarillo se neutraliza con violeta: matizador violeta o tinte punto dos. Al neutralizar, el amarillo desaparece y queda un rubio neutro.' });
       }
       if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_queda_frente'; }) && K.dirElev && K.mechon) {
         var dq = id === 'color_balayage' ? ARRANQUE : 0.1;
