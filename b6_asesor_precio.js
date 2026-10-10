@@ -133,8 +133,22 @@
       return '<tr' + (p === pk ? ' style="background:#fbf6ec;font-weight:700"' : '') + '><td style="padding:4px 8px">' + esc(PAISES[p][0]) + '</td><td style="padding:4px 8px;text-align:right">' + precio(uL, p) + '</td><td style="padding:4px 8px;text-align:right">' + precio(uC, p) + '</td><td style="padding:4px 8px;text-align:right;color:#666">×' + factor(p).toFixed(2).replace('.', ',') + '</td></tr>';
     }).join('');
     var aviso = S.hojas < 56 ? '<div style="background:#fff4e5;border:1px solid #f0c27a;border-radius:10px;padding:8px 12px;margin:10px 0;font-size:13px">Este libro tiene <b>' + S.hojas + ' hojas</b>: por debajo de 56 conviene usarlo como producto de entrada o regalo para captar alumnas, y vender el curso.</div>' : '';
+    /* (10-10-2026, Fátima) «🔊 Escuchar el asesor»: lo mismo que se ve en la pestaña, leído con la voz española */
+    var MON = { EUR: 'euros', MXN: 'pesos mexicanos', COP: 'pesos colombianos', ARS: 'pesos argentinos', CLP: 'pesos chilenos', USD: 'dólares', DOP: 'pesos dominicanos' };
+    function dice(v, p) { p = p || pk; return new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(Math.round(v)) + ' ' + (MON[PAISES[p][1]] || PAISES[p][1]); }
+    function voz1(tit, t, usd, inc) {
+      var p = precioN(usd, pk), usdP = pk === 'us' || pk === 've' ? p : p / aLocal(1, pk), n = neto(usdP, pk), loc = function (v) { return dice(aLocal(v, pk)); };
+      return tit + ': precio recomendado en ' + PAISES[pk][0] + ', ' + dice(p) + '. El rango va de ' + dice(precioN(t[2], pk)) + ' a ' + dice(precioN(t[3], pk)) + ', ' + t[4] + '. Incluye ' + inc + '. Por cada venta te quedan ' + loc(n.hot) + ' en Hotmart, ' + loc(n.str) + ' con Stripe y ' + loc(n.pp) + ' con PayPal.';
+    }
+    var vozTxt = 'Asesor de precio de ' + (C.titulo || 'este libro') + '. ' + (prof ? 'Es formación profesional o para adultos' : 'Es material escolar') + (extra ? ', con animaciones o pizarra' : '') + '. ' +
+      'El libro tiene ' + S.hojas + ' hojas: ' + S.grupos.map(function (g) { return g[1] + ' de ' + g[0].toLowerCase(); }).join(', ') + '. ' +
+      'El curso tiene ' + K.modulos + ' módulos, ' + K.lecciones + ' lecciones y unas ' + K.horas.toFixed(1).replace('.', ',') + ' horas. ' +
+      (S.hojas < 56 ? 'Con menos de 56 hojas conviene usar el libro como producto de entrada o regalo, y vender el curso. ' : '') +
+      voz1('Libro digital', tL, uL, incL) + ' ' + voz1('Curso premium más libro', tC, uC, incC) + ' ' +
+      'Por país: ' + Object.keys(PAISES).map(function (p) { return PAISES[p][0].replace(/\s*\(.*\)/, '').replace('Rep. Dominicana', 'República Dominicana').replace('EE. UU.', 'Estados Unidos') + ', libro ' + dice(precioN(uL, p), p) + ' y curso ' + dice(precioN(uC, p), p); }).join('; ') + '. ' +
+      'Para vender en Instagram y Facebook: Meta no permite poner productos descargables en su tienda; se publica y se enlaza al pago de Hotmart, Stripe o PayPal. Con Hotmart el comprador recibe el acceso solo. Es orientativo: el precio final lo decides tú.';
     caja.innerHTML = '<div style="background:#f6f7fb;border-radius:12px;padding:16px;color:#1f2433;font-family:system-ui,Segoe UI,sans-serif;max-width:1100px;margin:0 auto">' +
-      '<div style="font-size:18px;font-weight:800;color:' + T + '">💰 Asesor de precio · ' + esc(C.titulo || '') + '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div style="font-size:18px;font-weight:800;color:' + T + '">💰 Asesor de precio · ' + esc(C.titulo || '') + '</div><button data-asesor-voz style="font:600 13px system-ui,sans-serif;padding:7px 14px;border-radius:99px;border:0;background:' + T + ';color:#fff;cursor:pointer">🔊 Escuchar el asesor</button></div>' +
       '<div style="font-size:12.5px;color:#55607a;margin:2px 0 12px">' + (prof ? 'Formación profesional / adultos' : 'Material escolar') + (extra ? ' · con animaciones o pizarra' : '') + ' · país del libro: ' + esc(PAISES[pk][0]) + '. Orientativo: el precio final lo decides tú.</div>' +
       aviso + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">' + tiles + '</div>' +
       '<div style="display:flex;gap:12px;flex-wrap:wrap">' + tarjeta('📘', 'Libro digital', incL, tL, uL) + tarjeta('🎓', 'Curso premium + libro (Carpeta HOTMART)', incC, tC, uC) + '</div>' +
@@ -145,7 +159,27 @@
       '<b>Cómo vender en Instagram y Facebook:</b> Meta no permite poner productos descargables en su tienda; se publica (carrusel, reel, historia) y se enlaza al pago: el enlace de Hotmart, un enlace de pago de Stripe o PayPal. Con Hotmart el comprador recibe el acceso solo; con Stripe o PayPal lo envías tú.<br>' +
       '<b>En qué se basa:</b> escalón por hojas (libro) y por horas de contenido (curso); dentro del escalón, más arriba si es formación profesional o lleva animaciones/pizarra. Precios terminados en 7, como recomienda Hotmart. Hotmart cobra además 1 USD por cada retiro (no por venta).<br>' +
       '<b>Fuentes:</b> ' + FUENTES.map(function (f) { return '<a href="' + f[1] + '" target="_blank" rel="noopener" style="color:' + T + '">' + esc(f[0]) + '</a>'; }).join(' · ') + '</div></div>';
+    var bt = caja.querySelector('[data-asesor-voz]'), SS = window.speechSynthesis;
+    if (bt && !SS) bt.style.display = 'none';
+    if (bt && SS) bt.onclick = function () {
+      var listo = function () { bt._on = 0; bt.textContent = '🔊 Escuchar el asesor'; };
+      if (bt._on) { bt._s = (bt._s || 0) + 1; SS.cancel(); listo(); return; }
+      var partes = vozTxt.replace(/(\d)–(\d)/g, '$1 a $2').replace(/…/g, '').split(/([.!?;])\s+/), fr = [];
+      for (var k = 0; k < partes.length; k += 2) if (partes[k]) fr.push(partes[k] + (partes[k + 1] || ''));
+      var vs = SS.getVoices().filter(function (x) { return /^es/i.test(x.lang); });
+      var v = vs.filter(function (x) { return /google/i.test(x.name) && /es[-_]ES/i.test(x.lang); })[0] || vs.filter(function (x) { return /es[-_]ES/i.test(x.lang); })[0] || vs[0] || null;
+      var i = 0, ses = bt._s = (bt._s || 0) + 1;
+      SS.cancel(); bt._on = 1; bt.textContent = '■ Parar';
+      (function sig() {
+        if (!bt._on || ses !== bt._s) return;
+        if (i >= fr.length || !bt.isConnected) { listo(); return; }
+        var u = new SpeechSynthesisUtterance(fr[i++].trim()); u.lang = 'es-ES'; if (v) u.voice = v; u.rate = 0.97;
+        u.onend = function () { setTimeout(sig, 160); };
+        u.onerror = function (ev) { if (ev && /interrupted|canceled/.test(ev.error || '')) return; setTimeout(sig, 80); };
+        SS.speak(u);
+      })();
+    };
   }
 
-  window.EU_ASESOR_PRECIO = { panel: panel, escanea: escanea, cursoDatos: cursoDatos, factor: factor, LIBRO: LIBRO, CURSO: CURSO, FUENTES: FUENTES };
+  window.EU_ASESOR_PRECIO = { panel: panel, /* voz: el texto se arma dentro de panel() */ escanea: escanea, cursoDatos: cursoDatos, factor: factor, LIBRO: LIBRO, CURSO: CURSO, FUENTES: FUENTES };
 })();
