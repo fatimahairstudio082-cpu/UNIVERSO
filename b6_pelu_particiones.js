@@ -364,6 +364,22 @@
       K.rotulo('El aclarado resalta en blanco desde el ' + Math.round(desde * 100) + ' % hasta las puntas', '#9A7B2E', 0.3));
     return { v: v, tr: tr };
   }
+  /* Fátima, 10-10-2026 · cómo queda de atrás y de frente (la vuelta a la cabeza): el cabello oscuro y los mechones
+     aclarados en blanco difuminado, desde el arranque hasta las puntas. De frente el cabello no tapa la cara. */
+  function escQuedaVista(K, v, desde, tit) {
+    var tr = [], ph, frente = v === 'frente', C0 = frente ? K.CARA : K.NUCA, luces;
+    for (ph = C0 - 1.75; ph <= C0 + 1.75; ph += 0.03) {
+      var d = Math.abs(ph - C0), q = frente && d < 0.5 ? mecha(K, v, ph, 0.22, 0, 0.32) : mecha(K, v, ph, 0.3, 0, 1);
+      if (q) tr.push(K.linea(q, [0.02, 0.3], '#3A2418', 4.2));
+    }
+    luces = frente ? [-1.3, -1.0, -0.75, -0.55, 0.55, 0.75, 1.0, 1.3] : [-1.2, -0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9, 1.2];
+    luces.forEach(function (o, i) {
+      var t0 = 0.34 + 0.55 * i / luces.length;
+      [-0.035, 0, 0.035].forEach(function (e) { var q2 = mecha(K, v, C0 + o + e, 0.3, desde, 1); if (q2) tr.push(K.linea(q2, [t0, t0 + 0.2], 'rgba(255,250,235,0.45)', 10), K.linea(q2, [t0 + 0.02, t0 + 0.22], '#F7E6BA', 3.4)); });
+    });
+    tr.push(K.rotulo(tit, '#1F1B18', 0), K.rotulo('Los mechones aclarados resaltan en blanco desde el ' + Math.round(desde * 100) + ' % hasta las puntas', '#9A7B2E', 0.3));
+    return { v: v, tr: tr };
+  }
   /* aplicación: pincel, papel, plancha, bigudíes… según la técnica */
   function escAplicar(K, t, modo, col, k) {
     if ((modo === 'barrido' || modo === 'papel' || modo === 'finas') && K.dirElev && K.mechon) return escMechones(K, modo, col, t);
@@ -447,6 +463,13 @@
           texto: 'La misma técnica en vertical, solo en los laterales: se dibuja el zigzag, se coloca el producto y el papel de aluminio enrollado en vertical, sin pasar la línea que sube de una oreja a la otra y sin tocar la coronilla. Para iluminaciones el producto se coloca desde el 65 por ciento. El arranque lo decide la clienta: 10, 25, 45, 50 o 65 por ciento.' },
           { tipo: 'cb_lat_v_queda', vista: 'lateral', t: 'Lateral en vertical · cómo queda', a: escLatQueda(K, true, 0.65),
           texto: 'Así quedan las iluminaciones: el aclarado resalta en blanco desde el 65 por ciento hasta las puntas.' });
+      }
+      if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_queda_frente'; }) && K.dirElev && K.mechon) {
+        var dq = id === 'color_balayage' ? ARRANQUE : 0.1;
+        esc.push({ tipo: 'cb_queda_atras', vista: 'nuca', t: 'Cómo queda · atrás', a: escQuedaVista(K, 'nuca', dq, 'Cómo queda · atrás'),
+          texto: 'Damos la vuelta a la cabeza. Así queda por detrás: el cabello natural y los mechones aclarados, que resaltan en blanco desde el ' + Math.round(dq * 100) + ' por ciento hasta las puntas.' },
+          { tipo: 'cb_queda_frente', vista: 'frente', t: 'Cómo queda · de frente', a: escQuedaVista(K, 'frente', dq, 'Cómo queda · de frente'),
+          texto: 'Y así queda de frente: los mechones aclarados enmarcan el rostro y dan ese reflejo blanco sobre el cabello.' });
       }
       if (id === 'mechas_aluminio' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_universales'; }) && K.dirElev && K.mechon) {
         esc.push({ tipo: 'cb_universales', vista: 'tres', t: 'Mechas universales · por el lateral', a: escUniversales(K, t, col),
