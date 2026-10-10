@@ -127,11 +127,21 @@
     /* Fátima, 10-10-2026 · ANEXO: las técnicas y clases que no caben en los huecos de su unidad van en hojas nuevas,
        una por técnica, antes del solucionario. El libro crece en esas hojas (libro web, PDF imprimible y paquete).
        `cfg.acab.anexo = 'no'` lo apaga y vuelve al comportamiento anterior (solo en el curso). */
-    var anexo = [];
-    if (solo.length && ((cfg.acab || {}).anexo) !== 'no') {
+    var anexo = [], fuera = [];
+    /* Fátima, 10-10-2026 · ANEXO COMPLETO: en libros de cualquier tamaño (10, 50, 100, 200 hojas…) el anexo trae también
+       las técnicas y clases de las unidades que no entraron en el libro (colorimetría, queratina, decoloración, neutralización…),
+       con su animación, voz y repaso. `cfg.acab.anexoTodo = 'no'` vuelve a solo las de las unidades del libro. */
+    if (((cfg.acab || {}).anexo) !== 'no' && ((cfg.acab || {}).anexoTodo) !== 'no') {
+      var CU = window.EU_CURRICULO, C0 = res.C || {}, pool = {};
+      try { (CU.unidades(C0.mat || cfg.materia, C0.bnd) || []).forEach(function (u) { pool[u.id] = u; }); } catch (e) { }
+      PA.catalogo().forEach(function (t) { if (!hay[t.unidad] && !ya[t.id] && pool[t.unidad]) fuera.push(t); });
+    }
+    if ((solo.length || fuera.length) && ((cfg.acab || {}).anexo) !== 'no') {
       solo.forEach(function (t) { var ref = unidad[t.unidad]; anexo.push({ tipo: 'pe_animada', u: ref.u, n: ref.n, tec: t.id, titulo: t.n, anexo: 1, fill2: { nada: 1 } }); ya[t.id] = 1; });
+      fuera.forEach(function (t) { var u = pool[t.unidad]; anexo.push({ tipo: 'pe_animada', u: u, cab: 'Anexo · ' + u.t, tec: t.id, titulo: t.n, anexo: 1, fuera: 1, fill2: { nada: 1 } }); ya[t.id] = 1; });
       var tipos = res.pages.map(function (p) { return p.tipo; }), pos = tipos.indexOf('solucion');
       if (pos < 0) pos = tipos.indexOf('bibliografia'); if (pos < 0) pos = tipos.indexOf('contra'); if (pos < 0) pos = res.pages.length;
+      anexo[0].indice = 'Anexo · Técnicas y clases animadas';   /* entrada en el índice */
       res.pages.splice.apply(res.pages, [pos, 0].concat(anexo));
       /* nueva numeración; el solucionario sigue apuntando a sus páginas */
       var nueva = {};
@@ -139,7 +149,7 @@
       res.pages.forEach(function (p, i) { p.num = i + 1; });
       res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas.forEach(function (e) { if (nueva[e.p]) e.p = nueva[e.p]; }); });
     }
-    res.animadas = { libro: n, anexo: anexo.length, soloCurso: anexo.length ? [] : solo.map(function (t) { return t.id; }) };
+    res.animadas = { libro: n, anexo: anexo.length, fuera: fuera.length, soloCurso: anexo.length ? [] : solo.map(function (t) { return t.id; }) };
     return res;
   }
   function enganchar() {
