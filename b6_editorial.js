@@ -108,6 +108,7 @@
     aviso(t) { if (this.avisoEl) this.avisoEl.textContent = t || ''; }
 
     set(k, v, panel) {
+      var ant = this.cfg.materia;
       this.cfg[k] = v;
       if (k === 'pais' || k === 'nivel') {
         var P = EU_CURRICULO.PAISES[this.cfg.pais], N = P.niveles[this.cfg.nivel];
@@ -118,6 +119,9 @@
         if (M.prodDef) this.cfg.prod = M.prodDef;
         else if (ok && ok.solo && ok.solo.indexOf(v) < 0) this.cfg.prod = 'libro';
         this.cfg.op = {};
+        /* el título escrito es de su materia (Fátima, 10-10-2026): al cambiar de materia ya no se arrastra (un libro, curso o
+           Carpeta HOTMART de Matemáticas salía con el título escrito para Peluquería); se recuerda el de cada materia en esta sesión */
+        if (ant !== v) { var tm = this._titulos = this._titulos || {}; tm[ant] = this.cfg.titulo || ''; this.cfg.titulo = tm[v] || ''; }
       }
       if (k === 'prod' && v === 'trabajo' && this.cfg.paginas > 40) this.cfg.paginas = 12;
       if (k === 'prod' && v === 'examen' && this.cfg.paginas > 60) this.cfg.paginas = 9;
