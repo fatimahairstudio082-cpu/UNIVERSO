@@ -81,6 +81,7 @@
     'var q=ev.target.closest("[data-g3d-op]");if(q){var box=q.closest("[data-g3d-q]"),ok=+q.dataset.g3dOp===+box.dataset.c;box.querySelectorAll("[data-g3d-op]").forEach(function(x){x.disabled=true;if(+x.dataset.g3dOp===+box.dataset.c){x.style.background=box.closest(".pg").dataset.acc;x.style.color="#fff"}});if(!ok){q.style.background="#F3D3D3"}}' +
     '})})();<\/script>';
 
+  var QUEDA = typeof WeakMap === 'function' ? new WeakMap() : { get: function () { return null; }, set: function () { } };
   function pagina(pg, C, modo) {
     var H = ED.H, T = C.T, d = datos(pg.corte, pg.cab); if (!d) return H.cabecera(C, pg) + H.folio(C, pg);
     var web = modo === 'web', c = d.c, t = d.t, pasos = d.g.pasos, fin = (pasos[pasos.length - 1] || {}).elevB || t.elev, rad = Math.min(T.r || 4, 6);
@@ -108,9 +109,22 @@
     var ctrl = web ? '<div style="display:flex;gap:3mm;align-items:center;margin:0 0 2.5mm"><button data-g3d-play="1" style="font:inherit;font-size:.86em;padding:1.5mm 4mm;border:0;border-radius:' + rad + 'px;background:' + T.acc + ';color:#fff;cursor:pointer;white-space:nowrap;flex:none">▶ Ver y escuchar</button><span data-g3d-sub="1" style="font-size:.8em;font-style:italic;opacity:.85;min-width:0"></span></div>'
       : '<div style="font-size:.76em;opacity:.8;margin:0 0 2.5mm">Vídeo con voz de esta guía en el curso premium: lección «' + es(c.n) + '».</div>';
     var attrs = web ? ' data-acc="' + es(T.acc) + '" data-fin="' + es(JSON.stringify(fin)) + '" data-elevs="' + es(JSON.stringify(pasos.map(function (p) { return p.elevB || []; }))) + '" data-narra="' + es(JSON.stringify(narracion(d))) + '"' : '';
+    /* Fátima, 10-10-2026: el resultado del corte con cabello (atrás, lateral y de frente), con el sombreado de las técnicas */
+    var LDG = window.EU_PELU_LIBRO_DG, qd = '';
+    if (LDG && LDG.fotoEscena) {
+      var dgq = { k: 'corte', corte: pg.corte, cab: pg.cab };
+      var fq = [['queda_nuca', 'Atrás'], ['queda_lateral', 'Lateral'], ['queda_frente', 'De frente']].map(function (v) { var f = ''; try { f = LDG.fotoEscena(dgq, v[0]); } catch (e) { } return [f, v[1]]; }).filter(function (v) { return v[0]; });
+      /* sin repetir: cortes con la misma forma dan el mismo resultado; cada imagen sale solo en la primera página que la lleva */
+      var reg = QUEDA.get(C); if (!reg) { reg = {}; QUEDA.set(C, reg); }
+      var ref = null;
+      fq = fq.filter(function (v) { var h = v[0].length + ':' + v[0].slice(-64), n = pg.num || 0; if (reg[h] && reg[h].num < n) { ref = ref || reg[h]; return false; } if (!reg[h] || reg[h].num > n) reg[h] = { num: n, n: c.n }; return true; });
+      if (!fq.length && ref) qd = '<div style="margin-top:3mm;font-size:.74em"><b style="color:' + T.acc + '">Cómo queda el corte:</b> la línea final es como la de «' + es(ref.n) + '»' + (ref.num ? ', pág. ' + ref.num : '') + '.</div>';
+      if (fq.length) qd = '<div style="margin-top:3mm"><div style="font-size:.74em;font-weight:700;color:' + T.acc + ';margin:0 0 1mm">Cómo queda el corte</div><div style="display:grid;grid-template-columns:repeat(' + fq.length + ',minmax(0,1fr));gap:2mm">' +
+        fq.map(function (v) { return '<figure style="margin:0"><img src="' + v[0] + '" alt="Cómo queda · ' + v[1] + '" style="width:100%;height:38mm;object-fit:cover;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.66em;text-align:center;margin-top:.6mm">' + v[1] + '</figcaption></figure>'; }).join('') + '</div></div>';
+    }
     return H.cabecera(C, pg) + '<div data-g3d-pg="1"' + attrs + ' style="display:contents">' + cab + ctrl +
       '<div style="display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);gap:4mm;align-items:start"><div>' + izq + '</div><div style="display:grid;gap:3mm">' + leyenda + ficha + '</div></div>' +
-      tarjetas + test + '</div>' + (web ? SCRIPT : '') + H.folio(C, pg);
+      tarjetas + test + qd + '</div>' + (web ? SCRIPT : '') + H.folio(C, pg);
   }
 
   ED.registrar({ paginas: { pe_guia3d: pagina }, voz: { pe_guia3d: function (pg) { var d = datos(pg.corte); return d ? narracion(d).map(function (n) { return n.t; }).join(' ') : ''; } } });

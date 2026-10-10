@@ -86,10 +86,18 @@
     var H = ED.H, T = C.T, t = TEC[pg.tec]; if (!t) return H.cabecera(C, pg) + H.folio(C, pg);
     var web = modo === 'web', print = !web, rad = Math.min(T.r || 4, 6), n = t.narr.length, max = Math.min(n, 6);
     var sel = []; for (var i = 0; i < max; i++) sel.push(Math.round(i * (n - 1) / Math.max(1, max - 1)));
+    /* Fátima, 10-10-2026: los fotogramas de Estudios salían casi iguales. Cada paso lleva, si la hay, una escena
+       distinta de la técnica animada (con cabello y resultado) que no esté ya en su página «pe_animada»; si faltan, el de Estudios. */
+    var LA = window.EU_PELU_LIBRO_ANIM, da = LA && LA.datos && LA.foto ? LA.datos('cb_' + t.id) : null, libres = [], aJ = {};
+    if (da) da.E.escenas.forEach(function (e, k) { if (da.sel.indexOf(k) < 0 && !(LA.NO_IMPRESO || /^cb_receta$|_preparacion$|_cierre$/).test(e.tipo || '')) libres.push(k); });
+    var nL = Math.min(libres.length, sel.length);
+    for (var q = 0; q < nL; q++) aJ[Math.round(q * (sel.length - 1) / Math.max(1, nL - 1))] = libres[Math.round(q * (libres.length - 1) / Math.max(1, nL - 1))];
     var cuad = sel.map(function (k, j) {
-      var src = render(t.id, 'maniqui', +((k + 1) / n).toFixed(3));
+      var an = aJ[j] != null ? LA.foto('cb_' + t.id, aJ[j], 480) : '';
+      var src = an || render(t.id, 'maniqui', +((k + 1) / n).toFixed(3));
       return '<div data-est-k="' + j + '" data-est-t="' + es(t.narr[k]) + '" style="display:grid;grid-template-columns:30mm minmax(0,1fr);gap:2.5mm;align-items:center;border-radius:' + rad + 'px;padding:1mm;transition:opacity .3s">' +
-        (src ? '<div style="aspect-ratio:4/3;overflow:hidden;border-radius:' + rad + 'px;position:relative;background:#F2EAD9"><img src="' + src + '" alt="Paso ' + (k + 1) + '" style="position:absolute;width:250%;max-width:none;left:-82%;top:-38%;display:block"></div>' : '<div></div>') +
+        (an ? '<div style="aspect-ratio:4/3;overflow:hidden;border-radius:' + rad + 'px;position:relative;background:#E6EAF1"><img src="' + an + '" alt="Paso ' + (k + 1) + '" style="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block"></div>' :
+        src ? '<div style="aspect-ratio:4/3;overflow:hidden;border-radius:' + rad + 'px;position:relative;background:#F2EAD9"><img src="' + src + '" alt="Paso ' + (k + 1) + '" style="position:absolute;width:250%;max-width:none;left:-82%;top:-38%;display:block"></div>' : '<div></div>') +
         '<div style="font-size:.78em;line-height:1.35"><b style="display:inline-flex;width:5mm;height:5mm;border-radius:50%;background:' + T.acc + ';color:#fff;align-items:center;justify-content:center;font-size:.85em;margin-right:1.5mm">' + (k + 1) + '</b>' + es(t.narr[k]) + '</div></div>';
     }).join('');
     var dg = tieneDiag(t.id) ? render(t.id, 'diagrama', 1) : '', big0 = render(t.id, 'maniqui', 1);
@@ -100,7 +108,7 @@
       (t.resumen ? '<p style="margin:0 0 2.5mm;max-width:160mm;font-size:.9em">' + es(t.resumen) + '</p>' : '') + ctrl +
       (big0 ? '<img data-est-big="1" src="' + big0 + '" alt="' + es(t.n) + '" style="width:100%;max-height:72mm;object-fit:contain;display:block;border-radius:' + rad + 'px;margin:0 0 3mm;transition:opacity .18s">' : '') +
       '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5mm 3mm">' + cuad + '</div>' +
-      (dg ? '<div style="margin-top:3mm"><div style="font-size:.74em;font-weight:700;color:' + T.acc + ';margin:0 0 1mm">Divisiones de la técnica</div><img src="' + dg + '" alt="Divisiones" style="width:100%;max-height:44mm;object-fit:cover;object-position:50% 40%;display:block;border-radius:' + rad + 'px"></div>' : '') +
+      (dg ? '<div style="margin-top:3mm"><div style="font-size:.74em;font-weight:700;color:' + T.acc + ';margin:0 0 1mm">Divisiones de la técnica</div><img src="' + dg + '" alt="Divisiones" style="width:100%;max-height:50mm;object-fit:contain;object-position:50% 50%;display:block;border-radius:' + rad + 'px"></div>' : '') +
       '</div>' + (web ? SCRIPT : '') + H.folio(C, pg);
   }
   ED.registrar({ paginas: { pe_tecnica: pagina }, voz: { pe_tecnica: function (pg) { var t = TEC[pg.tec]; return t ? t.n + '. ' + t.narr.join(' ') : ''; } } });
