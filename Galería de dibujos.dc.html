@@ -137,7 +137,7 @@ class Component extends DCLogic {
   claseDe(id) { const c = this.CLASES.find(x => x[2].test(id)); return c ? c[0] : 'otras'; }
   cargarMotores() {
     if (this.motores) return this.motores;
-    const V = '?v=1797100000006', L = ['b6_cerebro.js', 'b6_cortes.js', 'b6_pelu_diagrama.js', 'b6_pelu_particiones.js'];
+    const V = '?v=1797100000007', L = ['b6_cerebro.js', 'b6_cortes.js', 'b6_pelu_diagrama.js', 'b6_pelu_particiones.js'];
     this.motores = new Promise(ok => { const sig = (i) => { if (i >= L.length || (i === 0 && window.EU_PARTICIONES)) return ok(); const s = document.createElement('script'); s.src = './' + L[i] + V; s.onload = s.onerror = () => sig(i + 1); document.head.appendChild(s); }; sig(0); });
     return this.motores;
   }
