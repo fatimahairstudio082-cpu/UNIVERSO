@@ -540,14 +540,24 @@
   }
   function escQueda(R, v) {
     var tr = [], lin = lineaDe(R), FY = FORMA_Y[lin], YB = -1.45, tips = [], k = 0, frente = v === 'frente';
+    /* Fátima, 10-10-2026: con pollina (guía bajo las cejas o «flequillo» en el nombre) o sin pollina, largo más abajo del rostro */
+    var pollina = R.altura === 'cejas' || /flequillo|pollina|fleco/i.test(R.n || ''), yCejas = ALTURAS.cejas.y - 0.06, yLargo = Math.min(YB + FY(1) + 0.15, ALTURAS.rostro.y - 0.3);
     for (var ph = -Math.PI; ph < Math.PI; ph += 0.03) {
       var a = Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA)), d = Math.abs(a) / Math.PI, cerca = Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 0.55;
       if (!seVe(v, ph, 1.2) && !seVe(v, ph, 0.5)) continue;
       var sup = [], th;
-      if (cerca) {  /* delante: el cabello se peina a los lados y deja la cara libre */
-        var lado = Math.sin(ph - CARA) >= 0 ? 1 : -1;
-        for (th = 0.12; th <= 0.95; th += 0.08) { var q0 = [ph + lado * (th - 0.12) * 0.7, th]; if (seVe(v, q0[0], q0[1])) sup.push(pr(v, P(q0[0], q0[1], 1.05))); }
-        if (sup.length > 1) tr.push(linea(plano(sup), [0.02 + (k++ % 9) * 0.004, 0.3], '#3A2418', 4.2));
+      if (cerca) {
+        var lado = Math.sin(ph - CARA) >= 0 ? 1 : -1, tf = [0.02 + (k++ % 9) * 0.004, 0.3];
+        if (pollina) {  /* con pollina: el cabello de delante cae sobre la frente hasta abajo de las cejas */
+          for (th = 0.12; th <= 1.6; th += 0.06) { var pf = P(ph, th, 1.05); if (pf.y < yCejas) break; if (seVe(v, ph, th)) sup.push(pr(v, pf)); }
+          if (sup.length > 1) tr.push(linea(plano(sup), tf, '#3A2418', 5));
+          continue;
+        }
+        /* sin pollina: raya en medio, el cabello se peina a los lados y cae largo, por fuera de la cara, más abajo del rostro */
+        var qf = null;
+        for (th = 0.12; th <= 1.0; th += 0.08) { var q0 = [ph + lado * (th - 0.12) * 0.9, th]; if (seVe(v, q0[0], q0[1])) { qf = P(q0[0], q0[1], 1.05); sup.push(pr(v, qf)); } }
+        if (qf) { var ox = qf.x * 1.12, oz = qf.z * 1.04; for (var yy2 = qf.y - 0.1; yy2 >= yLargo; yy2 -= 0.1) sup.push(pr(v, V3(ox, yy2, oz))); sup.push(pr(v, V3(ox, yLargo, oz))); }
+        if (sup.length > 1) tr.push(linea(plano(sup), tf, '#3A2418', 5));
         continue;
       }
       for (th = 0.12; th <= 1.35; th += 0.07) { if (seVe(v, ph, th)) sup.push(pr(v, P(ph, th, 1.05))); }
@@ -565,9 +575,22 @@
     tips.sort(function (p, q) { return p[0] - q[0]; });
     var tramo = [];
     tips.concat([null]).forEach(function (q) { if (q && (!tramo.length || q[0] - tramo[tramo.length - 1][0] < 60)) { tramo.push(q); return; } if (tramo.length > 2) tr.push(tijera(plano(tramo), [0.3, 0.5], CORTE, R.desg)); tramo = q ? [q] : []; });
+    /* la forma final resaltada: atrás, la línea de en medio (raya) y flechas de caída hasta la línea del corte */
+    if (tips.length > 2) {
+      var fin = tips.slice().sort(function (p, q) { return p[0] - q[0]; });
+      tr.push(linea(plano(fin), [0.74, 0.9], VERDE, 3, { d: 1 }));
+      if (v === 'nuca') {
+        var cen = fin.reduce(function (m, q) { return Math.abs(q[0] - 640) < Math.abs(m[0] - 640) ? q : m; }, fin[0]);
+        tr.push(linea(plano([pr(v, P(NUCA, 0.15, 1.06)), pr(v, P(NUCA, 1.3, 1.06)), cen]), [0.72, 0.84], '#FFFFFF', 2.4, { d: 1 }));
+        [0.15, 0.32, 0.5, 0.68, 0.85].forEach(function (f0, j) { var q = fin[Math.round(f0 * (fin.length - 1))]; tr.push(linea([q[0], q[1] - 120, q[0], q[1] - 12], [0.8 + j * 0.02, 0.9 + j * 0.02], '#2C6FD1', 2.4, { fl: 1 })); });
+      } else if (v === 'lateral') {
+        [0.2, 0.45, 0.7].forEach(function (f0, j) { var q = fin[Math.round(f0 * (fin.length - 1))]; tr.push(linea([q[0], q[1] - 110, q[0], q[1] - 12], [0.8 + j * 0.03, 0.9 + j * 0.03], '#2C6FD1', 2.4, { fl: 1 })); });
+      }
+    }
     var NOM = { recta: 'recta · cuadrado', redondeada: 'redondeada · en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'lateral' : 'de frente') + ' · línea ' + NOM[lin], TINTA, 0),
       rotulo('Antes', '#8E847A', 0.02, { x: 0.3 }), rotulo('Se corta siguiendo la línea', CORTE, 0.3, { x: 0.5 }), rotulo('Después', VERDE, 0.5));
+    if (frente) tr.push(rotulo(pollina ? 'Con pollina: por debajo de las cejas' : 'Sin pollina: raya en medio, largo por debajo del rostro', TINTA, 0.5));
     return { v: v, tr: tr };
   }
   function escenas(id) {
