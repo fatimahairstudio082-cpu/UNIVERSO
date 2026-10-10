@@ -829,12 +829,41 @@
     },
     creditos: function (pg, C, modo, ctx) {
       var ed = C.usuario === 'editorial', y = new Date().getFullYear();
-      /* La mitad de arriba ya no queda en blanco: «Lo que vas a aprender», con el título y la primera idea de cada unidad del libro. */
-      var vistos = {}, uds = [];
-      ((ctx && ctx.pages) || []).forEach(function (p) { if (p.u && p.u.id && !vistos[p.u.id] && (p.tipo === 'apertura' || p.tipo === 's_titulo')) { vistos[p.u.id] = 1; uds.push([p.n, p.u]); } });
-      var arriba = uds.length ? '<div style="position:absolute;left:17mm;right:17mm;top:18mm;bottom:72mm;overflow:hidden;line-height:1.45">' + h2(C, 'Lo que vas a aprender') +
-        uds.map(function (x) { var u = x[1], i0 = (u.i || [])[0] || ''; return '<p style="margin:0 0 2.2mm"><b>' + (x[0] ? 'Unidad ' + x[0] + ' · ' : '') + esc(sub(u.t, C)) + '</b>' + (i0 ? '<br/><span style="opacity:.8">' + esc(sub(i0, C)) + '</span>' : '') + '</p>'; }).join('') + '</div>' : '';
-      return arriba + '<div style="position:absolute;left:17mm;right:17mm;bottom:22mm;font-size:.82em;line-height:1.6">' +
+      /* Pág. 2 (Fátima, 10-10-2026: «en la hoja 2 el texto sale abajo y la hoja vacía»): todo empieza ARRIBA y seguido.
+         «Lo que vas a aprender» con el título y tantas ideas de cada unidad como quepan (se calcula con el papel y la letra),
+         y justo debajo los créditos. Sin unidades (colorear, caligrafía, pasatiempos): «Este libro es de…», lo que vas a hacer
+         (sus secciones del índice) y un recuadro para dibujarse. Si el libro está «Autorizado», se deja abajo el sitio del sello. */
+      var vistos = {}, uds = [], secs = [], AC = Object.assign({}, (C.cfg && C.cfg.acab) || {}, C.acab || {});
+      ((ctx && ctx.pages) || []).forEach(function (p) {
+        if (p.u && p.u.id && !vistos[p.u.id] && (p.tipo === 'apertura' || p.tipo === 's_titulo')) { vistos[p.u.id] = 1; uds.push([p.n, p.u]); }
+        else if (p.indice && !vistos['i:' + p.indice]) { vistos['i:' + p.indice] = 1; secs.push(p.indice); }
+      });
+      var px = 25.4 / 96, esp = C.cfg.facil || C.cfg.dislexia ? 1.8 : 1.5, chr = C.cfg.dislexia ? 0.6 : 0.53, ancho = C.papel.w - 34;
+      function lin(s, k) { return Math.max(1, Math.ceil(String(s || '').length / Math.max(16, Math.floor(ancho / (C.fs * (k || 1) * chr * px))))); }
+      var L = C.fs * esp * px, Lc = C.fs * 0.82 * 1.6 * px, H2 = C.fs * 1.3 * 1.2 * px + 7.5;
+      var refC = (C.libre ? '' : 'Referente curricular: ') + (C.libre ? '' : C.P.marco);
+      var credH = (lin(C.titulo, .82) + 1 + 1 + (C.cfg.centro ? 1 : 0) + lin(refC, .82) + (ed ? 2 : 0) + lin('© ' + y + ' ' + (C.cfg.autor || 'la autora o el autor') + '. Material de uso educativo. Maquetado con Estudio Universal.', .82)) * Lc + 9 + 10;
+      var libre = C.papel.h - 36 - credH - (AC.estado === 'autorizado' ? 66 : 0) - 2;
+      var arriba = '';
+      if (uds.length) {
+        var tit = function (x) { return (x[0] ? 'Unidad ' + x[0] + ' · ' : '') + sub(x[1].t, C); };
+        var alto = function (lista, k) { return H2 + lista.reduce(function (t, x) { var h = lin(tit(x)) * L + 2.2; (x[1].i || []).slice(0, k).forEach(function (i) { h += lin('· ' + sub(i, C)) * L; }); return t + h; }, 0); };
+        var k = Math.max.apply(null, uds.map(function (x) { return (x[1].i || []).length; }).concat([1]));
+        while (k > 1 && alto(uds, k) > libre) k--;
+        var lista = uds.slice(); while (lista.length > 1 && alto(lista, k) + L > libre) lista.pop();
+        var resto = uds.length - lista.length;
+        arriba = h2(C, 'Lo que vas a aprender') + lista.map(function (x) {
+          return '<div style="margin:0 0 2.2mm;line-height:' + esp + '"><b>' + esc(tit(x)) + '</b>' + (x[1].i || []).slice(0, k).map(function (i) { return '<div style="opacity:.8;padding-left:2mm">' + (k > 1 ? '· ' : '') + esc(sub(i, C)) + '</div>'; }).join('') + '</div>';
+        }).join('') + (resto ? '<div style="opacity:.75;line-height:' + esp + '">… y ' + resto + ' unidades más: las verás en el índice.</div>' : '');
+      } else if (secs.length && libre > 60) {
+        var chipW = function (s) { return String(s).length * C.fs * .9 * chr * px + 8; }, fila = 0, filas = 1;
+        secs.forEach(function (s) { var w = chipW(s) + 2; if (fila + w > ancho) { filas++; fila = 0; } fila += w; });
+        var usado = H2 + 16 + H2 + filas * (C.fs * .9 * 1.4 * px + 5) + 6, caja = Math.floor(libre - usado);
+        arriba = h2(C, 'Este libro es de') + '<div style="height:12mm;border-bottom:1.5px solid ' + C.T.ink + ';opacity:.55;margin:0 0 4mm"></div>' +
+          h2(C, 'Lo que vas a hacer') + '<div style="display:flex;flex-wrap:wrap;gap:2mm">' + secs.map(function (s) { return '<span style="font-size:.9em;line-height:1.4;padding:1.2mm 3mm;border-radius:99px;background:' + C.T.soft + ';white-space:nowrap">' + esc(s) + '</span>'; }).join('') + '</div>' +
+          (caja >= 30 ? '<div style="margin-top:6mm;height:' + caja + 'mm;box-sizing:border-box;border:2px dashed ' + C.T.acc + ';border-radius:4mm;opacity:.75;display:flex;align-items:flex-end;justify-content:center;padding:3mm;font-size:.9em">Dibújate aquí</div>' : '');
+      }
+      return arriba + '<div style="font-size:.82em;line-height:1.6;margin-top:' + (arriba ? 6 : 0) + 'mm' + (arriba ? ';padding-top:3mm;border-top:1px solid ' + C.T.soft : '') + '">' +
         '<p style="margin:0 0 3mm"><b>' + esc(C.titulo) + '</b><br/>' + (C.libre ? esc(C.matN) : esc(C.cursoN) + ' · ' + esc(C.N.n)) + '</p>' +
         '<p style="margin:0 0 3mm">Autoría: ' + esc(C.cfg.autor || '________________') + '<br/>' + (C.cfg.centro ? 'Centro: ' + esc(C.cfg.centro) + '<br/>' : '') + (C.libre ? '' : 'Referente curricular: ') + esc(C.libre ? '' : C.P.marco) + '</p>' +
         (ed ? '<p style="margin:0 0 3mm">ISBN: ________________ · Depósito legal: ________________<br/>Edición: 1.ª, ' + y + '</p>' : '') +
@@ -855,8 +884,12 @@
         else if (p.tipo === 'bibliografia') filas.push(['', 'Bibliografía y referentes', p.num]);
       });
       var lim = Math.floor(presupuesto(C, 80) / 1.6), p0 = (pg.parte || 0) * lim;
+      /* (10-10-2026) índice corto: las filas se separan por igual hasta ocupar la hoja (tope 5,5 mm de aire por fila), sin cambiar su contenido */
+      var px = 25.4 / 96, Lh = C.fs * (C.cfg.facil || C.cfg.dislexia ? 1.8 : 1.5) * px, cpl = Math.max(16, Math.floor((C.papel.w - 34 - 40) / (C.fs * (C.cfg.dislexia ? .6 : .53) * px)));
+      var vis = filas.slice(p0, p0 + lim), n = vis.length, natural = vis.reduce(function (t, f) { return t + Math.ceil(String(f[1]).length / cpl) * Lh + .3; }, 0);
+      var util = (C.papel.h - 36 - 14 - (C.fs * 2.1 * 1.1 * px + 5) - 6) * 0.9, pad = n ? Math.max(1.6, Math.min(5.5, (util - natural) / (2 * n))) : 1.6;
       return cabecera(C, pg) + h1(C, pg.parte ? 'Índice (sigue)' : 'Índice') + '<div>' + filas.slice(p0, p0 + lim).map(function (f) {
-        return '<div style="display:flex;align-items:baseline;gap:3mm;padding:1.6mm 0;border-bottom:1px solid ' + T.soft + '"><span style="flex:none;width:22mm;color:' + T.acc + ';font-weight:700;font-size:.85em">' + esc(f[0]) + '</span><span style="flex:1">' + esc(f[1]) + '</span><span style="font-variant-numeric:tabular-nums">' + f[2] + '</span></div>';
+        return '<div style="display:flex;align-items:baseline;gap:3mm;padding:' + pad.toFixed(2) + 'mm 0;border-bottom:1px solid ' + T.soft + '"><span style="flex:none;width:22mm;color:' + T.acc + ';font-weight:700;font-size:.85em">' + esc(f[0]) + '</span><span style="flex:1">' + esc(f[1]) + '</span><span style="font-variant-numeric:tabular-nums">' + f[2] + '</span></div>';
       }).join('') + '</div>' + folio(C, pg);
     },
     presentacion: function (pg, C) {
@@ -947,8 +980,15 @@
     bibliografia: function (pg, C) {
       var refs = [C.P.autoridad + '. ' + C.P.marco + '.'];
       refs = refs.concat(apa(C.cfg.fuentes));
+      /* (10-10-2026) la hoja quedaba casi vacía: debajo, «Cómo citar este libro» (con los datos del propio libro) y «Mis notas» hasta el final de la hoja */
+      var px = 25.4 / 96, Lh = C.fs * (C.cfg.facil || C.cfg.dislexia ? 1.8 : 1.5) * px, cpl = Math.max(16, Math.floor((C.papel.w - 42) / (C.fs * (C.cfg.dislexia ? .6 : .53) * px))), y = new Date().getFullYear();
+      var cita = esc(C.cfg.autor || 'Apellido, N.') + '. (' + y + '). <i>' + esc(C.titulo) + '</i>' + (C.libre ? '' : ' (' + esc(C.cursoN) + ')') + '.' + (C.cfg.centro ? ' ' + esc(C.cfg.centro) + '.' : '');
+      var usado = 14 + C.fs * 2.1 * 1.1 * px + 5 + refs.reduce(function (t, s) { return t + Math.ceil(String(s).replace(/<[^>]+>/g, '').length / cpl) * Lh + 3; }, 0) + 6 + 3 * Lh * .85 + (C.fs * 1.3 * 1.2 * px + 7.5) + 2 * Lh + (C.fs * 1.3 * 1.2 * px + 7.5) + 14;
+      var nl = Math.floor((C.papel.h - 36 - usado) / 9);
       return cabecera(C, pg) + h1(C, 'Bibliografía y referentes') + refs.map(function (s) { return '<p style="margin:0 0 3mm;padding-left:8mm;text-indent:-8mm">' + s + '</p>'; }).join('') +
-        '<p style="margin-top:6mm;font-size:.85em;opacity:.8">Los ejemplos de precios, lugares y nombres son ilustrativos. Contrasta los datos oficiales con la normativa vigente de tu comunidad, estado o jurisdicción.</p>' + folio(C, pg);
+        '<p style="margin-top:6mm;font-size:.85em;opacity:.8">Los ejemplos de precios, lugares y nombres son ilustrativos. Contrasta los datos oficiales con la normativa vigente de tu comunidad, estado o jurisdicción.</p>' +
+        (C.papelId === 'slide' ? '' : h2(C, 'Cómo citar este libro') + '<p style="margin:0;padding-left:8mm;text-indent:-8mm">' + cita + '</p>' +
+          (nl >= 3 ? h2(C, 'Mis notas') + new Array(nl + 1).join('<div style="height:9mm;border-bottom:1px solid ' + C.T.soft + '"></div>') : '')) + folio(C, pg);
     },
     contra: function (pg, C) {
       var T = C.T;
