@@ -152,10 +152,10 @@
   if (document.readyState === 'complete') setTimeout(esperar, 80); else window.addEventListener('load', function () { setTimeout(esperar, 80); });
 
   /* fotograma final de cualquier escena de una técnica (para que otras páginas usen imágenes distintas a las de esta) */
-  function foto(id, k, w) {
+  function foto(id, k, w, prog) {
     var d = datos(id); if (!d || !d.E.escenas[k]) return '';
-    var key = k + '|' + (w || 480); d.extra = d.extra || {};
-    if (d.extra[key] == null) { try { d.extra[key] = window.EU_DIAGRAMA.foto(d.E.escenas[k], w || 480, 0.8) || ''; } catch (e) { d.extra[key] = ''; } }
+    var key = k + '|' + (w || 480) + '|' + (prog == null ? 1 : prog); d.extra = d.extra || {};
+    if (d.extra[key] == null) { try { d.extra[key] = window.EU_DIAGRAMA.foto(d.E.escenas[k], w || 480, 0.8, prog) || ''; } catch (e) { d.extra[key] = ''; } }
     return d.extra[key];
   }
   window.EU_PELU_LIBRO_ANIM = { pagina: pagina, repartir: repartir, datos: datos, foto: foto, NO_IMPRESO: NO_IMPRESO };

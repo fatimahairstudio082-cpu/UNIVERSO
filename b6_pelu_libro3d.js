@@ -82,7 +82,7 @@
     '})})();<\/script>';
 
   var QUEDA = typeof WeakMap === 'function' ? new WeakMap() : { get: function () { return null; }, set: function () { } };
-  function pagina(pg, C, modo) {
+  function pagina(pg, C, modo, ctx) {
     var H = ED.H, T = C.T, d = datos(pg.corte, pg.cab); if (!d) return H.cabecera(C, pg) + H.folio(C, pg);
     var web = modo === 'web', c = d.c, t = d.t, pasos = d.g.pasos, fin = (pasos[pasos.length - 1] || {}).elevB || t.elev, rad = Math.min(T.r || 4, 6);
     var cab = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">Guía 3D del corte · ' + pasos.length + ' pasos</div>' + H.h1(C, es(c.n) + (pg.cab ? ' en cabello ' + es(String(d.rg.n).split(' ·')[0].toLowerCase()) : '')) + (pg.cab && !d.g.encaja ? '<p style="margin:0 0 2mm;font-size:.8em"><b>No es su cabello ideal:</b> ' + es(d.g.aviso || '') + '</p>' : '');
@@ -93,11 +93,32 @@
     var ficha = '<div style="font-size:.74em;line-height:1.4;display:grid;gap:1mm"><div><b>Tipo:</b> ' + es(t.tipo) + ' · <b>Dirección:</b> ' + es(t.dir) + '</div><div><b>Herramienta:</b> ' + es(t.her) + ' · <b>Acabado:</b> ' + es(t.acabado) + '</div>' +
       '<div><b>Cabello ideal:</b> ' + es(d.rg.n) + ' · sección ' + es(part(d.rg.part)) + '</div>' + (t.resultado ? '<div><b>Resultado:</b> ' + es(t.resultado) + '</div>' : '') +
       ((t.notas || []).length ? '<div><b>Clave:</b> ' + t.notas.slice(0, 2).map(es).join(' · ') + '</div>' : '') + '</div>';
+    /* Fátima, 10-10-2026: las tarjetas de los pasos llevan escenas del motor de diagramación de ESTE corte (divisiones, guía,
+       ángulos, capas, pulido…) en vez de la imagen genérica de Guías 3D; mientras haya otras, no se repite imagen en el libro
+       (las vistas de su página de diagramación tampoco). Si el motor no está listo, sigue la de Guías 3D. */
+    var LDGc = window.EU_PELU_LIBRO_DG, dgc = { k: 'corte', corte: pg.corte, cab: pg.cab }, regC = QUEDA.get(C);
+    if (!regC) { regC = {}; QUEDA.set(C, regC); }
+    var conDg = !!(ctx && ctx.pages && ctx.pages.some(function (q) { return q.tipo === 'pe_diagrama' && q.dg && q.dg.corte === pg.corte; }));
+    var CAND = [['seccion', 'particion', 'coronilla', 'coronilla_atras'], ['guia', 'angulos'], ['capas', 'angulos', 'coronilla', 'emparejar'], ['frente', 'pulir', 'emparejar']];
+    var EXTRA = ['angulos', 'pulir', 'capas', 'lateral', 'frente', 'guia', 'emparejar', 'oblicua'], prohibe = conDg ? { lateral: 1, frente: 1, capas: 1, oblicua: 1 } : {}, enPag = {};
+    var imgDg = function (k) {
+      if (!LDGc || !LDGc.fotoEscena) return '';
+      var lista = (CAND[k] || CAND[CAND.length - 1]).concat(EXTRA).filter(function (x) { return !prohibe[x]; }), n = pg.num || 0, rep = '';
+      for (var i = 0; i < lista.length; i++) {
+        var f = ''; try { f = LDGc.fotoEscena(dgc, lista[i]); } catch (e) { } if (!f) continue;
+        var h = f.length + ':' + f.slice(-64); if (enPag[h]) continue;
+        if (!regC[h] || regC[h].num >= n) { regC[h] = { num: n, n: c.n }; enPag[h] = 1; return f; }
+        if (!rep) rep = f;
+      }
+      if (rep) enPag[rep.length + ':' + rep.slice(-64)] = 1;
+      return rep;
+    };
     var tarjetas = '<div style="display:grid;grid-template-columns:repeat(' + Math.min(4, pasos.length) + ',minmax(0,1fr));gap:2mm;margin-top:2.5mm">' + pasos.map(function (p, k) {
-      var im = imgPaso(c.id, d.cab, k), tx = k === 0 ? txt(p.texto).replace(c.n + '. ' + txt(c.d), '').trim() : txt(p.texto), e = p.elevB || [];
+      var dgi = imgDg(k), im = dgi || imgPaso(c.id, d.cab, k), tx = k === 0 ? txt(p.texto).replace(c.n + '. ' + txt(c.d), '').trim() : txt(p.texto), e = p.elevB || [];
       var zon = e.map(function (v, i) { return v ? '<b style="color:' + T.acc + '">' + (i + 1) + '</b> ' + v + '°' : ''; }).filter(Boolean).join(' · ') || '0° en todas';
       return '<div data-g3d-paso="' + k + '" style="background:' + T.soft + ';border-radius:' + rad + 'px;padding:1.5mm;font-size:.64em;line-height:1.28;transition:opacity .3s">' +
-        (im ? '<img src="' + im + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px;margin-bottom:1.5mm">' : '') +
+        (dgi ? '<img src="' + im + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:30mm;object-fit:contain;background:#E6EAF1;display:block;border-radius:' + rad + 'px;margin-bottom:1.5mm">' :
+          im ? '<img src="' + im + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px;margin-bottom:1.5mm">' : '') +
         '<b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (k + 1) + ' · ' + es(txt(p.titulo).replace(/^\d+\s*·\s*/, '')) + '</b>' +
         '<div style="margin:1mm 0">Partición ' + es(part(p.particionB)) + ' · ' + es(p.herramienta || t.her) + '</div><div style="margin:0 0 1mm">Zonas: ' + zon + '</div>' + (tx ? '<div>' + es(tx) + '</div>' : '') + '</div>';
     }).join('') + '</div>';
