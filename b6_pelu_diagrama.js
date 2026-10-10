@@ -527,6 +527,49 @@
   }
 
   function txt(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
+  /* Fátima, 10-10-2026 · CÓMO QUEDA el corte, antes y después, dando la vuelta a la cabeza (atrás, lateral, frente).
+     El cabello largo (antes), la tijera siguiendo la línea del corte y el cabello cortado (después) con su sombreado.
+     La forma sale de la línea del corte: recta (cuadrado), redondeada (U), en V, en A o en diagonal. */
+  var FORMA_Y = { recta: function () { return 0; }, redondeada: function (d) { return 0.5 * d * d; }, v: function (d) { return 0.9 * d; },
+    a: function (d) { return -0.5 * d; }, diag_delante: function (d) { return -0.6 * d; }, diag_atras: function (d) { return 0.6 * d; } };
+  function lineaDe(R) {
+    if (FORMA_Y[R.linea]) return R.linea;
+    var n = ' ' + String(R.n || '').toLowerCase() + ' ';
+    if (/ en v |\bv\b/.test(n)) return 'v'; if (/redond| en u /.test(n)) return 'redondeada'; if (/ en a |invertid/.test(n)) return 'a';
+    return 'recta';
+  }
+  function escQueda(R, v) {
+    var tr = [], lin = lineaDe(R), FY = FORMA_Y[lin], YB = -1.45, tips = [], k = 0, frente = v === 'frente';
+    for (var ph = -Math.PI; ph < Math.PI; ph += 0.03) {
+      var a = Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA)), d = Math.abs(a) / Math.PI, cerca = Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 0.55;
+      if (!seVe(v, ph, 1.2) && !seVe(v, ph, 0.5)) continue;
+      var sup = [], th;
+      if (cerca) {  /* delante: el cabello se peina a los lados y deja la cara libre */
+        var lado = Math.sin(ph - CARA) >= 0 ? 1 : -1;
+        for (th = 0.12; th <= 0.95; th += 0.08) { var q0 = [ph + lado * (th - 0.12) * 0.7, th]; if (seVe(v, q0[0], q0[1])) sup.push(pr(v, P(q0[0], q0[1], 1.05))); }
+        if (sup.length > 1) tr.push(linea(plano(sup), [0.02 + (k++ % 9) * 0.004, 0.3], '#3A2418', 4.2));
+        continue;
+      }
+      for (th = 0.12; th <= 1.35; th += 0.07) { if (seVe(v, ph, th)) sup.push(pr(v, P(ph, th, 1.05))); }
+      var base = P(ph, 1.35, 1.05), visto = seVe(v, ph, 1.35);
+      function cola(y) { var o = sup.slice(); if (visto) for (var yy = base.y; yy >= y; yy -= 0.08) o.push(pr(v, V3(base.x * 1.02, yy, base.z * 1.02))); if (visto) o.push(pr(v, V3(base.x * 1.02, y, base.z * 1.02))); return o; }
+      var yC = YB + FY(d) + (d > 0.8 ? 0.15 : 0), largo = cola(YB - 0.95), corto = cola(yC);
+      if (corto.length < 2) continue;
+      tr.push(linea(plano(largo), [0.02, 0.28], '#3A2418', 5, { x: 0.5 }));
+      tr.push(linea(plano(corto), [0.5, 0.72], '#3A2418', 5));
+      if (k % 4 === 0) tr.push(linea(plano(corto.slice(Math.floor(corto.length * 0.15))), [0.74, 0.94], 'rgba(255,236,214,0.32)', 1.8));
+      if (visto) tips.push(corto[corto.length - 1]);
+      k++;
+    }
+    /* la tijera sigue la línea; si hay un hueco (la cara, de frente) va en dos tramos */
+    tips.sort(function (p, q) { return p[0] - q[0]; });
+    var tramo = [];
+    tips.concat([null]).forEach(function (q) { if (q && (!tramo.length || q[0] - tramo[tramo.length - 1][0] < 60)) { tramo.push(q); return; } if (tramo.length > 2) tr.push(tijera(plano(tramo), [0.3, 0.5], CORTE, R.desg)); tramo = q ? [q] : []; });
+    var NOM = { recta: 'recta · cuadrado', redondeada: 'redondeada · en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
+    tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'lateral' : 'de frente') + ' · línea ' + NOM[lin], TINTA, 0),
+      rotulo('Antes', '#8E847A', 0.02, { x: 0.3 }), rotulo('Se corta siguiendo la línea', CORTE, 0.3, { x: 0.5 }), rotulo('Después', VERDE, 0.5));
+    return { v: v, tr: tr };
+  }
   function escenas(id) {
     var R = typeof id === 'object' ? id : receta(id); if (!R) return null;
     var A = ALTURAS[R.altura], pila = R.capas.pila;
@@ -573,6 +616,13 @@
       var ops = FORMAS.filter(function (f) { return f !== calc.forma; }).slice((R.n.length + pila.length) % 3, (R.n.length + pila.length) % 3 + 2); ops.splice(pila.length % 3, 0, calc.forma);
       qs.push({ e: 'Con estas elevaciones (' + pila.join(' · ') + '°), ¿qué forma resulta en ' + R.n.toLowerCase() + '?', o: ops, c: ops.indexOf(calc.forma), x: 'Largos calculados: ' + calc.largos.map(function (x) { return CC.fmt(x); }).join(' · ') + ' cm.' });
     }
+    /* Fátima, 10-10-2026: el resultado del corte, dando la vuelta a la cabeza */
+    var nomQ = { recta: 'recta, en cuadrado', redondeada: 'redondeada, en U', v: 'en V', a: 'en A', diag_delante: 'en diagonal hacia delante', diag_atras: 'en diagonal hacia atrás' }[lineaDe(R)];
+    [['nuca', 'atrás', 'Damos la vuelta a la cabeza para ver cómo queda el corte. Por detrás: antes, el cabello largo; la tijera sigue la línea ' + nomQ + '; después, el corte terminado.'],
+     ['lateral', 'lateral', 'Ahora de lado: así cae el cabello cortado y así se ve la línea ' + nomQ + ' de perfil.'],
+     ['frente', 'de frente', 'Y de frente: el cabello enmarca el rostro y se ve la forma final del corte.']].forEach(function (q) {
+      var a = escQueda(R, q[0]); L.push({ tipo: 'queda_' + q[0], vista: q[0], t: 'Cómo queda · ' + q[1], texto: q[2], a: a });
+    });
     return { R: R, escenas: L, preguntas: qs, calculo: calc };
   }
 
