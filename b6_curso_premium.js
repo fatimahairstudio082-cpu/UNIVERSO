@@ -304,6 +304,9 @@
       $('#tl').textContent = L.t; var ix = LEC.indexOf(L); $('#pos').textContent = 'Módulo ' + (L.mi + 1) + ' · Lección ' + (L.li + 1) + ' de ' + D.modulos[L.mi].lecciones.length + ' · ' + (ix + 1) + '/' + LEC.length;
       $('#ant').disabled = ix <= 0; $('#sig').disabled = ix >= LEC.length - 1; document.body.classList.remove('verMenu'); $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
       $('#reproductor').style.display = ''; $('#zonaTest').style.display = 'none'; textoBajo(L.escenas[0]); pintaPregunta(L.escenas[0]);
+      /* (12-10-2026) vídeo propio de la lección (p. ej. presentacion.mp4 junto a index.html): si no está, no se ve nada */
+      var vv = $('#vidLec'); if (vv) vv.parentNode.removeChild(vv);
+      if (L.mp4) { var vd = document.createElement('video'); vd.id = 'vidLec'; vd.src = L.mp4; vd.controls = true; vd.playsInline = true; vd.style.cssText = 'width:100%;max-height:70vh;background:#000;border-radius:6px'; vd.onerror = function () { if (vd.parentNode) vd.parentNode.removeChild(vd); }; cv.parentNode.insertBefore(vd, cv); }
       $('#escenas').innerHTML = ''; MINI = []; kMini = -1;
       L.escenas.forEach(function (e, k) {
         var b = document.createElement('button'), c = document.createElement('canvas'), t = document.createElement('b'); b.className = 'card'; c.width = 320; c.height = 180;
@@ -451,8 +454,16 @@
         if (M.test.length) { var t = document.createElement('button'); t.className = 'lec tst'; t.textContent = (ST.tests[M.id] >= 70 ? '✓ ' : '✎ ') + 'Test del módulo' + (ST.tests[M.id] != null ? ' · ' + ST.tests[M.id] + ' %' : ''); t.onclick = function () { test('Test · ' + M.t, M.test, function (n) { ST.tests[M.id] = Math.max(n, ST.tests[M.id] || 0); }); }; m.appendChild(t); }
         m = m0;
       });
-      var ex = document.createElement('button'); ex.className = 'lec fin'; ex.textContent = (ST.examen >= 70 ? '✓ ' : '★ ') + 'Examen final' + (ST.examen != null ? ' · ' + ST.examen + ' %' : ''); ex.onclick = function () { test('Examen final', D.examen, function (n) { ST.examen = Math.max(n, ST.examen || 0); }); }; m.appendChild(ex);
-      var listo = hechas === LEC.length && ST.examen >= 70, ce = document.createElement('button'); ce.className = 'lec fin'; ce.textContent = '🎓 Certificado' + (listo ? '' : ' (completa lecciones y examen)'); ce.disabled = !listo; ce.onclick = certificado; m.appendChild(ce);
+      var ex = document.createElement('button'); ex.className = 'lec fin'; ex.textContent = (ST.examen >= 70 ? '✓ ' : '★ ') + 'Examen final' + (ST.examen != null ? ' · ' + ST.examen + ' %' : ''); ex.onclick = function () { test('Examen final', D.examen, function (n) { ST.examen = Math.max(n, ST.examen || 0); setTimeout(avisoCert, 0); }); }; m.appendChild(ex);
+      var listo = hechas === LEC.length && ST.examen >= 70, ce = document.createElement('button'); ce.className = 'lec fin'; ce.textContent = '🎓 Certificado' + (listo ? '' : hechas < LEC.length ? ' (te faltan ' + (LEC.length - hechas) + ' lecciones)' : ' (aprueba el examen)'); ce.disabled = !listo; ce.onclick = certificado; m.appendChild(ce);
+    }
+    /* (12-10-2026) tras el examen: el botón de descarga a la vista o qué falta exactamente (antes solo estaba al final del temario) */
+    function avisoCert() {
+      var z = $('#zonaTest'), hechas = LEC.filter(function (L) { return ST.vistas[L.id]; }).length, falta = LEC.length - hechas, d = document.createElement('p');
+      if (!z || ST.examen < 70) return;
+      if (!falta) { var b = document.createElement('button'); b.className = 'cta'; b.textContent = '🎓 Descargar mi certificado'; b.onclick = certificado; d.appendChild(b); }
+      else d.textContent = 'Examen aprobado. Para el certificado te faltan ' + falta + ' lecciones por ver hasta el final (en el temario, las que no tienen ✓).';
+      z.appendChild(d);
     }
     menu();
   }
@@ -536,7 +547,8 @@
         '2. libro/ — libro-imprimible.html: ábrelo y elige Imprimir → Guardar como PDF. libro-interactivo.html: versión en pantalla.\n' +
         '3. laminas/ — todos los dibujos del curso (JPG de Guías 3D y SVG vectoriales).\n' +
         '4. guion-voz.txt — el texto que narra cada escena.\n' +
-        '5. hotmart/ — módulos y lecciones listos para subir. Los vídeos y audios se graban abriendo curso/index.html#grabar (botones «Grabar»; el alumno no los ve).\n');
+        '5. hotmart/ — módulos y lecciones listos para subir. Los vídeos y audios se graban abriendo curso/index.html#grabar (botones «Grabar»; el alumno no los ve).\n' +
+        '6. Vídeo de presentación: si guardas tu vídeo como presentacion.mp4 dentro de curso/, sale en la lección «Bienvenida · Presentación». Súbelo también como primera clase en Hotmart.\n');
       aviso('Curso premium: comprimiendo…');
       return z.generateAsync({ type: 'blob' }).then(function (b) { return { blob: b, nombre: slug(D.titulo) + '-curso-premium.zip', D: D, nL: nL, nV: nV }; });
     });

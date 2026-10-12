@@ -72,7 +72,8 @@
       (dos ? '<div><b>Delante, capas de abajo arriba:</b><div style="margin-top:1mm">' + chipsF + '</div></div>' : '') +
       '<div><b>Secciones:</b> ' + part + ' · <b>Lateral:</b> dividido de oreja a oreja</div>' +
       '<div><b>Guía del frente:</b> a 0°, ' + es(ALT_N[R.altura] || R.altura) + (R.fuenteAltura === 'ejemplo' ? ' (ejemplo)' : '') + '</div>' +
-      (R.linea ? '<div><b>Línea de corte:</b> ' + (R.linea === 'recta' ? 'recta (queda cuadrado)' : 'hacia delante (queda redondeado)') + '</div>' : '') +
+      (R.linea ? '<div><b>Línea de corte:</b> ' + (R.linea === 'recta' ? 'recta (queda cuadrado)' : R.linea === 'v' ? 'atrás en V (queda en punta)' : R.linea === 'a' ? 'atrás en A (V invertida)' : t && t.nivel === 1 && R.linea === 'redondeada' ? 'atrás en U (queda redondeado)' : 'hacia delante (queda redondeado)') + '</div>' : '') +
+      (t && t.fotoURL ? '<img src="' + t.fotoURL + '" alt="Guía visual: ' + es(t.n) + '" style="display:block;width:100%;max-height:34mm;object-fit:contain;border-radius:1.5mm">' : '') +
       '<div><b>Acabado:</b> ' + (R.desg ? 'desgrafilado' : 'recto') + (R.punto ? ' · lateral llevado a un punto' : '') + '</div>' +
       (t && t.variante ? '<div>Atrás como en «' + es(GC.tecnica(t.base[0]).n) + '»; delante como en «' + es(GC.tecnica(t.base[1]).n) + '».</div>' : t && t.texto ? '<div>' + es(t.texto) + '</div>' : '') +
       (t && t.validar && rev() ? '<div style="color:#A0522D;font-weight:700">Elevaciones de ejemplo, a validar por Fátima.</div>' : '') + '</div>';
@@ -171,7 +172,7 @@
     /* 1 · cada corte con guía 3D en el libro, en su unidad */
     res.pages.forEach(function (p) { if (p.tipo === 'pe_guia3d' && p.corte) { var k = p.corte + '|' + (p.cab || ''); if (!hechos[k] && pon(p.u.id, { k: 'corte', corte: p.corte, cab: p.cab || '' }, p.corte)) hechos[k] = 1; } });
     /* 2 · mis cortes y 3 · técnicas: por turno en las unidades de corte y, si no caben, en las demás de Peluquería */
-    var extra = (GC ? GC.mios() : []).map(function (o) { return { k: 'mio', o: o }; }).concat((GC ? GC.TECNICAS : []).map(function (t) { return { k: 'tec', id: t.id }; }));
+    var extra = (GC ? GC.mios() : []).map(function (o) { return { k: 'mio', o: o }; }).concat((GC ? GC.TECNICAS.filter(function (t) { return t.nivel === 1; }).concat(GC.TECNICAS.filter(function (t) { return t.nivel !== 1; })) : []).map(function (t) { return { k: 'tec', id: t.id }; }));   /* nivel 1 (principiantes) primero */
     var todas = cortes.concat(otras), j = 0;
     extra.forEach(function (dg) { for (var v = 0; v < todas.length; v++) { if (pon(todas[(j + v) % todas.length], dg, dg.id || dg.o.n)) { j = (j + v + 1) % todas.length; return; } } });
     /* 4 · variantes de técnicas (atrás una, delante otra): en los huecos de relleno que queden en las unidades de corte

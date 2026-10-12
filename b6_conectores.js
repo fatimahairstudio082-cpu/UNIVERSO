@@ -170,7 +170,11 @@
     if (poner) {
       var base = (A.qrUrl || '').trim(), txt = base ? (cub ? base : base + (base.indexOf('#') >= 0 ? '' : '#') + (A.qr === 'unidades' ? 'u' + (pg.n || 1) : 'p' + pg.num)) : C.titulo + ' · página ' + pg.num;
       var img = qr(txt), grande = cub, l = grande ? 24 : 12;
-      if (img) s += '<div style="position:absolute;top:' + (grande ? 8 : 2.5) + 'mm;right:' + (grande ? 8 : 3) + 'mm;background:#fff;padding:' + (grande ? 2 : 1) + 'mm;border-radius:' + Math.min(T.r, 6) + 'px;display:flex;flex-direction:column;align-items:center;gap:1mm;max-width:' + (l + 10) + 'mm">' +
+      /* (Fátima, 12-10-2026: en la contraportada el QR tapaba los derechos de autor) posición elegible en portada y contra; por defecto
+         arriba a la derecha en la portada y abajo a la derecha en la contra. Las páginas interiores no cambian. */
+      var QP = { arriba_der: 'top:8mm;right:8mm;', arriba_izq: 'top:8mm;left:8mm;', abajo_der: 'bottom:12mm;right:8mm;', abajo_izq: 'bottom:12mm;left:8mm;', centro_abajo: 'bottom:12mm;left:50%;transform:translateX(-50%);', centro: 'top:50%;left:50%;transform:translate(-50%,-50%);' };
+      var pos = grande ? (QP[A.qrPos] || QP[pg.tipo === 'contra' ? 'abajo_der' : 'arriba_der']) : 'top:2.5mm;right:3mm;';
+      if (img) s += '<div style="position:absolute;' + pos + 'z-index:5;background:#fff;padding:' + (grande ? 2 : 1) + 'mm;border-radius:' + Math.min(T.r, 6) + 'px;display:flex;flex-direction:column;align-items:center;gap:1mm;max-width:' + (l + 10) + 'mm">' +
         '<img src="' + img + '" alt="QR" style="width:' + l + 'mm;height:' + l + 'mm;display:block;image-rendering:pixelated"/>' +
         (grande && A.qrTxt ? '<div style="font:600 2.4mm/1.2 sans-serif;color:#111;text-align:center">' + esc(A.qrTxt) + '</div>' : '') + '</div>';
     }
@@ -695,6 +699,8 @@
     if (A.qr !== 'no') {
       lbl(s2, 'Enlace');
       campo(s2, 'qrUrl', 'https://… (vídeo, curso, web del centro)', 'url');
+      lbl(s2, 'Dónde va el QR en portada y contraportada');
+      fila(s2, [['', 'Automático'], ['arriba_izq', '↖ Arriba izq.'], ['arriba_der', '↗ Arriba der.'], ['centro', '● Centro'], ['centro_abajo', '⬇ Centro abajo'], ['abajo_izq', '↙ Abajo izq.'], ['abajo_der', '↘ Abajo der.']], A.qrPos || '', function (v) { setA('qrPos', v); });
       lbl(s2, 'Rótulo bajo el QR de portada');
       campo(s2, 'qrTxt', 'Escanea y sigue en el móvil');
       s2.appendChild(el('div', ST.nota, 'En las unidades el enlace termina en #u1, #u2…; en todas las páginas, en #p1, #p2… Sin enlace, el QR lleva el título y la página.' + (window.QRCode ? '' : ' El generador de QR aún no se ha cargado: necesita conexión.')));

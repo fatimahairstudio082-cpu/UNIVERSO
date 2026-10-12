@@ -68,7 +68,7 @@
        Puede repetirse el nombre si cambia la elevación: entonces el título lleva las elevaciones. */
     function firma(R) {
       var f = function (o) { return o ? [o.part, o.g, o.pila, o.dir] : null; };
-      return JSON.stringify([f(R.guia), f(R.capas), f(R.frente), R.liso || 0, R.linea || '', R.acabado || '', R.coronilla || 0, R.emparejar || '']);
+      return JSON.stringify([f(R.guia), f(R.capas), f(R.frente), R.liso || 0, R.linea || '', R.acabado || '', R.coronilla || 0, R.emparejar || '', R.altura || '']);   /* (12-10-2026) la altura de la guía también distingue, como en el escáner del libro */
     }
     function titulo(R, fs) {
       var n = String(R.n || '').replace(/^(técnica del |corte )/i, ''), base = 'Técnica del corte ' + n;

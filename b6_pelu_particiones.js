@@ -844,7 +844,7 @@
        van también al curso, en un módulo final «Anexo · Técnicas y clases» (libro = curso). */
     var enAnexo = {}, MA = null;
     (res.pages || []).forEach(function (p) { if (p.tipo === 'pe_animada' && p.fuera && !enAnexo[p.tec]) enAnexo[p.tec] = p.num || 1; });
-    var tareas = catalogo().map(function (t) {
+    var tareas = window.EU_PARTICIONES.catalogo(C.cfg).map(function (t) {   /* el público: respeta «Clases por tema» (b6_pelu_premium.js) */
       var M = D.modulos.filter(function (m) { return m.id === t.unidad; })[0];
       if (!M && enAnexo[t.id]) {
         if (!MA) { MA = { id: 'pe_anexo', t: 'Anexo · Técnicas y clases', pag: enAnexo[t.id], lecciones: [], test: [] }; D.modulos.push(MA); }
