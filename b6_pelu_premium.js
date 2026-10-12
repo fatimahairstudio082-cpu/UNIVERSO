@@ -80,6 +80,18 @@
     });
     return D;
   }
+  /* ─── «Clases por tema» (Fátima, 12-10-2026): cuántas clases del cerebro de colorimetría (Clase · …, ids cc_*) entran por
+     unidad, en su orden original, en el libro y en el curso (los mismos). Las técnicas de diagramación y del Cerebro no se tocan. ─── */
+  function limDe(cfg) { var v = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.clases; return v && v !== 'todas' ? +v || 0 : 0; }
+  var PA = window.EU_PARTICIONES;
+  if (PA && PA.catalogo && !PA.catalogo._clasesPelu) {
+    var cat0 = PA.catalogo;
+    PA.catalogo = function (cfg) {
+      var L = cat0.apply(this, arguments), LIM = limDe(cfg); if (!LIM) return L;
+      var n = {}; return L.filter(function (t) { if (!/^cc_/.test(t.id)) return true; n[t.unidad] = (n[t.unidad] || 0) + 1; return n[t.unidad] <= LIM; });
+    };
+    PA.catalogo._clasesPelu = 1;
+  }
   var CA = window.EU_CURSO_ANIM;
   if (CA && CA.enriquecer && !CA.enriquecer._premiumPelu) {
     var enr = CA.enriquecer;
@@ -112,7 +124,10 @@
     };
     CU.unidades._temaPelu = 1;
     var M = CU.materia && CU.materia('pelu');
-    if (M) { M.opciones = (M.opciones || []).filter(function (x) { return x.k !== 'tema'; }); M.opciones.unshift({ k: 'tema', n: 'Tema del libro', tipo: 'chips', def: 'todo', ops: [['todo', 'Todo'], ['cortes', 'Cortes'], ['color', 'Colorimetría y mechas'], ['quimica', 'Queratina, alisados y decoloración']] }); }
+    if (M) { M.opciones = (M.opciones || []).filter(function (x) { return x.k !== 'tema'; }); M.opciones.unshift({ k: 'tema', n: 'Tema del libro', tipo: 'chips', def: 'todo', ops: [['todo', 'Todo'], ['cortes', 'Cortes'], ['color', 'Colorimetría y mechas'], ['quimica', 'Queratina, alisados y decoloración']] });
+      M.opciones = M.opciones.filter(function (x) { return x.k !== 'clases' && x.k !== 'anexo'; });
+      M.opciones.splice(1, 0, { k: 'clases', n: 'Clases por tema (libro y curso)', tipo: 'chips', def: 'todas', ops: [['todas', 'Todas'], ['5', '5'], ['10', '10'], ['20', '20']] },
+        { k: 'anexo', n: 'Anexo con clases de otros temas', tipo: 'chips', def: 'no', ops: [['no', 'No'], ['si', 'Sí']] }); }
   }
   if (!ED.ensamblar._temaPelu) {
     var ens = ED.ensamblar;

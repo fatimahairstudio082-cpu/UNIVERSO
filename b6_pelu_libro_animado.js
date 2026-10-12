@@ -112,7 +112,7 @@
     res.pages.forEach(function (p) { if (p.u) { hay[p.u.id] = 1; if (!unidad[p.u.id]) unidad[p.u.id] = p; } if (p.tipo === 'pe_animada') ya[p.tec] = 1; });
     /* por unidad: se eligen los huecos y las técnicas van en ellos en el orden del catálogo (el mismo del curso) */
     var porU = {}, orden = [];
-    PA.catalogo().forEach(function (t) { if (!hay[t.unidad] || ya[t.id]) return; if (!porU[t.unidad]) { porU[t.unidad] = []; orden.push(t.unidad); } porU[t.unidad].push(t); });
+    PA.catalogo(cfg).forEach(function (t) { if (!hay[t.unidad] || ya[t.id]) return; if (!porU[t.unidad]) { porU[t.unidad] = []; orden.push(t.unidad); } porU[t.unidad].push(t); });
     orden.forEach(function (uid) {
       var T = porU[uid], idx = huecos(res, uid).slice(0, T.length).map(function (h) { return h[1]; }).sort(function (a, b) { return a - b; });
       T.forEach(function (t, j) {
@@ -131,10 +131,12 @@
     /* Fátima, 10-10-2026 · ANEXO COMPLETO: en libros de cualquier tamaño (10, 50, 100, 200 hojas…) el anexo trae también
        las técnicas y clases de las unidades que no entraron en el libro (colorimetría, queratina, decoloración, neutralización…),
        con su animación, voz y repaso. `cfg.acab.anexoTodo = 'no'` vuelve a solo las de las unidades del libro. */
-    if (((cfg.acab || {}).anexo) !== 'no' && ((cfg.acab || {}).anexoTodo) !== 'no') {
+    /* Fátima, 12-10-2026: apagado por defecto (traía clases avanzadas de otros temas a libros pequeños);
+       se enciende con el botón «Anexo con otros temas: Sí» (cfg.op.anexo) o cfg.acab.anexoTodo = 'si'. */
+    if (((cfg.acab || {}).anexo) !== 'no' && (((cfg.acab || {}).anexoTodo) === 'si' || ((cfg.op || {}).anexo) === 'si')) {
       var CU = window.EU_CURRICULO, C0 = res.C || {}, pool = {};
       try { (CU.unidades(C0.mat || cfg.materia, C0.bnd) || []).forEach(function (u) { pool[u.id] = u; }); } catch (e) { }
-      PA.catalogo().forEach(function (t) { if (!hay[t.unidad] && !ya[t.id] && pool[t.unidad]) fuera.push(t); });
+      PA.catalogo(cfg).forEach(function (t) { if (!hay[t.unidad] && !ya[t.id] && pool[t.unidad]) fuera.push(t); });
     }
     if ((solo.length || fuera.length) && ((cfg.acab || {}).anexo) !== 'no') {
       solo.forEach(function (t) { var ref = unidad[t.unidad]; anexo.push({ tipo: 'pe_animada', u: ref.u, n: ref.n, tec: t.id, titulo: t.n, anexo: 1, fill2: { nada: 1 } }); ya[t.id] = 1; });

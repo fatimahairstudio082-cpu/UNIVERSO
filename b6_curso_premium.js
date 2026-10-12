@@ -451,8 +451,16 @@
         if (M.test.length) { var t = document.createElement('button'); t.className = 'lec tst'; t.textContent = (ST.tests[M.id] >= 70 ? '✓ ' : '✎ ') + 'Test del módulo' + (ST.tests[M.id] != null ? ' · ' + ST.tests[M.id] + ' %' : ''); t.onclick = function () { test('Test · ' + M.t, M.test, function (n) { ST.tests[M.id] = Math.max(n, ST.tests[M.id] || 0); }); }; m.appendChild(t); }
         m = m0;
       });
-      var ex = document.createElement('button'); ex.className = 'lec fin'; ex.textContent = (ST.examen >= 70 ? '✓ ' : '★ ') + 'Examen final' + (ST.examen != null ? ' · ' + ST.examen + ' %' : ''); ex.onclick = function () { test('Examen final', D.examen, function (n) { ST.examen = Math.max(n, ST.examen || 0); }); }; m.appendChild(ex);
-      var listo = hechas === LEC.length && ST.examen >= 70, ce = document.createElement('button'); ce.className = 'lec fin'; ce.textContent = '🎓 Certificado' + (listo ? '' : ' (completa lecciones y examen)'); ce.disabled = !listo; ce.onclick = certificado; m.appendChild(ce);
+      var ex = document.createElement('button'); ex.className = 'lec fin'; ex.textContent = (ST.examen >= 70 ? '✓ ' : '★ ') + 'Examen final' + (ST.examen != null ? ' · ' + ST.examen + ' %' : ''); ex.onclick = function () { test('Examen final', D.examen, function (n) { ST.examen = Math.max(n, ST.examen || 0); setTimeout(avisoCert, 0); }); }; m.appendChild(ex);
+      var listo = hechas === LEC.length && ST.examen >= 70, ce = document.createElement('button'); ce.className = 'lec fin'; ce.textContent = '🎓 Certificado' + (listo ? '' : hechas < LEC.length ? ' (te faltan ' + (LEC.length - hechas) + ' lecciones)' : ' (aprueba el examen)'); ce.disabled = !listo; ce.onclick = certificado; m.appendChild(ce);
+    }
+    /* (12-10-2026) tras el examen: el botón de descarga a la vista o qué falta exactamente (antes solo estaba al final del temario) */
+    function avisoCert() {
+      var z = $('#zonaTest'), hechas = LEC.filter(function (L) { return ST.vistas[L.id]; }).length, falta = LEC.length - hechas, d = document.createElement('p');
+      if (!z || ST.examen < 70) return;
+      if (!falta) { var b = document.createElement('button'); b.className = 'cta'; b.textContent = '🎓 Descargar mi certificado'; b.onclick = certificado; d.appendChild(b); }
+      else d.textContent = 'Examen aprobado. Para el certificado te faltan ' + falta + ' lecciones por ver hasta el final (en el temario, las que no tienen ✓).';
+      z.appendChild(d);
     }
     menu();
   }
