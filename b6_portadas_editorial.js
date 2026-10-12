@@ -42,7 +42,53 @@
     delete c.ancho;
     return EP.svg(el.id, c).replace('style="width:100%;height:auto;display:block"', 'preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;display:block"');
   }
+  /* ─── Estilos de curso (Fátima, 12-10-2026, de su archivo «Plantillas premium de portadas»): portada y contraportada a
+     juego, con la foto subida en «Imágenes › Portada» a sangre como fondo (antes quedaba en un recuadro sobre hoja blanca)
+     y el color de acento cambiable (acab.portadaAcc). acab.portada = 'estilo', acab.portadaEst = id del estilo. ─── */
+  var FUENTES_EST = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;0,900;1,500&family=Oswald:wght@500;700&family=Dancing+Script:wght@600&display=swap">';
+  var ESTILOS = {
+    medianoche: { n: 'Medianoche y oro', bg: '#16223A', bg2: '#0D1626', tx: '#F6F1E7', acc: '#B08D57', tit: "'Playfair Display',Georgia,serif", may: 0,
+      deco: function (a) { return '<div style="position:absolute;inset:9mm;border:.5mm solid ' + a + ';pointer-events:none"></div><div style="position:absolute;inset:11mm;border:.2mm solid ' + a + ';opacity:.6;pointer-events:none"></div>'; } },
+    aurora: { n: 'Aurora', bg: '#0B1026', bg2: '#1B1446', tx: '#FFFFFF', acc: '#22D3EE', tit: "'Montserrat',system-ui,sans-serif", may: 0,
+      deco: function (a) { return '<div style="position:absolute;width:150mm;height:150mm;right:-50mm;top:-40mm;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.55),transparent 65%)"></div><div style="position:absolute;width:130mm;height:130mm;left:-50mm;top:70mm;border-radius:50%;background:radial-gradient(circle,' + a + '55,transparent 65%)"></div>'; } },
+    oro_noir: { n: 'Oro Noir', bg: '#14110F', bg2: '#221C17', tx: '#F4EDE0', acc: '#C9A45C', tit: "'Playfair Display',Georgia,serif", may: 0,
+      deco: function (a) { return '<div style="position:absolute;left:14mm;right:14mm;top:14mm;border-top:.5mm solid ' + a + '"></div><div style="position:absolute;left:14mm;right:14mm;bottom:14mm;border-top:.5mm solid ' + a + '"></div>'; } },
+    coral: { n: 'Coral Pop', bg: '#FFF4E6', bg2: '#FFE8CC', tx: '#1F1B18', acc: '#FF6B57', tit: "'Oswald',Impact,sans-serif", may: 1,
+      deco: function (a) { return '<div style="position:absolute;width:90mm;height:90mm;right:-22mm;top:-22mm;border-radius:50%;background:' + a + '"></div><div style="position:absolute;width:46mm;height:46mm;right:40mm;top:40mm;background:#FFC145"></div><div style="position:absolute;left:0;bottom:0;width:40mm;height:12mm;background:' + a + '"></div>'; } },
+    bosque: { n: 'Bosque', bg: '#1F3A2E', bg2: '#2D4F3E', tx: '#F3EEE2', acc: '#C8724F', tit: "'Playfair Display',Georgia,serif", may: 0, firma: "'Dancing Script',cursive",
+      deco: function (a) { return '<div style="position:absolute;width:110mm;height:110mm;right:-30mm;top:-30mm;border-radius:50%;background:#9CB89A;opacity:.5"></div><div style="position:absolute;width:70mm;height:35mm;left:20mm;top:30mm;border-radius:35mm 35mm 0 0;border:1.2mm solid ' + a + ';border-bottom:0"></div>'; } },
+    neon: { n: 'Neón Tech', bg: '#0A0F1C', bg2: '#0F172A', tx: '#E2E8F0', acc: '#A3E635', tit: "'Oswald',Impact,sans-serif", may: 1,
+      deco: function (a) { return '<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(59,130,246,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.18) 1px,transparent 1px);background-size:8mm 8mm"></div><div style="position:absolute;right:14mm;top:22mm;font:9px/1.6 monospace;color:' + a + ';opacity:.85;text-align:right">&lt;curso premium/&gt;<br>nivel: 1 → pro</div>'; } }
+  };
+  function estiloDe(C) { var A = (C.cfg && C.cfg.acab) || {}; return ESTILOS[A.portadaEst] || ESTILOS[C.mat === 'pelu' ? 'medianoche' : 'aurora']; }
+  function escH(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function rgba(hex, a) { var h = String(hex).replace('#', ''); if (h.length === 3) h = h.replace(/./g, '$&$&'); var n = parseInt(h, 16) || 0; return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; }
+  function fondoEst(E, C, fuerte) {
+    var img = C.cfg && C.cfg.portadaImg, base = 'linear-gradient(160deg,' + E.bg + ',' + E.bg2 + ')';
+    return img ? 'background:linear-gradient(to top,' + rgba(E.bg, fuerte ? .96 : .92) + ' 0%,' + rgba(E.bg, fuerte ? .8 : .45) + ' 48%,' + rgba(E.bg, fuerte ? .55 : .08) + ' 100%),url(' + img + ') center/cover no-repeat,' + E.bg
+      : 'background:' + base;
+  }
+  function portadaEstilo(C) {
+    var E = estiloDe(C), A = (C.cfg && C.cfg.acab) || {}, acc = A.portadaAcc || E.acc, t = textoLibro(C), img = C.cfg && C.cfg.portadaImg;
+    var tt = E.may ? 'text-transform:uppercase;letter-spacing:.02em;' : '';
+    return FUENTES_EST + '<div style="position:absolute;inset:0;overflow:hidden;' + fondoEst(E, C) + ';color:' + E.tx + '">' + (img ? '' : E.deco(acc)) +
+      '<div style="position:absolute;left:16mm;right:16mm;top:18mm;font:600 .78em/1.2 Montserrat,system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:' + acc + '">' + escH(C.matN || '') + '</div>' +
+      '<div style="position:absolute;left:16mm;right:16mm;bottom:22mm;display:flex;flex-direction:column;gap:4mm">' +
+      '<div style="width:22mm;height:1.2mm;background:' + acc + '"></div>' +
+      '<div style="font-family:' + E.tit + ';font-weight:900;' + tt + 'font-size:' + (C.fs * 3.6) + 'px;line-height:1.02">' + escH(t.titulo) + '</div>' +
+      (t.sub ? '<div style="font:500 1.05em/1.35 Montserrat,system-ui,sans-serif;opacity:.92">' + escH(t.sub) + '</div>' : '') +
+      '<div style="margin-top:6mm;display:flex;justify-content:space-between;align-items:flex-end;gap:6mm;font-family:Montserrat,system-ui,sans-serif">' +
+      '<div><div style="' + (E.firma ? 'font-family:' + E.firma + ';font-size:1.6em;' : 'font-weight:800;font-size:1.05em;') + 'color:' + acc + '">' + escH(t.autor) + '</div><div style="font-size:.82em;opacity:.8">' + escH(C.cfg.centro || '') + '</div></div>' +
+      '<div style="font-size:.75em;letter-spacing:.18em;text-transform:uppercase;opacity:.75">' + t.anio + '</div></div></div></div>';
+  }
+  /* contraportada a juego: se cambia solo el fondo de la del motor (el texto, la licencia y el sello de b6_derechos siguen) */
+  function contraEstilo(h, C) {
+    var E = estiloDe(C), claro = E.tx === '#1F1B18', bg = claro ? 'background:linear-gradient(160deg,' + ((C.cfg.acab || {}).portadaAcc || E.acc) + ',#1F1B18)' : fondoEst(E, C, true);
+    return FUENTES_EST + String(h).replace(/(position:absolute;inset:0;)background:[^;]+;/, '$1' + bg + ';');
+  }
   ED.registrar({ post: function (h, pg, C) {
+    var A0 = (C.cfg && C.cfg.acab) || {};
+    if (A0.portada === 'estilo' && (pg.tipo === 'portada' || pg.tipo === 'contra')) { try { return pg.tipo === 'portada' ? portadaEstilo(C) : contraEstilo(h, C); } catch (e) { console.warn('portada estilo', e); return h; } }
     if (pg.tipo !== 'portada') return h;
     var A = (C.cfg && C.cfg.acab) || {}; if (A.portada !== 'premium') return h;
     try { return '<div style="position:absolute;inset:0;overflow:hidden">' + svgPara(C) + '</div>'; } catch (e) { console.warn('portada premium', e); return h; }
@@ -55,10 +101,25 @@
     var orig = CN.panel;
     var nuevo = function (ed, seccion, U) {
       var el = U.el, ST = U.ST, chip = U.chip, A = ed.cfg.acab || {}, setA = function (o) { ed.set('acab', Object.assign({}, ed.cfg.acab || {}, o)); };
-      var s = seccion('Portada premium'), on = A.portada === 'premium';
+      var s = seccion('Portada premium'), on = A.portada === 'premium', est = A.portada === 'estilo';
       var f = el('div', ST.fila);
-      [[true, 'Ilustración premium'], [false, 'Portada normal']].forEach(function (o) { var b = el('button', chip(on === o[0]), o[1]); b.onclick = function () { setA({ portada: o[0] ? 'premium' : 'auto' }); }; f.appendChild(b); });
+      [['premium', 'Ilustración premium'], ['estilo', 'Estilo de curso (con tu foto)'], ['auto', 'Portada normal']].forEach(function (o) { var b = el('button', chip(o[0] === 'auto' ? !on && !est : A.portada === o[0]), o[1]); b.onclick = function () { setA({ portada: o[0] }); }; f.appendChild(b); });
       s.appendChild(f);
+      if (est) {
+        var ve = A.portadaEst || '', fe = el('div', ST.fila);
+        [['', 'Automático']].concat(Object.keys(ESTILOS).map(function (k) { return [k, ESTILOS[k].n]; })).forEach(function (o) {
+          var E = ESTILOS[o[0]], b = el('button', chip(ve === o[0]), o[1]);
+          if (E) b.innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;background:' + E.bg + ';box-shadow:inset 0 0 0 3px ' + E.acc + '"></span>' + escH(o[1]);
+          b.onclick = function () { setA({ portadaEst: o[0] }); }; fe.appendChild(b);
+        });
+        s.appendChild(fe);
+        s.appendChild(el('div', ST.lbl, 'Color de acento'));
+        var fc = el('div', 'display:flex;gap:8px;align-items:center'), ci = document.createElement('input'); ci.type = 'color'; ci.value = A.portadaAcc || (ESTILOS[ve] || ESTILOS.medianoche).acc;
+        ci.oninput = function () { setA({ portadaAcc: ci.value }); }; fc.appendChild(ci);
+        var rb = el('button', chip(false), 'El del estilo'); rb.onclick = function () { setA({ portadaAcc: '' }); }; fc.appendChild(rb);
+        s.appendChild(fc);
+        s.appendChild(el('div', ST.nota, 'Portada y contraportada a juego. La foto que subas en «Imágenes › Portada» va de fondo a sangre, con el título encima; sin foto, sale el dibujo del estilo.'));
+      }
       if (on) {
         var v = A.portadaPrem || '', env = enviada();
         s.appendChild(el('div', ST.lbl, 'Ilustración'));
