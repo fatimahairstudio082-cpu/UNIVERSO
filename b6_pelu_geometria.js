@@ -52,7 +52,16 @@
     { id: 'p1_horizontal', nivel: 1, n: 'Seccionado horizontal en capas (cuadrado)', capas: v(5, 0), part: 'vertical', linea: 'recta', lineaFrente: 'recta', acabado: 'recto', altura: 'cuello', foto: 'horizontal_capas.jpg',
       texto: 'Secciones horizontales de la nuca a la coronilla. Todo cae hacia abajo, a 0°, y la línea queda recta: cuadrado.' },
     { id: 'p1_vertical_corto', nivel: 1, n: 'Seccionado vertical con graduación (bob)', capas: v(5, 0), part: 'vertical', linea: 'redondeada', acabado: 'recto', altura: 'barbilla', foto: 'vertical_graduado_corto.jpg',
-      texto: 'Secciones verticales desde la raya central hacia los lados. Todo cae hacia abajo, a 0°, y la línea queda suave alrededor del cuello.' }
+      texto: 'Secciones verticales desde la raya central hacia los lados. Todo cae hacia abajo, a 0°, y la línea queda suave alrededor del cuello.' },
+    /* Pollina, flequillo y acabados de puntas (Fátima, 12-10-2026, explicados por ella): `aparte` = no entran en las variantes */
+    { id: 'pollina_recta', aparte: 1, n: 'Pollina recta', capas: v(3, 0), frente: [0], part: 'vertical', lineaFrente: 'recta', acabado: 'recto', altura: 'cejas',
+      texto: 'En cabello ondulado la pollina se saca por alrededor, más abajo de las cejas. Con la persona de frente se corta recto, a 0°, y la pollina queda recta.' },
+    { id: 'flequillo_v', aparte: 1, n: 'Flequillo en V desgrafilado', capas: v(3, 0), frente: [0], part: 'vertical', acabado: 'desgrafilado', altura: 'ojo',
+      texto: 'Se agarra la primera mecha y se mide más o menos donde terminan los ojos; se corta recto a 0°. Luego se jala el mechón triangular completo, se dobla y se corta: queda en V, bien desgrafiladito.' },
+    { id: 'navaja_puntas', aparte: 1, n: 'Desgrafilado con navaja en las puntas', capas: v(5, 0), part: 'vertical', acabado: 'desgrafilado', altura: 'barbilla',
+      texto: 'Con navaja, en las puntas: se pasa la navaja con cuidado a un centímetro del cabello, apenas un centímetro, no un dedo. El corte queda más desgrafilado.' },
+    { id: 'zigzag_puntas', aparte: 1, n: 'Zigzag en las puntas', capas: v(5, 0), part: 'vertical', acabado: 'desgrafilado', altura: 'rostro',
+      texto: 'Se corta el cabello y luego se va agarrando mechón por mechón, con la misma división del corte. En las puras puntas, con la punta de la tijera y en horizontal, se cortan triangulitos en V pequeñitos, punta sobre punta, a un centímetro del cabello. Se puede hacer a cualquier elevación.' }
   ];
   /* fotos de referencia (referencias/*.jpg) como data URL, para que viajen dentro del libro y del curso */
   TECNICAS.forEach(function (t) {
@@ -84,7 +93,7 @@
   var VAR = null;
   function variantes() {
     if (VAR) return VAR;
-    var base = TECNICAS.filter(function (t) { return !t.validar && !t.nivel; }), alts = Object.keys(ALT_N), pares = [];
+    var base = TECNICAS.filter(function (t) { return !t.validar && !t.nivel && !t.aparte; }), alts = Object.keys(ALT_N), pares = [];
     base.forEach(function (A) { base.forEach(function (F) { if (A !== F) pares.push([A, F]); }); });
     var P = pares.length, K = alts.length * 2, paso = 25; while (P % paso === 0 || mcd(P, paso) !== 1) paso++;
     VAR = [];
