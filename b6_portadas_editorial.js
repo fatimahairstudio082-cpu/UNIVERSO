@@ -60,6 +60,41 @@
     neon: { n: 'Neón Tech', bg: '#0A0F1C', bg2: '#0F172A', tx: '#E2E8F0', acc: '#A3E635', tit: "'Oswald',Impact,sans-serif", may: 1,
       deco: function (a) { return '<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(59,130,246,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.18) 1px,transparent 1px);background-size:8mm 8mm"></div><div style="position:absolute;right:14mm;top:22mm;font:9px/1.6 monospace;color:' + a + ';opacity:.85;text-align:right">&lt;curso premium/&gt;<br>nivel: 1 → pro</div>'; } }
   };
+  /* Masterclass (Fátima, 12-10-2026, de su póster «Peluquería Premium»): negro y oro, título en mayúsculas con serifa,
+     «Premium» manuscrito, la foto a la derecha fundida en negro, tres rasgos con icono y banda final.
+     Imagen completa: el diseño subido tal cual, sin texto encima (en Peluquería, sin foto, su póster de referencias/). */
+  ESTILOS.masterclass = { n: 'Masterclass negro y oro', bg: '#0E0D0C', bg2: '#1A1714', tx: '#FFFFFF', acc: '#D4AF6A', tit: "'Playfair Display',Georgia,serif", may: 1, firma: "'Dancing Script',cursive", deco: function () { return ''; } };
+  ESTILOS.imagen = { n: 'Imagen completa (diseño propio)', bg: '#0E0D0C', bg2: '#1A1714', tx: '#FFFFFF', acc: '#D4AF6A', tit: "'Playfair Display',Georgia,serif", deco: function () { return ''; } };
+  var POSTER = '';
+  try { fetch('./referencias/portada_peluqueria_premium.jpg').then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (!b) return; var fr = new FileReader(); fr.onload = function () { POSTER = fr.result; }; fr.readAsDataURL(b); }).catch(function () { }); } catch (e) { }
+  var ICO = {
+    tijera: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
+    birrete: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>',
+    reloj: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+  };
+  function portadaMaster(C) {
+    var E = ESTILOS.masterclass, A = (C.cfg && C.cfg.acab) || {}, acc = A.portadaAcc || E.acc, t = textoLibro(C), img = C.cfg && C.cfg.portadaImg, M = 'Montserrat,system-ui,sans-serif';
+    var lema = C.mat === 'pelu' ? 'Corte · Técnica · Precisión · Resultados' : t.sub;
+    var rasgos = [['tijera', 'Técnicas paso a paso'], ['birrete', 'Método profesional'], ['reloj', 'Aprende a tu ritmo']];
+    return FUENTES_EST + '<div style="position:absolute;inset:0;overflow:hidden;background:' + E.bg + ';color:#fff">' +
+      (img ? '<div style="position:absolute;top:0;right:0;bottom:22%;width:66%;background:url(' + img + ') center/cover no-repeat"></div><div style="position:absolute;top:0;right:0;bottom:22%;width:66%;background:linear-gradient(90deg,' + E.bg + ' 0%,' + rgba(E.bg, .3) + ' 26%,transparent 50%),linear-gradient(0deg,' + E.bg + ' 0%,transparent 22%)"></div>'
+        : '<div style="position:absolute;width:120mm;height:120mm;right:-30mm;top:10mm;border-radius:50%;background:radial-gradient(circle,' + rgba(acc, .28) + ',transparent 65%)"></div>') +
+      '<div style="position:absolute;left:14mm;right:14mm;top:16mm;display:flex;flex-direction:column;gap:2mm;max-width:60%">' +
+      '<div style="font:500 .78em/1.2 ' + M + ';letter-spacing:.3em;text-transform:uppercase;opacity:.9">Curso profesional · ' + escH(C.matN || '') + '</div>' +
+      '<div style="font-family:' + E.tit + ';font-weight:700;text-transform:uppercase;font-size:' + (C.fs * 3.2) + 'px;line-height:1.02">' + escH(t.titulo) + '</div>' +
+      '<div style="font-family:' + E.firma + ';color:' + acc + ';font-size:' + (C.fs * 3.4) + 'px;line-height:.9;margin-top:-1mm">Premium</div>' +
+      (lema ? '<div style="font:500 .78em/1.3 ' + M + ';letter-spacing:.14em;text-transform:uppercase;margin-top:3mm">' + escH(lema) + '</div>' : '') + '</div>' +
+      '<div style="position:absolute;left:14mm;right:14mm;bottom:26%;display:flex;gap:6mm;font:600 .66em/1.25 ' + M + ';letter-spacing:.08em;text-transform:uppercase">' +
+      rasgos.map(function (r, i) { return '<div style="display:flex;flex-direction:column;gap:1.5mm;color:#fff;' + (i ? 'padding-left:6mm;border-left:.3mm solid ' + rgba(acc, .6) : '') + '"><span style="color:' + acc + '">' + ICO[r[0]] + '</span>' + r[1] + '</div>'; }).join('') + '</div>' +
+      '<div style="position:absolute;left:0;right:0;bottom:0;height:22%;background:' + E.bg2 + ';border-top:.4mm solid ' + acc + ';display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2mm;text-align:center;padding:0 14mm">' +
+      '<div style="font-family:' + E.firma + ';color:' + acc + ';font-size:1.9em">' + escH(t.autor || '') + '</div>' +
+      '<div style="font:500 .72em/1.3 ' + M + ';letter-spacing:.24em;text-transform:uppercase;opacity:.85">' + escH(C.cfg.centro || '') + (C.cfg.centro ? ' · ' : '') + t.anio + '</div></div></div>';
+  }
+  function portadaImagen(C) {
+    var img = (C.cfg && C.cfg.portadaImg) || (C.mat === 'pelu' ? POSTER : '');
+    if (!img) return portadaMaster(C);
+    return '<div style="position:absolute;inset:0;overflow:hidden;background:#0E0D0C url(' + img + ') center/cover no-repeat"></div>';
+  }
   function estiloDe(C) { var A = (C.cfg && C.cfg.acab) || {}; return ESTILOS[A.portadaEst] || ESTILOS[C.mat === 'pelu' ? 'medianoche' : 'aurora']; }
   function escH(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function rgba(hex, a) { var h = String(hex).replace('#', ''); if (h.length === 3) h = h.replace(/./g, '$&$&'); var n = parseInt(h, 16) || 0; return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; }
@@ -88,7 +123,7 @@
   }
   ED.registrar({ post: function (h, pg, C) {
     var A0 = (C.cfg && C.cfg.acab) || {};
-    if (A0.portada === 'estilo' && (pg.tipo === 'portada' || pg.tipo === 'contra')) { try { return pg.tipo === 'portada' ? portadaEstilo(C) : contraEstilo(h, C); } catch (e) { console.warn('portada estilo', e); return h; } }
+    if (A0.portada === 'estilo' && (pg.tipo === 'portada' || pg.tipo === 'contra')) { try { return pg.tipo === 'portada' ? (A0.portadaEst === 'masterclass' ? portadaMaster(C) : A0.portadaEst === 'imagen' ? portadaImagen(C) : portadaEstilo(C)) : contraEstilo(h, C); } catch (e) { console.warn('portada estilo', e); return h; } }
     if (pg.tipo !== 'portada') return h;
     var A = (C.cfg && C.cfg.acab) || {}; if (A.portada !== 'premium') return h;
     try { return '<div style="position:absolute;inset:0;overflow:hidden">' + svgPara(C) + '</div>'; } catch (e) { console.warn('portada premium', e); return h; }

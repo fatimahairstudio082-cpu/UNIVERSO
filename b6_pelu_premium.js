@@ -92,13 +92,32 @@
     };
     PA.catalogo._clasesPelu = 1;
   }
+  /* ─── Bienvenida (Fátima, 12-10-2026, con sus palabras): primera lección del curso de Peluquería, con su foto
+     (referencias/presentacion.jpg) y, si junto a curso/index.html está su vídeo presentacion.mp4, el vídeo encima. ─── */
+  var FOTO_PRES = '';
+  try { fetch('./referencias/presentacion.jpg').then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (!b) return; var fr = new FileReader(); fr.onload = function () { FOTO_PRES = fr.result; }; fr.readAsDataURL(b); }).catch(function () { }); } catch (e) { }
+  var BIENVENIDA = [
+    ['Bienvenida a tu curso', 'Este curso es un paso a paso de especialización: vas a obtener los conocimientos de 19 años de experiencia profesional.'],
+    ['No es un cursillo genérico', 'No es un cursillo genérico de internet. Son técnicas aplicadas en la realidad, en la vida diaria: todos mis conocimientos.'],
+    ['Aprende viendo el maniquí', 'Es la forma más fácil e interactiva de aprender: viendo el maniquí y la animación aprendes a dividir, cómo cortar y cómo practicar en tu casa.'],
+    ['Mi recomendación', 'Mi recomendación: ten un maniquí y empieza a practicar con él. Córtale el cabello y saca las líneas, lección por lección.'],
+    ['Así vas avanzando', 'Ves el vídeo, ves la animación, practicas y aplicas. Así, corte a corte, aprendes este oficio y te defiendes.']
+  ];
+  function bienvenida(D) {
+    if (!D || !D.modulos || !D.modulos.length) return D;
+    var M = D.modulos[0]; if (M.lecciones.some(function (L) { return /__bienvenida$/.test(L.id); })) return D;
+    D.img = D.img || {}; if (FOTO_PRES) D.img.presentacion = FOTO_PRES;
+    M.lecciones.unshift({ id: M.id + '__bienvenida', t: 'Bienvenida · Presentación', pag: M.pag, video: 1, mp4: 'presentacion.mp4',
+      escenas: BIENVENIDA.map(function (b) { return { tipo: 'idea', id: FOTO_PRES ? 'presentacion' : null, t: b[0], texto: b[1], rot: [] }; }) });
+    return D;
+  }
   var CA = window.EU_CURSO_ANIM;
   if (CA && CA.enriquecer && !CA.enriquecer._premiumPelu) {
     var enr = CA.enriquecer;
     CA.enriquecer = function (D, res) {
       return Promise.resolve(enr.apply(this, arguments)).then(function (D2) {
         var R = D2 || D, mat = res && res.C && res.C.cfg && res.C.cfg.materia;
-        return mat === 'pelu' ? variedad(R) : R;
+        return mat === 'pelu' ? bienvenida(variedad(R)) : R;
       });
     };
     CA.enriquecer._premiumPelu = 1;
@@ -138,5 +157,5 @@
     ED.ensamblar._temaPelu = 1;
   }
 
-  window.EU_PELU_PREMIUM = { PAL: PAL, ORO: ORO, activo: activo, variedad: variedad, TEMAS: TEMAS };
+  window.EU_PELU_PREMIUM = { PAL: PAL, ORO: ORO, activo: activo, variedad: variedad, bienvenida: bienvenida, TEMAS: TEMAS };
 })();
