@@ -368,8 +368,32 @@
       var u8 = new Uint8Array(out.length); for (var j = 0; j < out.length; j++) u8[j] = out.charCodeAt(j) & 255;
       return new Blob([u8], { type: 'application/pdf' });
     }
+    /* (Fátima, 12-10-2026) al recibir el certificado: estrellas doradas, felicitación con su nombre y la voz que lo dice */
+    function celebra(nom) {
+      var ov = document.createElement('div'); ov.style.cssText = 'position:fixed;inset:0;z-index:50;background:rgba(10,8,6,.78);display:flex;align-items:center;justify-content:center';
+      var c = document.createElement('canvas'); c.width = innerWidth; c.height = innerHeight; c.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;background:transparent;border:0'; ov.appendChild(c);
+      var card = document.createElement('div'); card.setAttribute('role', 'dialog'); card.setAttribute('aria-label', 'Felicitaciones');
+      card.style.cssText = 'position:relative;max-width:520px;margin:16px;padding:28px 26px;border-radius:14px;background:#fff;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);border-top:6px solid #D4AF6A';
+      var msg = 'Lo lograste: viste todas las lecciones y aprobaste el examen. Tu certificado se está descargando.';
+      card.innerHTML = '<div style="font:700 15px/1 ' + T.tit + ';letter-spacing:.2em;color:#B08D57;text-transform:uppercase">Felicitaciones</div>' +
+        '<div style="font:700 30px/1.15 ' + T.tit + ';color:' + T.txt + ';margin:12px 0 10px">¡Enhorabuena, ' + nom.replace(/</g, '&lt;') + '!</div>' +
+        '<p style="margin:0 0 18px;font-size:17px;line-height:1.5;color:' + T.txt + '">' + msg + '</p>';
+      var cerrar = document.createElement('button'); cerrar.className = 'cta'; cerrar.textContent = 'Cerrar'; card.appendChild(cerrar); ov.appendChild(card); document.body.appendChild(ov);
+      var g = c.getContext('2d'), col = ['#D4AF6A', '#F2D98D', '#B08D57', T.acc, '#FFFFFF'], P = [], t0 = performance.now(), vivo = true;
+      for (var i = 0; i < 140; i++) P.push({ x: Math.random() * c.width, y: -Math.random() * c.height * .8, v: 1.2 + Math.random() * 2.6, r: 4 + Math.random() * 7, a: Math.random() * 6.3, s: (Math.random() - .5) * .08, c: col[i % col.length] });
+      function estrella(x, y, r, a) { g.beginPath(); for (var k = 0; k < 10; k++) { var rr = k % 2 ? r * .45 : r, an = a + k * Math.PI / 5; g.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr); } g.closePath(); g.fill(); }
+      (function cuadro() {
+        if (!vivo) return; g.clearRect(0, 0, c.width, c.height); var fin = performance.now() - t0 > 7000;
+        P.forEach(function (p) { p.y += p.v; p.x += Math.sin((p.y + p.r) / 40) * .6; p.a += p.s; if (p.y > c.height + 10 && !fin) p.y = -10; g.fillStyle = p.c; estrella(p.x, p.y, p.r, p.a); });
+        requestAnimationFrame(cuadro);
+      })();
+      var quita = function () { vivo = false; if (ov.parentNode) ov.parentNode.removeChild(ov); if (window.speechSynthesis) speechSynthesis.cancel(); };
+      cerrar.onclick = quita; ov.onclick = function (ev) { if (ev.target === ov) quita(); };
+      if (window.speechSynthesis && VOZ && !$('#mudo').checked) { speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance('¡Felicitaciones, ' + nom + '! ' + msg); u.voice = VOZ; u.lang = 'es-ES'; speechSynthesis.speak(u); }
+    }
     function certificado() {
       var nom = (prompt('Nombre completo para el certificado:', ST.nombre || '') || '').trim(); if (!nom) return; ST.nombre = nom; guarda();
+      celebra(nom);
       var W = 2339, H = 1654, c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d');
       var ORO = '#B08D57', AUTORA = 'Fátima Caldea', SELLO = 'FÁTIMA CALDEA', horas = horasCurso();
       var h = 0; (nom + '|' + D.titulo).split('').forEach(function (ch) { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
