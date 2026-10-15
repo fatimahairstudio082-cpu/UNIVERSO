@@ -68,7 +68,7 @@
          R('Un cabello muy poroso…', ['absorbe el color más rápido', 'repele el color', 'no cambia'], 0, 'Con la cutícula abierta el producto entra antes y también sale antes.'),
          R('¿Dónde se anota lo que se aplicó a la clienta?', ['En la ficha técnica', 'En la factura', 'En ningún sitio'], 0, 'La ficha permite repetir o corregir el servicio.')], M.cab),
       base: uni('pe_u_base', 'Secciones, elevación y mecha guía', [
-        'Todo corte empieza dividiendo la cabeza en zonas: nuca, occipital, parietales, laterales, coronilla y flequillo (Z0–Z6).',
+        'Todo corte empieza dividiendo la cabeza en zonas: nuca, occipital, parietales, laterales, coronilla y flequillo. Cada mechón se numera de la nuca hacia arriba: mechón 1, mechón 2…',
         'Las divisiones del cabello son la base del corte: mantienen el orden de las secciones y la guía del corte que se está realizando, para no perder el contexto.',
         'La elevación es el ángulo al que se levanta la mecha respecto a la cabeza: 0° deja peso, 90° reparte capas, 180° acorta arriba.',
         'La mecha guía marca el largo; cada mecha nueva se compara con ella para que el corte sea parejo.',
@@ -115,13 +115,13 @@
       var otros = L.filter(function (o) { return o !== c; }).map(function (o) { return o.n; });
       if (c.d && otros.length >= 2) rep.push(mezcla(R('¿Qué corte es? «' + c.d + '»', [c.n, otros[g % otros.length], otros[(g + 1) % otros.length]], 0, 'Es «' + c.n + '»: ' + elev.toLowerCase() + '.'), g));
       var nucas = []; L.forEach(function (o) { var e0 = ((CO.tecnica(o.id) || {}).elev || [0])[0]; if (nucas.indexOf(e0) < 0) nucas.push(e0); });
-      if (nucas.length > 1) rep.push(mezcla(R('En «' + c.n + '», ¿a qué elevación se corta la nuca?', [ev[0]].concat(nucas.filter(function (x) { return x !== ev[0]; }).slice(0, 2)).map(function (x) { return x + '°'; }), 0, 'La ficha técnica marca la nuca (Z0) a ' + ev[0] + '°.'), g + 1));
+      if (nucas.length > 1) rep.push(mezcla(R('En «' + c.n + '», ¿a qué elevación se corta la nuca?', [ev[0]].concat(nucas.filter(function (x) { return x !== ev[0]; }).slice(0, 2)).map(function (x) { return x + '°'; }), 0, 'La ficha técnica marca el primer mechón, en la nuca, a ' + ev[0] + '°.'), g + 1));
       if (T.her && !/^tijera$/i.test(T.her)) rep.push(mezcla(R('¿Qué herramienta se usa en «' + c.n + '»?', [T.her, T.her === 'Navaja' ? 'Máquina' : 'Navaja', 'Tijera'], 0, T.her + ', con acabado ' + (T.acabado || 'punteado').toLowerCase() + '.'), g + 2));
     });
     /* si toda la familia comparte nuca o herramienta, se pregunta una sola vez para la familia */
     var ev0 = (CO.tecnica((L[0] || {}).id) || {}).elev || [0];
     if (L.length && L.every(function (o) { return (((CO.tecnica(o.id) || {}).elev || [0])[0]) === ev0[0]; }))
-      rep.push(mezcla(R('En los cortes de «' + fa.n + '», ¿a qué elevación se corta la nuca?', [ev0[0], (ev0[0] + 45) % 225, (ev0[0] + 90) % 225].map(function (x) { return x + '°'; }), 0, 'En todos los cortes de esta familia la ficha marca la nuca (Z0) a ' + ev0[0] + '°.'), fa.id.length));
+      rep.push(mezcla(R('En los cortes de «' + fa.n + '», ¿a qué elevación se corta la nuca?', [ev0[0], (ev0[0] + 45) % 225, (ev0[0] + 90) % 225].map(function (x) { return x + '°'; }), 0, 'En todos los cortes de esta familia la ficha marca el primer mechón, en la nuca, a ' + ev0[0] + '°.'), fa.id.length));
     return uni('pe_u_c_' + fa.id, 'Cortes · ' + fa.n, ideas, L.map(function (c) { return c.n.toLowerCase(); }), rep, mods,
       { t: 'flujo', p: ['Diagnóstico', 'Secciones', 'Mecha guía', 'Elevación', 'Corte', 'Repaso'] });
   }
@@ -196,8 +196,8 @@
         var LF = CO.lista(pg.familia);
         return H.cabecera(C, pg) + '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 2mm">Diagrama comparativo · Guías 3D</div>' +
           H.h1(C, 'Elevación por zona en ' + es(pg.u.t.replace(/^Cortes · /, '').toLowerCase())) +
-          '<p style="margin:0 0 4mm;max-width:160mm">Cada fila es un corte; cada columna, una zona de la cabeza de la nuca (Z0) a la coronilla (Z6). Cuanto más oscuro, más se eleva la mecha y más capa deja.</p>' +
-          '<table style="width:100%;border-collapse:collapse;font-size:.82em"><tr><th style="text-align:left;padding:1.5mm">Corte</th>' + ZE.map(function (z, i) { return '<th style="padding:1.5mm;font-weight:600">Z' + i + '<div style="font-weight:400;font-size:.8em;opacity:.7">' + z + '</div></th>'; }).join('') + '<th style="padding:1.5mm">Herramienta</th></tr>' +
+          '<p style="margin:0 0 4mm;max-width:160mm">Cada fila es un corte; cada columna, una zona de la cabeza del primer mechón (nuca) al último (coronilla). Cuanto más oscuro, más se eleva la mecha y más capa deja.</p>' +
+          '<table style="width:100%;border-collapse:collapse;font-size:.82em"><tr><th style="text-align:left;padding:1.5mm">Corte</th>' + ZE.map(function (z, i) { return '<th style="padding:1.5mm;font-weight:600">Mechón ' + (i + 1) + '<div style="font-weight:400;font-size:.8em;opacity:.7">' + z + '</div></th>'; }).join('') + '<th style="padding:1.5mm">Herramienta</th></tr>' +
           LF.map(function (c) { var t = CO.tecnica(c.id); return '<tr style="border-top:1px solid ' + T.soft + '"><td style="padding:1.8mm;font-weight:600">' + es(c.n) + '</td>' + t.elev.map(function (e) { return '<td style="padding:1.8mm;text-align:center;background:rgba(200,50,58,' + (0.08 + e / 180 * 0.55).toFixed(2) + ')">' + e + '°</td>'; }).join('') + '<td style="padding:1.8mm">' + es(t.her) + '</td></tr>'; }).join('') + '</table>' +
           '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm;margin-top:6mm">' + LF.map(function (c) { var rg = CO.reglaDe(c.mejor[0]); return '<div style="background:' + T.soft + ';border-radius:' + Math.min(T.r, 6) + 'px;padding:3mm;font-size:.82em"><b>' + es(c.n) + '</b><div style="margin-top:1mm">Cabello ideal: ' + es(rg.n) + ' · sección ' + es(part(rg.part)) + '</div></div>'; }).join('') + '</div>' + H.folio(C, pg);
       }

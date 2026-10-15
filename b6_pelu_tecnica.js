@@ -143,10 +143,10 @@
           s += K.l('M' + r1(o[0]) + ' ' + r1(o[1]) + ' L' + r1(o[0] + Lg * dd[0]) + ' ' + r1(o[1] + Lg * dd[1]), colAng(e), { w: 2.2 }) + K.c(o[0], o[1], 1.5, P.tinta) + K.c(o[0] + Lg * dd[0], o[1] + Lg * dd[1], 1.2, colAng(e));
         });
         s += K.r(112, 12, 84, 126, 4, P.papel);
-        s += K.t(118, 23, 'Pila de elevaciones', { s: 6.6, b: 1, a: 'start' });
+        s += K.t(118, 23, 'Mechones y su elevación', { s: 6.6, b: 1, a: 'start' });
         for (var z = 6; z >= 0; z--) {
           var y = 34 + (6 - z) * 10.5, e = ev[z];
-          s += K.t(118, y, 'Z' + z + ' ' + ZONAS[z], { s: 5.4, a: 'start' }) + K.r(162, y - 4.6, Math.max(2, 20 * e / 180), 5, 1, colAng(e)) + K.t(192, y, e + '°', { s: 5.6, b: 1, a: 'end' });
+          s += K.t(118, y, (z + 1) + '. ' + ZONAS[z], { s: 5.4, a: 'start' }) + K.r(162, y - 4.6, Math.max(2, 20 * e / 180), 5, 1, colAng(e)) + K.t(192, y, e + '°', { s: 5.6, b: 1, a: 'end' });
         }
         s += K.l('M118 106 L190 106', P.gris, { w: .5, op: .6 });
         s += K.t(118, 115, 'Partición: ' + String(ps.particionB || regla.part).replace(/^./, function (x) { return x.toUpperCase(); }), { s: 5.4, a: 'start', b: 1 });

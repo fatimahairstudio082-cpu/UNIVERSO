@@ -259,7 +259,7 @@
       for (var z = 0; z < n; z++) {
         var ta = z / n, tb = (z + 1) / n, g = pila[z] || 0;
         tr = tr.concat(capaHorizontal(v, thCapa(z, n), g, COL[z % 7], ta, tb, z < n - 1, R.linea));
-        tr.push(rotulo((R.libre ? 'Capa ' + (z + 1) : 'Z' + z) + ' · ' + g + '°', COL[z % 7], ta, z < n - 1 ? { x: tb } : {}), regla(z ? pila[z - 1] : 0, g, [ta, ta + (tb - ta) * 0.6], COL[z % 7], 'Elevación', z < n - 1 ? { x: tb } : {}));
+        tr.push(rotulo('Mechón ' + (z + 1) + ' · ' + g + '°', COL[z % 7], ta, z < n - 1 ? { x: tb } : {}), regla(z ? pila[z - 1] : 0, g, [ta, ta + (tb - ta) * 0.6], COL[z % 7], 'Elevación', z < n - 1 ? { x: tb } : {}));
       }
     } else {
       var secs = [-0.6, -0.3, 0, 0.3, 0.6];
@@ -640,7 +640,8 @@
   function escenas(id) {
     var R = typeof id === 'object' ? id : receta(id); if (!R) return null;
     var A = ALTURAS[R.altura], pila = R.capas.pila;
-    var capasTxt = pila.map(function (g, z) { return (R.libre ? 'capa ' + (z + 1) : 'Z' + z) + ' a ' + g + ' grados'; }).join(', ') +
+    /* Fátima, 15-10-2026: el alumno oye «mechón», no las zonas del motor (Z0…Z6) */
+    var capasTxt = pila.map(function (g, z) { return z === 0 ? 'primer mechón, ' + (g ? 'elevado a ' + g + ' grados' : 'corte recto a 0 grados') : 'el mechón ' + (z + 1) + (g ? ', lo elevamos a ' + g + ' grados' : ', también a 0 grados'); }).join('; ') +
       (R.linea === 'recta' ? '. Línea de corte recta: el corte queda cuadrado' : R.linea === 'redondeada' ? '. La línea de corte se lleva hacia delante: el corte queda redondeado' : FORMAS_ATRAS[R.linea] ? '. Atrás, línea ' + FORMAS_ATRAS[R.linea].n + ': el cabello cae natural y las secciones van paralelas a la línea' : '');
     var recto = R.forma === 'recto';
     var lat = R.liso ? 'El lateral, delante de la división de oreja a oreja. ' + (R.libre ? 'Secciones horizontales.' : 'Cabello liso extremo: las secciones van horizontales, porque en vertical el filo deja escalón.') :

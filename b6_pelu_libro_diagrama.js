@@ -62,7 +62,7 @@
   /* ficha de la receta: solo lo que dice la receta (catálogo, técnica de Fátima o corte guardado) */
   function ficha(d, dg, T) {
     var R = d.R, pila = R.capas.pila || [], part = R.oblicua ? 'oblicua (box universal)' : R.liso ? 'horizontal (liso extremo)' : 'vertical';
-    var chips = pila.map(function (g, z) { return '<span style="display:inline-block;margin:0 1mm 1mm 0;padding:.4mm 2mm;border-radius:99px;background:' + T.soft + ';white-space:nowrap"><b style="color:' + T.acc + '">' + (R.libre ? z + 1 : 'Z' + z) + '</b> ' + g + '°</span>'; }).join('');
+    var chips = pila.map(function (g, z) { return '<span style="display:inline-block;margin:0 1mm 1mm 0;padding:.4mm 2mm;border-radius:99px;background:' + T.soft + ';white-space:nowrap"><b style="color:' + T.acc + '">Mechón ' + (z + 1) + '</b> ' + g + '°</span>'; }).join('');
     var GC = window.EU_GEOMETRIA_CAPILAR, t = !GC ? null : dg.k === 'tec' ? GC.tecnica(dg.id) : dg.k === 'var' ? GC.variante(dg.id) : null;
     /* si delante se trabaja distinto que atrás (variantes, cortes propios), se ven las dos pilas */
     var fr = (R.frente && R.frente.pila) || pila, dos = fr.join() !== pila.join();
