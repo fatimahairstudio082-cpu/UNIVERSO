@@ -558,6 +558,9 @@
     var CC = window.EU_CALCULO_CAPILAR, medQ = CC && CC.medidas ? Object.assign({}, CC.medidas(), R.medidas || {}) : null, profV = (lin === 'v' || lin === 'a') ? 0.6 * Math.min(2, Math.max(0.5, ((medQ && +medQ.guia) || 20) / 20)) : 0;
     /* Fátima, 10-10-2026: con pollina (guía bajo las cejas o «flequillo» en el nombre) o sin pollina, largo más abajo del rostro */
     var pollina = R.altura === 'cejas' || /flequillo|pollina|fleco/i.test(R.n || ''), yCejas = ALTURAS.cejas.y - 0.06, yLargo = Math.min(YB + FY(1) + 0.15, ALTURAS.rostro.y - 0.3);
+    /* altura a la que un mechón de atrás termina en la misma línea de pantalla que el del centro (corte recto visto de atrás) */
+    var Pc0 = P(NUCA, 1.35, 1.05), yLin = pr(v, V3(Pc0.x * 1.02, YB, Pc0.z * 1.02))[1];
+    function yPlano(bq) { var lo = YB - 0.85, hi = bq.y - 0.05; for (var it = 0; it < 22; it++) { var mid = (lo + hi) / 2; if (pr(v, V3(bq.x * 1.02, mid, bq.z * 1.02))[1] > yLin) lo = mid; else hi = mid; } return (lo + hi) / 2; }
     for (var ph = -Math.PI; ph < Math.PI; ph += 0.03) {
       var a = Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA)), d = Math.abs(a) / Math.PI, cerca = Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 0.55;
       if (!seVe(v, ph, 1.2) && !seVe(v, ph, 0.5)) continue;
@@ -580,6 +583,8 @@
       var base = P(ph, 1.35, 1.05), visto = seVe(v, ph, 1.35);
       function cola(y) { var o = sup.slice(); if (visto) for (var yy = base.y; yy >= y; yy -= 0.08) o.push(pr(v, V3(base.x * 1.02, yy, base.z * 1.02))); if (visto) o.push(pr(v, V3(base.x * 1.02, y, base.z * 1.02))); return o; }
       var yC = Math.max(YB - 0.85, YB + FY(d) - (lin === 'v' ? profV * (1 - d) : lin === 'a' ? profV * d : 0)) + (d > 0.8 ? 0.15 : 0), largo = cola(YB - 0.95), corto = cola(yC);
+      /* Fátima, 15-10-2026: en «recta · cuadrado» la línea de atrás se ve recta y horizontal, con esquinas (antes salía en arco por la cabeza redonda) */
+      if (lin === 'recta' && v === 'nuca' && visto) { yC = yPlano(base); corto = cola(yC); }
       if (corto.length < 2) continue;
       tr.push(linea(plano(largo), [0.02, 0.28], '#3A2418', 5, { x: 0.5 }));
       tr.push(linea(plano(corto), [0.5, 0.72], '#3A2418', 5));
