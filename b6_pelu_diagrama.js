@@ -139,7 +139,19 @@
   function receta(id, cab) {
     var CO = window.EU_CORTES, c = CO && CO.get(id); if (!c) return null;
     cab = cab || (c.mejor || [])[0];
-    return desdeGuia(CO.guiaDe(id, cab), { id: id, n: c.n, fam: c.fam, cab: cab, d: c.d });
+    var R = desdeGuia(CO.guiaDe(id, cab), { id: id, n: c.n, fam: c.fam, cab: cab, d: c.d });
+    /* Fátima, 15-10-2026: la línea final sale del resultado que ya está escrito en el catálogo (antes casi todos quedaban rectos) */
+    if (R && !R.linea) R.linea = lineaTexto(c.n + ' · ' + ((CO.tecnica(id) || {}).resultado || '') + ' · ' + (c.d || ''));
+    return R;
+  }
+  function lineaTexto(t) {
+    t = ' ' + String(t || '').toLowerCase().replace(/flequillo rect\w*/g, '') + ' ';   /* el flequillo no es la línea de atrás */
+    if (/ en (línea )?a[ .:,]| la a se lee/.test(t)) return 'a';
+    if (/ en v[ .:,]/.test(t)) return 'v';
+    if (/diagonal/.test(t)) return 'diag_delante';
+    if (/redond|esfera| en u[ .:,]|curv/.test(t)) return 'redondeada';
+    if (/recta|recto|maciz|cuadrad|blunt/.test(t)) return 'recta';
+    return '';
   }
   /* Receta desde cualquier guía de <guias-3d> (también las guardadas por Fátima) */
   function desdeGuia(g, meta) {

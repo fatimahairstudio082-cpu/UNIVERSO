@@ -132,8 +132,13 @@
     function ent(ph, w) { var x = document.createElement('input'); x.placeholder = ph; x.style.cssText = CAMPO + ';width:' + (w || 260) + 'px'; return x; }
     var tec = fila('Técnica', sel([['', '— elige un corte, una técnica o un corte mío —']]));
     function llenarTec() {
-      tec.innerHTML = ''; [['', '— elige un corte, una técnica o un corte mío —']].concat(GC.TECNICAS.map(function (t) { return ['t:' + t.id, t.n + (t.validar ? ' (a validar por Fátima)' : '')]; }), GC.mios().map(function (m) { return ['m:' + m.n, '★ ' + m.n]; }))
-        .forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; tec.appendChild(op); });
+      /* Fátima, 15-10-2026: agrupado; las técnicas de seccionado de su infografía primero, numeradas (mismos valores t:<id>) */
+      var INFO = ['p1_v_invertida', 'p1_curvo', 'p1_punta', 'p1_horizontal', 'p1_vertical_corto', 'p1_wap'];
+      function grupo(et, ops) { if (!ops.length) return; var g = document.createElement('optgroup'); g.label = et; ops.forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; g.appendChild(op); }); tec.appendChild(g); }
+      tec.innerHTML = ''; var op0 = document.createElement('option'); op0.value = ''; op0.textContent = '— elige un corte, una técnica o un corte mío —'; tec.appendChild(op0);
+      grupo('Técnicas de seccionado (infografía)', INFO.map(function (id, i) { var t = GC.tecnica(id); return t ? ['t:' + id, (i < 5 ? 'Técnica ' + (i + 1) + ' · ' : '') + t.n] : null; }).filter(Boolean));
+      grupo('Técnicas de Fátima', GC.TECNICAS.filter(function (t) { return INFO.indexOf(t.id) < 0; }).map(function (t) { return ['t:' + t.id, t.n + (t.validar ? ' (a validar por Fátima)' : '')]; }));
+      grupo('Mis cortes', GC.mios().map(function (m) { return ['m:' + m.n, '★ ' + m.n]; }));
       /* catálogo grande de cortes (b6_pelu_cortes_catalogo.js), agrupado por familia */
       var CC = window.EU_CATALOGO_CORTES; if (CC) CC.FAMILIAS.forEach(function (f) {
         var g = document.createElement('optgroup'); g.label = f.n + ' · a validar por Fátima';
