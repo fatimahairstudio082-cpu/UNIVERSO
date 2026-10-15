@@ -518,6 +518,29 @@
     return { v: v, tr: tr };
   }
 
+  /* Error común en cabello mixto u ondulado (Fátima, 15-10-2026): en horizontal queda trasquilado; se corta en vertical (espejo de escErrorLiso) */
+  function escErrorMixto(R) {
+    var v = 'nuca', tr = [];
+    tr = tr.concat(lineas(tramos(v, function (u) { return [NUCA, 0.7 + u * 1.15]; }, 20), [0, 0.06], '#5B4B8A', 3));
+    /* así no: secciones horizontales y tijera en horizontal */
+    for (var h = 0; h < 4; h++) {
+      var th = 1.75 - h * 0.22, ta = 0.06 + h * 0.07, sh = tramos(v, function (u) { return [NUCA - 0.08 - u * 0.85, th]; }, 14);
+      tr = tr.concat(lineas(sh, [ta, ta + 0.05], ROJO, 2.4));
+      sh.forEach(function (q) { tr.push(tijera(q, [ta + 0.05, ta + 0.1], ROJO, false, { x: 0.5 })); });
+    }
+    var qn = pr(v, P(NUCA - 0.45, 0.75)); tr.push(chapa(qn, 'NO', ROJO, 0.06));
+    tr.push(rotulo('Así no: en cabello mixto u ondulado, cortar en horizontal deja trasquilado', ROJO, 0.06, { x: 0.5 }));
+    /* así sí: secciones verticales, de abajo arriba */
+    for (var k = 0; k < 5; k++) {
+      var ph = NUCA + 0.16 + k * 0.17, tb0 = 0.5 + k * 0.09, sec = tramos(v, function (u) { return [ph, 0.85 + u * 0.95]; }, 14);
+      tr = tr.concat(lineas(sec, [tb0, tb0 + 0.04], VERDE, 2.6));
+      sec.forEach(function (q) { tr.push(tijera(q, [tb0 + 0.04, tb0 + 0.09], CORTE, false)); });
+    }
+    var qs = pr(v, P(NUCA + 0.45, 0.75)); tr.push(chapa(qs, 'SÍ', VERDE, 0.5));
+    tr.push(rotulo('Así sí: cabello mixto u ondulado, secciones en vertical', VERDE, 0.5));
+    return { v: v, tr: tr };
+  }
+
   /* Corte libre: cada capa con su elevación (0–225°). Lo que no se elige, va por defecto y se dice. */
   function libre(o) {
     o = o || {};
@@ -565,7 +588,8 @@
        los lados cortos (4 dedos sobre el hombro), el centro largo según la guía */
     var xV0 = Pc0 && pr(v, V3(Pc0.x * 1.02, YB, Pc0.z * 1.02))[0], Pl = P(NUCA + Math.PI / 2, 1.35, 1.05), anchoV = Math.abs(pr(v, V3(Pl.x * 1.02, YB, Pl.z * 1.02))[0] - xV0) || 1,
       yPunta = Math.min(700, pr(v, V3(Pc0.x * 1.02, YB - 0.6 - profV, Pc0.z * 1.02))[1]), yLadoV = Math.max(pr(v, V3(Pl.x * 1.02, -0.3, Pl.z * 1.02))[1], yPunta - 2.4 * anchoV);
-    for (var ph = -Math.PI; ph < Math.PI; ph += 0.03) {
+    /* Fátima, 15-10-2026: de frente, más cabello en el maniquí (mechones más juntos cerca de la cara) para que se vea el resultado */
+    for (var ph = -Math.PI; ph < Math.PI; ph += frente && Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 1.2 ? 0.008 : 0.03) {
       var a = Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA)), d = Math.abs(a) / Math.PI, cerca = Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 0.55;
       if (!seVe(v, ph, 1.2) && !seVe(v, ph, 0.5)) continue;
       var sup = [], th;
@@ -577,7 +601,9 @@
           continue;
         }
         /* sin pollina: raya en medio, el cabello se peina a los lados y cae largo, por fuera de la cara, más abajo del rostro */
-        var qf = null;
+        var qf = null, cap = [];
+        /* de frente, el cabello cubre el cuero cabelludo desde la raya hasta el nacimiento del pelo (no se ve calva) */
+        if (frente) { for (th = 0.06; th <= 1.4; th += 0.04) { var qc = [ph + lado * th * 0.06, th], pc = P(qc[0], qc[1], 1.05); if (pc.y < ALTURAS.cejas.y + 0.38) break; cap.push(pr(v, pc)); } if (cap.length > 1) tr.push(linea(plano(cap), tf, '#3A2418', 5)); }
         for (th = 0.12; th <= 1.0; th += 0.08) { var q0 = [ph + lado * (th - 0.12) * 0.9, th]; if (seVe(v, q0[0], q0[1])) { qf = P(q0[0], q0[1], 1.05); sup.push(pr(v, qf)); } }
         if (qf) { var ox = qf.x * 1.12, oz = qf.z * 1.04; for (var yy2 = qf.y - 0.1; yy2 >= yLargo; yy2 -= 0.1) sup.push(pr(v, V3(ox, yy2, oz))); sup.push(pr(v, V3(ox, yLargo, oz))); }
         if (sup.length > 1) tr.push(linea(plano(sup), tf, '#3A2418', 5));
@@ -664,6 +690,7 @@
       { tipo: 'pulir', vista: 'lateral', t: 'Pulir puntas', texto: 'Para terminar se pulen las puntas: se agarra el cabello de atrás y el de delante, nada más en la punta, para nivelar el cabello.', a: escPulir(R) }
     ];
     if (R.liso) L.splice(L.map(function (e) { return e.tipo; }).indexOf('capas') + 1, 0, { tipo: 'error_liso', vista: 'nuca', t: 'Error común · cabello liso extremo', texto: 'Error común: en cabello liso extremo no se corta en vertical, porque deja trasquilado. En liso extremo todas las capas se cortan en horizontal, de abajo arriba. En cabello normal u ondulado, las secciones van en vertical.', a: escErrorLiso(R) });
+    if (!R.liso) L.splice(L.map(function (e) { return e.tipo; }).indexOf('capas') + 1, 0, { tipo: 'error_mixto', vista: 'nuca', t: 'Error común · cabello mixto u ondulado', texto: 'Error común: en cabello mixto u ondulado no se corta en horizontal, porque queda trasquilado. Se corta en vertical. En cabello liso extremo es al revés: todas las capas en horizontal.', a: escErrorMixto(R) });
     if (!R.liso && !R.punto && R.emparejar !== 'no') L.splice(L.map(function (e) { return e.tipo; }).indexOf('lateral') + 1, 0, R.emparejar === 'atras' ?
       { tipo: 'emparejar', vista: 'lateral', t: 'Emparejar delante con atrás · corte redondo', texto: 'Después de cortar los laterales se agarra un mechón de delante y se peina hacia atrás a cero grados, hacia el suelo, sin elevarlo, y se une con el de atrás, que también cae a cero grados. Así sale el corte redondo.', a: escEmparejar(R) } :
       { tipo: 'emparejar', vista: 'lateral', t: 'Emparejar atrás con delante', texto: 'Después de cortar los laterales se agarra un mechón de la parte de atrás y se peina hacia delante a cero grados, hacia el suelo, sin elevarlo, y se empareja con el de delante, que también cae a cero grados: se corta solo la punta que sobra.', a: escEmparejar(R) });
@@ -683,6 +710,7 @@
       L.splice(ic, 0, { tipo: 'angulos', vista: 'lateral', t: 'Ángulos y largos · escuadra y transportador', texto: 'Ángulos y largos de cada capa, de abajo arriba, medidos ' + (calc.ref === 'suelo' ? 'desde el suelo' : 'desde el cráneo') + '. ' + calc.texto + (esq.length ? ' Cómo se trazan: ' + esq.join('; ') + '.' : ''), a: escAngulos(R, calc) });
     }
     var qs = [{ e: '¿Cómo se toman las secciones del lateral en ' + R.n.toLowerCase() + '?', o: ['Verticales', 'Horizontales'], c: R.liso ? 1 : 0, x: R.liso ? 'Es cabello liso extremo: en vertical el filo deja escalón.' : 'Siempre en vertical, salvo en cabello liso extremo.' }];
+    qs.push({ e: '¿Qué pasa si un cabello ' + (R.liso ? 'liso extremo se corta en vertical' : 'mixto u ondulado se corta en horizontal') + '?', o: ['Queda trasquilado', 'Queda igual', 'Queda más largo'], c: 0, x: R.liso ? 'En liso extremo todas las capas se cortan en horizontal.' : 'En cabello mixto u ondulado las secciones van en vertical.' });
     if (R.fuenteAltura !== 'ejemplo') { var ks = Object.keys(ALTURAS).filter(function (k) { return k !== R.altura; }), gi = (R.n.length + pila.length) % ks.length; ks = ks.slice(gi).concat(ks.slice(0, gi)).slice(0, 3); ks.splice((R.n.length) % 4, 0, R.altura); qs.push({ e: '¿Desde dónde se saca la guía del frente en ' + R.n.toLowerCase() + '?', o: ks.map(function (k) { return 'Desde ' + ALTURAS[k].n; }), c: ks.indexOf(R.altura) }); }
     if (calc) {
       var FORMAS = ['línea sólida · un solo largo', 'capas uniformes', 'graduación · escalonado (peso abajo)', 'capas en aumento (más cortas arriba)', 'forma combinada'];

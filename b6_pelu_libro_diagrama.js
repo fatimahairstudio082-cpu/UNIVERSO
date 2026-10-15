@@ -75,7 +75,7 @@
       (R.linea ? '<div><b>Línea de corte:</b> ' + (R.linea === 'recta' ? 'recta (queda cuadrado)' : R.linea === 'v' ? 'atrás en V (queda en punta)' : R.linea === 'a' ? 'atrás en A (V invertida)' : t && t.nivel === 1 && R.linea === 'redondeada' ? 'atrás en U (queda redondeado)' : 'hacia delante (queda redondeado)') + '</div>' : '') +
       (t && t.fotoURL ? '<img src="' + t.fotoURL + '" alt="Guía visual: ' + es(t.n) + '" style="display:block;width:100%;max-height:34mm;object-fit:contain;border-radius:1.5mm">' : '') +
       '<div><b>Acabado:</b> ' + (R.desg ? 'desgrafilado' : 'recto') + (R.punto ? ' · lateral llevado a un punto' : '') + '</div>' +
-      (t && t.variante ? '<div>Atrás como en «' + es(GC.tecnica(t.base[0]).n) + '»; delante como en «' + es(GC.tecnica(t.base[1]).n) + '».</div>' : t && t.texto ? '<div>' + es(t.texto) + '</div>' : '') +
+      (t && t.variante && t.base ? '<div>Atrás como en «' + es(GC.tecnica(t.base[0]).n) + '»; delante como en «' + es(GC.tecnica(t.base[1]).n) + '».</div>' : t && t.texto ? '<div>' + es(t.texto) + '</div>' : '') +
       (t && t.validar && rev() ? '<div style="color:#A0522D;font-weight:700">Elevaciones de ejemplo, a validar por Fátima.</div>' : '') + '</div>';
   }
 
@@ -173,11 +173,14 @@
     res.pages.forEach(function (p) { if (p.tipo === 'pe_guia3d' && p.corte) { var k = p.corte + '|' + (p.cab || ''); if (!hechos[k] && pon(p.u.id, { k: 'corte', corte: p.corte, cab: p.cab || '' }, p.corte)) hechos[k] = 1; } });
     /* 2 · mis cortes y 3 · técnicas: por turno en las unidades de corte y, si no caben, en las demás de Peluquería */
     var extra = (GC ? GC.mios() : []).map(function (o) { return { k: 'mio', o: o }; }).concat((GC ? GC.TECNICAS.filter(function (t) { return t.nivel === 1; }).concat(GC.TECNICAS.filter(function (t) { return t.nivel !== 1; })) : []).map(function (t) { return { k: 'tec', id: t.id }; }));   /* nivel 1 (principiantes) primero */
+    /* Fátima, 15-10-2026: «Nivel de las clases» también filtra los cortes: 1 = todo a 0° (principiante); 2 y 3 = con elevación */
+    var nivSel = String((cfg.op || {}).nivel || ''), nivOk = function (o) { if (!o || !/^[123]$/.test(nivSel)) return true; var nv = o.nivel || ((o.capas || []).some(function (g) { return +g > 0; }) ? 2 : 1); return nivSel === '1' ? nv === 1 : nv >= 2; };
+    extra = extra.filter(function (dg) { return nivOk(dg.k === 'mio' ? dg.o : GC && GC.tecnica(dg.id)); });
     var todas = cortes.concat(otras), j = 0;
     extra.forEach(function (dg) { for (var v = 0; v < todas.length; v++) { if (pon(todas[(j + v) % todas.length], dg, dg.id || dg.o.n)) { j = (j + v + 1) % todas.length; return; } } });
     /* 4 · variantes de técnicas (atrás una, delante otra): en los huecos de relleno que queden en las unidades de corte
        y en «Secciones, elevación y mecha guía»; no sustituyen lecturas. Ninguna se repite en el libro. */
-    var VAR = GC && GC.variantes ? GC.variantes() : [], dest = cortes.concat(otras.filter(function (u) { return u === 'pe_u_base'; })), iv = 0, hay = true;
+    var VAR = (GC && GC.variantesForma ? GC.variantesForma() : []).concat(GC && GC.variantes ? GC.variantes() : []).filter(nivOk), dest = cortes.concat(otras.filter(function (u) { return u === 'pe_u_base'; })), iv = 0, hay = true;
     while (hay && iv < VAR.length) { hay = false; for (var w = 0; w < dest.length && iv < VAR.length; w++) if (pon(dest[w], { k: 'var', id: VAR[iv].id }, VAR[iv].id, 2)) { iv++; hay = true; } }
     res.variantes = iv;
     /* las soluciones de las páginas sustituidas salen del solucionario (la página nueva lleva las suyas) */
