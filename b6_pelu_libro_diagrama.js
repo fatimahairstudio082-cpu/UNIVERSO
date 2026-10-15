@@ -173,9 +173,14 @@
     res.pages.forEach(function (p) { if (p.tipo === 'pe_guia3d' && p.corte) { var k = p.corte + '|' + (p.cab || ''); if (!hechos[k] && pon(p.u.id, { k: 'corte', corte: p.corte, cab: p.cab || '' }, p.corte)) hechos[k] = 1; } });
     /* 2 · mis cortes y 3 · técnicas: por turno en las unidades de corte y, si no caben, en las demás de Peluquería */
     var extra = (GC ? GC.mios() : []).map(function (o) { return { k: 'mio', o: o }; }).concat((GC ? GC.TECNICAS.filter(function (t) { return t.nivel === 1; }).concat(GC.TECNICAS.filter(function (t) { return t.nivel !== 1; })) : []).map(function (t) { return { k: 'tec', id: t.id }; }));   /* nivel 1 (principiantes) primero */
-    /* Fátima, 15-10-2026: «Nivel de las clases» también filtra los cortes: 1 = todo a 0° (principiante); 2 y 3 = con elevación */
-    var nivSel = String((cfg.op || {}).nivel || ''), nivOk = function (o) { if (!o || !/^[123]$/.test(nivSel)) return true; var nv = o.nivel || ((o.capas || []).some(function (g) { return +g > 0; }) ? 2 : 1); return nivSel === '1' ? nv === 1 : nv >= 2; };
+    /* Fátima, 15/16-10-2026: «Nivel de las clases» también filtra los cortes: 1 = todo a 0° (principiante); 2 = con elevación (intermedio);
+       3 = además navaja o tijera de desgrafilar (acabado desgrafilado, avanzado), y el avanzado ve también lo del intermedio */
+    var nivSel = String((cfg.op || {}).nivel || ''), nivOk = function (o) { if (!o || !/^[123]$/.test(nivSel)) return true; var nv = o.acabado === 'desgrafilado' ? 3 : o.nivel || ((o.capas || []).some(function (g) { return +g > 0; }) ? 2 : 1); return nivSel === '1' ? nv === 1 : nivSel === '2' ? nv === 2 : nv >= 2; };
     extra = extra.filter(function (dg) { return nivOk(dg.k === 'mio' ? dg.o : GC && GC.tecnica(dg.id)); });
+    /* Fátima, 16-10-2026: con «Solo este bloque» de color, queratina, hidratación, secado o permanente no entran técnicas de corte
+       en las unidades base (antes salían en el libro y en el curso de esos bloques) */
+    var opD = cfg.op || {}, sinCortes = opD.solo === 'si' && opD.tema && opD.tema !== 'cortes' && opD.tema !== 'todo';
+    if (sinCortes) otras = [];
     var todas = cortes.concat(otras), j = 0;
     extra.forEach(function (dg) { for (var v = 0; v < todas.length; v++) { if (pon(todas[(j + v) % todas.length], dg, dg.id || dg.o.n)) { j = (j + v + 1) % todas.length; return; } } });
     /* 4 · variantes de técnicas (atrás una, delante otra): en los huecos de relleno que queden en las unidades de corte

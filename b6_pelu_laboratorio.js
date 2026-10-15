@@ -10,14 +10,15 @@
 
   function azar(sem) { var a = sem >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   var FORMA_N = { recta: 'cuadrado', redondeada: 'en U (redondo)', v: 'V larga', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
-  var EMP_N = { atras: 'emparejado de delante hacia atrás → redondo', delante: 'emparejado de atrás hacia delante' }, NIV_N = { 1: 'Principiante', 2: 'Intermedio' };
+  var EMP_N = { atras: 'emparejado de delante hacia atrás → redondo', delante: 'emparejado de atrás hacia delante' }, NIV_N = { 1: 'Principiante', 2: 'Intermedio', 3: 'Avanzado' };
   var CORTA = { 'línea sólida · un solo largo': 'Un largo', 'capas uniformes': 'Uniforme', 'graduación · escalonado (peso abajo)': 'Escalonado', 'capas en aumento (más cortas arriba)': 'En aumento', 'forma combinada': 'Combinado' };
 
-  /* op = { cantidad, capasMin, capasMax, gMin, gMax, paso, orden:'rampa'|'libre', guia:'movil'|'fija'|'mezcla', ref, coronilla:'no'|'si'|'mezcla', linea:''|'recta'|'redondeada'|'mezcla', cabello:'normal'|'liso'|'mezcla', emparejar:'delante'|'atras'|'no'|'mezcla', semilla }
-     Fátima, 15-10-2026: nivel 1 (principiante) = todos los mechones a 0°; con cualquier elevación = 2 (intermedio). */
+  /* op = { cantidad, capasMin, capasMax, gMin, gMax, paso, orden:'rampa'|'libre', guia:'movil'|'fija'|'mezcla', ref, coronilla:'no'|'si'|'mezcla', linea:''|'recta'|'redondeada'|'mezcla', cabello:'normal'|'liso'|'mezcla', emparejar:'delante'|'atras'|'no'|'mezcla', acabado:'recto'|'desgrafilado'|'mezcla', semilla }
+     Fátima, 15/16-10-2026: nivel 1 (principiante) = todos los mechones a 0°; con cualquier elevación = 2 (intermedio);
+     acabado con navaja o tijera de desgrafilar = 3 (avanzado). */
   function generar(op) {
     var CC = window.EU_CALCULO_CAPILAR; if (!CC) return { cortes: [], formas: {} };
-    op = Object.assign({ cantidad: 1000, capasMin: 3, capasMax: 10, gMin: 0, gMax: 225, paso: 5, orden: 'rampa', guia: 'movil', ref: 'craneo', coronilla: 'no', linea: '', cabello: 'normal', emparejar: 'no', semilla: 1 }, op || {});
+    op = Object.assign({ cantidad: 1000, capasMin: 3, capasMax: 10, gMin: 0, gMax: 225, paso: 5, orden: 'rampa', guia: 'movil', ref: 'craneo', coronilla: 'no', linea: '', cabello: 'normal', emparejar: 'no', acabado: 'recto', semilla: 1 }, op || {});
     var r = azar(op.semilla * 2654435761 + op.cantidad), paso = Math.max(0.1, +op.paso || 5), gMin = Math.max(0, +op.gMin || 0), gMax = Math.min(225, Math.max(gMin, +op.gMax || 0));
     var nv = Math.floor((gMax - gMin) / paso) + 1, vistos = {}, cortes = [], formas = {}, intentos = 0, N = Math.min(20000, Math.max(1, +op.cantidad || 1000));
     var cMin = Math.max(1, Math.min(12, +op.capasMin || 3)), cMax = Math.max(cMin, Math.min(12, +op.capasMax || cMin));
@@ -28,12 +29,12 @@
       if (op.orden === 'rampa') capas.sort(function (a, b) { return a - b; });
       var guias = capas.map(function () { return op.guia === 'fija' ? 'f' : op.guia === 'mezcla' ? (r() < 0.3 ? 'f' : 'm') : 'm'; });
       var cor = op.coronilla === 'si' || (op.coronilla === 'mezcla' && r() < 0.5), lin = op.linea === 'mezcla' ? ['recta', 'redondeada', 'v'][Math.floor(r() * 3)] : (op.linea || '');
-      var liso = op.cabello === 'liso' || (op.cabello === 'mezcla' && r() < 0.5), emp = op.emparejar === 'mezcla' ? ['delante', 'atras', 'no'][Math.floor(r() * 3)] : (op.emparejar || 'no');
-      var clave = capas.join(',') + '|' + guias.join('') + '|' + (cor ? 1 : 0) + lin + '|' + (liso ? 1 : 0) + emp; if (vistos[clave]) continue; vistos[clave] = 1;
-      var o = { capas: capas, guias: guias, ref: op.ref, part: liso ? 'horizontal' : 'vertical', linea: lin, acabado: 'recto', altura: 'nariz', emparejar: emp, nivel: capas.some(function (g) { return g > 0; }) ? 2 : 1 };
+      var liso = op.cabello === 'liso' || (op.cabello === 'mezcla' && r() < 0.5), emp = op.emparejar === 'mezcla' ? ['delante', 'atras', 'no'][Math.floor(r() * 3)] : (op.emparejar || 'no'), desg = op.acabado === 'desgrafilado' || (op.acabado === 'mezcla' && r() < 0.5);
+      var clave = capas.join(',') + '|' + guias.join('') + '|' + (cor ? 1 : 0) + lin + '|' + (liso ? 1 : 0) + emp + (desg ? 'd' : ''); if (vistos[clave]) continue; vistos[clave] = 1;
+      var o = { capas: capas, guias: guias, ref: op.ref, part: liso ? 'horizontal' : 'vertical', linea: lin, acabado: desg ? 'desgrafilado' : 'recto', altura: 'nariz', emparejar: emp, nivel: desg ? 3 : capas.some(function (g) { return g > 0; }) ? 2 : 1 };
       if (cor) o.coronilla = true;
       var c = CC.calcular(o); o.forma = c.forma; o.largos = c.largos;
-      o.n = 'Lab · ' + (CORTA[c.forma] || c.forma) + ' · ' + capas.join('·') + '°' + (guias.indexOf('f') >= 0 ? ' · guía ' + guias.join('') : '') + (cor ? ' · coronilla △' : '') + (lin ? ' · ' + (FORMA_N[lin] || lin) : '') + (liso ? ' · liso extremo (horizontal)' : ' · normal/ondulado (vertical)') + (emp !== 'no' ? ' · ' + EMP_N[emp] : '') + ' · ' + NIV_N[o.nivel];
+      o.n = 'Lab · ' + (CORTA[c.forma] || c.forma) + ' · ' + capas.join('·') + '°' + (guias.indexOf('f') >= 0 ? ' · guía ' + guias.join('') : '') + (cor ? ' · coronilla △' : '') + (lin ? ' · ' + (FORMA_N[lin] || lin) : '') + (liso ? ' · liso extremo (horizontal)' : ' · normal/ondulado (vertical)') + (emp !== 'no' ? ' · ' + EMP_N[emp] : '') + (desg ? ' · navaja / tijera de desgrafilar' : '') + ' · ' + NIV_N[o.nivel];
       formas[c.forma] = (formas[c.forma] || 0) + 1; cortes.push(o);
     }
     return { cortes: cortes, formas: formas };
@@ -65,7 +66,8 @@
     var ref = campo('Ángulo', sel([['craneo', 'Desde el cráneo'], ['suelo', 'Desde el suelo']])), cor = campo('Coronilla △', sel([['no', 'No'], ['si', 'Sí'], ['mezcla', 'Mezcla']]));
     var lin = campo('Línea', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrada)'], ['redondeada', 'Redondeada (U)'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás'], ['mezcla', 'Mezcla (cuadrado, U y V)']]));
     var cab = campo('Cabello', sel([['normal', 'Normal / ondulado → vertical'], ['liso', 'Liso extremo → horizontal'], ['mezcla', 'Mezcla']])), emp = campo('Emparejar', sel([['no', 'Sin emparejar'], ['atras', 'De delante hacia atrás (redondo)'], ['delante', 'De atrás hacia delante'], ['mezcla', 'Mezcla']]));
-    var niv = campo('Nivel', sel([['', 'Todos'], ['1', '1 · Principiante (todo a 0°)'], ['2', '2 · Intermedio (con elevación)']]));
+    var niv = campo('Nivel', sel([['', 'Todos'], ['1', '1 · Principiante (todo a 0°)'], ['2', '2 · Intermedio (con elevación)'], ['3', '3 · Avanzado (navaja / desgrafilar)']]));
+    var aca = campo('Acabado', sel([['recto', 'Recto'], ['desgrafilado', 'Navaja / tijera de desgrafilar'], ['mezcla', 'Mezcla']]));
     var go = h('button', EST.b, '🧪 Generar'); f.appendChild(go); caja.appendChild(f);
     var res = h('div'); caja.appendChild(res); niv.onchange = function () { lista(); };
     var R = null, filtro = '';
@@ -95,7 +97,7 @@
     go.onclick = function () {
       go.textContent = 'Calculando…';
       setTimeout(function () {
-        R = generar({ cantidad: +cant.value, capasMin: +cmi.value, capasMax: +cma.value, gMin: +gmi.value, gMax: +gma.value, paso: +pas.value, orden: ord.value, guia: gui.value, ref: ref.value, coronilla: cor.value, linea: lin.value, cabello: cab.value, emparejar: emp.value, semilla: Date.now() % 100000 });
+        R = generar({ cantidad: +cant.value, capasMin: +cmi.value, capasMax: +cma.value, gMin: +gmi.value, gMax: +gma.value, paso: +pas.value, orden: ord.value, guia: gui.value, ref: ref.value, coronilla: cor.value, linea: lin.value, cabello: cab.value, emparejar: emp.value, acabado: aca.value, semilla: Date.now() % 100000 });
         filtro = ''; go.textContent = '🧪 Generar'; lista();
       }, 20);
     };
