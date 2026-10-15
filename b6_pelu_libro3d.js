@@ -50,7 +50,7 @@
     var c = d.c, out = [{ k: -1, t: c.n + '. ' + txt(c.d) + ' Mira el esquema: cada número es una zona de la cabeza, de la nuca al flequillo.' }];
     d.g.pasos.forEach(function (p, k) {
       var tx = k === 0 ? txt(p.texto).replace(c.n + '. ' + txt(c.d), '').trim() : txt(p.texto), e = p.elevB || [];
-      var zonas = e.map(function (v, i) { return v ? 'zona ' + (i + 1) + ' a ' + v + ' grados' : ''; }).filter(Boolean).slice(0, 3).join(', ');
+      var zonas = e.map(function (v, i) { return v ? 'mechón ' + (i + 1) + ' a ' + v + ' grados' : ''; }).filter(Boolean).slice(0, 3).join(', ');
       out.push({ k: k, t: 'Paso ' + (k + 1) + ', ' + txt(p.titulo).replace(/^\d+\s*·\s*/, '') + '. Partición ' + part(p.particionB) + '. ' + (zonas ? 'Elevación: ' + zonas + '. ' : 'Sin elevación: cero grados. ') + tx + (p.observaciones ? ' Ojo: ' + txt(p.observaciones) : '') });
     });
     return out;
@@ -88,7 +88,7 @@
     var cab = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">Guía 3D del corte · ' + pasos.length + ' pasos</div>' + H.h1(C, es(c.n) + (pg.cab ? ' en cabello ' + es(String(d.rg.n).split(' ·')[0].toLowerCase()) : '')) + (pg.cab && !d.g.encaja ? '<p style="margin:0 0 2mm;font-size:.8em"><b>No es su cabello ideal:</b> ' + es(d.g.aviso || '') + '</p>' : '');
     var izq = '<div>' + esquema(fin, T) + '<div style="font-size:.74em;text-align:center;opacity:.75;margin-top:1mm">' + (web ? 'Los grados cambian con cada paso al escuchar' : 'Grados del corte terminado') + '</div></div>';
     var leyenda = '<ol style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1mm 3mm;font-size:.74em">' + ZN.map(function (z, i) {
-      return '<li style="display:flex;gap:2mm;align-items:baseline"><b style="flex:none;width:5mm;height:5mm;border:0.3mm solid ' + T.acc + ';border-radius:50%;color:' + T.acc + ';display:inline-flex;align-items:center;justify-content:center;font-size:.85em">' + (i + 1) + '</b><span>' + z + ' (Z' + i + ') · <b data-zt="' + i + '">' + (fin[i] || 0) + '°</b></span></li>';
+      return '<li style="display:flex;gap:2mm;align-items:baseline"><b style="flex:none;width:5mm;height:5mm;border:0.3mm solid ' + T.acc + ';border-radius:50%;color:' + T.acc + ';display:inline-flex;align-items:center;justify-content:center;font-size:.85em">' + (i + 1) + '</b><span>' + z + ' · <b data-zt="' + i + '">' + (fin[i] || 0) + '°</b></span></li>';
     }).join('') + '</ol>';
     var ficha = '<div style="font-size:.74em;line-height:1.4;display:grid;gap:1mm"><div><b>Tipo:</b> ' + es(t.tipo) + ' · <b>Dirección:</b> ' + es(t.dir) + '</div><div><b>Herramienta:</b> ' + es(t.her) + ' · <b>Acabado:</b> ' + es(t.acabado) + '</div>' +
       '<div><b>Cabello ideal:</b> ' + es(d.rg.n) + ' · sección ' + es(part(d.rg.part)) + '</div>' + (t.resultado ? '<div><b>Resultado:</b> ' + es(t.resultado) + '</div>' : '') +

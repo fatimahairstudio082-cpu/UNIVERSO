@@ -107,7 +107,28 @@
     return VAR;
   }
   function mcd(a, b) { return b ? mcd(b, a % b) : a; }
-  function variante(id) { return variantes().filter(function (v) { return v.id === id; })[0] || null; }
+  /* Fátima, 15-10-2026: la forma de atrás (cuadrado, U, V larga) es el resultado; la técnica es la elevación de cada mechón,
+     vertical en cabello normal u ondulado y horizontal en liso extremo, guía desde la nariz y emparejado en la oreja.
+     Forma × elevaciones de sus técnicas con cifras (y todo a 0°) × cabello × emparejar (en liso extremo el motor no empareja). Nivel 1 = todo a 0°; 2 = con elevación. */
+  var VF = null, FORMA_N = { recta: 'cuadrado', redondeada: 'en U (redondo)', v: 'V larga' };
+  function variantesForma() {
+    if (VF) return VF;
+    var pilas = [{ id: 'cero', n: 'todo a 0°', capas: v(5, 0) }], vistas = { '0,0,0,0,0': 1 };
+    TECNICAS.forEach(function (t) { var k = t.capas.join(); if (!t.validar && !t.nivel && !t.aparte && !vistas[k]) { vistas[k] = 1; pilas.push({ id: t.id, n: t.n, capas: t.capas }); } });
+    var n1 = [], n2 = [];
+    pilas.forEach(function (pl) { ['recta', 'redondeada', 'v'].forEach(function (lin) { [false, true].forEach(function (liso) { (liso ? ['no'] : ['atras', 'delante']).forEach(function (emp) {
+      var niv = pl.capas.some(function (g) { return g > 0; }) ? 2 : 1;
+      (niv === 1 ? n1 : n2).push({ id: 'vf_' + lin + '__' + pl.id + (liso ? '__liso' : '__' + emp), variante: true, forma: true, nivel: niv,
+        n: 'Forma ' + FORMA_N[lin] + ' · ' + (niv === 1 ? 'sin elevación' : 'mechones ' + pl.capas.join('·') + '°') + (liso ? ' · liso extremo' : '') + (emp === 'atras' ? ' · emparejado hacia atrás' : emp === 'delante' ? ' · emparejado hacia delante' : ''),
+        capas: pl.capas.slice(), part: liso ? 'horizontal' : 'vertical', altura: 'nariz', linea: lin, acabado: 'recto', emparejar: emp,
+        texto: 'Atrás queda ' + FORMA_N[lin] + '. ' + (niv === 1 ? 'Todos los mechones a 0°, cayendo hacia el suelo.' : 'Mechones de abajo arriba a ' + pl.capas.join(', ') + ' grados.') +
+          (liso ? ' Cabello liso extremo: todas las secciones en horizontal.' : ' Cabello normal u ondulado: secciones en vertical.') + ' Guía del frente desde la nariz. ' +
+          (emp === 'atras' ? 'Al final se empareja el de delante hacia atrás: queda redondo.' : emp === 'delante' ? 'Al final se empareja el de atrás hacia delante.' : '') });
+    }); }); }); });
+    VF = n1.concat(n2);
+    return VF;
+  }
+  function variante(id) { return (/^vf_/.test(id) ? variantesForma() : variantes()).filter(function (v) { return v.id === id; })[0] || null; }
 
-  window.EU_GEOMETRIA_CAPILAR = { TECNICAS: TECNICAS, ELEVACIONES: ELEVACIONES, tecnica: tecnica, receta: receta, mios: mios, guardar: guardar, quitar: quitar, variantes: variantes, variante: variante, ALT_N: ALT_N };
+  window.EU_GEOMETRIA_CAPILAR = { TECNICAS: TECNICAS, ELEVACIONES: ELEVACIONES, tecnica: tecnica, receta: receta, mios: mios, guardar: guardar, quitar: quitar, variantes: variantes, variantesForma: variantesForma, variante: variante, ALT_N: ALT_N };
 })();

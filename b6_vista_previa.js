@@ -68,7 +68,7 @@
     CP.paquete(ed.res, function (t) { ed.aviso(t); }).then(function (r) { return JSZip.loadAsync(r.blob).then(function (zi) {
       var z = new JSZip(), tareas = [];
       zi.forEach(function (ruta, f) { if (!f.dir) tareas.push(f.async('uint8array').then(function (b) { z.file(dir + ruta, b); })); });
-      return Promise.all(tareas).then(function () { return z.generateAsync({ type: 'blob' }); }).then(function (b) { ed.bajar(b, 'HOTMART-' + slug(ed.res.C.titulo) + '.zip'); ed.aviso('Carpeta HOTMART descargada: ' + r.D.modulos.length + ' módulos y ' + r.nL + ' lecciones (curso/, hotmart/, libro/, láminas).'); });
+      return Promise.all(tareas).then(function () { return z.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }); }).then(function (b) { ed.bajar(b, 'HOTMART-' + slug(ed.res.C.titulo) + '.zip'); ed.aviso('Carpeta HOTMART descargada: ' + r.D.modulos.length + ' módulos y ' + r.nL + ' lecciones (curso/, hotmart/, libro/, láminas).'); });
     }); }).catch(function (e) { ed.aviso(e.message || String(e)); });
   }
   /* para una persona particular: el libro interactivo, el imprimible (PDF) y el EPUB, en PARTICULAR-<título>/ */
@@ -81,7 +81,7 @@
     z.file(dir + '02-libro-para-imprimir-o-PDF.html', ED.documento(res, 'print'));
     z.file(dir + 'LEEME.txt', C.titulo + '\n' + res.pages.length + ' páginas\n\n01 · Libro interactivo: ábrelo en el navegador (respuestas que se comprueban solas, voz y animaciones).\n02 · Ábrelo en el navegador y pulsa Imprimir → Guardar como PDF (márgenes: ninguno; gráficos de fondo: activados).\n03 · EPUB para lectores de libros electrónicos.\n');
     (ED.epub ? ED.epub(res).then(function (b) { z.file(dir + '03-libro.epub', b); }, function () { }) : Promise.resolve())
-      .then(function () { return z.generateAsync({ type: 'blob' }); })
+      .then(function () { return z.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }); })
       .then(function (b) { ed.bajar(b, 'PARTICULAR-' + slug(C.titulo) + '.zip'); ed.aviso('Carpeta PARTICULAR descargada: libro interactivo, imprimible (PDF) y EPUB.'); })
       .catch(function (e) { ed.aviso(e.message || String(e)); });
   }

@@ -134,7 +134,7 @@
     return {
       titulo: txt(C.titulo), sub: txt(C.sub || C.curso || ''), autor: txt(C.autor || ''), centro: txt(C.centro || ''),
       T: { acc: T.acc || '#B5476B', bg: T.bg || '#FBF7F2', tit: T.tit || 'Georgia, serif', txt: T.txt || '#1F1B18', soft: T.soft || '#E6DCD2' },
-      clave: 'eu_cp_' + slug(C.titulo), modulos: mods, examen: examen.slice(0, 20), img: {}, firma: FIRMA
+      clave: 'eu_cp_' + slug(C.titulo), modulos: mods, examen: examenDe(mods, examen), img: {}, firma: FIRMA
     };
   }
 
@@ -538,6 +538,30 @@
     });
   }
 
+  /* Fátima, 15-10-2026: el examen pregunta por TODO lo que vio el alumno: una pregunta de cada módulo, en ronda, hasta 20
+     (antes: las 3 primeras de cada módulo cortadas en 20 → con 28 módulos solo salían los 7 primeros) */
+  function examenDe(mods, antes) {
+    var out = [];
+    for (var r = 0; r < 10 && out.length < 20; r++) mods.forEach(function (M) { if (out.length < 20 && M.test && M.test[r]) out.push(M.test[r]); });
+    return out.length ? out : antes.slice(0, 20);
+  }
+  /* copias ligeras de los dibujos JPEG para el reproductor (los SVG no cambian) */
+  var ORIG = {};
+  function aligerar(D) {
+    var ids = Object.keys(D.img || {}).filter(function (id) { return /^data:image\/(jpeg|png);base64,/.test(D.img[id]) && D.img[id].length > 60000; });
+    return ids.reduce(function (pr, id) {
+      return pr.then(function () { return new Promise(function (ok) {
+        var im = new Image(); im.onload = function () {
+          try {
+            var w = Math.min(960, im.naturalWidth), h = Math.round(im.naturalHeight * w / im.naturalWidth), cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+            var x = cv.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+            var u = cv.toDataURL('image/jpeg', 0.72); if (u.length < D.img[id].length) D.img[id] = u;
+          } catch (e) { }
+          ok();
+        }; im.onerror = function () { ok(); }; im.src = D.img[id];
+      }); });
+    }, Promise.resolve());
+  }
   function paquete(res, aviso) {
     if (!window.JSZip) return Promise.reject(new Error('El curso premium necesita conexión la primera vez (JSZip).'));
     var ED = window.EU_EDITORIAL, D = construir(res);
@@ -546,18 +570,25 @@
     return (window.EU_CURSO_ANIM ? EU_CURSO_ANIM.enriquecer(D, res, aviso) : Promise.resolve(D)).then(function () {
       return imagenes(D, function (f) { aviso('Curso premium: dibujos ' + Math.round(f * 100) + ' %'); });
     }).then(function () {
+      /* Fátima, 15-10-2026 (carpeta para Hotmart demasiado pesada): las láminas/ guardan los dibujos originales y el curso
+         lleva copias a tamaño de pantalla (JPEG ≤ 960 px, calidad 0,72); nada se quita */
+      aviso('Curso premium: optimizando dibujos…');
+      ORIG = Object.assign({}, D.img);
+      return aligerar(D);
+    }).then(function () {
       var z = new JSZip(), base = slug(D.titulo) + '-premium/';
       /* index.html autónomo: datos y animaciones dentro (abierto desde el gestor de archivos del móvil, los <script src> sueltos no cargan) */
       var datosIn = '<script>window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';<\/script>';
       var animIn = D.anim && window.EU_CURSO_ANIM ? '<script>' + EU_CURSO_ANIM.js().replace(/<\//g, '<\\/') + '<\/script>' : '';
       z.file(base + 'curso/index.html', cursoHTML(D).replace('<script src="datos.js"></script>', function () { return datosIn; }).replace('<script src="anim.js"></script>', function () { return animIn; }));
       if (D.anim && window.EU_CURSO_ANIM) z.file(base + 'curso/anim.js', EU_CURSO_ANIM.js());
-      z.file(base + 'curso/datos.js', 'window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';');
+      /* datos.js era una copia exacta de lo que ya va dentro de index.html (25–40 MB repetidos): solo si se pide */
+      if (window.EU_CURSO_DATOS_SUELTO) z.file(base + 'curso/datos.js', 'window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';');
       z.file(base + 'libro/libro-imprimible.html', ED.documento(res, 'print'));
       z.file(base + 'libro/libro-interactivo.html', ED.documento(res, 'web'));
       var li = [];
       Object.keys(D.img).forEach(function (id) {
-        var s = D.img[id], m = window.EU_MODELOS.modelo(id), nom = slug(m ? m.n : id).slice(0, 60);
+        var s = ORIG[id] || D.img[id], m = window.EU_MODELOS.modelo(id), nom = slug(m ? m.n : id).slice(0, 60);
         if (/^data:image\/jpeg;base64,/.test(s)) { z.file(base + 'laminas/' + nom + '.jpg', s.split(',')[1], { base64: true }); li.push(nom + '.jpg'); }
         else if (/^data:image\/svg/.test(s)) { z.file(base + 'laminas/' + nom + '.svg', decodeURIComponent(s.split(',')[1])); li.push(nom + '.svg'); }
       });
@@ -574,7 +605,7 @@
         '5. hotmart/ — módulos y lecciones listos para subir. Los vídeos y audios se graban abriendo curso/index.html#grabar (botones «Grabar»; el alumno no los ve).\n' +
         '6. Vídeo de presentación: si guardas tu vídeo como presentacion.mp4 dentro de curso/, sale en la lección «Bienvenida · Presentación». Súbelo también como primera clase en Hotmart.\n');
       aviso('Curso premium: comprimiendo…');
-      return z.generateAsync({ type: 'blob' }).then(function (b) { return { blob: b, nombre: slug(D.titulo) + '-curso-premium.zip', D: D, nL: nL, nV: nV }; });
+      return z.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }).then(function (b) { return { blob: b, nombre: slug(D.titulo) + '-curso-premium.zip', D: D, nL: nL, nV: nV }; });
     });
   }
 
