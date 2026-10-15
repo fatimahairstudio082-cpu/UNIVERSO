@@ -37,6 +37,9 @@
     var por = {}; E.escenas.forEach(function (e) { por[e.tipo] = e; });
     var vis = VISTAS.map(function (t) { return por[t]; }).filter(Boolean);
     if (por.oblicua) vis[2] = por.oblicua;
+    /* Fátima, 15-10-2026: a 0° no hay elevación (todas las capas iguales): en lugar de «capas» se ve cómo queda atrás,
+       con su línea (recta, U, V, en punta…), que es lo que enseña ese corte */
+    else if (por.queda_nuca && E.R && E.R.capas && (E.R.capas.pila || []).every(function (g) { return !g; })) vis[2] = por.queda_nuca;
     var d = { R: E.R, E: E, vis: vis, fotos: vis.map(function (e) { return DG.foto(e, 640, 0.8); }) };
     return (CACHE[k] = d);
   }
@@ -99,7 +102,7 @@
     /* una vista igual a otra ya impresa en el libro se cambia por otra escena del mismo corte (pg.alt, lo fija el escáner) */
     if (pg.alt) { d = Object.assign({}, d, { vis: d.vis.slice(), fotos: d.fotos.slice() }); Object.keys(pg.alt).forEach(function (i) { var e = escena(d, pg.alt[i]); if (e) { d.vis[i] = e; d.fotos[i] = fotoEscena(dg, pg.alt[i]); } }); }
     var R = d.R, tipo = dg.k === 'corte' ? 'Técnica del corte · paso a paso' : dg.k === 'mio' ? 'Mi corte · paso a paso' : dg.k === 'var' ? 'Técnica del corte · otra elevación' : 'Técnica del corte · paso a paso';
-    var cab = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">' + tipo + ' · lateral, frente y capas</div>' + H.h1(C, es(R.n));
+    var cab = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">' + tipo + ' · lateral, frente y ' + (d.vis[2] && d.vis[2].tipo === 'queda_nuca' ? 'cómo queda atrás' : 'capas') + '</div>' + H.h1(C, es(R.n));
     var ctrl = web ? '<div style="display:flex;gap:3mm;align-items:center;margin:0 0 2.5mm"><button data-dg-play="1" style="font:inherit;font-size:.86em;padding:1.5mm 4mm;border:0;border-radius:' + rad + 'px;background:' + T.acc + ';color:#fff;cursor:pointer;white-space:nowrap;flex:none">▶ Ver diagramación</button><span data-dg-sub="1" style="font-size:.8em;font-style:italic;opacity:.85;min-width:0"></span></div>'
       : '<div style="font-size:.76em;opacity:.8;margin:0 0 2.5mm">Animación con voz de esta diagramación en el libro interactivo y en el curso premium.</div>';
     var fig = function (e, i, gr) {

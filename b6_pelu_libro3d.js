@@ -120,7 +120,7 @@
         (dgi ? '<img src="' + im + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:30mm;object-fit:contain;background:#E6EAF1;display:block;border-radius:' + rad + 'px;margin-bottom:1.5mm">' :
           im ? '<img src="' + im + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px;margin-bottom:1.5mm">' : '') +
         '<b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (k + 1) + ' · ' + es(txt(p.titulo).replace(/^\d+\s*·\s*/, '')) + '</b>' +
-        '<div style="margin:1mm 0">Partición ' + es(part(p.particionB)) + ' · ' + es(p.herramienta || t.her) + '</div><div style="margin:0 0 1mm">Zonas: ' + zon + '</div>' + (tx ? '<div>' + es(tx) + '</div>' : '') + '</div>';
+        '<div style="margin:1mm 0">Partición ' + es(part(p.particionB)) + ' · ' + es(p.herramienta || t.her) + '</div>' + (e.length && !(e.every(function (v) { return !v; }) && (t.elev || []).some(function (v) { return v; })) ? '<div style="margin:0 0 1mm">Zonas: ' + zon + '</div>' : '') + (tx ? '<div>' + es(tx) + '</div>' : '') + '</div>';
     }).join('') + '</div>';
     var Q = preguntas(d), test = '<div style="margin-top:2.5mm;font-size:.74em"><b style="font-family:' + T.tit + ';color:' + T.acc + '">Compruébalo</b><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3mm">' + Q.map(function (q, i) {
       return '<div data-g3d-q="1" data-c="' + q.c + '" style="margin-top:1.5mm"><div>' + (i + 1) + '. ' + es(q.e) + '</div>' + (web ? '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:1mm;margin-top:1mm">' + q.o.map(function (o, j) {
@@ -141,7 +141,7 @@
       fq = fq.filter(function (v) { var h = v[0].length + ':' + v[0].slice(-64), n = pg.num || 0; if (reg[h] && reg[h].num < n) { ref = ref || reg[h]; return false; } if (!reg[h] || reg[h].num > n) reg[h] = { num: n, n: c.n }; return true; });
       if (!fq.length && ref) qd = '<div style="margin-top:3mm;font-size:.74em"><b style="color:' + T.acc + '">Cómo queda el corte:</b> la línea final es como la de «' + es(ref.n) + '»' + (ref.num ? ', pág. ' + ref.num : '') + '.</div>';
       if (fq.length) qd = '<div style="margin-top:3mm"><div style="font-size:.74em;font-weight:700;color:' + T.acc + ';margin:0 0 1mm">Cómo queda el corte</div><div style="display:grid;grid-template-columns:repeat(' + fq.length + ',minmax(0,1fr));gap:2mm">' +
-        fq.map(function (v) { return '<figure style="margin:0"><img src="' + v[0] + '" alt="Cómo queda · ' + v[1] + '" style="width:100%;height:38mm;object-fit:cover;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.66em;text-align:center;margin-top:.6mm">' + v[1] + '</figcaption></figure>'; }).join('') + '</div></div>';
+        fq.map(function (v) { return '<figure style="margin:0"><img src="' + v[0] + '" alt="Cómo queda · ' + v[1] + '" style="width:100%;height:38mm;object-fit:contain;background:#E6EAF1;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.66em;text-align:center;margin-top:.6mm">' + v[1] + '</figcaption></figure>'; }).join('') + '</div></div>';
     }
     return H.cabecera(C, pg) + '<div data-g3d-pg="1"' + attrs + ' style="display:contents">' + cab + ctrl +
       '<div style="display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);gap:4mm;align-items:start"><div>' + izq + '</div><div style="display:grid;gap:3mm">' + leyenda + ficha + '</div></div>' +
