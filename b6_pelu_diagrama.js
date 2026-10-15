@@ -553,6 +553,9 @@
   }
   function escQueda(R, v) {
     var tr = [], lin = lineaDe(R), FY = FORMA_Y[lin], YB = -1.45, tips = [], k = 0, frente = v === 'frente';
+    /* Fátima, 15-10-2026: la V (o la A) se alarga con el largo de la guía, como en sus técnicas en V y en punta;
+       y el resultado usa las elevaciones del corte con el calculador que ya existe (EU_CALCULO_CAPILAR) */
+    var CC = window.EU_CALCULO_CAPILAR, medQ = CC && CC.medidas ? Object.assign({}, CC.medidas(), R.medidas || {}) : null, profV = (lin === 'v' || lin === 'a') ? 0.6 * Math.min(2, Math.max(0.5, ((medQ && +medQ.guia) || 20) / 20)) : 0;
     /* Fátima, 10-10-2026: con pollina (guía bajo las cejas o «flequillo» en el nombre) o sin pollina, largo más abajo del rostro */
     var pollina = R.altura === 'cejas' || /flequillo|pollina|fleco/i.test(R.n || ''), yCejas = ALTURAS.cejas.y - 0.06, yLargo = Math.min(YB + FY(1) + 0.15, ALTURAS.rostro.y - 0.3);
     for (var ph = -Math.PI; ph < Math.PI; ph += 0.03) {
@@ -576,7 +579,7 @@
       for (th = 0.12; th <= 1.35; th += 0.07) { if (seVe(v, ph, th)) sup.push(pr(v, P(ph, th, 1.05))); }
       var base = P(ph, 1.35, 1.05), visto = seVe(v, ph, 1.35);
       function cola(y) { var o = sup.slice(); if (visto) for (var yy = base.y; yy >= y; yy -= 0.08) o.push(pr(v, V3(base.x * 1.02, yy, base.z * 1.02))); if (visto) o.push(pr(v, V3(base.x * 1.02, y, base.z * 1.02))); return o; }
-      var yC = YB + FY(d) + (d > 0.8 ? 0.15 : 0), largo = cola(YB - 0.95), corto = cola(yC);
+      var yC = Math.max(YB - 0.85, YB + FY(d) - (lin === 'v' ? profV * (1 - d) : lin === 'a' ? profV * d : 0)) + (d > 0.8 ? 0.15 : 0), largo = cola(YB - 0.95), corto = cola(yC);
       if (corto.length < 2) continue;
       tr.push(linea(plano(largo), [0.02, 0.28], '#3A2418', 5, { x: 0.5 }));
       tr.push(linea(plano(corto), [0.5, 0.72], '#3A2418', 5));
@@ -599,6 +602,29 @@
       } else if (v === 'lateral') {
         [0.2, 0.45, 0.7].forEach(function (f0, j) { var q = fin[Math.round(f0 * (fin.length - 1))]; tr.push(linea([q[0], q[1] - 110, q[0], q[1] - 12], [0.8 + j * 0.03, 0.9 + j * 0.03], '#2C6FD1', 2.4, { fl: 1 })); });
       }
+    }
+    /* capas: cada mechón elevado deja su largo más arriba (calculado con EU_CALCULO_CAPILAR); se marca dónde termina, de la nuca a la coronilla */
+    var pilaQ = (R.capas && R.capas.pila) || [];
+    if (!frente && CC && CC.calcular && pilaQ.some(function (g) { return g > 0; })) {
+      var cq = null; try { cq = CC.calcular({ capas: pilaQ, guias: R.guias, ref: R.ref }, medQ); } catch (e) { cq = null; }
+      var Rcm = medQ ? medQ.contorno / (2 * Math.PI) : 8.9, capQ = cq && cq.capas || [], p0y = capQ.length ? capQ[0].punta[1] : 0, yTop = P(NUCA, 0.12).y;
+      var hechas = [];
+      capQ.forEach(function (c, i) {
+        var t = (c.punta[1] - p0y) / Math.max(0.1, Rcm - p0y); if (i === 0 || t < 0.06) return;   /* llega igual que la guía: no hace capa */
+        t = Math.min(0.75, t); if (hechas.some(function (h) { return Math.abs(h - t) < 0.08; })) return; hechas.push(t); var pts = [];
+        for (var ph = -Math.PI; ph < Math.PI; ph += 0.06) {
+          if (Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 0.55 || !seVe(v, ph, 1.2)) continue;
+          var dd = Math.abs(Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA))) / Math.PI, y0 = YB + FY(dd), yT = y0 + t * (yTop - y0), base = P(ph, 1.35, 1.05), q;
+          if (yT <= base.y) q = V3(base.x * 1.03, yT, base.z * 1.03);
+          else { for (var th = 1.35; th > 0.12; th -= 0.03) { q = P(ph, th, 1.07); if (q.y >= yT) break; } }
+          pts.push(pr(v, q));
+        }
+        if (pts.length < 3) return;
+        pts.sort(function (p, q) { return p[0] - q[0]; });
+        var col = COL[i % 7], t0 = 0.8 + Math.min(0.12, i * 0.02);
+        tr.push(linea(plano(pts), [t0, Math.min(0.97, t0 + 0.08)], col, 2.6, { d: 1 }), chapa(pts[pts.length - 1], 'Mechón ' + (i + 1) + ' · ' + c.ang + '°', col, t0));
+      });
+      if (capQ.length > 1) tr.push(rotulo('Líneas de color: largo de cada mechón elevado', TINTA, 0.8));
     }
     var NOM = { recta: 'recta · cuadrado', redondeada: 'redondeada · en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'lateral' : 'de frente') + ' · línea ' + NOM[lin], TINTA, 0),
