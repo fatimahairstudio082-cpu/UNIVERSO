@@ -64,7 +64,7 @@
         var p0 = (L.escenas || [])[0], mg = p0 && p0.tipo === 'portada' && /^pe_g3d_(.+)_\d+$/.exec(p0.id || '');
         if (mg && !p0.anim) {
           var kq = mg[1] + '_queda_frente';
-          if (D.anim[kq] && D.img && D.img.dg_frente) { p0.id = 'dg_frente'; p0.anim = kq; }
+          if (D.anim[kq] && D.img && D.img.dg_frente) { p0.id = 'dg_frente'; p0.anim = kq; p0.fin = 1; }
         }
         var ideas = /__ideas$/.test(L.id || ''), cuenta = {}, ult = null;
         (L.escenas || []).forEach(function (e) {

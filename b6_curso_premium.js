@@ -209,7 +209,7 @@
       } else {
         var bx = 48, by = 118, bw = e.rot.length ? 840 : 1184, bh = 440;
         x.fillStyle = '#FFFFFF'; x.fillRect(bx, by, bw, bh);
-        if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
+        if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, cur.fin || e.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
         else if (im && im.complete && im.naturalWidth) { var r = Math.min(bw / im.naturalWidth, bh / im.naturalHeight); var w = im.naturalWidth * r, h = im.naturalHeight * r; x.drawImage(im, bx + (bw - w) / 2, by + (bh - h) / 2, w, h); }
         var low = e.texto.toLowerCase(), ry = by + 10;
         e.rot.forEach(function (rt) {
@@ -236,7 +236,7 @@
     function mini(m, i, t) {
       var e = m.e, g = m.g, im = img(e.id); g.fillStyle = T.bg; g.fillRect(0, 0, 320, 180);
       if (e.tipo === 'pregunta') { g.fillStyle = T.acc; g.font = '600 96px ' + T.tit; g.textAlign = 'center'; g.fillText('?', 160, 124); g.textAlign = 'start'; return; }
-      var p = i === cur.k && cur.play ? (cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
+      var p = e.fin ? 1 : i === cur.k && cur.play ? (cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
       if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(g, D.anim[e.anim], im, 0, 0, 320, 180, p);
       else if (im && im.complete && im.naturalWidth) { var r = Math.min(320 / im.naturalWidth, 180 / im.naturalHeight); g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 180); g.drawImage(im, (320 - im.naturalWidth * r) / 2, (180 - im.naturalHeight * r) / 2, im.naturalWidth * r, im.naturalHeight * r); }
       else { g.fillStyle = T.txt; g.font = '600 22px ' + T.tit; ajustaEn(g, e.t, 290).slice(0, 4).forEach(function (l, j) { g.fillText(l, 16, 44 + j * 30); }); }
