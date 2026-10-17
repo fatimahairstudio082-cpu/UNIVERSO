@@ -13,7 +13,11 @@
     ['colorimetria.jpg', 'foto_colorimetria', [/^cb_color_global$/, /^cb_color_/]],
     ['color_balayage.jpg', 'foto_color_balayage', [/^cb_color_balayage$/, /^cb_mechas_/]],
     ['corte_mariposa.jpg', 'foto_corte_mariposa', [/^pe_u_c_capas$/, /^pe_u_c_moda$/]],   /* mariposa = capas; nunca en melenas/bob */
-    ['quimicos.jpg', 'foto_quimicos', [/^cb_quim_decoloracion$/, /^cb_quim_/, /^cb_quera_/]]
+    ['quimicos.jpg', 'foto_quimicos', [/^cb_quim_decoloracion$/, /^cb_quim_/, /^cb_quera_/]],
+    /* 17-10-2026, Fátima (su Drive): tinte y corrección de color, secado y planchado, cada una en su módulo */
+    ['tinte_correccion.jpg', 'foto_tinte_correccion', [/^cb_color_raiz$/, /^cb_color_global$/]],
+    ['secado.jpg', 'foto_secado', [/^cb_cab_secado$/]],
+    ['planchado.jpg', 'foto_planchado', [/^cb_cab_planchado$/, /^cb_quera_alisado$/]]
   ];
   var DATA = {};
   FOTOS.forEach(function (f) {
