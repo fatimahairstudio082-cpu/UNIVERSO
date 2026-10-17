@@ -56,7 +56,7 @@
     '#euDash .casa div,#euDash .cert{padding:24px 26px;display:flex;flex-direction:column;gap:9px}#euDash .casa small{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#D9C29A;font-weight:800}' +
     '#euDash .casa b,#euDash .cert b{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;font-weight:600;line-height:1.15}#euDash .casa span{font-size:15px;line-height:1.5;color:#C9D2E3}' +
     '#euDash .cert{background:#fff;border-radius:20px;border:1px solid #E3D3B6}#euDash .cert span{font-size:15px;line-height:1.5;color:#3A4660}' +
-    '@media(max-width:820px){#euDash .hero,#euDash .pie{grid-template-columns:minmax(0,1fr)}#euDash .cifras{grid-template-columns:repeat(2,minmax(0,1fr))}#euDash .av{left:10px}#euDash .casa{flex-direction:column}#euDash .casa img{width:100%;height:200px}}' +
+    '@media(max-width:820px){#euDash .hero,#euDash .pie{grid-template-columns:minmax(0,1fr)}#euDash .cifras{grid-template-columns:repeat(2,minmax(0,1fr))}#euDash .av{left:10px}#euDash .casa{flex-direction:column}#euDash .casa img{width:100%;height:200px}#euDash .foto{min-height:0}#euDash .av{position:relative;left:auto;bottom:auto;margin-top:12px;width:max-content}}' +
     '@media(prefers-reduced-motion:reduce){#euDash *{animation:none!important;transition:none!important}}' +
     '@media print{#euDash,#euIni{display:none!important}}';
 
@@ -92,7 +92,7 @@
     function ST() { try { return JSON.parse(localStorage.getItem(D.clave) || '{}'); } catch (e) { return {}; } }
     function fotoMod(M) {
       var L = M.lecciones[0]; if (!L) return '';
-      for (var k = 0; k < L.escenas.length; k++) { var id = L.escenas[k].id; if (id && /^foto_/.test(id) && D.img[id]) return D.img[id]; }
+      for (var k = 0; k < L.escenas.length; k++) { var id = L.escenas[k].id; if (id && /^foto_/.test(id) && id !== 'foto_portada_curso' && D.img[id]) return D.img[id]; }
       return '';
     }
     function pinta() {
@@ -108,7 +108,7 @@
         return X.tarjeta({ t: M.t, k: 'Módulo', foto: fotoMod(M), ok: ok, est: ok ? '✓ Visto' : sig && sig[0] === i ? '▶ Sigue aquí' : h + ' de ' + M.lecciones.length + ' lecciones' }, i, sig && sig[0] === i);
       }).join('');
       var d = $('#euDash'); if (!d) { d = document.createElement('div'); d.id = 'euDash'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Inicio del curso'); d.style.cssText = 'position:fixed;inset:0;z-index:40;overflow-y:auto'; document.body.appendChild(d); }
-      d.innerHTML = '<header class="top">' + (ret ? '<img src="' + ret + '" alt="">' : '') + '<div><b>' + X.e(D.autor || '') + '</b><small>Curso premium</small></div></header>' +
+      d.innerHTML = '<header class="top">' + (ret ? '<img src="' + ret + '" alt="">' : '') + '<div><b>' + X.e(D.autor || X.autor || '') + '</b><small>Curso premium</small></div></header>' +
         '<section class="hero"><div class="an"><div class="kick"><span>' + X.e(D.sub || 'Peluquería') + '</span></div><h1>' + X.e(D.titulo) + '</h1>' +
         '<p class="lead">' + X.e(X.lead) + '</p><div class="bts"><button type="button" class="bt oro" data-sigue="1">▶ ' + (vis ? 'Continuar donde lo dejé' : 'Empezar el curso') + '</button>' +
         (D.modulos[0] && D.modulos[0].lecciones[0] && /__bienvenida$/.test(D.modulos[0].lecciones[0].id) ? '<button type="button" class="bt" data-ir="0">Ver presentación</button>' : '') + '</div></div>' +
@@ -144,7 +144,7 @@
     CA.enriquecer = function (D, res) {
       return Promise.resolve(enr.apply(this, arguments)).then(function (D2) {
         var R = D2 || D, cfg = res && res.C && res.C.cfg;
-        if (R && activo(cfg)) R.dash = { css: CSS, lead: LEAD, oro: ORO, az: AZUL };
+        if (R && activo(cfg)) R.dash = { css: CSS, lead: LEAD, oro: ORO, az: AZUL, autor: (res.C && res.C.autor) || cfg.autor || '' };
         return R;
       });
     };
@@ -206,5 +206,5 @@
     ED.documento._dash = 1;
   }
 
-  window.EU_DASHBOARD = { CSS: CSS, dashLibro: dashLibro };
+  window.EU_DASHBOARD = { CSS: CSS, LEAD: LEAD, ORO: ORO, AZUL: AZUL, dashLibro: dashLibro };
 })();
