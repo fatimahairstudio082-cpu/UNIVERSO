@@ -17,7 +17,19 @@
     /* 17-10-2026, Fátima (su Drive): tinte y corrección de color, secado y planchado, cada una en su módulo */
     ['tinte_correccion.jpg', 'foto_tinte_correccion', [/^cb_color_raiz$/, /^cb_color_global$/]],
     ['secado.jpg', 'foto_secado', [/^cb_cab_secado$/]],
-    ['planchado.jpg', 'foto_planchado', [/^cb_cab_planchado$/, /^cb_quera_alisado$/]]
+    ['planchado.jpg', 'foto_planchado', [/^cb_cab_planchado$/, /^cb_quera_alisado$/]],
+    /* 4.º campo `1` = puede ir a un módulo que ya tiene foto: abre la lección siguiente (lección 2, 3…) */
+    ['mechas_aluminio.jpg', 'foto_mechas_aluminio', [/^cb_mechas_aluminio$/], 1],
+    ['mechas_aluminio_2.jpg', 'foto_mechas_aluminio_2', [/^cb_mechas_aluminio$/], 1],
+    ['mechas_aluminio_3.jpg', 'foto_mechas_aluminio_3', [/^cb_mechas_aluminio$/], 1],
+    ['mechas_guia.jpg', 'foto_mechas_guia', [/^cb_mechas_aluminio$/], 1],
+    ['mechas_aluminio_4.jpg', 'foto_mechas_aluminio_4', [/^cb_mechas_aluminio$/], 1],
+    ['mechas_aluminio_5.jpg', 'foto_mechas_aluminio_5', [/^cb_mechas_aluminio$/], 1],
+    ['mechas_gorro.jpg', 'foto_mechas_gorro', [/^cb_mechas_gorro$/], 1],
+    ['mechas_gorro_2.jpg', 'foto_mechas_gorro_2', [/^cb_mechas_gorro$/], 1],
+    ['balayage_90.jpg', 'foto_balayage_90', [/^cb_color_balayage$/], 1],
+    ['balayage_guia.jpg', 'foto_balayage_guia', [/^cb_color_balayage$/], 1],
+    ['balayage_antes_despues.jpg', 'foto_balayage_antes_despues', [/^cb_color_balayage$/], 1]
   ];
   var DATA = {};
   FOTOS.forEach(function (f) {
@@ -39,12 +51,12 @@
         if (dest === 'bienvenida') {
           D.modulos.some(function (m) { var l = m.lecciones.filter(function (x) { return /__bienvenida$/.test(x.id); })[0]; if (l) { M = m; L = l; } return !!l; });
         } else {
-          D.modulos.some(function (m) { if (!usados[m.id] && dest.test(m.id) && m.lecciones.length) { M = m; L = m.lecciones[0]; } return !!M; });
+          D.modulos.some(function (m) { var n = usados[m.id] || 0; if ((!n || f[3]) && dest.test(m.id) && m.lecciones.length > n) { M = m; L = m.lecciones[n]; } return !!M; });
         }
         return !!L;
       });
       if (!L || !L.escenas) return;
-      usados[M.id] = 1; D.img[id] = DATA[id];
+      usados[M.id] = (usados[M.id] || 0) + 1; D.img[id] = DATA[id];
       var tit = /__bienvenida$/.test(L.id) ? D.titulo : M.t;
       L.escenas.unshift({ tipo: 'idea', id: id, t: tit, texto: tit + '.', rot: [] });
     });

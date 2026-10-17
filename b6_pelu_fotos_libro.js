@@ -12,7 +12,10 @@
   var FOTOS = [
     ['tinte_correccion.jpg', 'pe_foto_tinte_correccion', 'cb_color_raiz', 'apertura'],
     ['secado.jpg', 'pe_foto_secado', 'cb_cab_secado', 'apertura'],
-    ['planchado.jpg', 'pe_foto_planchado', 'cb_cab_planchado', 'apertura']
+    ['planchado.jpg', 'pe_foto_planchado', 'cb_cab_planchado', 'apertura'],
+    ['mechas_aluminio.jpg', 'pe_foto_mechas_aluminio', 'cb_mechas_aluminio', 'apertura'],
+    ['mechas_gorro.jpg', 'pe_foto_mechas_gorro', 'cb_mechas_gorro', 'apertura'],
+    ['balayage_90.jpg', 'pe_foto_balayage', 'cb_color_balayage', 'apertura']
   ];
   var DATA = {};
   FOTOS.forEach(function (f) {
