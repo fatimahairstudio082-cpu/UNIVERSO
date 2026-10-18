@@ -611,8 +611,9 @@
         }
         /* sin pollina: raya en medio, el cabello se peina a los lados y cae largo, por fuera de la cara, más abajo del rostro */
         var qf = null, cap = [];
-        /* de frente, el cabello cubre el cuero cabelludo desde la raya hasta el nacimiento del pelo (no se ve calva) */
-        if (frente && !pollina) { for (th = 0.06; th <= 1.4; th += 0.04) { var qc = [ph + lado * th * 0.06, th], pc = P(qc[0], qc[1], 1.05); if (pc.y < ALTURAS.cejas.y + 0.38) break; cap.push(pr(v, pc)); } if (cap.length > 1) tr.push(linea(plano(cap), tf, '#3A2418', 5)); }
+        /* de frente, el cabello cubre el cuero cabelludo desde la raya hasta el nacimiento del pelo (no se ve calva).
+           Fátima, 18-10-2026: sin pollina el borde sobre la frente sube en arco desde la raya (antes era recto y parecía pollina) */
+        if (frente && !pollina) { for (th = 0.06; th <= 1.4; th += 0.04) { var qc = [ph + lado * th * 0.06, th], pc = P(qc[0], qc[1], 1.05); var dC = Math.abs(Math.atan2(Math.sin(qc[0] - CARA), Math.cos(qc[0] - CARA))) / 0.55; if (pc.y < ALTURAS.cejas.y + 0.38 + 0.22 * Math.max(0, 1 - dC * dC)) break; cap.push(pr(v, pc)); } if (cap.length > 1) tr.push(linea(plano(cap), tf, '#3A2418', 5)); }
         for (th = 0.12; th <= 1.0; th += 0.08) { var q0 = [ph + lado * (th - 0.12) * 0.9, th]; if (seVe(v, q0[0], q0[1])) { qf = P(q0[0], q0[1], 1.05); sup.push(pr(v, qf)); } }
         /* de lado, el cabello junto a la cara termina en la línea del corte (antes caía largo y dejaba un bloque oscuro junto al cuello en U, V y redonda) */
         var yFin = v === 'lateral' ? Math.max(yLargo, YB + FY(d) - (lin === 'a' ? profV * d : 0) + (d > 0.8 ? 0.15 : 0)) : yLargo;
