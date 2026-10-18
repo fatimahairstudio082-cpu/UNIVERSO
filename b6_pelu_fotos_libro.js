@@ -76,10 +76,18 @@
           return function () { pg.portMod = antes; };
         },
         paginas: { pe_foto: function (pg, C) {
-          var H = ED.H, T = C.T, u = pg.u;
-          return H.cabecera(C, pg) + '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 2mm">Foto de referencia</div>' +
-            H.h1(C, H.esc(u.t)) + '<div style="height:185mm;display:flex;justify-content:center;align-items:center">' +
-            svg(pg._foto).replace('style="width:100%;height:auto;display:block"', 'style="height:100%;width:auto;max-width:100%;display:block"') + '</div>' + H.folio(C, pg);
+          var H = ED.H, T = C.T, u = pg.u, MO = window.EU_MODELOS, md = MO && pg.mod && MO.modelo(pg.mod), man = '';
+          /* (18-10-2026, Fátima: «fotos y maniquí sincronizados») el fotograma del maniquí se queda AL LADO de la foto, no se quita */
+          if (md) { try { man = MO.svg(md.id, ((C.cfg && C.cfg.acab) || {}).dibujo === '2d' ? 'color' : '3d', { rot: true }); } catch (e) { man = ''; } }
+          var fot = svg(pg._foto).replace('style="width:100%;height:auto;display:block"', 'style="height:100%;width:auto;max-width:100%;display:block"');
+          var pie = function (t) { return '<div style="font-size:.78em;font-weight:700;color:' + T.acc + ';text-align:center;margin-top:1.5mm">' + t + '</div>'; };
+          if (!man) return H.cabecera(C, pg) + '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 2mm">Foto de referencia</div>' +
+            H.h1(C, H.esc(u.t)) + '<div style="height:185mm;display:flex;justify-content:center;align-items:center">' + fot + '</div>' + H.folio(C, pg);
+          return H.cabecera(C, pg) + '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 2mm">Foto de referencia y maniquí</div>' +
+            H.h1(C, H.esc(u.t)) +
+            '<div style="height:98mm;display:flex;justify-content:center;align-items:center">' + fot + '</div>' + pie('Foto real · Fátima') +
+            '<div style="height:88mm;display:flex;justify-content:center;align-items:center;margin-top:4mm">' + man.replace('<svg', '<svg style="height:100%;width:auto;max-width:100%"') + '</div>' + pie('En el maniquí · ' + H.esc(md.n)) +
+            (md.intro ? '<p style="max-width:170mm;margin:4mm 0 0">' + H.esc(md.intro) + '</p>' : '') + H.folio(C, pg);
         } }
       });
     }
@@ -97,7 +105,7 @@
       id = lista[0] || null; if (id) us[id] = 1; R.pg.set(pg, id);
     }
     if (!id) return;
-    pg.tipo = 'pe_foto'; pg._foto = id;
+    pg.tipo = 'pe_foto'; pg._foto = id;   /* pg.mod (fotograma del maniquí) se conserva y se pinta al lado */
     return function () { pg.tipo = 'pe_corte'; delete pg._foto; };
   }
 
