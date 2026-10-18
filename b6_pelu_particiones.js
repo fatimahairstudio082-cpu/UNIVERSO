@@ -619,6 +619,7 @@
     if (/^nuca/.test(lam)) return { mech: [70, 90, 110], mv: 'nuca', desde: desde };
     return {};
   }
+  function banda(a) { if (a) a.banda = 1; return a; }
   function laminasEsc(K, t, id, divs) {
     var DV = window.EU_DIVISIONES, out = []; if (!DV || !DV.laminasDe) return out;
     DV.laminasDe(id).forEach(function (L, j) {
@@ -687,11 +688,11 @@
          el mechón se eleva a 90° y se coloca el producto. Se añade como escena propia; la de arriba no cambia. */
       if (/^(mechas_aluminio|color_balayage|color_babylights|color_sombre)$/.test(id) && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_mech_lado'; }) && K.dirElev && K.mechon) {
         var papM = id !== 'color_balayage' && id !== 'color_sombre', desM = papM ? 0.10 : ARRANQUE;
-        esc.push({ tipo: 'cb_mech_lado', vista: 'lateral', t: 'De lado · cómo se saca el mechón', a: escMechonLado(K, t, col, desM, papM),
+        esc.push({ tipo: 'cb_mech_lado', vista: 'lateral', t: 'De lado · cómo se saca el mechón', a: banda(escMechonLado(K, t, col, desM, papM)),
           texto: 'Primero las seis divisiones: raya central, de oreja a oreja y la línea de la nuca, donde termina el cuello. De lado: secciones en diagonal hacia atrás. De cada sección se saca el mechón a 90 grados' + (papM ? ', sobre el papel de aluminio' : '') + '. Lo oscuro es el mechón y lo amarillo, donde va el producto: desde el arranque hasta las puntas.' + (papM ? ' Los papeles quedan montados.' : ' El arranque lo decide la clienta.') },
-          { tipo: 'cb_mech_frente', vista: 'frente', t: 'De frente · cómo se saca el mechón', a: escMechonFrente(K, t, col, desM),
+          { tipo: 'cb_mech_frente', vista: 'frente', t: 'De frente · cómo se saca el mechón', a: banda(escMechonFrente(K, t, col, desM)),
           texto: 'De frente: la sección en triángulo. El mechón se saca hacia un lado, sobre la paleta, y con el pincel se pone el producto desde el arranque hasta las puntas.' });
-        if (papM) esc.push({ tipo: 'cb_mech_detras', vista: 'nuca', t: 'Por detrás · papeles montados', a: escMechonDetras(K, t, col),
+        if (papM) esc.push({ tipo: 'cb_mech_detras', vista: 'nuca', t: 'Por detrás · papeles montados', a: banda(escMechonDetras(K, t, col)),
           texto: 'Por detrás se ven las seis divisiones, con la línea de la nuca donde termina el cuello. Raya central y líneas en diagonal. En cada línea se saca el mechón, se pone el producto y el papel de aluminio; los papeles quedan montados uno sobre otro.' });
       }
       if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_lat_h'; }) && K.dirElev && K.mechon) {

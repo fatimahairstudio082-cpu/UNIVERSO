@@ -479,7 +479,7 @@
     /* ─────────────── TÉCNICAS DE CABELLO ─────────────── */
     {
       id: 'cab_secado', fam: 'cabello', n: 'Secado con cepillo',
-      resumen: 'Brushing por secciones, boquilla dirigida y aire frío para fijar.',
+      resumen: 'Se seca con el cepillo y aire caliente, a temperatura alta: se estira bien el cabello, sin pegar al cráneo.',   /* palabras de Fátima, 18-10-2026 */
       divs: ['orejas', 'media', 'parietal', 'nuca', 'coronilla'],
       ficha: f({
         formula: 'Protector térmico + espuma de volumen',
@@ -487,25 +487,24 @@
         productos: ['Protector térmico', 'Espuma', 'Spray de brillo'],
         cantidades: '2 pulverizaciones por sección',
         tiempos: '20 a 30 min según densidad',
-        temperaturas: 'Calor medio. Golpe de frío al final de cada mecha.',
+        temperaturas: 'Aire caliente, a temperatura alta.',
         herramientas: ['Secador con boquilla', 'Cepillo redondo', 'Pinzas', 'Peine de cola'],
-        errores: ['Secar sin boquilla y levantar la cutícula', 'Cepillo demasiado grande para el largo', 'Soltar la mecha caliente y perder la forma'],
-        recomendaciones: ['Preseca al 70 % antes del cepillo', 'Boquilla siempre de raíz a punta', 'Aire frío en cada mecha antes de soltar']
+        errores: ['Secar sin boquilla y levantar la cutícula', 'Cepillo demasiado grande para el largo', 'Secar sin estirar el cabello con el cepillo'],
+        recomendaciones: ['Preseca al 70 % antes del cepillo', 'Boquilla siempre de raíz a punta', 'Estirar bien la mecha con el cepillo, sin pegar al cráneo']
       }),
       pasos: [
         { t: 'Presecado', n: 'Seca al setenta por ciento con la mano, sin cepillo.', e: 'Empezar el brushing con el pelo empapado.', d: 5, fase: 'preparacion' },
         { t: 'Secciones', n: 'Oreja a oreja y línea media. Nuca suelta primero.', e: 'Trabajar sin separar y volver sobre lo seco.', d: 5, fase: 'divisiones' },
-        { t: 'Mecha y tensión', n: 'Mechas del ancho del cepillo, con tensión constante.', e: 'Mecha más ancha que el cepillo: no se forma.', d: 6, fase: 'aplicacion' },
-        { t: 'Boquilla dirigida', n: 'Aire de raíz a punta, siguiendo el cepillo.', e: 'Aire en contra y frizz garantizado.', d: 6, fase: 'aplicacion' },
-        { t: 'Aire frío', n: 'Golpe de frío en cada mecha antes de soltarla.', e: 'Soltar en caliente y perder el cuerpo.', d: 5, fase: 'cierre' }
+        { t: 'Mecha y tensión', n: 'Mechas del ancho del cepillo: se jala el cabello con el cepillo y se estira bien, sin pegarlo al cráneo.', e: 'Mecha más ancha que el cepillo: no se forma.', d: 6, fase: 'aplicacion' },
+        { t: 'Aire caliente', n: 'Aire caliente, a temperatura alta, de raíz a punta, siguiendo el cepillo mientras se estira.', e: 'Aire en contra y frizz garantizado.', d: 6, fase: 'aplicacion' }
       ],
       repaso: [
-        { p: '¿Para qué el aire frío al final de cada mecha?', o: ['Para no quemar', 'Para fijar la forma al cerrar la cutícula', 'Para ir más rápido'], c: 1, x: 'El pelo toma la forma cuando se enfría, no cuando está caliente.' }
+        { p: '¿Con qué aire se seca el cabello con cepillo?', o: ['Con aire frío', 'Con aire caliente, a temperatura alta, estirando con el cepillo', 'Sin cepillo, solo con la mano'], c: 1, x: 'Se seca con aire caliente y se estira bien el cabello con el cepillo, sin pegarlo al cráneo.' }
       ]
     },
     {
       id: 'cab_planchado', fam: 'cabello', n: 'Planchado',
-      resumen: 'Liso de plancha con mecha fina, una pasada continua y temperatura por tipo de fibra.',
+      resumen: 'Se estira bien el cabello con el cepillo y se pasa la plancha lentamente, dos o tres veces. No hasta que quede liso: eso quema el pelo y las cutículas.',   /* palabras de Fátima, 18-10-2026 */
       divs: ['nueve', 'orejas', 'media', 'nuca'],
       ficha: f({
         formula: 'Protector térmico en spray',
@@ -515,18 +514,18 @@
         tiempos: '15 a 25 min',
         temperaturas: 'Fino 160 °C · normal 180 °C · grueso 200 °C · decolorado 150 °C.',
         herramientas: ['Plancha de cerámica o titanio', 'Peine de cola', 'Pinzas'],
-        errores: ['Pasar la plancha varias veces por la misma mecha', 'Planchar con humedad', 'Temperatura máxima por costumbre'],
-        recomendaciones: ['Mecha de 2 a 3 cm', 'Una sola pasada lenta y continua', 'Protector siempre, sin excepción']
+        errores: ['Pasar la plancha hasta que quede liso: quema el pelo y las cutículas', 'Planchar con humedad', 'Temperatura máxima por costumbre'],
+        recomendaciones: ['Mecha de 2 a 3 cm', 'Estirar bien la mecha con el cepillo y pasar la plancha lentamente, dos o tres veces', 'Protector siempre, sin excepción']
       }),
       pasos: [
         { t: 'Pelo seco al cien por cien', n: 'Comprueba que no queda humedad.', e: 'Planchar húmedo y romper la fibra.', d: 5, fase: 'preparacion' },
         { t: 'Secciones', n: 'Nueve secciones, empezando por la nuca.', e: 'Sin orden: zonas dobles y zonas sin planchar.', d: 5, fase: 'divisiones' },
         { t: 'Protector', n: 'Pulveriza protector mecha a mecha.', e: 'Rociar por encima y creer que cubre.', d: 5, fase: 'aplicacion' },
-        { t: 'Una pasada', n: 'Mecha de dos a tres centímetros, una pasada lenta de raíz a punta.', e: 'Ir y venir tres veces sobre la misma mecha.', d: 7, fase: 'aplicacion' },
+        { t: 'Estirar y planchar', n: 'Se estira bien la mecha con el cepillo y se pasa la plancha lentamente, dos o tres veces. Ya queda listo.', e: 'Seguir pasando la plancha hasta que quede liso: quema el pelo y las cutículas.', d: 7, fase: 'aplicacion' },
         { t: 'Acabado', n: 'Sérum en puntas, muy poco.', e: 'Exceso de sérum y pelo grasiento.', d: 4, fase: 'cierre' }
       ],
       repaso: [
-        { p: 'Cabello decolorado: temperatura de plancha.', o: ['150 °C', '180 °C', '200 °C'], c: 0, x: 'La fibra decolorada tolera mucho menos calor. 150 °C y una sola pasada.' }
+        { p: 'Cabello decolorado: temperatura de plancha.', o: ['150 °C', '180 °C', '200 °C'], c: 0, x: 'La fibra decolorada tolera mucho menos calor.' }
       ]
     },
     {
