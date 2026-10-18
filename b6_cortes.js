@@ -155,6 +155,32 @@
         ] }
     },
     {
+      id: 'basico_redondeado', fam: 'basicos', n: 'Básico redondeado',
+      d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda redondeado.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'vertical', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Atrás queda redondeado.',
+        notas: [
+          'Raya central y secciones. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
+          'Línea guía en la nuca a 0°. Se agarra el mechón y se corta un dedo, dos, tres o más desde donde se agarra.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que el corte quede parejo. Atrás queda redondeado.',
+          'Delante se empareja con el de atrás, a 0°.'
+        ] }
+    },
+    {
+      id: 'basico_u', fam: 'basicos', n: 'Básico en U',
+      d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda en U.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'vertical', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Atrás queda en U.',
+        notas: [
+          'Raya central y secciones. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
+          'Línea guía en la nuca a 0°. Se agarra el mechón y se corta un dedo, dos, tres o más desde donde se agarra.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que el corte quede parejo. Atrás queda en U.',
+          'Delante se empareja con el de atrás, a 0°.'
+        ] }
+    },
+    {
       id: 'basico_v', fam: 'basicos', n: 'Básico en V',
       d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda en V.',
       mejor: ['liso', 'ondulado', 'liso_extremo'],
@@ -168,16 +194,16 @@
         ] }
     },
     {
-      id: 'basico_redondo', fam: 'basicos', n: 'Básico redondo (en U)',
-      d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda redondo, en U.',
+      id: 'basico_escalonado', fam: 'basicos', n: 'Básico escalonado',
+      d: 'Corte básico sin elevación: todo a 0°; cada línea se corta un dedo más larga que la de abajo y salen las capas sin elevar.',
       mejor: ['liso', 'ondulado', 'liso_extremo'],
-      g: { part: 'vertical', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
-        resultado: 'Atrás queda redondo, en U.',
+      g: { part: 'horizontal', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Escalonado sin elevación: capas que crecen de abajo arriba.',
         notas: [
-          'Raya central y secciones. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
-          'Línea guía en la nuca a 0°. Se agarra el mechón y se corta un dedo, dos, tres o más desde donde se agarra.',
-          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que el corte quede parejo. Atrás queda redondo, en U.',
-          'Delante se empareja con el de atrás, a 0°.'
+          'Raya central y líneas de la nuca hacia arriba. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
+          'Primera línea, la guía en la nuca a 0°: se corta medio dedo o un dedo desde donde se agarra.',
+          'Segunda línea a 0°: se corta a dos dedos. Tercera línea a 0°: se corta a tres dedos.',
+          'Cada línea queda más larga que la de abajo: así sale un escalonado con capas, sin elevación.'
         ] }
     },
     /* ── Melenas y bob ── */

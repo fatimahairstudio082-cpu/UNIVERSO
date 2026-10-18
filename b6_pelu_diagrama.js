@@ -149,6 +149,7 @@
     if (/ en (línea )?a[ .:,]| la a se lee/.test(t)) return 'a';
     if (/ en v[ .:,]/.test(t)) return 'v';
     if (/diagonal/.test(t)) return 'diag_delante';
+    if (/ en u[ .:,]/.test(t) && !/redond/.test(t)) return 'u';   /* Fátima, 18-10-2026: la U es más honda que la redondeada */
     if (/redond|esfera| en u[ .:,]|curv/.test(t)) return 'redondeada';
     if (/recta|recto|maciz|cuadrad|blunt/.test(t)) return 'recta';
     return '';
@@ -197,6 +198,7 @@
   var FORMAS_ATRAS = {
     recta: { n: 'recta', y: function () { return 0; }, th: function () { return 0; } },
     redondeada: { n: 'redondeada (U)', y: function (d) { return -46 * d * d; }, th: function (d) { return -0.22 * d * d; } },
+    u: { n: 'en U', y: function (d) { return -95 * d * d * d; }, th: function (d) { return -0.42 * d * d * d; } },
     v: { n: 'en V', y: function (d) { return -110 * d; }, th: function (d) { return -0.5 * d; } },
     a: { n: 'en A (V invertida)', y: function (d) { return 62 * d - 20; }, th: function (d) { return 0.22 * d; } },
     diag_delante: { n: 'diagonal hacia delante', lat: 1, s: 1 },
@@ -566,7 +568,7 @@
   /* Fátima, 10-10-2026 · CÓMO QUEDA el corte, antes y después, dando la vuelta a la cabeza (atrás, lateral, frente).
      El cabello largo (antes), la tijera siguiendo la línea del corte y el cabello cortado (después) con su sombreado.
      La forma sale de la línea del corte: recta (cuadrado), redondeada (U), en V, en A o en diagonal. */
-  var FORMA_Y = { recta: function () { return 0; }, redondeada: function (d) { return 0.5 * d * d; }, v: function (d) { return 0.9 * d; },
+  var FORMA_Y = { recta: function () { return 0; }, redondeada: function (d) { return 0.5 * d * d; }, u: function (d) { return 0.9 * d * d * d; }, v: function (d) { return 0.9 * d; },
     a: function (d) { return -0.5 * d; }, diag_delante: function (d) { return -0.6 * d; }, diag_atras: function (d) { return 0.6 * d; } };
   function lineaDe(R) {
     if (FORMA_Y[R.linea]) return R.linea;
@@ -662,7 +664,7 @@
       });
       if (capQ.length > 1) tr.push(rotulo('Líneas de color: largo de cada mechón elevado', TINTA, 0.8));
     }
-    var NOM = { recta: 'recta · cuadrado', redondeada: 'redondeada · en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
+    var NOM = { recta: 'recta · cuadrado', redondeada: 'redondeada · en U', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'lateral' : 'de frente') + ' · línea ' + NOM[lin], TINTA, 0),
       rotulo('Antes', '#8E847A', 0.02, { x: 0.3 }), rotulo('Se corta siguiendo la línea', CORTE, 0.3, { x: 0.5 }), rotulo('Después', VERDE, 0.5));
     if (frente) tr.push(rotulo(pollina ? 'Con pollina: por debajo de las cejas' : 'Sin pollina: raya en medio, largo por debajo del rostro', TINTA, 0.5));
@@ -718,7 +720,7 @@
       qs.push({ e: 'Con estas elevaciones (' + pila.join(' · ') + '°), ¿qué forma resulta en ' + R.n.toLowerCase() + '?', o: ops, c: ops.indexOf(calc.forma), x: 'Largos calculados: ' + calc.largos.map(function (x) { return CC.fmt(x); }).join(' · ') + ' cm.' });
     }
     /* Fátima, 10-10-2026: el resultado del corte, dando la vuelta a la cabeza */
-    var nomQ = { recta: 'recta, en cuadrado', redondeada: 'redondeada, en U', v: 'en V', a: 'en A', diag_delante: 'en diagonal hacia delante', diag_atras: 'en diagonal hacia atrás' }[lineaDe(R)];
+    var nomQ = { recta: 'recta, en cuadrado', redondeada: 'redondeada, en U', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'en diagonal hacia delante', diag_atras: 'en diagonal hacia atrás' }[lineaDe(R)];
     [['nuca', 'atrás', 'Damos la vuelta a la cabeza para ver cómo queda el corte. Por detrás: antes, el cabello largo; la tijera sigue la línea ' + nomQ + '; después, el corte terminado.'],
      ['lateral', 'lateral', 'Ahora de lado: así cae el cabello cortado y así se ve la línea ' + nomQ + ' de perfil.'],
      ['frente', 'de frente', 'Y de frente: el cabello enmarca el rostro y se ve la forma final del corte.']].forEach(function (q) {

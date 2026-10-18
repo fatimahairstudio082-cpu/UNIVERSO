@@ -17,7 +17,7 @@
       texto: 'Todas las capas a 30°: las puntas se abren y ganan movimiento sin acortar.' },
     { id: 'cuadrado', n: 'Corte cuadrado', capas: v(5, 0), part: 'vertical', linea: 'recta', acabado: 'recto', altura: 'barbilla', foto: 'bob_recto.jpg',
       texto: 'Solo la parte de atrás: guía en el centro a 0° y corte recto de lado a lado; el corte queda cuadrado.' },
-    { id: 'redondeado', n: 'Corte redondeado', capas: v(5, 0), part: 'vertical', linea: 'redondeada', acabado: 'recto', altura: 'barbilla',
+    { id: 'redondeado', n: 'Corte redondeado', capas: v(5, 0), part: 'vertical', linea: 'redondeada', acabado: 'recto', altura: 'barbilla', foto: 'basicos_0grados.jpg',
       texto: 'La misma guía en el centro a 0°, pero la línea de corte se lleva hacia delante: el corte queda redondeado.' },
     { id: 'corte_25', n: 'Corte a 25°', capas: v(5, 25), part: 'vertical', acabado: 'recto', altura: 'labio',
       texto: 'Todas las capas a 25°, en el lateral y en las verticales: peso abajo con una graduación suave.' },
