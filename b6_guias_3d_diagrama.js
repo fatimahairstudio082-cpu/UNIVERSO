@@ -136,8 +136,11 @@
       var INFO = ['p1_v_invertida', 'p1_curvo', 'p1_punta', 'p1_horizontal', 'p1_vertical_corto', 'p1_wap'];
       function grupo(et, ops) { if (!ops.length) return; var g = document.createElement('optgroup'); g.label = et; ops.forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; g.appendChild(op); }); tec.appendChild(g); }
       tec.innerHTML = ''; var op0 = document.createElement('option'); op0.value = ''; op0.textContent = '— elige un corte, una técnica o un corte mío —'; tec.appendChild(op0);
+      /* Fátima, 18-10-2026: los cortes básicos sin elevación arriba del todo (las técnicas de la infografía, que también lo son, van justo debajo) */
+      var BAS = ['cuadrado', 'redondeado']; INFO.forEach(function (id) { BAS.push(id); });
+      grupo('Cortes básicos · sin elevación', ['cuadrado', 'redondeado'].map(function (id) { var t = GC.tecnica(id); return t ? ['t:' + id, t.n] : null; }).filter(Boolean));
       grupo('Técnicas de seccionado (infografía)', INFO.map(function (id, i) { var t = GC.tecnica(id); return t ? ['t:' + id, (i < 5 ? 'Técnica ' + (i + 1) + ' · ' : '') + t.n] : null; }).filter(Boolean));
-      grupo('Técnicas de Fátima', GC.TECNICAS.filter(function (t) { return INFO.indexOf(t.id) < 0; }).map(function (t) { return ['t:' + t.id, t.n + (t.validar ? ' (a validar por Fátima)' : '')]; }));
+      grupo('Técnicas de Fátima', GC.TECNICAS.filter(function (t) { return BAS.indexOf(t.id) < 0; }).map(function (t) { return ['t:' + t.id, t.n + (t.validar ? ' (a validar por Fátima)' : '')]; }));
       grupo('Mis cortes', GC.mios().map(function (m) { return ['m:' + m.n, '★ ' + m.n]; }));
       /* catálogo grande de cortes (b6_pelu_cortes_catalogo.js), agrupado por familia */
       var CC = window.EU_CATALOGO_CORTES; if (CC) CC.FAMILIAS.forEach(function (f) {

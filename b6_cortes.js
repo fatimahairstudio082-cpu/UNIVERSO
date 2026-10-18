@@ -65,6 +65,7 @@
   ];
 
   var FAMILIAS = [
+    { id: 'basicos', n: 'Cortes básicos · sin elevación' },   /* Fátima, 18-10-2026: primero los básicos, luego los avanzados */
     { id: 'melenas', n: 'Melenas y bob' },
     { id: 'capas', n: 'Capas y desfilados' },
     { id: 'cortos', n: 'Cortos de dama' },
@@ -138,6 +139,47 @@
      3 · LOS CUARENTA CORTES
      ══════════════════════════════════════════════════════════════ */
   var C = [
+    /* ── Cortes básicos sin elevación (Fátima, 18-10-2026): los básicos son la forma de empezar a dominar la tijera.
+       Todo a 0°; cada mechón se corta la misma medida (uno, dos, tres dedos o más) y lo que cambia es la forma. ── */
+    {
+      id: 'basico_cuadrado', fam: 'basicos', n: 'Básico cuadrado',
+      d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda cuadrado.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'vertical', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Atrás queda cuadrado.',
+        notas: [
+          'Raya central y secciones. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
+          'Línea guía en la nuca a 0°. Se agarra el mechón y se corta un dedo, dos, tres o más desde donde se agarra.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que el corte quede parejo. Atrás queda cuadrado.',
+          'Delante se empareja con el de atrás, a 0°: el corte queda cuadrado atrás y delante.'
+        ] }
+    },
+    {
+      id: 'basico_v', fam: 'basicos', n: 'Básico en V',
+      d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda en V.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'vertical', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Atrás queda en V.',
+        notas: [
+          'Raya central y secciones. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
+          'Línea guía en la nuca a 0°. Se agarra el mechón y se corta un dedo, dos, tres o más desde donde se agarra.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que el corte quede parejo. Atrás queda en V.',
+          'Delante se empareja con el de atrás, a 0°.'
+        ] }
+    },
+    {
+      id: 'basico_redondo', fam: 'basicos', n: 'Básico redondo (en U)',
+      d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda redondo, en U.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'vertical', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Atrás queda redondo, en U.',
+        notas: [
+          'Raya central y secciones. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
+          'Línea guía en la nuca a 0°. Se agarra el mechón y se corta un dedo, dos, tres o más desde donde se agarra.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que el corte quede parejo. Atrás queda redondo, en U.',
+          'Delante se empareja con el de atrás, a 0°.'
+        ] }
+    },
     /* ── Melenas y bob ── */
     {
       id: 'bob_recto', fam: 'melenas', n: 'Bob recto clásico',

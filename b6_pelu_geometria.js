@@ -128,7 +128,10 @@
     VF = n1.concat(n2);
     return VF;
   }
+  /* Fátima, 18-10-2026: cortes básicos sin elevación primero (cuadrado, redondo, V, U, V invertida…), luego los avanzados */
+  var BASICOS = ['cuadrado', 'redondeado', 'p1_punta', 'p1_curvo', 'p1_v_invertida', 'p1_wap', 'p1_horizontal', 'p1_vertical_corto'];
+  function basicos() { return BASICOS.map(tecnica).filter(Boolean); }
   function variante(id) { return (/^vf_/.test(id) ? variantesForma() : variantes()).filter(function (v) { return v.id === id; })[0] || null; }
 
-  window.EU_GEOMETRIA_CAPILAR = { TECNICAS: TECNICAS, ELEVACIONES: ELEVACIONES, tecnica: tecnica, receta: receta, mios: mios, guardar: guardar, quitar: quitar, variantes: variantes, variantesForma: variantesForma, variante: variante, ALT_N: ALT_N };
+  window.EU_GEOMETRIA_CAPILAR = { TECNICAS: TECNICAS, BASICOS: BASICOS, basicos: basicos, ELEVACIONES: ELEVACIONES, tecnica: tecnica, receta: receta, mios: mios, guardar: guardar, quitar: quitar, variantes: variantes, variantesForma: variantesForma, variante: variante, ALT_N: ALT_N };
 })();
