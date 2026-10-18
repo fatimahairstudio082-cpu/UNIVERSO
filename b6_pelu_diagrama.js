@@ -586,7 +586,7 @@
        y el resultado usa las elevaciones del corte con el calculador que ya existe (EU_CALCULO_CAPILAR) */
     var CC = window.EU_CALCULO_CAPILAR, medQ = CC && CC.medidas ? Object.assign({}, CC.medidas(), R.medidas || {}) : null, profV = (lin === 'v' || lin === 'a' || lin === 'u') ? 0.6 * Math.min(2, Math.max(0.5, ((medQ && +medQ.guia) || 20) / 20)) : 0;
     /* Fátima, 10-10-2026: con pollina (guía bajo las cejas o «flequillo» en el nombre) o sin pollina, largo más abajo del rostro */
-    var pollina = R.altura === 'cejas' || /flequillo|pollina|fleco/i.test(R.n || ''), yCejas = ALTURAS.cejas.y - 0.06, yLargo = corto0 ? YB : Math.min(YB + FY(1) + 0.15, ALTURAS.rostro.y - 0.3);
+    var pollina = R.altura === 'cejas' || /flequillo|pollina|fleco/i.test(R.n || ''), yCejas = ALTURAS.cejas.y - 0.06, yLargo = corto0 || (todo0 && lin === 'recta') ? YB : Math.min(YB + FY(1) + 0.15, ALTURAS.rostro.y - 0.3);
     /* altura a la que un mechón de atrás termina en la misma línea de pantalla que el del centro (corte recto visto de atrás) */
     var Pc0 = P(NUCA, 1.35, 1.05), yLin = pr(v, V3(Pc0.x * 1.02, YB, Pc0.z * 1.02))[1];
     function yPlano(bq, yObj) { if (yObj == null) yObj = yLin; var lo = YB - 0.85 - 2 * profV, hi = bq.y - 0.05; for (var it = 0; it < 22; it++) { var mid = (lo + hi) / 2; if (pr(v, V3(bq.x * 1.02, mid, bq.z * 1.02))[1] > yObj) lo = mid; else hi = mid; } return (lo + hi) / 2; }
@@ -632,7 +632,8 @@
       for (th = 0.12; th <= 1.35; th += 0.07) { if (seVe(v, ph, th)) sup.push(pr(v, P(ph, th, 1.05))); }
       var base = P(ph, 1.35, 1.05), visto = seVe(v, ph, 1.35);
       function cola(y) { var o = sup.slice(); if (visto) for (var yy = base.y; yy >= y; yy -= 0.08) o.push(pr(v, V3(base.x * 1.02, yy, base.z * 1.02))); if (visto) o.push(pr(v, V3(base.x * 1.02, y, base.z * 1.02))); return o; }
-      var yC = Math.max(YB - 0.85, YB + FY(d) - (lin === 'v' ? profV * (1 - d) : lin === 'a' ? profV * d : 0)) + (d > 0.8 ? 0.15 : 0), largo = cola(YB - 0.95), corto = cola(yC);
+      /* Fátima, 18-10-2026: en el recto a 0° todo parejo, también delante (antes quedaba un dedo más corto y la línea verde hacía escalón) */
+      var yC = Math.max(YB - 0.85, YB + FY(d) - (lin === 'v' ? profV * (1 - d) : lin === 'a' ? profV * d : 0)) + (d > 0.8 && !(todo0 && lin === 'recta') ? 0.15 : 0), largo = cola(YB - 0.95), corto = cola(yC);
       /* Fátima, 15-10-2026: en «recta · cuadrado» la línea de atrás se ve recta y horizontal, con esquinas (antes salía en arco por la cabeza redonda) */
       if (lin === 'recta' && v === 'nuca' && visto) { yC = yPlano(base); corto = cola(yC); }
       /* Fátima, 18-10-2026 (su lámina «formas de atrás de cómo hacer un corte»): de lado, la línea recta se ve horizontal y las diagonales rectas, no en arco */
