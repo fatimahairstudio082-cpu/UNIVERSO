@@ -121,6 +121,8 @@
         var m = /\b(?:nivel|base|tono)\s*(\d{1,2})\b/i.exec(txt), modo = /ra[ií]z|ra[ií]ces/i.test(txt) && c.t === 'tinte' ? 'raiz' : MODO[c.t];
         a = A.escAplicar(K, {}, modo, m ? A.NIVEL[Math.min(10, +m[1])] : (c.t === 'queratina' || c.t === 'hidratacion' ? '#D9C7A8' : c.t === 'tinte' ? A.NIVEL[6] : '#E9C979'), k);
         a.tr = a.tr.filter(function (s) { return s.k !== 'e'; });
+        /* Fátima, 18-10-2026 (opción C): si el paso nombra la altura de tono, la carta de tonos al lado del maniquí, sin taparlo */
+        if (m && A.carta) a.tr = a.tr.concat(A.carta(K, Math.max(1, Math.min(10, +m[1])), 0.1).filter(function (s) { return s.k !== 'e'; }));
       } else a = escFicha(K, 'importante', '#5B5650');
     } else {
       t = tipo === 'alerta' ? 'Por qué no' : tipo === 'importante' ? 'Importante' : 'Consejo de Fátima';

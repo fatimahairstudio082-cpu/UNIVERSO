@@ -137,6 +137,31 @@
     if (modo === 'producto' || modo === 'plancha' || modo === 'bigudi' || modo === 'secado') return '#D9C7A8';
     var m = /(\d{1,2})[.,]\d/.exec(((t.ficha || {}).formula) || ''); var n = m ? Math.max(1, Math.min(10, +m[1])) : 6; return NIVEL[n];
   }
+  function nivelDe(t) { var m = /(\d{1,2})[.,]\d/.exec(((t.ficha || {}).formula) || ''); return m ? Math.max(1, Math.min(10, +m[1])) : 0; }
+  /* Fátima, 18-10-2026 (opción C): la carta de tonos va AL LADO del maniquí, como apoyo, sin tapar la animación
+     (lienzo 1280×720, recorte 190–1090: tira a la derecha, fuera de la cabeza); el tono del medio es el de la fórmula */
+  function carta(K, n, t0) {
+    var tr = [], x0 = 950, y0 = 300, w = 110, h = 62;
+    [n + 1, n, n - 1].forEach(function (k, i) {
+      if (k < 1 || k > 10) return;
+      var y = y0 + i * (h + 8), med = k === n;
+      tr.push(zona([x0, y, x0 + w, y, x0 + w, y + h, x0, y + h], [t0, t0 + 0.06], NIVEL[k], 1, med ? '#1F1B18' : '#D8D2C8'), K.chapa([x0 + w / 2, y + h / 2], String(k), med ? '#1F1B18' : '#8E847A', t0 + 0.04));
+    });
+    tr.push(K.rotulo('Carta de tonos · altura ' + n + ' (la de la fórmula, al centro)', '#1F1B18', t0));
+    return tr;
+  }
+  /* el resultado: el cabello del maniquí pasa del natural al tono de la fórmula, de la nuca hacia arriba */
+  function escQuedaColor(K, t, col, n) {
+    var v = 'nuca', tr = [], phs = []; for (var ph0 = K.NUCA - 1.75; ph0 <= K.NUCA + 1.75; ph0 += 0.03) phs.push(ph0);   /* como «Cómo queda · atrás» de las mechas */
+    phs.forEach(function (ph, i) {
+      var q = mecha(K, v, ph, 0.3, 0, 1); if (!q) return;
+      tr.push(K.linea(q, [0, 0.05], '#3A2418', 4.2, { x: 0.6 }));
+      tr.push(K.linea(q, [0.1 + 0.45 * i / phs.length, 0.3 + 0.45 * i / phs.length], col, 4.2));
+      if (i % 3 === 0) tr.push(K.linea(q.slice(4), [0.82, 0.95], 'rgba(255,240,220,0.4)', 1.4));
+    });
+    tr.push(K.rotulo('Cómo queda · color de la fórmula' + ((t.ficha || {}).formula ? ': ' + t.ficha.formula : ''), '#1F1B18', 0), K.rotulo('Antes: cabello natural', '#8E847A', 0.02, { x: 0.12 }), K.rotulo('Después: el tono de la fórmula', '#18906A', 0.75));
+    return { v: v, tr: tr.concat(n ? carta(K, n, 0.1) : []) };
+  }
   function minutos(t, p) { var s = (p && p.n || '') + ' ' + (((t.ficha || {}).tiempos) || ''), m = /(\d{1,3})\s*min/.exec(s); return m ? +m[1] : 0; }
   function proporcion(t) { var fi = t.ficha || {}, m = /(\d+(?:[.,]\d+)?)(?:\s*de\s+[a-záéíóú]+)?\s*:\s*(\d+(?:[.,]\d+)?)/i.exec((fi.proporciones || '') + ' ' + (fi.formula || '')); return m ? [parseFloat(m[1].replace(',', '.')), parseFloat(m[2].replace(',', '.'))] : null; }
 
@@ -550,8 +575,14 @@
         else { tr3.push(K.rotulo('Preparación', C_RAYA, 0)); (fi2.herramientas || []).slice(0, 4).forEach(function (h, j) { tr3.push(K.rotulo('✔ ' + h, '#18906A', 0.1 + j * 0.12)); }); if ((fi2.seguridad || [])[0]) tr3.push(K.rotulo('Seguridad: ' + String(fi2.seguridad[0]).replace(/\.$/, ''), '#B01E45', 0.62)); a = { v: 'tres', tr: tr3 }; }
       }
       else a = escAplicar(K, t, modo, col, na++);
-      /* sin cartel rojo «Cuidado» (Fátima: alerta genérica); el error típico sigue en la ficha */
-      esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || ''), a: a });
+      /* sin cartel rojo «Cuidado» (Fátima: alerta genérica). Fátima, 18-10-2026 (opción D): el error común del paso vuelve
+         con diseño limpio, una línea sobria al final de la escena, sin rojo ni señales; la animación no cambia */
+      if (p.e) a.tr.push(K.rotulo('Error común: ' + String(p.e).replace(/\.$/, ''), '#5B4A2E', 0.8));
+      esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || '') + (p.e ? ' Error común: ' + String(p.e).replace(/\.?$/, '.') : ''), a: a });
+      /* C: en los tintes (raíz y global), al cerrar, el maniquí muestra el tono de la fórmula con la carta al lado */
+      if (f === 'cierre' && (modo === 'global' || modo === 'raiz') && !esc.some(function (e) { return e.tipo === 'cb_queda_color'; }))
+        esc.push({ tipo: 'cb_queda_color', vista: 'nuca', t: 'Cómo queda · color de la fórmula', a: escQuedaColor(K, t, col, nivelDe(t)),
+          texto: 'Así queda: el cabello toma el tono de la fórmula' + ((t.ficha || {}).formula ? ', ' + t.ficha.formula : '') + '. Al lado, la carta de tonos con esa altura de tono en el centro.' });
       /* Fátima, 10-10-2026: el balayage también se hace profundo — se empieza a unos 5 cm del cuello, atrás, con zigzag grande;
          el mechón se eleva a 90° y se coloca el producto. Se añade como escena propia; la de arriba no cambia. */
       if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_lat_h'; }) && K.dirElev && K.mechon) {
@@ -890,5 +921,5 @@
 
   window.EU_PARTICIONES = { TECNICAS: TECNICAS, catalogo: catalogo, tecnica: tecnica, construir: construir, construirYa: construirYa, lecciones: lecciones, registrar: registrar,
     /* ayudantes de dibujo para los módulos que registran técnicas (mismos trazos que las del Cerebro) */
-    ayudas: { escAplicar: escAplicar, escCierre: escCierre, zona: zona, mecha: mecha, NIVEL: NIVEL } };
+    ayudas: { escAplicar: escAplicar, escCierre: escCierre, zona: zona, mecha: mecha, NIVEL: NIVEL, carta: carta } };
 })();
