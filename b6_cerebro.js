@@ -156,7 +156,7 @@
         { t: 'Medios y puntas', n: 'Aplica primero de medios a puntas y deja actuar diez minutos.', e: 'Tocar la raíz ahora: se aclara de más.', d: 6, fase: 'aplicacion' },
         { t: 'Raíz', n: 'Baja a la raíz y satura los dos primeros centímetros.', e: 'Escatimar producto en la línea de la cara.', d: 5, fase: 'aplicacion' },
         { t: 'Exposición', n: 'Tiempo aproximado: cuarenta y cinco minutos en tintes con amoníaco. En tintes sin amoníaco se puede dejar cincuenta minutos.', e: 'Añadir calor sin necesidad.', d: 5, fase: 'tiempo' },   /* Fátima, 18-10-2026 */
-        { t: 'Revisar el cabello', n: 'Hay que estar revisando el cabello: a los diez minutos, cinco minutos después de haber colocado el tinte.', d: 4, fase: 'tiempo' },   /* Fátima, 18-10-2026 · a confirmar */
+        { t: 'Revisar a los cinco minutos', n: 'Se revisa el cabello a los cinco minutos de haber colocado el tinte, porque todas las personas no son iguales y puede causar alguna alergia al producto. También se revisa la fecha de vencimiento del tinte. Por eso se revisa a los cinco minutos o se realiza la prueba de mechón.', d: 4, fase: 'tiempo' },   /* Fátima, 18-10-2026 */
         { t: 'Cierre', n: 'Emulsiona, aclara y sella con acidificante.', e: 'Saltarse el acidificante y perder brillo.', d: 4, fase: 'cierre' }
       ],
       repaso: [
