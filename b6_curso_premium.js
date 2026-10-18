@@ -306,7 +306,7 @@
       $('#reproductor').style.display = ''; $('#zonaTest').style.display = 'none'; textoBajo(L.escenas[0]); pintaPregunta(L.escenas[0]);
       /* (12-10-2026) vídeo propio de la lección (p. ej. presentacion.mp4 junto a index.html): si no está, no se ve nada */
       var vv = $('#vidLec'); if (vv) vv.parentNode.removeChild(vv);
-      if (L.mp4) { var vd = document.createElement('video'); vd.id = 'vidLec'; vd.src = L.mp4; vd.controls = true; vd.playsInline = true; vd.style.cssText = 'width:100%;max-height:70vh;background:#000;border-radius:6px'; vd.onerror = function () { if (vd.parentNode) vd.parentNode.removeChild(vd); }; cv.parentNode.insertBefore(vd, cv); }
+      if (L.mp4) { var vd = document.createElement('video'); vd.id = 'vidLec'; vd.src = (window.CURSO_MP4_BASE || '') + L.mp4; vd.controls = true; vd.playsInline = true; vd.style.cssText = 'width:100%;max-height:70vh;background:#000;border-radius:6px'; vd.onerror = function () { if (vd.parentNode) vd.parentNode.removeChild(vd); }; cv.parentNode.insertBefore(vd, cv); }
       $('#escenas').innerHTML = ''; MINI = []; kMini = -1;
       L.escenas.forEach(function (e, k) {
         var b = document.createElement('button'), c = document.createElement('canvas'), t = document.createElement('b'); b.className = 'card'; c.width = 320; c.height = 180;
