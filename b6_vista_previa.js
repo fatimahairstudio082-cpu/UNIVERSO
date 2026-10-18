@@ -121,7 +121,7 @@
   function resumenHotmart(ed, D, caja) {
     var T = '#16223A', O = '#B08D57', tot = 0, nL = 0, nV = 0, nT = 0;
     /* 18-10-2026 (Fátima, «Horas + meses»): las horas son lo que dura ver el contenido; los meses del programa los escribe ella */
-    var meses = +((ed.cfg.acab || {}).meses) || 0;
+    var mA = (ed.cfg.acab || {}).meses, meses = mA != null && mA !== '' ? +mA || 0 : ed.cfg.materia === 'pelu' ? 12 : 0; /* Peluquería: mínimo un año para practicar y dominar la tijera (Fátima) */
     var filas = D.modulos.map(function (M, i) {
       var mm = 0, ls = M.lecciones.map(function (L, j) {
         var m = minutos(L); mm += m; nL++; if (L.video) nV++;

@@ -606,7 +606,7 @@
       z.file(base + 'laminas/index.html', '<!DOCTYPE html><meta charset="utf-8"><title>Láminas</title><body style="font-family:Georgia,serif;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:16px">' +
         li.map(function (f) { return '<figure style="margin:0"><img src="' + f + '" style="width:100%;border:1px solid #ddd"><figcaption style="font-size:13px">' + f.replace(/\.(jpg|svg)$/, '').replace(/-/g, ' ') + '</figcaption></figure>'; }).join('') + '</body>');
       z.file(base + 'guion-voz.txt', guionTXT(D));
-      hotmart(z, D, +(((res.C && res.C.cfg && res.C.cfg.acab) || {}).meses) || 0);
+      var mA = ((res.C && res.C.cfg && res.C.cfg.acab) || {}).meses; hotmart(z, D, mA != null && mA !== '' ? +mA || 0 : res.C && res.C.mat === 'pelu' ? 12 : 0);
       var nL = 0, nV = 0; D.modulos.forEach(function (M) { nL += M.lecciones.length; M.lecciones.forEach(function (L) { if (L.video) nV++; }); });
       z.file(base + 'LEEME.txt', D.titulo + ' — paquete premium\n\n' +
         '1. curso/index.html — el curso: ' + D.modulos.length + ' módulos, ' + nL + ' lecciones (' + nV + ' vídeos paso a paso), tests, examen final y certificado. Funciona sin internet; la voz es la «Google español» de Chrome.\n' +
