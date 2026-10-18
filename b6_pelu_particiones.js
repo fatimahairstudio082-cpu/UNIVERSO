@@ -552,7 +552,7 @@
   function mechDe(id, lam) {
     if (!/^(mechas_aluminio|color_balayage|color_babylights|color_sombre)$/.test(id)) return {};
     var desde = /balayage|sombre/.test(id) ? ARRANQUE : 0.1;
-    if (/^perfil/.test(lam)) return { mech: [150], mv: 'perfil', desde: desde };
+    if (/^perfil/.test(lam)) return { mech: [118], mv: 'perfil', desde: desde };
     if (/^nuca/.test(lam)) return { mech: [70, 90, 110], mv: 'nuca', desde: desde };
     return {};
   }
