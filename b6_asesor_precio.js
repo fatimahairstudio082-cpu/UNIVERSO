@@ -103,7 +103,7 @@
     var res = ed.res, C = res.C, pk = PAISES[C.pk] ? C.pk : 'es', cfg = C.cfg || {};
     var S = escanea(res), K = cursoDatos(D), CPd = window.EU_CURSO_PREMIUM, prof = !!(C.adulto || /^(fp|adu)$/.test(cfg.nivel) || OFICIO.test(C.mat || cfg.materia || ''));
     var extra = K.animadas > 0 || K.pizarra > 0;
-    if (CPd && CPd.duracion) K.horas = CPd.duracion(res, D).total / 60;   /* (18-10-2026, Fátima) la misma cifra total que Hotmart y el certificado: con el audio del libro */
+    if (CPd && CPd.duracion) { var du = CPd.duracion(res, D); K.horas = du.oficial || du.total / 60; K.oficial = du.oficial; }   /* oficial: Peluquería ≈ 600 h (18-10-2026) */
     var tL = escalon(LIBRO, S.hojas), tC = escalon(CURSO, K.horas);
     var uL = recomienda(tL, prof, extra), uC = recomienda(tC, prof, extra);
     var T = '#16223A', O = '#B08D57';
@@ -127,7 +127,7 @@
     var conPiz = res.pages.some(function (q) { return q.tipo === 'tutor'; });
     var incL = 'libro interactivo con voz' + (conPiz ? ' y pizarra del tutor' : '') + ', PDF imprimible y EPUB · ' + S.hojas + ' hojas';
     var incC = K.modulos + ' módulos, ' + K.lecciones + ' lecciones (' + K.videos + ' en vídeo), ' + K.preguntas + ' preguntas de test y examen, certificado y el libro completo';
-    var tiles = [['Hojas', S.hojas], ['Módulos', K.modulos], ['Lecciones', K.lecciones], ['Vídeos', K.videos], ['Horas aprox.', K.horas.toFixed(1).replace('.', ',')], ['Preguntas', K.preguntas], ['Lecciones animadas', K.animadas], ['Lecciones de pizarra', K.pizarra]]
+    var tiles = [['Hojas', S.hojas], ['Módulos', K.modulos], ['Lecciones', K.lecciones], ['Vídeos', K.videos], [K.oficial ? 'Horas oficiales' : 'Horas aprox.', K.oficial ? '≈ ' + K.oficial : K.horas.toFixed(1).replace('.', ',')], ['Preguntas', K.preguntas], ['Lecciones animadas', K.animadas], ['Lecciones de pizarra', K.pizarra]]
       .map(function (x) { return '<div style="background:' + T + ';color:#fff;border-radius:10px;padding:8px 12px;min-width:92px"><div style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:' + O + '">' + x[0] + '</div><div style="font-size:20px;font-weight:800">' + x[1] + '</div></div>'; }).join('');
     var hojas = S.grupos.map(function (g) { return '<tr><td style="padding:3px 8px">' + esc(g[0]) + '</td><td style="padding:3px 8px;text-align:right">' + g[1] + '</td></tr>'; }).join('');
     var filas = Object.keys(PAISES).map(function (p) {
@@ -143,7 +143,7 @@
     }
     var vozTxt = 'Asesor de precio de ' + (C.titulo || 'este libro') + '. ' + (prof ? 'Es nivel profesional o para adultos' : 'Es material escolar') + (extra ? ', con animaciones o pizarra' : '') + '. ' +
       'El libro tiene ' + S.hojas + ' hojas: ' + S.grupos.map(function (g) { return g[1] + ' de ' + g[0].toLowerCase(); }).join(', ') + '. ' +
-      'El curso tiene ' + K.modulos + ' módulos, ' + K.lecciones + ' lecciones y unas ' + K.horas.toFixed(1).replace('.', ',') + ' horas. ' +
+      'El curso tiene ' + K.modulos + ' módulos, ' + K.lecciones + ' lecciones y ' + (K.oficial ? 'aproximadamente ' + K.oficial + ' horas de formación técnica y práctica. ' : 'unas ' + K.horas.toFixed(1).replace('.', ',') + ' horas. ') +
       (S.hojas < 56 ? 'Con menos de 56 hojas conviene usar el libro como producto de entrada o regalo, y vender el curso. ' : '') +
       voz1('Libro digital', tL, uL, incL) + ' ' + voz1('Curso premium más libro', tC, uC, incC) + ' ' +
       'Por país: ' + Object.keys(PAISES).map(function (p) { return PAISES[p][0].replace(/\s*\(.*\)/, '').replace('Rep. Dominicana', 'República Dominicana').replace('EE. UU.', 'Estados Unidos') + ', libro ' + dice(precioN(uL, p), p) + ' y curso ' + dice(precioN(uC, p), p); }).join('; ') + '. ' +
