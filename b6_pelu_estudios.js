@@ -109,9 +109,19 @@
     var nL = Math.min(pool.length, sel.length);
     for (var q = 0; q < nL; q++) aJ[Math.round(q * (sel.length - 1) / Math.max(1, nL - 1))] = pool[Math.round(q * (pool.length - 1) / Math.max(1, nL - 1))];
     /* (18-10-2026, Fátima: «el alumno no es adivino») cada escena lleva lo que enseña: su título y, si es una lámina o un mechón, su explicación y su porcentaje */
-    var pieEsc = function (a, big) {
+    var PS = []; try { PS = (window.EU_CEREBRO && EU_CEREBRO.pasos && EU_CEREBRO.pasos(t.id)) || []; } catch (e) { PS = []; }
+    var pieEsc = function (a, big, k) {
       var e = a && da && da.E.escenas[a[0]]; if (!e) return '';
-      var ex = big ? ' ' + es(e.texto || '') : '';   /* la explicación completa va en las filas de dos hojas; en la hoja única, el título */
+      var tx = String(e.texto || ''), tt = String(e.t || '');
+      /* (18-10-2026) la escena del propio paso repite su texto y su error común: solo se añade lo que el paso no dice ya */
+      if (big && k != null) {
+        var nk = String(t.narr[k] || ''), ps = (PS[k] && PS[k].t) || '', min = function (x) { return String(x).toLowerCase().replace(/[^a-záéíóúñü0-9]+/g, ' ').trim(); };
+        if (nk && tx.indexOf(nk) >= 0) tx = tx.replace(nk, '');
+        tx = tx.replace(/\s*Error común:[^.]*\.?/g, '').trim();
+        if (ps && min(tt).indexOf(min(ps)) >= 0 && !tx) return '';
+        if (min(tx) === min(ps)) tx = '';
+      }
+      var ex = big && tx ? ' ' + es(tx) : '';   /* la explicación completa va en las filas de dos hojas; en la hoja única, el título */
       return '<div style="margin-top:' + (big ? '0' : '1mm') + ';font-size:' + (big ? '.8em' : '.92em') + ';line-height:1.35"><b style="color:' + T.acc + '">' + es(e.t) + '.</b>' + ex + '</div>';
     };
     var cuad = sel.map(function (k, j) {
@@ -127,13 +137,14 @@
        (sin recortar) a 58 mm y al lado el paso, el título de la escena y su explicación */
     if (pg.partes) {
       /* (18-10-2026, Fátima: «faltan los errores comunes») cada paso con su título y su error común, del Cerebro */
-      var PS = []; try { PS = (window.EU_CEREBRO && EU_CEREBRO.pasos && EU_CEREBRO.pasos(t.id)) || []; } catch (e) { PS = []; }
       var mitad = Math.ceil(sel.length / 2), de = pg.parte === 2 ? mitad : 0, a = pg.parte === 2 ? sel.length : mitad;
+      var vistas = {};   /* (18-10-2026) la misma escena no se repite en la hoja (a mitad de camino se veía igual) */
       cuad = sel.slice(de, a).map(function (k, jj) {
-        var j = de + jj, an = aJ[j] != null ? LA.foto('cb_' + t.id, aJ[j][0], 640, aJ[j][1] === 1 ? null : aJ[j][1]) : '';
-        return '<div data-est-k="' + j + '" data-est-t="' + es(t.narr[k]) + '" style="display:grid;grid-template-columns:' + (an ? (a - de > 2 ? 58 : 85) + 'mm ' : '') + 'minmax(0,1fr);gap:4mm;align-items:start;margin:0 0 4mm;padding:0 0 3mm;border-bottom:0.3mm solid ' + (T.soft || '#E6EAF1') + ';transition:opacity .3s">' +
+        var j = de + jj, rep = aJ[j] != null && vistas[aJ[j][0]], an = aJ[j] != null && !rep ? LA.foto('cb_' + t.id, aJ[j][0], 640, aJ[j][1] === 1 ? null : aJ[j][1]) : '';
+        if (aJ[j] != null) vistas[aJ[j][0]] = 1;
+        return '<div data-est-k="' + j + '" data-est-t="' + es(t.narr[k]) + '" style="display:grid;grid-template-columns:' + (an ? (a - de > 2 ? (pg.parte === 2 && dg ? 56 : 72) : 85) + 'mm ' : '') + 'minmax(0,1fr);gap:4mm;align-items:start;margin:0 0 4mm;padding:0 0 3mm;border-bottom:0.3mm solid ' + (T.soft || '#E6EAF1') + ';transition:opacity .3s">' +
           (an ? '<img src="' + an + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px">' : '') +
-          '<div style="font-size:.86em;line-height:1.4"><b style="display:inline-flex;width:6mm;height:6mm;border-radius:50%;background:' + T.acc + ';color:#fff;align-items:center;justify-content:center;font-size:.85em;margin-right:2mm">' + (k + 1) + '</b><b>' + (PS[k] && PS[k].t ? es(PS[k].t) + '. ' : '') + es(t.narr[k]) + '</b>' + (PS[k] && PS[k].e ? '<div style="margin-top:1mm;font-size:.95em"><b style="color:#9A3B2E">Error común:</b> ' + es(PS[k].e) + '</div>' : '') + pieEsc(aJ[j], 1).replace('font-size:.8em', 'font-size:.95em;margin-top:1.5mm') + '</div></div>';
+          '<div style="font-size:.86em;line-height:1.4"><b style="display:inline-flex;width:6mm;height:6mm;border-radius:50%;background:' + T.acc + ';color:#fff;align-items:center;justify-content:center;font-size:.85em;margin-right:2mm">' + (k + 1) + '</b><b>' + (PS[k] && PS[k].t ? es(PS[k].t) + '. ' : '') + es(t.narr[k]) + '</b>' + (PS[k] && PS[k].e ? '<div style="margin-top:1mm;font-size:.95em"><b style="color:#9A3B2E">Error común:</b> ' + es(PS[k].e) + '</div>' : '') + (rep ? '' : pieEsc(aJ[j], 1, k)).replace('font-size:.8em', 'font-size:.95em;margin-top:1.5mm') + '</div></div>';
       }).join('');
     }
     var ctrl = web ? '<div style="display:flex;gap:3mm;align-items:center;margin:0 0 2.5mm"><button data-est-play="1" style="font:inherit;font-size:.86em;padding:1.5mm 4mm;border:0;border-radius:' + rad + 'px;background:' + T.acc + ';color:#fff;cursor:pointer;white-space:nowrap;flex:none">▶ Ver y escuchar</button><span data-est-sub="1" style="font-size:.8em;font-style:italic;opacity:.85;min-width:0"></span></div>'
