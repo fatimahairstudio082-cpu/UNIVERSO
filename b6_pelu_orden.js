@@ -52,11 +52,14 @@
         'Guantes y protección para los ojos con cualquier producto químico; capa y toalla para la clienta.',
         'La postura cuenta: altura del sillón, peso repartido y muñeca recta para trabajar muchas horas sin lesiones.',
         'Las herramientas se lavan y desinfectan después de atender a cada cliente: así no se pasan restos de producto (su pH), hongos ni piojos de una persona a otra.',
-        'Un cabello enchiclado o maltratado no admite un proceso químico agresivo: ni keratina ni decoloración hasta recuperarlo.'],
-        ['desinfección', 'EPI', 'tijera', 'navaja', 'máquina', 'peine de corte', 'postura'],
+        'Un cabello enchiclado o maltratado no admite un proceso químico agresivo: ni keratina ni decoloración hasta recuperarlo.',
+        'Tijeras y máquinas: se pasa la rodaja de limón por las hojas y superficies de metal de 1 a 2 minutos para desengrasar y limpiar profundamente, y de inmediato se pasa un paño limpio humedecido con alcohol para desinfectar y retirar el ácido del limón. No se deja el limón actuando más tiempo para no corroer el metal.',
+        'Toallas: se lavan por separado a alta temperatura con jabón desinfectante o cloro diluido y se secan completamente antes de volver a usar con otro cliente. Se usa una toalla limpia individual por cliente.'],   /* palabras de Fátima, 18-10-2026 */
+        ['desinfección', 'EPI', 'tijera', 'navaja', 'máquina', 'peine de corte', 'postura', 'limón y alcohol', 'toalla individual'],
         [R('¿Qué herramienta deja la punta más suave y desfilada?', ['Tijera recta', 'Navaja', 'Máquina sin peine'], 1, 'La navaja corta en bisel y deja la punta afinada.'),
          R('¿Qué protección es obligatoria con químicos?', ['Guantes', 'Gafas de sol', 'Delantal de tela'], 0, 'Los guantes evitan dermatitis por contacto.'),
          R('¿Por qué se lavan y desinfectan las herramientas después de cada cliente?', ['Para que brillen más', 'Solo hace falta si se ven sucias', 'Para no pasar restos de producto, hongos ni piojos a la siguiente persona'], 2, 'Lo que queda en peines y tijeras viaja de una cabeza a otra: producto con otro pH, hongos o piojos.'),
+         R('¿Cuánto tiempo se pasa la rodaja de limón por las hojas de la tijera y la máquina?', ['De 1 a 2 minutos, y de inmediato un paño con alcohol', 'Media hora, para que actúe bien', 'Se deja el limón puesto hasta el día siguiente'], 0, 'De 1 a 2 minutos para desengrasar y limpiar; de inmediato el paño con alcohol desinfecta y retira el ácido. No se deja más tiempo para no corroer el metal.'),
          R('Un cabello enchiclado o maltratado, ¿admite keratina o decoloración?', ['Sí, con más producto', 'No: primero hay que recuperarlo', 'Sí, si se hace rápido'], 1, 'Un proceso químico agresivo sobre un cabello así lo rompe.')], M.fund),
       cab: uni('pe_u_cab', 'El cabello y el diagnóstico', [
         'Cada pelo tiene cutícula, corteza y médula; la cutícula cerrada da brillo y la abierta absorbe más producto.',

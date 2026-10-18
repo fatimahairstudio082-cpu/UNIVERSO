@@ -323,7 +323,7 @@
        de nuca a coronilla. Es la imagen que enviaste. */
     perfilHorizontal: {
       n: 'Perfil · capas horizontales',
-      d: 'Secciones paralelas al suelo, de la nuca hacia arriba. El producto entra capa a capa.',
+      d: 'Secciones paralelas al suelo, de la nuca hacia arriba. Se trabaja capa a capa.',
       f: function (x, cx, cy, R, p) {
         perfil(x, cx, cy, R);
         x.save();
@@ -568,7 +568,7 @@
        en cada sección. Es el mapa que enviaste. */
     nucaOcho: {
       n: 'Nuca · cuadrícula de ocho',
-      d: 'Línea media y tres horizontales: ocho secciones sujetas con pinza. Se seca de abajo hacia arriba, soltando de una en una.',
+      d: 'Línea media y tres horizontales: ocho secciones sujetas con pinza. Se trabaja de abajo hacia arriba, soltando de una en una.',
       f: function (x, cx, cy, R, p) {
         nuca(x, cx, cy, R);
         var y0 = cy - R * 0.92, y1 = cy + R * 0.94, alto = (y1 - y0) / 4;
@@ -1408,14 +1408,15 @@
     color_babylights: ['perfilInternacional', 'perfilZigzag', 'nucaEspiga'],
     mechas_aluminio: ['perfilInternacional', 'perfilDiagonalPost', 'perfilDiagonalAdel', 'perfilVertical', 'nucaLadrillo'],
     mechas_gorro: ['gorro'],
-    hidra_profunda: ['perfilHorizontal', 'perfilOrden', 'nucaDiagonal'],
-    hidra_nutricion: ['perfilHorizontal', 'nucaDiagonal'],
+    /* Fátima, 18-10-2026: secado, planchado e hidratación llevan la misma técnica de líneas horizontales */
+    hidra_profunda: ['perfilHorizontal', 'nucaOcho'],
+    hidra_nutricion: ['perfilHorizontal', 'nucaOcho'],
     quera_alisado: ['plantaNueve', 'perfilHorizontal', 'nucaDiagonal'],
     quera_botox: ['plantaCuatro', 'perfilHorizontal'],
     quim_permanente: ['plantaRadialOcho', 'plantaNueve', 'perfilRadial', 'nucaDiagonal'],
     quim_decoloracion: ['plantaCuatro', 'perfilHorizontal', 'perfilOrden', 'nucaDiagonal'],
-    cab_secado: ['perfilPuntos', 'nucaOcho', 'perfilSeis'],
-    cab_planchado: ['nucaOcho', 'perfilSeis', 'plantaNueve'],
+    cab_secado: ['perfilHorizontal', 'nucaOcho'],
+    cab_planchado: ['perfilHorizontal', 'nucaOcho'],
     /* El corte todavía no es una técnica del Cerebro: sus láminas viven en el
        catálogo y se piden por id hasta que exista la familia. Van en juegos de
        cuatro como máximo: a partir de ahí la tarjeta se estrecha y los rótulos

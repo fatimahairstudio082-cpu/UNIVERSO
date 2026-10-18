@@ -5,7 +5,7 @@
    · paso (punto)  → la animación de su tema: liga de tonos con barra de proporción (mezclas), rueda de neutralización
                      (matización y corrección), pincel / papel / barrido / plancha / producto sobre el maniquí (tinte, mechas,
                      balayage, queratina, hidratación) o ficha de alerta (diagnóstico y alertas);
-   · alerta        → «Por qué no» · importante → «Importante» · tip → «Consejo de Fátima» (solo texto, sin señales).
+   · alerta        → «Por qué no» · importante → «Importante» · tip → «Consejo profesional» (antes «Consejo de Fátima»; 18-10-2026, Fátima: no repetir su nombre ante el alumno) (solo texto, sin señales).
    Donde sus fuentes no coinciden, la escena lo dice y queda «a validar por Fátima» (NOTAS). No se inventa ningún dato.
    Entran solas en el curso premium (lección en su unidad), en el libro (página pe_animada) y en el libro interactivo.
    Cargar después de b6_pelu_particiones.js y de los tres b6_color_cerebro_*.js, antes de b6_pelu_libro_animado.js. */
@@ -125,9 +125,9 @@
         if (m && A.carta) a.tr = a.tr.concat(A.carta(K, Math.max(1, Math.min(10, +m[1])), 0.1).filter(function (s) { return s.k !== 'e'; }));
       } else a = escFicha(K, 'importante', '#5B5650');
     } else {
-      t = tipo === 'alerta' ? 'Por qué no' : tipo === 'importante' ? 'Importante' : 'Consejo de Fátima';
+      t = tipo === 'alerta' ? 'Por qué no' : tipo === 'importante' ? 'Importante' : 'Consejo profesional';
       col = tipo === 'alerta' ? ROJO : tipo === 'importante' ? AMBAR : VERDE;
-      voz = (tipo === 'alerta' ? 'Atención. ' : tipo === 'importante' ? 'Importante. ' : 'Consejo de Fátima. ') + txt;
+      voz = (tipo === 'alerta' ? 'Atención. ' : tipo === 'importante' ? 'Importante. ' : 'Consejo profesional. ') + txt;
       a = c.t === 'correccion' || c.t === 'matizacion' ? escRueda(K, txt) : escFicha(K, tipo, col);
     }
     /* rótulos: título arriba, luego el texto del paso y al final las etiquetas del dibujo */
