@@ -527,11 +527,33 @@
       '<div id="zonaTest" style="display:none"></div></main></div><button id="cerrarMenu" class="cta" style="position:fixed;top:10px;right:10px;z-index:21">✕ Cerrar</button><script>(' + REPRODUCTOR.toString() + ')();<\/script></body></html>';
   }
 
-  function hotmart(z, D, meses) {
+  /* 18-10-2026 (Fátima: «cuenta el audio de todo el libro y del curso, son veintipico módulos»): duración total en minutos =
+     lecciones (cada escena animada lo que dura su animación) + 45 s por pregunta de test y examen + narración del libro entero (14,5 letras/s) */
+  function minLeccion(L) { var seg = 0; (L.escenas || []).forEach(function (e) { var nl = (String(e.texto || '').length + String(e.sol || '').length) / 14.5; seg += e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 : nl + 2; }); return seg / 60; }
+  function audioLibro(res) {
+    if (!res) return 0; if (res._audioLibro != null) return res._audioLibro;
+    var ED = window.EU_EDITORIAL, LA = window.EU_PELU_LIBRO_ANIM, seg = 0;
+    (res.pages || []).forEach(function (pg) {
+      try {
+        /* página animada: cada escena dura lo que su animación en el libro (mín. 8 s, ×1,4) */
+        var d = pg.tipo === 'pe_animada' && LA && LA.datos ? LA.datos(pg.tec) : null;
+        if (d) d.E.escenas.forEach(function (e) { seg += Math.max(8, String(e.texto || '').length / 14.5 * 1.4) + 0.7; });
+        else seg += String(ED.textoVoz(pg, res.C) || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().length / 14.5;
+      } catch (e) { }
+    });
+    return (res._audioLibro = seg / 60);
+  }
+  function duracion(res, D) {
+    var lec = 0, nq = (D.examen || []).length; D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { lec += minLeccion(L); }); });
+    var o = { lecciones: lec, tests: nq * 0.75, libro: audioLibro(res) }; o.total = o.lecciones + o.tests + o.libro; return o;
+  }
+  function hotmart(z, D, meses, du) {
     var raiz = 'hotmart/';
     z.file(raiz + 'LEEME.txt', 'Estructura para Hotmart, Teachable o similar.\nCada carpeta es un módulo y cada .txt una lección: título, descripción, página del libro y guion.\n' +
       'Graba los vídeos abriendo curso/index.html#grabar («Grabar todos los vídeos»): cada archivo sale con el mismo nombre que su lección (M01-L02-…).\nGuárdalos en su carpeta y súbelos lección por lección. Adjunta el libro en PDF como material descargable.\n' +
+      (du ? 'Duración total: ' + h1(du.total) + ' h (lecciones ' + h1(du.lecciones) + ' h · tests y examen ' + h1(du.tests) + ' h · audio del libro ' + h1(du.libro) + ' h).\n' : '') +
       (meses ? 'Duración del programa (con práctica): ' + meses + (meses === 1 ? ' mes' : ' meses') + '.\n' : ''));
+    function h1(m) { return (m / 60).toFixed(1).replace('.', ','); }
     D.modulos.forEach(function (M, i) {
       var dir = raiz + 'Modulo-' + dos(i + 1) + '-' + slug(M.t) + '/';
       M.lecciones.forEach(function (L, j) {
@@ -606,7 +628,7 @@
       z.file(base + 'laminas/index.html', '<!DOCTYPE html><meta charset="utf-8"><title>Láminas</title><body style="font-family:Georgia,serif;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:16px">' +
         li.map(function (f) { return '<figure style="margin:0"><img src="' + f + '" style="width:100%;border:1px solid #ddd"><figcaption style="font-size:13px">' + f.replace(/\.(jpg|svg)$/, '').replace(/-/g, ' ') + '</figcaption></figure>'; }).join('') + '</body>');
       z.file(base + 'guion-voz.txt', guionTXT(D));
-      var mA = ((res.C && res.C.cfg && res.C.cfg.acab) || {}).meses; hotmart(z, D, mA != null && mA !== '' ? +mA || 0 : res.C && res.C.mat === 'pelu' ? 12 : 0);
+      var mA = ((res.C && res.C.cfg && res.C.cfg.acab) || {}).meses; hotmart(z, D, mA != null && mA !== '' ? +mA || 0 : res.C && res.C.mat === 'pelu' ? 12 : 0, duracion(res, D));
       var nL = 0, nV = 0; D.modulos.forEach(function (M) { nL += M.lecciones.length; M.lecciones.forEach(function (L) { if (L.video) nV++; }); });
       z.file(base + 'LEEME.txt', D.titulo + ' — paquete premium\n\n' +
         '1. curso/index.html — el curso: ' + D.modulos.length + ' módulos, ' + nL + ' lecciones (' + nV + ' vídeos paso a paso), tests, examen final y certificado. Funciona sin internet; la voz es la «Google español» de Chrome.\n' +
@@ -636,5 +658,5 @@
   }
   if (!enganchar()) (function espera(n) { if (!enganchar() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
 
-  window.EU_CURSO_PREMIUM = { construir: construir, imagenes: imagenes, cursoHTML: cursoHTML, guion: guionTXT, paquete: paquete };
+  window.EU_CURSO_PREMIUM = { duracion: duracion, audioLibro: audioLibro, construir: construir, imagenes: imagenes, cursoHTML: cursoHTML, guion: guionTXT, paquete: paquete };
 })();
