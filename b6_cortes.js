@@ -658,6 +658,34 @@
         ] }
     },
 
+    /* Fátima, 18-10-2026: a una niña no se le hace un corte avanzado; sus cortes son básicos, más largos o más cortos */
+    {
+      id: 'nina_pollina_largo', fam: 'ninos', n: 'Niña · básico con pollina (largo)',
+      d: 'Corte básico de niña con pollina: todo a 0°, sin elevación. Variante larga.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'vertical', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Parejo a 0°, con pollina por debajo de las cejas.',
+        notas: [
+          'Raya en medio y la pollina separada delante. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
+          'Línea guía en la nuca a 0°: se deja más largo, a la medida acordada.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que quede parejo. Delante se empareja con el de atrás.',
+          'Pollina: con la niña de frente se corta recto, a 0°, más abajo de las cejas. En cabello ondulado se saca por alrededor.'
+        ] }
+    },
+    {
+      id: 'nina_pollina_corto', fam: 'ninos', n: 'Niña · básico con pollina (corto)',
+      d: 'Corte básico de niña con pollina: todo a 0°, sin elevación. Variante corta.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'vertical', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Parejo a 0°, con pollina por debajo de las cejas.',
+        notas: [
+          'Raya en medio y la pollina separada delante. El cabello se peina en su caída natural: en 0° no hay ninguna elevación.',
+          'Línea guía en la nuca a 0°: se deja más corto, a la medida acordada.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que quede parejo. Delante se empareja con el de atrás.',
+          'Pollina: con la niña de frente se corta recto, a 0°, más abajo de las cejas. En cabello ondulado se saca por alrededor.'
+        ] }
+    },
+
     /* ── Rizado y afro ── */
     {
       id: 'rizo_seco', fam: 'rizado', n: 'Corte en seco rizo a rizo',

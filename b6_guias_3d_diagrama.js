@@ -12,7 +12,7 @@
   if (window.EU_G3D_DIAGRAMA) return;
 
   var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['dos', '◫ Lateral + nuca']];
-  var DUR = 15000, CACHE = {}, IMG = {};
+  var DUR = 20000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
 

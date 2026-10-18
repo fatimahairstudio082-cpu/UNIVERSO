@@ -577,7 +577,9 @@
     return 'recta';
   }
   function escQueda(R, v) {
-    var tr = [], lin = lineaDe(R), FY = FORMA_Y[lin], YB = -1.45, tips = [], k = 0, frente = v === 'frente';
+    var tr = [], lin = lineaDe(R), FY = FORMA_Y[lin], tips = [], k = 0, frente = v === 'frente';
+    /* Fátima, 18-10-2026: no todas se cortan con elevación; en los cortes todo a 0° (parejo) el maniquí lleva el cabello largo, hasta el cuello */
+    var todo0 = !((R.capas && R.capas.pila) || []).some(function (g) { return +g > 0; }), YB = todo0 ? ALTURAS.cuello.y : -1.45;
     /* Fátima, 15-10-2026: la V (o la A) se alarga con el largo de la guía, como en sus técnicas en V y en punta;
        y el resultado usa las elevaciones del corte con el calculador que ya existe (EU_CALCULO_CAPILAR) */
     var CC = window.EU_CALCULO_CAPILAR, medQ = CC && CC.medidas ? Object.assign({}, CC.medidas(), R.medidas || {}) : null, profV = (lin === 'v' || lin === 'a') ? 0.6 * Math.min(2, Math.max(0.5, ((medQ && +medQ.guia) || 20) / 20)) : 0;
@@ -600,12 +602,14 @@
         if (pollina) {  /* con pollina: el cabello de delante cae sobre la frente hasta abajo de las cejas */
           for (th = 0.12; th <= 1.6; th += 0.06) { var pf = P(ph, th, 1.05); if (pf.y < yCejas) break; if (seVe(v, ph, th)) sup.push(pr(v, pf)); }
           if (sup.length > 1) tr.push(linea(plano(sup), tf, '#3A2418', 5));
-          continue;
+          /* corte parejo a 0°: a los lados de la pollina el cabello cae largo, por fuera de la cara */
+          if (!todo0 || Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 0.3) continue;
+          sup = [];
         }
         /* sin pollina: raya en medio, el cabello se peina a los lados y cae largo, por fuera de la cara, más abajo del rostro */
         var qf = null, cap = [];
         /* de frente, el cabello cubre el cuero cabelludo desde la raya hasta el nacimiento del pelo (no se ve calva) */
-        if (frente) { for (th = 0.06; th <= 1.4; th += 0.04) { var qc = [ph + lado * th * 0.06, th], pc = P(qc[0], qc[1], 1.05); if (pc.y < ALTURAS.cejas.y + 0.38) break; cap.push(pr(v, pc)); } if (cap.length > 1) tr.push(linea(plano(cap), tf, '#3A2418', 5)); }
+        if (frente && !pollina) { for (th = 0.06; th <= 1.4; th += 0.04) { var qc = [ph + lado * th * 0.06, th], pc = P(qc[0], qc[1], 1.05); if (pc.y < ALTURAS.cejas.y + 0.38) break; cap.push(pr(v, pc)); } if (cap.length > 1) tr.push(linea(plano(cap), tf, '#3A2418', 5)); }
         for (th = 0.12; th <= 1.0; th += 0.08) { var q0 = [ph + lado * (th - 0.12) * 0.9, th]; if (seVe(v, q0[0], q0[1])) { qf = P(q0[0], q0[1], 1.05); sup.push(pr(v, qf)); } }
         if (qf) { var ox = qf.x * 1.12, oz = qf.z * 1.04; for (var yy2 = qf.y - 0.1; yy2 >= yLargo; yy2 -= 0.1) sup.push(pr(v, V3(ox, yy2, oz))); sup.push(pr(v, V3(ox, yLargo, oz))); }
         if (sup.length > 1) tr.push(linea(plano(sup), tf, '#3A2418', 5));

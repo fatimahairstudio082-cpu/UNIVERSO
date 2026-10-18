@@ -137,8 +137,12 @@
       var fq = [['queda_nuca', 'Atrás'], ['queda_lateral', 'Lateral'], ['queda_frente', 'De frente']].map(function (v) { var f = ''; try { f = LDG.fotoEscena(dgq, v[0]); } catch (e) { } return [f, v[1]]; }).filter(function (v) { return v[0]; });
       /* sin repetir: cortes con la misma forma dan el mismo resultado; cada imagen sale solo en la primera página que la lleva */
       var reg = QUEDA.get(C); if (!reg) { reg = {}; QUEDA.set(C, reg); }
-      var ref = null;
+      var ref = null, todas = fq.slice();
       fq = fq.filter(function (v) { var h = v[0].length + ':' + v[0].slice(-64), n = pg.num || 0; if (reg[h] && reg[h].num < n) { ref = ref || reg[h]; return false; } if (!reg[h] || reg[h].num > n) reg[h] = { num: n, n: c.n }; return true; });
+      /* Fátima, 18-10-2026: en lugar del esquema «Grados del corte terminado», el maniquí con el resultado de ESTE corte
+         (motor de Guías 3D); los grados de cada zona siguen en la lista de al lado. La vista que va arriba no se repite abajo. */
+      var lado = fq.length ? fq.shift() : todas[0];
+      if (lado) izq = '<figure style="margin:0"><img src="' + lado[0] + '" alt="Cómo queda el corte · ' + lado[1] + '" style="width:100%;height:auto;max-height:62mm;object-fit:contain;background:#E6EAF1;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.74em;text-align:center;opacity:.75;margin-top:1mm">Cómo queda el corte · ' + lado[1] + '</figcaption></figure>';
       if (!fq.length && ref) qd = '<div style="margin-top:3mm;font-size:.74em"><b style="color:' + T.acc + '">Cómo queda el corte:</b> la línea final es como la de «' + es(ref.n) + '»' + (ref.num ? ', pág. ' + ref.num : '') + '.</div>';
       if (fq.length) qd = '<div style="margin-top:3mm"><div style="font-size:.74em;font-weight:700;color:' + T.acc + ';margin:0 0 1mm">Cómo queda el corte</div><div style="display:grid;grid-template-columns:repeat(' + fq.length + ',minmax(0,1fr));gap:2mm">' +
         fq.map(function (v) { return '<figure style="margin:0"><img src="' + v[0] + '" alt="Cómo queda · ' + v[1] + '" style="width:100%;height:38mm;object-fit:contain;background:#E6EAF1;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.66em;text-align:center;margin-top:.6mm">' + v[1] + '</figcaption></figure>'; }).join('') + '</div></div>';

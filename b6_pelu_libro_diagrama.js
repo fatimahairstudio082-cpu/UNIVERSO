@@ -89,7 +89,7 @@
     'document.addEventListener("click",function(ev){var b=ev.target.closest("[data-dg-play]");if(b){var pg=b.closest("[data-dg-pg]");if(act&&act.pg===pg)return para();para();if(!window.DG_PINTA)return;V=V||voz();' +
     'var A=JSON.parse(pg.querySelector("[data-dg-anim]").textContent),figs=pg.querySelectorAll("[data-dg-fig]"),sub=pg.querySelector("[data-dg-sub]"),i=0,me={pg:pg,b:b};act=me;b.textContent="❚❚ Parar";' +
     '(function sig(){if(act!==me)return;if(i>=A.length){para();return}var a=A[i],f=figs[i++],img=f.querySelector("img"),cv=document.createElement("canvas");cv.width=640;cv.height=512;cv.style.cssText="width:100%;height:auto;display:block;border-radius:inherit";img.style.display="none";var vie=f.querySelector("canvas");if(vie)vie.remove();img.parentNode.insertBefore(cv,img);' +
-    'var x=cv.getContext("2d"),im=fondo(a.v),dur=Math.max(5000,a.s.length*65),t0=performance.now(),hab=0,acabo=0;if(sub)sub.textContent=a.s;f.scrollIntoView({block:"nearest",behavior:"smooth"});' +
+    'var x=cv.getContext("2d"),im=fondo(a.v),dur=Math.max(8000,a.s.length*91),t0=performance.now(),hab=0,acabo=0;if(sub)sub.textContent=a.s;f.scrollIntoView({block:"nearest",behavior:"smooth"});' +
     'function fin(){if(hab&&acabo&&act===me)setTimeout(sig,400)}' +
     '(function cuadro(){if(act!==me)return;var p=Math.min(1,(performance.now()-t0)/dur);DG_PINTA(x,a.a,im,0,0,640,512,p);if(p<1)requestAnimationFrame(cuadro);else{acabo=1;fin()}})();' +
     'if(V&&window.speechSynthesis){var u=new SpeechSynthesisUtterance(a.s);u.voice=V;u.lang="es-ES";u.onend=u.onerror=function(){hab=1;fin()};speechSynthesis.speak(u)}else hab=1})();return}' +
@@ -167,7 +167,16 @@
       if (p.u && cortes.indexOf(p.u.id) < 0 && otras.indexOf(p.u.id) < 0) (/^pe_u_c_/.test(p.u.id) ? cortes : otras).push(p.u.id);
     });
     cortes.concat(otras).forEach(function (u) { libres[u] = huecos(res, u, g3d); });
+    /* Fátima, 18-10-2026: en la unidad de niños y niñas (y en la de básicos) solo cortes a 0° sin desgrafilar, y la pollina:
+       a una niña no se le hace un corte avanzado */
+    var SOLO0 = /^pe_u_c_(ninos|basicos)$/;
+    function cero(dg) {
+      if (dg.k === 'corte') return true;
+      var o = dg.k === 'mio' ? dg.o : dg.k === 'tec' ? GC && GC.tecnica(dg.id) : GC && GC.variante && GC.variante(dg.id);
+      return !!o && !(o.capas || []).concat(o.frente || []).some(function (g) { return +g > 0; }) && o.acabado !== 'desgrafilado';
+    }
     function pon(uid, dg, t, tope) {
+      if (SOLO0.test(uid) && !cero(dg)) return false;
       var L = libres[uid] || []; if (!L.length || (tope != null && L[0][0] > tope)) return false;
       var i = L.shift()[1];
       var p = res.pages[i]; res.pages[i] = { tipo: 'pe_diagrama', u: p.u, n: p.n, num: p.num, dg: dg, titulo: t }; quitadas[p.num] = 1; n++; return true;

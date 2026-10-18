@@ -209,7 +209,7 @@
       } else {
         var bx = 48, by = 118, bw = e.rot.length ? 840 : 1184, bh = 440;
         x.fillStyle = '#FFFFFF'; x.fillRect(bx, by, bw, bh);
-        if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, cur.fin || e.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
+        if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, e.fin ? 1 : cur.ad ? pAnim() : cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
         else if (im && im.complete && im.naturalWidth) { var r = Math.min(bw / im.naturalWidth, bh / im.naturalHeight); var w = im.naturalWidth * r, h = im.naturalHeight * r; x.drawImage(im, bx + (bw - w) / 2, by + (bh - h) / 2, w, h); }
         var low = e.texto.toLowerCase(), ry = by + 10;
         e.rot.forEach(function (rt) {
@@ -236,7 +236,7 @@
     function mini(m, i, t) {
       var e = m.e, g = m.g, im = img(e.id); g.fillStyle = T.bg; g.fillRect(0, 0, 320, 180);
       if (e.tipo === 'pregunta') { g.fillStyle = T.acc; g.font = '600 96px ' + T.tit; g.textAlign = 'center'; g.fillText('?', 160, 124); g.textAlign = 'start'; return; }
-      var p = e.fin ? 1 : i === cur.k && cur.play ? (cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
+      var p = e.fin ? 1 : i === cur.k && cur.play ? (cur.ad ? pAnim() : cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
       if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(g, D.anim[e.anim], im, 0, 0, 320, 180, p);
       else if (im && im.complete && im.naturalWidth) { var r = Math.min(320 / im.naturalWidth, 180 / im.naturalHeight); g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 180); g.drawImage(im, (320 - im.naturalWidth * r) / 2, (180 - im.naturalHeight * r) / 2, im.naturalWidth * r, im.naturalHeight * r); }
       else { g.fillStyle = T.txt; g.font = '600 22px ' + T.tit; ajustaEn(g, e.t, 290).slice(0, 4).forEach(function (l, j) { g.fillText(l, 16, 44 + j * 30); }); }
@@ -251,12 +251,15 @@
     var raf = 0; function bucle() { if (cur.play && !cur.b && !cur.fin) { cur.pos = Math.max(cur.pos, (performance.now() - cur.t0) / 1000 * 14.5 * (cur.vel || 1)); } pinta(); minis(); raf = requestAnimationFrame(bucle); }
     bucle();
 
+    function pAnim() { return Math.min(1, (performance.now() - cur.ta0) / Math.max(1, cur.ad)); }
     function escena(k, alAcabar) {
       var L = cur.L, e = L.escenas[k]; cur.k = k; cur.pos = 0; cur.fin = false; cur.rev = false; cur.b = false; cur.t0 = performance.now();
+      /* Fátima, 18-10-2026: la animación va más lenta que la voz (×1,4, mínimo 8 s) y la escena siguiente espera a que termine */
+      cur.ta0 = performance.now(); cur.ad = e.anim && !e.fin && e.tipo !== 'pregunta' ? Math.max(8000, e.texto.length / 14.5 * 1000 * 1.4) / (cur.vel || 1) : 0;
       pintaPregunta(e); textoBajo(e);
       var sigue = function () {
         if (e.tipo === 'pregunta' && !cur.rev) { setTimeout(function () { if (!cur.play) return; cur.rev = true; textoBajo(e); habla(e.sol, function () { setTimeout(alAcabar, 900); }); }, 3500); return; }
-        cur.fin = true; setTimeout(alAcabar, 700);
+        cur.fin = true; setTimeout(alAcabar, 700 + (cur.ad ? Math.max(0, cur.ad - (performance.now() - cur.ta0)) : 0));
       };
       habla(e.texto, sigue);
     }
@@ -300,7 +303,7 @@
     }
     function textoBajo(e) { $('#bajo').textContent = e.tipo === 'pregunta' && cur.rev ? e.sol : e.texto; }
     function abre(L) {
-      para(); cur.L = L; cur.k = 0; cur.pos = 0; cur.fin = false;
+      para(); cur.L = L; cur.k = 0; cur.pos = 0; cur.fin = false; cur.ad = 0;
       $('#tl').textContent = L.t; var ix = LEC.indexOf(L); $('#pos').textContent = 'Módulo ' + (L.mi + 1) + ' · Lección ' + (L.li + 1) + ' de ' + D.modulos[L.mi].lecciones.length + ' · ' + (ix + 1) + '/' + LEC.length;
       $('#ant').disabled = ix <= 0; $('#sig').disabled = ix >= LEC.length - 1; document.body.classList.remove('verMenu'); $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
       $('#reproductor').style.display = ''; $('#zonaTest').style.display = 'none'; textoBajo(L.escenas[0]); pintaPregunta(L.escenas[0]);
