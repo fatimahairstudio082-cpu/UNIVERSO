@@ -398,8 +398,8 @@
       sm.onchange = function () { yo.set('materia', sm.value); };
       s1.appendChild(sm);
       if (!sinEdad) {
-      lbl(s1, 'Etapa');
-      chips(s1, CU.NIVELES.map(function (n) { return [n.id, n.ico + ' ' + P.niveles[n.id].n.replace(/\s*\(.*\)$/, '')]; }), cfg.nivel, function (v) { yo.set('nivel', v); });
+      lbl(s1, 'Nivel');
+      chips(s1, CU.NIVELES.map(function (n) { return [n.id, n.ico + ' ' + P.niveles[n.id].n.replace(/\s*\(.*\)$/, '') + (n.id === 'adu' ? ' · adultos' : '')]; }), cfg.nivel, function (v) { yo.set('nivel', v); });
       lbl(s1, 'Curso');
       sel(s1, P.niveles[cfg.nivel].c.map(function (c, i) { return [i, c.n + ' · ' + CU.BANDAS[c.b].edad]; }), cfg.curso, function (v) { yo.set('curso', +v); });
       }

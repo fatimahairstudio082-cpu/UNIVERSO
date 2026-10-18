@@ -39,6 +39,24 @@
     return h;
   }
   ED.registrar({ ajuste: ajuste, post: post });
+  /* 18-10-2026 (Fátima, directora del sistema: «fuera la sigla FP y los nombres oficiales; solo niveles reales»): en Peluquería
+     los títulos, portadas, cabeceras, créditos y curso dicen el nivel (Principiante · Intermedio · Avanzado · Profesional), sin
+     «(FP)», «Formación Profesional», «Grado Medio» ni marcos o leyes del país. Solo cambia lo que se lee; el nivel interno
+     (fp, adu…) y el temario siguen igual. Texto del referente: a validar por Fátima. */
+  var NIVELES3 = ['Principiante', 'Intermedio', 'Avanzado'];
+  function niveles(C) {
+    if (!C || C.mat !== 'pelu') return;
+    var limpio = function (t) { return String(t || '').replace(/\s*\((FP|Formación Profesional)\)/gi, '').replace(/Formación Profesional/gi, 'Profesional'); };
+    var cs = (C.N && C.N.c) || [], i = Math.max(0, cs.map(function (c) { return c.n; }).indexOf(C.cursoN));
+    var niv = C.nivel === 'fp' ? (cs.length >= 3 ? NIVELES3[Math.min(2, i)] : cs.length === 2 ? NIVELES3[1 + Math.min(1, i)] : 'Profesional') : 'Profesional';
+    var ant = C.cursoN;
+    C.matN = limpio(C.matN);
+    C.cursoN = 'Nivel ' + niv;
+    C.N = Object.assign({}, C.N, { n: 'Curso profesional' });
+    C.P = Object.assign({}, C.P, { marcoCorto: 'Contenido propio de la autora', marco: 'Contenido propio de la autora, fruto de su experiencia profesional' });
+    C.titulo = limpio(C.titulo).split(ant).join(C.cursoN);
+  }
+  ED.registrar({ ajuste: niveles });
 
   /* ─── curso premium: imágenes de su técnica, sin repetir dentro de una lección ─── */
   function esLam(D, e) { return !!(e.anim && D.anim && D.anim[e.anim] && D.anim[e.anim].lam); }
@@ -149,6 +167,12 @@
     var uds0 = CU.unidades;
     CU.unidades = function (mat) {
       var L = uds0.apply(this, arguments);
+      /* 18-10-2026 (Fátima: «la decoloración antes de los tintes»): la unidad de decoloración pasa justo antes del primer
+         tinte (cb_color_*), en libro y curso; no se quita ninguna unidad */
+      if (mat === 'pelu' && L && L.slice) {
+        var iD = -1, iC = -1; L.forEach(function (u, i) { if (u.id === 'cb_quim_decoloracion') iD = i; else if (iC < 0 && /^cb_color_/.test(u.id)) iC = i; });
+        if (iD > iC && iC >= 0) { L = L.slice(); var uD = L.splice(iD, 1)[0]; L.splice(iC, 0, uD); }
+      }
       if (mat !== 'pelu' || !TEMA || !TEMAS[TEMA] || !L || !L.slice) return L;
       var es = function (u) { return TEMAS[TEMA].some(function (r) { return r.test(u.id); }); };
       var cab = L.filter(function (u) { return BASE.test(u.id); }).concat(L.filter(function (u) { return !BASE.test(u.id) && es(u); }));

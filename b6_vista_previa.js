@@ -42,7 +42,7 @@
     ed.aviso('Vista previa del curso: preparando…');
     return (window.EU_CURSO_ANIM ? EU_CURSO_ANIM.enriquecer(D, ed.res, function (t) { ed.aviso(t); }) : Promise.resolve(D))
       .then(function () { return CP.imagenes(D, function (f) { ed.aviso('Vista previa del curso: dibujos ' + Math.round(f * 100) + ' %'); }); })
-      .then(function () { return D; });
+      .then(function () { if (CP.duracion) { var du = CP.duracion(ed.res, D); D.minTotal = du.total; D.horasOficiales = du.oficial; } return D; });   /* certificado = duración total (18-10-2026) */
   }
   function htmlCurso(D) {
     var CP = window.EU_CURSO_PREMIUM;
@@ -114,11 +114,15 @@
   }
   /* resumen de la Carpeta HOTMART: módulos, lecciones, vídeos a grabar, minutos aproximados y, si se pide, archivos y peso exactos */
   function minutos(L) {   /* misma cuenta que el certificado: narración a 14,5 letras/s + 2 s por escena */
-    var letras = 0; (L.escenas || []).forEach(function (e) { letras += String(e.texto || '').length + String(e.sol || '').length; });
-    return (letras / 14.5 + 2 * (L.escenas || []).length) / 60;
+    /* (18-10-2026, Fátima: «cada animación de clase tiene su duración») la escena animada cuenta lo que dura su animación al reproducirse */
+    var seg = 0; (L.escenas || []).forEach(function (e) { var nl = (String(e.texto || '').length + String(e.sol || '').length) / 14.5; seg += e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 : nl + 2; });
+    return seg / 60;
   }
   function resumenHotmart(ed, D, caja) {
     var T = '#16223A', O = '#B08D57', tot = 0, nL = 0, nV = 0, nT = 0;
+    /* 18-10-2026 (Fátima, «Horas + meses»): las horas son lo que dura ver el contenido; los meses del programa los escribe ella */
+    var CPm = window.EU_CURSO_PREMIUM, libro = CPm && CPm.audioLibro ? CPm.audioLibro(ed.res) : 0, ofi = CPm && CPm.duracion ? CPm.duracion(ed.res, D).oficial : 0, hh = function (m) { return (m / 60).toFixed(1).replace('.', ',') + ' h'; };
+    var mA = (ed.cfg.acab || {}).meses, meses = mA != null && mA !== '' ? +mA || 0 : ed.cfg.materia === 'pelu' ? 12 : 0; /* Peluquería: mínimo un año para practicar y dominar la tijera (Fátima) */
     var filas = D.modulos.map(function (M, i) {
       var mm = 0, ls = M.lecciones.map(function (L, j) {
         var m = minutos(L); mm += m; nL++; if (L.video) nV++;
@@ -130,13 +134,17 @@
       return '<tr><td colspan="6" style="padding:10px 8px 4px;font-weight:700;color:' + T + ';border-top:2px solid ' + O + '">Módulo ' + (i + 1) + ' · ' + esc(M.t) + ' <span style="font-weight:400;color:#777">· ' + M.lecciones.length + ' lecciones · ' + Math.round(mm) + ' min · test de ' + M.test.length + ' preguntas</span></td></tr>' + ls;
     }).join('');
     caja.innerHTML = '<div style="background:#fff;border-radius:10px;padding:16px 18px;font:13px system-ui,sans-serif;color:#1f1b18">' +
-      '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px">' + [['Módulos', D.modulos.length], ['Lecciones', nL], ['Vídeos a grabar', nV], ['Duración aprox.', (tot / 60).toFixed(1).replace('.', ',') + ' h'], ['Preguntas de test', nT], ['Examen final', D.examen.length + ' preg.']].map(function (x) {
+      '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px">' + [['Módulos', D.modulos.length], ['Lecciones', nL], ['Vídeos a grabar', nV], ['Lecciones', hh(tot)], ['Tests y examen', hh((nT + D.examen.length) * 0.75)], ['Audio del libro', hh(libro)], [ofi ? 'Contenido lectivo' : 'Total', hh(tot + (nT + D.examen.length) * 0.75 + libro)], ].concat(ofi ? [['Total oficial', '≈ ' + ofi + ' h']] : []).concat([ ['Programa', meses ? meses + (meses === 1 ? ' mes' : ' meses') : '—'], ['Preguntas de test', nT], ['Examen final', D.examen.length + ' preg.']]).map(function (x) {
         return '<div style="background:' + T + ';color:#fff;border-radius:8px;padding:8px 12px;min-width:110px"><div style="font-size:11px;color:' + O + ';text-transform:uppercase;letter-spacing:.06em">' + x[0] + '</div><div style="font-size:20px;font-weight:700">' + x[1] + '</div></div>';
       }).join('') + '</div>' +
+      '<div style="margin-bottom:10px">Duración del programa (con práctica): <input data-vp="meses" type="number" min="1" max="60" value="' + (meses || '') + '" placeholder="?" style="width:60px;padding:4px 6px;border:1px solid ' + O + ';border-radius:6px;font:600 13px system-ui"> meses <span style="color:#777">· Total = lecciones (cada animación con su duración) + tests y examen (45 s por pregunta) + audio del libro entero</span></div>' +
+      /* 18-10-2026 (Fátima): diferencia pedagógica entre horas lectivas y práctica de taller */
+      '<div style="border-left:3px solid ' + O + ';background:#FBF7F0;padding:8px 12px;margin-bottom:10px;font-size:12.5px;color:#3a332a">' + (ofi ? '<b>Duración oficial del programa: aproximadamente ' + ofi + ' horas de formación técnica y práctica</b>' + (meses ? ' (equivalente a los ' + meses + (meses === 1 ? ' mes' : ' meses') + ' de taller y estudio)' : '') + '. Es la cifra del certificado, la carpeta Hotmart y el asesor de precio.<br>' : '') + '<b>Horas lectivas y práctica.</b> Las ' + hh(tot + (nT + D.examen.length) * 0.75 + libro) + ' son de contenido lectivo directo y narración animada. El tiempo de práctica real del alumno comprende ' + (ofi ? 'el resto de las ' + ofi + ' horas oficiales, en taller ' : 'cientos de horas de taller ') + (meses ? 'a lo largo de los ' + meses + (meses === 1 ? ' mes' : ' meses') + ' del programa' : 'a lo largo del programa') + ', ya que cada técnica requiere pausar, dividir y practicar sobre el maniquí hasta dominar el procedimiento.</div>' +
       '<div style="font-size:12px;color:#555;margin-bottom:10px">Cada carpeta de <b>hotmart/</b> es un módulo y cada <b>.txt</b> una lección (título, descripción, página del libro y guion). 🎬 = lección en vídeo (se graba con <b>curso/index.html#grabar</b> y se sube con el mismo nombre M01-L02…). 📄 = lección de lectura. Los minutos son aproximados (la misma cuenta del certificado). Los límites de tamaño y duración de Hotmart consúltalos en su Central de Ayuda: aquí ves tus cifras para compararlas.</div>' +
       '<div style="display:flex;gap:8px;margin-bottom:12px"><button data-vp="peso" style="background:' + T + ';color:#fff;border:0;border-radius:8px;padding:8px 12px;font:600 13px system-ui;cursor:pointer">📦 Ver archivos y peso exacto</button><button data-vp="bajar" style="background:' + O + ';color:#fff;border:0;border-radius:8px;padding:8px 12px;font:600 13px system-ui;cursor:pointer">⬇ Descargar Carpeta HOTMART</button></div>' +
       '<div data-vp="archivos"></div><table style="border-collapse:collapse;width:100%">' + filas + '</table></div>';
     caja.querySelector('[data-vp="bajar"]').onclick = function () { hotmart(ed); };
+    caja.querySelector('[data-vp="meses"]').onchange = function () { var m = Math.max(0, Math.round(+this.value || 0)); [ed.cfg, ed.res && ed.res.C && ed.res.C.cfg].forEach(function (c) { if (c) { c.acab = c.acab || {}; c.acab.meses = m; } }); resumenHotmart(ed, D, caja); };
     caja.querySelector('[data-vp="peso"]').onclick = function () {
       var CP = window.EU_CURSO_PREMIUM, zona = caja.querySelector('[data-vp="archivos"]'); if (!window.JSZip) return ed.aviso('Necesita conexión la primera vez (JSZip).');
       zona.innerHTML = '<div style="padding:8px;color:#555">Armando el paquete para medirlo…</div>';

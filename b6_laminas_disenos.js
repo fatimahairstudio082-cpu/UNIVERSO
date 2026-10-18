@@ -747,10 +747,10 @@
     { id: 'm_feudal_niveles', cat: 'Historia y sociales', n: '🏰 Sociedad feudal · bandas', d: 'Los tres órdenes en tres bandas, de arriba abajo.', est: 'niveles', pal: 'humanidades', fmt: 'a4v', cont: 'edadmedia' },
     { id: 'm_feudal_red', cat: 'Historia y sociales', n: '🏰 Vasallaje · red', d: 'Relaciones cruzadas: quién debe qué a quién.', est: 'red', pal: 'mandala_tierra', fmt: 'cuadrado', cont: 'edadmedia' },
 
-    /* Formación profesional */
-    { id: 'm_empresa_cadena', cat: 'Formación profesional', n: '💼 Montar el negocio · pasos', d: 'De la idea a la apertura, en orden.', est: 'cadena', pal: 'cuadricula', fmt: 'a4h', cont: 'empresa' },
-    { id: 'm_empresa_columnas', cat: 'Formación profesional', n: '💼 Plan de empresa · columnas', d: 'Un bloque por área, con sus puntos.', est: 'columnas', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
-    { id: 'm_estudio_sol', cat: 'Formación profesional', n: '🎯 Método de estudio · sol', d: 'Cinco pasos saliendo del centro.', est: 'sol', pal: 'pizarra_negra', fmt: 'cuadrado', cont: 'estudio' },
+    /* Nivel profesional */
+    { id: 'm_empresa_cadena', cat: 'Nivel profesional', n: '💼 Montar el negocio · pasos', d: 'De la idea a la apertura, en orden.', est: 'cadena', pal: 'cuadricula', fmt: 'a4h', cont: 'empresa' },
+    { id: 'm_empresa_columnas', cat: 'Nivel profesional', n: '💼 Plan de empresa · columnas', d: 'Un bloque por área, con sus puntos.', est: 'columnas', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
+    { id: 'm_estudio_sol', cat: 'Nivel profesional', n: '🎯 Método de estudio · sol', d: 'Cinco pasos saliendo del centro.', est: 'sol', pal: 'pizarra_negra', fmt: 'cuadrado', cont: 'estudio' },
 
     /* Infantil y primaria */
     { id: 'm_animales_burbujas', cat: 'Infantil y primaria', n: '🐾 Animales · burbujas', d: 'Círculos grandes con hueco para foto en cada uno.', est: 'burbujas', pal: 'infantil', fmt: 'a4h', cont: 'infantil' },
@@ -790,9 +790,9 @@
     { id: 'd_indus_espiral', cat: 'Historia y sociales', n: '🏭 Industrial · espiral', d: 'Cronología enrollada: causa, proceso, efecto.', est: 'mandala_espiral', pal: 'humanidades', fmt: 'cuadrado', cont: 'historia' },
     { id: 'd_indus_reloj', cat: 'Historia y sociales', n: '🏭 Industrial · reloj', d: 'El siglo repartido en horas.', est: 'mandala_reloj', pal: 'editorial_edu', fmt: 'cuadrado', cont: 'historia' },
 
-    { id: 'd_empresa_cunas', cat: 'Formación profesional', n: '💼 Áreas del negocio · cuñas', d: 'Seis áreas, seis sectores.', est: 'mandala_cunas', pal: 'cuadricula', fmt: 'cuadrado', cont: 'empresa' },
-    { id: 'd_estudio_espiral', cat: 'Formación profesional', n: '🎯 Método · espiral', d: 'Los pasos en espiral: se vuelve a pasar por ellos.', est: 'mandala_espiral', pal: 'pizarra_negra', fmt: 'cuadrado', cont: 'estudio' },
-    { id: 'd_estudio_petalos', cat: 'Formación profesional', n: '🎯 Método · pétalos', d: 'Cinco pétalos y el hábito en el centro.', est: 'mandala_petalos', pal: 'pastel', fmt: 'cuadrado', cont: 'estudio' },
+    { id: 'd_empresa_cunas', cat: 'Nivel profesional', n: '💼 Áreas del negocio · cuñas', d: 'Seis áreas, seis sectores.', est: 'mandala_cunas', pal: 'cuadricula', fmt: 'cuadrado', cont: 'empresa' },
+    { id: 'd_estudio_espiral', cat: 'Nivel profesional', n: '🎯 Método · espiral', d: 'Los pasos en espiral: se vuelve a pasar por ellos.', est: 'mandala_espiral', pal: 'pizarra_negra', fmt: 'cuadrado', cont: 'estudio' },
+    { id: 'd_estudio_petalos', cat: 'Nivel profesional', n: '🎯 Método · pétalos', d: 'Cinco pétalos y el hábito en el centro.', est: 'mandala_petalos', pal: 'pastel', fmt: 'cuadrado', cont: 'estudio' },
 
     { id: 'd_estaciones_reloj', cat: 'Infantil y primaria', n: '🍂 Estaciones · reloj', d: 'El año como esfera: cuatro cuartos.', est: 'mandala_reloj', pal: 'infantil', fmt: 'cuadrado', cont: 'estaciones' },
     { id: 'd_animales_roseton', cat: 'Infantil y primaria', n: '🐾 Animales · rosetón', d: 'Círculos grandes para pegar una foto en cada uno.', est: 'mandala_roseton', pal: 'infantil', fmt: 'cuadrado', cont: 'infantil' },
@@ -881,10 +881,10 @@
     { id: 'p_feudal_franja', cat: 'Historia y sociales', n: '🏰 Sociedad feudal · franja', d: 'Los tres órdenes junto a un bloque de color.', est: 'pos_franja', pal: 'mandala_tierra', fmt: 'a3v', cont: 'edadmedia' },
     { id: 'p_indus_indice', cat: 'Historia y sociales', n: '🏭 Industrial · índice', d: 'Cronología reglada, línea a línea.', est: 'pos_indice', pal: 'editorial_edu', fmt: 'a3v', cont: 'historia', sincab: true },
 
-    { id: 'p_empresa_columnas', cat: 'Formación profesional', n: '💼 Plan de empresa · columnas', d: 'El plan entero en una hoja para el aula taller.', est: 'pos_columnas', pal: 'editorial_edu', fmt: 'a3v', cont: 'empresa', sincab: true },
-    { id: 'p_estudio_numeros', cat: 'Formación profesional', n: '🎯 Método · numerado', d: 'Los cinco pasos, grandes y en orden.', est: 'pos_numeros', pal: 'pizarra_negra', fmt: 'a3v', cont: 'estudio', sincab: true },
-    { id: 'p_estudio_cartel', cat: 'Formación profesional', n: '🎯 Estudiar mejor · cartel', d: 'Titular y tres claves: para el tablón de la biblioteca.', est: 'pos_cartel', pal: 'pizarra_negra', fmt: 'a3v', cont: 'car_estudio', sincab: true },
-    { id: 'p_evacuacion_aviso', cat: 'Formación profesional', n: '🚨 Evacuación · aviso', d: 'Instrucciones cortas, alto contraste, junto a la puerta.', est: 'pos_aviso', pal: 'semaforo', fmt: 'a3v', cont: 'evacuacion', sincab: true },
+    { id: 'p_empresa_columnas', cat: 'Nivel profesional', n: '💼 Plan de empresa · columnas', d: 'El plan entero en una hoja para el aula taller.', est: 'pos_columnas', pal: 'editorial_edu', fmt: 'a3v', cont: 'empresa', sincab: true },
+    { id: 'p_estudio_numeros', cat: 'Nivel profesional', n: '🎯 Método · numerado', d: 'Los cinco pasos, grandes y en orden.', est: 'pos_numeros', pal: 'pizarra_negra', fmt: 'a3v', cont: 'estudio', sincab: true },
+    { id: 'p_estudio_cartel', cat: 'Nivel profesional', n: '🎯 Estudiar mejor · cartel', d: 'Titular y tres claves: para el tablón de la biblioteca.', est: 'pos_cartel', pal: 'pizarra_negra', fmt: 'a3v', cont: 'car_estudio', sincab: true },
+    { id: 'p_evacuacion_aviso', cat: 'Nivel profesional', n: '🚨 Evacuación · aviso', d: 'Instrucciones cortas, alto contraste, junto a la puerta.', est: 'pos_aviso', pal: 'semaforo', fmt: 'a3v', cont: 'evacuacion', sincab: true },
 
     { id: 'p_normas_numeros', cat: 'Infantil y primaria', n: '📋 Normas del aula · numerado', d: 'Seis normas con su número, en letra grande.', est: 'pos_numeros', pal: 'infantil', fmt: 'a3v', cont: 'normas', sincab: true },
     { id: 'p_animales_rejilla', cat: 'Infantil y primaria', n: '🐾 Animales · rejilla', d: 'Fichas grandes con hueco para foto.', est: 'pos_rejilla', pal: 'infantil', fmt: 'a3h', cont: 'infantil', sincab: true },
@@ -924,10 +924,10 @@
     { id: 't_feudal_arco', cat: 'Historia y sociales', n: '🏰 Feudalismo · arco', d: 'Los órdenes como recorrido de lectura.', est: 'tl_arco', pal: 'mandala_tierra', fmt: 'a4h', cont: 'edadmedia' },
     { id: 't_indus_indice', cat: 'Historia y sociales', n: '🏭 Industrial · reglada', d: 'Etapa y explicación con filete.', est: 'tl_indice', pal: 'cuaderno', fmt: 'a4v', cont: 'historia' },
 
-    { id: 't_curso_hor', cat: 'Formación profesional', n: '📅 El curso · eje', d: 'Septiembre a junio de un vistazo.', est: 'tl_horizontal', pal: 'cuadricula', fmt: 'a4h', cont: 'crono_curso' },
-    { id: 't_empresa_esc', cat: 'Formación profesional', n: '💼 Montar el negocio · escalera', d: 'De la idea a la apertura, subiendo.', est: 'tl_escalera', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
-    { id: 't_pedido_ver', cat: 'Formación profesional', n: '📦 Pedido · eje vertical', d: 'Del proveedor a la estantería.', est: 'tl_vertical', pal: 'cuadricula', fmt: 'a4v', cont: 'proc_pedido' },
-    { id: 't_curso_indice', cat: 'Formación profesional', n: '📅 El curso · reglada', d: 'Mes y qué toca ese mes.', est: 'tl_indice', pal: 'editorial_edu', fmt: 'a4v', cont: 'crono_curso' },
+    { id: 't_curso_hor', cat: 'Nivel profesional', n: '📅 El curso · eje', d: 'Septiembre a junio de un vistazo.', est: 'tl_horizontal', pal: 'cuadricula', fmt: 'a4h', cont: 'crono_curso' },
+    { id: 't_empresa_esc', cat: 'Nivel profesional', n: '💼 Montar el negocio · escalera', d: 'De la idea a la apertura, subiendo.', est: 'tl_escalera', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
+    { id: 't_pedido_ver', cat: 'Nivel profesional', n: '📦 Pedido · eje vertical', d: 'Del proveedor a la estantería.', est: 'tl_vertical', pal: 'cuadricula', fmt: 'a4v', cont: 'proc_pedido' },
+    { id: 't_curso_indice', cat: 'Nivel profesional', n: '📅 El curso · reglada', d: 'Mes y qué toca ese mes.', est: 'tl_indice', pal: 'editorial_edu', fmt: 'a4v', cont: 'crono_curso' },
 
     { id: 't_estaciones_arco', cat: 'Infantil y primaria', n: '🍂 Estaciones · arco', d: 'El año como recorrido, en color plano.', est: 'tl_arco', pal: 'infantil', fmt: 'a4h', cont: 'estaciones' },
     { id: 't_agua_serp', cat: 'Infantil y primaria', n: '💧 Agua · serpentina', d: 'Fases grandes, letra grande.', est: 'tl_serpiente', pal: 'pastel', fmt: 'a4h', cont: 'agua' },
@@ -963,12 +963,12 @@
     { id: 'f_feudal_ciclo', cat: 'Historia y sociales', n: '🏰 Vasallaje · ciclo', d: 'Obligaciones que vuelven al punto de partida.', est: 'fl_ciclo', pal: 'mandala_tierra', fmt: 'cuadrado', cont: 'edadmedia' },
     { id: 'f_indus_embudo', cat: 'Historia y sociales', n: '🏭 Del campo a la fábrica · embudo', d: 'La población se concentra en la ciudad.', est: 'fl_embudo', pal: 'editorial_edu', fmt: 'a4v', cont: 'historia' },
 
-    { id: 'f_pedido_cadena', cat: 'Formación profesional', n: '📦 Pedido · cadena', d: 'Del control de stock al pago.', est: 'fl_cadena', pal: 'cuadricula', fmt: 'a4h', cont: 'proc_pedido' },
-    { id: 'f_pedido_carriles', cat: 'Formación profesional', n: '📦 Pedido · dos carriles', d: 'Qué hace el salón y qué el proveedor.', est: 'fl_carriles', pal: 'editorial_edu', fmt: 'a4h', cont: 'proc_pedido' },
-    { id: 'f_empresa_cadena', cat: 'Formación profesional', n: '💼 Montar el negocio · cadena', d: 'Los trámites en orden.', est: 'fl_cadena', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
-    { id: 'f_estudio_ciclo', cat: 'Formación profesional', n: '🎯 Método · ciclo', d: 'El repaso vuelve siempre al principio.', est: 'fl_ciclo', pal: 'pizarra_negra', fmt: 'cuadrado', cont: 'estudio' },
-    { id: 'f_evac_decision', cat: 'Formación profesional', n: '🚨 Evacuación · decisiones', d: 'Qué hacer y qué comprobar en cada paso.', est: 'fl_decision', pal: 'semaforo', fmt: 'a4v', cont: 'evacuacion' },
-    { id: 'f_empresa_embudo', cat: 'Formación profesional', n: '💼 Clientela · embudo', d: 'De la audiencia a la clientela fiel.', est: 'fl_embudo', pal: 'cuadricula', fmt: 'a4v', cont: 'empresa' },
+    { id: 'f_pedido_cadena', cat: 'Nivel profesional', n: '📦 Pedido · cadena', d: 'Del control de stock al pago.', est: 'fl_cadena', pal: 'cuadricula', fmt: 'a4h', cont: 'proc_pedido' },
+    { id: 'f_pedido_carriles', cat: 'Nivel profesional', n: '📦 Pedido · dos carriles', d: 'Qué hace el salón y qué el proveedor.', est: 'fl_carriles', pal: 'editorial_edu', fmt: 'a4h', cont: 'proc_pedido' },
+    { id: 'f_empresa_cadena', cat: 'Nivel profesional', n: '💼 Montar el negocio · cadena', d: 'Los trámites en orden.', est: 'fl_cadena', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
+    { id: 'f_estudio_ciclo', cat: 'Nivel profesional', n: '🎯 Método · ciclo', d: 'El repaso vuelve siempre al principio.', est: 'fl_ciclo', pal: 'pizarra_negra', fmt: 'cuadrado', cont: 'estudio' },
+    { id: 'f_evac_decision', cat: 'Nivel profesional', n: '🚨 Evacuación · decisiones', d: 'Qué hacer y qué comprobar en cada paso.', est: 'fl_decision', pal: 'semaforo', fmt: 'a4v', cont: 'evacuacion' },
+    { id: 'f_empresa_embudo', cat: 'Nivel profesional', n: '💼 Clientela · embudo', d: 'De la audiencia a la clientela fiel.', est: 'fl_embudo', pal: 'cuadricula', fmt: 'a4v', cont: 'empresa' },
 
     { id: 'f_normas_ciclo', cat: 'Infantil y primaria', n: '📋 Rutina del aula · ciclo', d: 'La jornada que se repite cada día.', est: 'fl_ciclo', pal: 'infantil', fmt: 'cuadrado', cont: 'normas' },
     { id: 'f_reciclaje_cadena', cat: 'Infantil y primaria', n: '♻️ Reciclaje · cadena', d: 'De la mano al contenedor correcto.', est: 'fl_cadena', pal: 'infantil', fmt: 'a4h', cont: 'reciclaje' },
@@ -1011,8 +1011,8 @@
     { id: 'g_frac_picto', cat: 'Matemáticas', n: '➗ Fracciones · pictograma', d: 'Casillas llenas y vacías para ver la parte.', est: 'dt_pictograma', pal: 'semaforo', fmt: 'a4h', cont: 'mates' },
     { id: 'g_tri_columnas', cat: 'Matemáticas', n: '📐 Triángulos · columnas', d: 'Clasificación en columnas comparables.', est: 'dt_columnas', pal: 'cuadricula', fmt: 'a4h', cont: 'geometria' },
 
-    { id: 'g_empresa_cifras', cat: 'Formación profesional', n: '💼 Plan de empresa · cifras', d: 'Los números que hay que defender.', est: 'dt_cifras', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
-    { id: 'g_empresa_progreso', cat: 'Formación profesional', n: '💼 Puesta en marcha · progreso', d: 'Qué está hecho y qué falta.', est: 'dt_progreso', pal: 'cuadricula', fmt: 'a4v', cont: 'empresa' },
+    { id: 'g_empresa_cifras', cat: 'Nivel profesional', n: '💼 Plan de empresa · cifras', d: 'Los números que hay que defender.', est: 'dt_cifras', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
+    { id: 'g_empresa_progreso', cat: 'Nivel profesional', n: '💼 Puesta en marcha · progreso', d: 'Qué está hecho y qué falta.', est: 'dt_progreso', pal: 'cuadricula', fmt: 'a4v', cont: 'empresa' },
 
     { id: 'g_normas_picto', cat: 'Infantil y primaria', n: '📋 Normas · pictograma', d: 'Casillas grandes y color primario.', est: 'dt_pictograma', pal: 'infantil', fmt: 'a4h', cont: 'normas' },
     { id: 'g_estaciones_donut', cat: 'Infantil y primaria', n: '🍂 Estaciones · anillo', d: 'El año partido en cuatro.', est: 'dt_donut', pal: 'pastel', fmt: 'cuadrado', cont: 'estaciones' },
@@ -1050,10 +1050,10 @@
     { id: 'c_area_venn', cat: 'Matemáticas', n: '📐 Área y perímetro · Venn', d: 'Para deshacer la confusión de siempre.', est: 'cp_venn', pal: 'pizarra', fmt: 'cuadrado', cont: 'cmp_area' },
     { id: 'c_tri_cuad', cat: 'Matemáticas', n: '📐 Triángulos · cuadrantes', d: 'Clasificación cruzada en cuatro casillas.', est: 'cp_cuadrantes', pal: 'cuadricula', fmt: 'cuadrado', cont: 'geometria' },
 
-    { id: 'c_forma_balanza', cat: 'Formación profesional', n: '💼 Autónomo o sociedad · balanza', d: 'Ventajas e inconvenientes de cada figura.', est: 'cp_balanza', pal: 'editorial_edu', fmt: 'a4h', cont: 'cmp_forma' },
-    { id: 'c_forma_col', cat: 'Formación profesional', n: '💼 Autónomo o sociedad · columnas', d: 'Dos bloques para decidir.', est: 'cp_columnas', pal: 'cuadricula', fmt: 'a4v', cont: 'cmp_forma' },
-    { id: 'c_dafo_empresa', cat: 'Formación profesional', n: '🧭 DAFO · cuadrantes', d: 'El análisis de siempre, en rejilla limpia.', est: 'cp_cuadrantes', pal: 'pizarra_negra', fmt: 'a4h', cont: 'cmp_dafo' },
-    { id: 'c_empresa_cuad', cat: 'Formación profesional', n: '💼 Plan de empresa · cuadrantes', d: 'Cuatro bloques del plan en una hoja.', est: 'cp_cuadrantes', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
+    { id: 'c_forma_balanza', cat: 'Nivel profesional', n: '💼 Autónomo o sociedad · balanza', d: 'Ventajas e inconvenientes de cada figura.', est: 'cp_balanza', pal: 'editorial_edu', fmt: 'a4h', cont: 'cmp_forma' },
+    { id: 'c_forma_col', cat: 'Nivel profesional', n: '💼 Autónomo o sociedad · columnas', d: 'Dos bloques para decidir.', est: 'cp_columnas', pal: 'cuadricula', fmt: 'a4v', cont: 'cmp_forma' },
+    { id: 'c_dafo_empresa', cat: 'Nivel profesional', n: '🧭 DAFO · cuadrantes', d: 'El análisis de siempre, en rejilla limpia.', est: 'cp_cuadrantes', pal: 'pizarra_negra', fmt: 'a4h', cont: 'cmp_dafo' },
+    { id: 'c_empresa_cuad', cat: 'Nivel profesional', n: '💼 Plan de empresa · cuadrantes', d: 'Cuatro bloques del plan en una hoja.', est: 'cp_cuadrantes', pal: 'editorial_edu', fmt: 'a4h', cont: 'empresa' },
 
     { id: 'c_estudio_balanza', cat: 'Estudio y método', n: '🎯 Solo o en grupo · balanza', d: 'Cuándo compensa cada uno.', est: 'cp_balanza', pal: 'pizarra_negra', fmt: 'a4h', cont: 'cmp_estudio' },
     { id: 'c_estudio_col', cat: 'Estudio y método', n: '🎯 Solo o en grupo · columnas', d: 'Listas enfrentadas para la tutoría.', est: 'cp_columnas', pal: 'cuaderno', fmt: 'a4v', cont: 'cmp_estudio' },
@@ -1088,10 +1088,10 @@
 
     { id: 'p_salon_org', cat: 'Peluquería y estética', n: '🏛 Salón · organigrama', d: 'Dirección, técnica y recepción con sus tareas.', est: 'pr_organigrama', pal: 'editorial_edu', fmt: 'a4h', cont: 'org_salon' },
     { id: 'p_salon_escal', cat: 'Peluquería y estética', n: '🏛 Salón · escalones', d: 'Los niveles de responsabilidad, en peldaños.', est: 'pr_escalones', pal: 'cuadricula', fmt: 'a4h', cont: 'org_salon' },
-    { id: 'p_centro_org', cat: 'Formación profesional', n: '🏛 Centro · organigrama', d: 'La estructura del instituto en una hoja.', est: 'pr_organigrama', pal: 'cuadricula', fmt: 'a4h', forma: 'recta', cont: 'org_centro' },
-    { id: 'p_empresa_org', cat: 'Formación profesional', n: '💼 Empresa · organigrama', d: 'Cabeza y áreas, con sus funciones debajo.', est: 'pr_organigrama', pal: 'pizarra_negra', fmt: 'a4h', cont: 'empresa' },
-    { id: 'p_derecho_pir', cat: 'Formación profesional', n: '⚖️ Jerarquía de normas · pirámide', d: 'Cuál manda sobre cuál.', est: 'pr_piramide', pal: 'humanidades', fmt: 'a4v', cont: 'pir_derecho' },
-    { id: 'p_derecho_capas', cat: 'Formación profesional', n: '⚖️ Normas · capas', d: 'Cuatro bandas, de la Constitución al contrato.', est: 'pr_capas', pal: 'editorial_edu', fmt: 'a4v', cont: 'pir_derecho' },
+    { id: 'p_centro_org', cat: 'Nivel profesional', n: '🏛 Centro · organigrama', d: 'La estructura del instituto en una hoja.', est: 'pr_organigrama', pal: 'cuadricula', fmt: 'a4h', forma: 'recta', cont: 'org_centro' },
+    { id: 'p_empresa_org', cat: 'Nivel profesional', n: '💼 Empresa · organigrama', d: 'Cabeza y áreas, con sus funciones debajo.', est: 'pr_organigrama', pal: 'pizarra_negra', fmt: 'a4h', cont: 'empresa' },
+    { id: 'p_derecho_pir', cat: 'Nivel profesional', n: '⚖️ Jerarquía de normas · pirámide', d: 'Cuál manda sobre cuál.', est: 'pr_piramide', pal: 'humanidades', fmt: 'a4v', cont: 'pir_derecho' },
+    { id: 'p_derecho_capas', cat: 'Nivel profesional', n: '⚖️ Normas · capas', d: 'Cuatro bandas, de la Constitución al contrato.', est: 'pr_capas', pal: 'editorial_edu', fmt: 'a4v', cont: 'pir_derecho' },
 
     { id: 'p_texto_pir', cat: 'Lengua y humanidades', n: '📝 De la letra al texto · pirámide invertida', d: 'La unidad grande arriba y la mínima abajo.', est: 'pr_invertida', pal: 'cuaderno', fmt: 'a4v', cont: 'pir_texto' },
     { id: 'p_texto_escal', cat: 'Lengua y humanidades', n: '📝 Unidades de la lengua · escalones', d: 'Cada nivel se apoya en el anterior.', est: 'pr_escalones', pal: 'humanidades', fmt: 'a4h', cont: 'pir_texto' },
@@ -1143,7 +1143,7 @@
     { id: 'f_metodo_resumen', cat: 'Estudio y método', n: '📚 Método de estudio · resumen', d: 'Los pasos numerados y la idea de cierre.', est: 'fc_resumen', pal: 'cuaderno', fmt: 'a4v', cont: 'estudio' },
     { id: 'f_metodo_tarjetas', cat: 'Estudio y método', n: '📚 Método · tarjetas', d: 'Un paso por tarjeta.', est: 'fc_tarjetas', pal: 'pizarra_negra', fmt: 'a4h', cont: 'estudio' },
 
-    { id: 'f_empresa_pregunta', cat: 'Formación profesional', n: '❓ Plan de empresa · pregunta', d: 'Una pregunta de defensa y sus respuestas.', est: 'fc_pregunta', pal: 'editorial_edu', fmt: 'a4v', cont: 'empresa' },
+    { id: 'f_empresa_pregunta', cat: 'Nivel profesional', n: '❓ Plan de empresa · pregunta', d: 'Una pregunta de defensa y sus respuestas.', est: 'fc_pregunta', pal: 'editorial_edu', fmt: 'a4v', cont: 'empresa' },
 
     { id: 'f_neutro_cornell', cat: 'Plantilla en blanco', n: '⬜ En blanco · Cornell', d: 'Columna de claves y cuerpo vacíos.', est: 'fc_cornell', pal: 'cuaderno', fmt: 'a4v', cont: 'neutro' }
   ];

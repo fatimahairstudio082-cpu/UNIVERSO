@@ -82,7 +82,7 @@
     juego: { n: 'Juego', d: 'Letra grande y redonda, colores cálidos, formas suaves. Para 3–8 años.', tit: "'Baloo 2', 'Andika', sans-serif", cuerpo: "'Andika', sans-serif", bg: '#FFF8EC', ink: '#2A2238', acc: '#E0582A', acc2: '#1E8C80', soft: '#FFE6D3', soft2: '#DDF3EF', r: 16, peso: 700 },
     cuaderno: { n: 'Cuaderno', d: 'Pauta de cuaderno, tinta azul y rótulos limpios. Para primaria.', tit: "'Lexend', sans-serif", cuerpo: "'Andika', sans-serif", bg: '#FCFCF7', ink: '#1F2A44', acc: '#2F63C7', acc2: '#B7791F', soft: '#E6EEFC', soft2: '#FBF0DC', r: 8, peso: 600, pauta: true },
     editorial: { n: 'Editorial', d: 'Serifa de libro de texto, márgenes amplios y titulares con peso. Para secundaria y bachillerato.', tit: "'Source Serif 4', Georgia, serif", cuerpo: "'Source Serif 4', Georgia, serif", bg: '#FBF8F2', ink: '#1E1B18', acc: '#A0301C', acc2: '#1F5F7A', soft: '#F1E8DA', soft2: '#E3EEF2', r: 0, peso: 700 },
-    tecnica: { n: 'Técnica', d: 'Retícula milimetrada, tablas y cifras tabulares. Para FP, contabilidad y dibujo técnico.', tit: "'IBM Plex Sans', sans-serif", cuerpo: "'IBM Plex Sans', sans-serif", mono: "'IBM Plex Mono', monospace", bg: '#FFFFFF', ink: '#15202B', acc: '#0F5C8C', acc2: '#B4441A', soft: '#E7F0F6', soft2: '#FBEDE6', r: 2, peso: 600, reticula: true },
+    tecnica: { n: 'Técnica', d: 'Retícula milimetrada, tablas y cifras tabulares. Para nivel profesional, contabilidad y dibujo técnico.', tit: "'IBM Plex Sans', sans-serif", cuerpo: "'IBM Plex Sans', sans-serif", mono: "'IBM Plex Mono', monospace", bg: '#FFFFFF', ink: '#15202B', acc: '#0F5C8C', acc2: '#B4441A', soft: '#E7F0F6', soft2: '#FBEDE6', r: 2, peso: 600, reticula: true },
     sobria: { n: 'Sobria', d: 'Lectura tranquila, sin infantilizar. Para personas adultas.', tit: "'Literata', Georgia, serif", cuerpo: "'Literata', Georgia, serif", bg: '#FAFAF8', ink: '#222222', acc: '#2F5D50', acc2: '#8A5A2B', soft: '#E7EEEB', soft2: '#F3EBE2', r: 4, peso: 600 }
   };
   var FUENTES = 'https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400&family=Baloo+2:wght@500;700&family=Lexend:wght@300;400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap';
@@ -118,6 +118,9 @@
     { id: 'trabajo', n: 'Trabajo del alumno', ico: '🎒', d: 'Portada, índice, introducción, desarrollo, conclusión y bibliografía APA.', sol: false },
     { id: 'ebook', n: 'Ebook interactivo', ico: '📱', d: 'El libro con respuestas que se comprueban solas y lectura en voz alta.', sol: true }
   ];
+
+  /* curso · etapa sin repetir el nivel («Principiante 3», no «Principiante 3 · Principiante») */
+  function etq(C) { var n = (C.N && C.N.n) || ''; return !n || String(C.cursoN).indexOf(n) === 0 ? C.cursoN : C.cursoN + ' · ' + n; }
 
   /* ─────────── contexto ─────────── */
   function contexto(cfg) {
@@ -816,7 +819,7 @@
   var RENDER = {
     portada: function (pg, C, modo, ctx) {
       var T = C.T, img = C.cfg.portadaImg;
-      var sub1 = C.libre ? esc(C.cfg.subtitulo || C.subtitulo || '') : esc(C.cursoN) + ' · ' + esc(C.N.n), marco = C.libre ? esc(C.P.id === 'us' ? 'Estados Unidos' : C.P.n) : esc(C.P.marcoCorto) + ' · ' + esc(C.P.id === 'us' ? 'Estados Unidos' : C.P.n);
+      var sub1 = C.libre ? esc(C.cfg.subtitulo || C.subtitulo || '') : esc(etq(C)), marco = C.libre ? esc(C.P.id === 'us' ? 'Estados Unidos' : C.P.n) : esc(C.P.marcoCorto) + ' · ' + esc(C.P.id === 'us' ? 'Estados Unidos' : C.P.n);
       var deco = T.id === 'juego' ? '<div style="position:absolute;right:-30mm;top:-30mm;width:120mm;height:120mm;border-radius:50%;background:' + T.soft + '"></div><div style="position:absolute;left:-20mm;bottom:40mm;width:70mm;height:70mm;border-radius:50%;background:' + T.soft2 + '"></div>'
         : T.id === 'editorial' ? '<div style="position:absolute;left:17mm;right:17mm;top:16mm;border-top:1.4mm solid ' + T.ink + '"></div><div style="position:absolute;left:17mm;right:17mm;top:19mm;border-top:0.3mm solid ' + T.ink + '"></div>'
           : T.id === 'tecnica' ? '<div style="position:absolute;left:0;top:0;bottom:0;width:9mm;background:' + T.acc + '"></div>' : '<div style="position:absolute;left:17mm;top:16mm;width:24mm;height:1.2mm;background:' + T.acc + '"></div>';
@@ -864,7 +867,7 @@
           (caja >= 30 ? '<div style="margin-top:6mm;height:' + caja + 'mm;box-sizing:border-box;border:2px dashed ' + C.T.acc + ';border-radius:4mm;opacity:.75;display:flex;align-items:flex-end;justify-content:center;padding:3mm;font-size:.9em">Dibújate aquí</div>' : '');
       }
       return arriba + '<div style="font-size:.82em;line-height:1.6;margin-top:' + (arriba ? 6 : 0) + 'mm' + (arriba ? ';padding-top:3mm;border-top:1px solid ' + C.T.soft : '') + '">' +
-        '<p style="margin:0 0 3mm"><b>' + esc(C.titulo) + '</b><br/>' + (C.libre ? esc(C.matN) : esc(C.cursoN) + ' · ' + esc(C.N.n)) + '</p>' +
+        '<p style="margin:0 0 3mm"><b>' + esc(C.titulo) + '</b><br/>' + (C.libre ? esc(C.matN) : esc(etq(C))) + '</p>' +
         '<p style="margin:0 0 3mm">Autoría: ' + esc(C.cfg.autor || '________________') + '<br/>' + (C.cfg.centro ? 'Centro: ' + esc(C.cfg.centro) + '<br/>' : '') + (C.libre ? '' : 'Referente curricular: ') + esc(C.libre ? '' : C.P.marco) + '</p>' +
         (ed ? '<p style="margin:0 0 3mm">ISBN: ________________ · Depósito legal: ________________<br/>Edición: 1.ª, ' + y + '</p>' : '') +
         '<p style="margin:0">© ' + y + ' ' + esc(C.cfg.autor || 'la autora o el autor') + '. ' + (ed ? 'Reservados todos los derechos.' : 'Material de uso educativo.') + ' Maquetado con Estudio Universal.</p></div>';
@@ -978,7 +981,7 @@
       }).join('') + '</div>' + folio(C, pg);
     },
     bibliografia: function (pg, C) {
-      var refs = [C.P.autoridad + '. ' + C.P.marco + '.'];
+      var refs = [(C.P.autoridad ? C.P.autoridad + '. ' : '') + C.P.marco + '.'];
       refs = refs.concat(apa(C.cfg.fuentes));
       /* (10-10-2026) la hoja quedaba casi vacía: debajo, «Cómo citar este libro» (con los datos del propio libro) y «Mis notas» hasta el final de la hoja */
       var px = 25.4 / 96, Lh = C.fs * (C.cfg.facil || C.cfg.dislexia ? 1.8 : 1.5) * px, cpl = Math.max(16, Math.floor((C.papel.w - 42) / (C.fs * (C.cfg.dislexia ? .6 : .53) * px))), y = new Date().getFullYear();
@@ -994,13 +997,13 @@
       var T = C.T;
       return '<div style="position:absolute;inset:0;background:' + (T.id === 'editorial' || T.id === 'sobria' ? T.ink : T.acc) + ';color:#fff;padding:30mm 20mm;box-sizing:border-box;display:flex;flex-direction:column;justify-content:flex-end">' +
         '<div style="font-family:' + T.tit + ';font-size:' + (C.fs * 2) + 'px;font-weight:' + T.peso + ';line-height:1.15;max-width:120mm">' + esc(C.titulo) + '</div>' +
-        '<p style="max-width:120mm;margin:4mm 0 0">' + esc(C.cursoN) + ' · ' + esc(C.N.n) + '. ' + esc(C.P.marcoCorto) + '.</p>' + (C.usuario === 'editorial' ? '<div style="margin-top:10mm;width:50mm;height:22mm;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-size:.8em">Código de barras ISBN</div>' : '') + '</div>';
+        '<p style="max-width:120mm;margin:4mm 0 0">' + esc(etq(C)) + '. ' + esc(C.P.marcoCorto) + '.</p>' + (C.usuario === 'editorial' ? '<div style="margin-top:10mm;width:50mm;height:22mm;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-size:.8em">Código de barras ISBN</div>' : '') + '</div>';
     },
     /* Unidad didáctica */
     ud_portada: function (pg, C) {
       var u = pg.u, ses = Math.max(4, (u.i || []).length * 2);
       return cabecera(C, pg) + '<div style="font-size:.8em;letter-spacing:.12em;text-transform:uppercase;color:' + C.T.acc + ';font-weight:700">Unidad didáctica ' + pg.n + '</div>' + h1(C, esc(sub(u.t, C))) +
-        tabla(C, [['Etapa y curso', C.N.n + ' · ' + C.cursoN], ['Área / asignatura', C.matN], ['Referente curricular', C.P.marco], ['Temporalización', ses + ' sesiones de ' + (C.peque ? 45 : 55) + ' minutos'], ['Docente', C.cfg.autor || ''], ['Centro', C.cfg.centro || '']]) + folio(C, pg);
+        tabla(C, [['Nivel', etq(C)], ['Área / asignatura', C.matN], ['Referente curricular', C.P.marco], ['Temporalización', ses + ' sesiones de ' + (C.peque ? 45 : 55) + ' minutos'], ['Docente', C.cfg.autor || ''], ['Centro', C.cfg.centro || '']]) + folio(C, pg);
     },
     ud_marco: function (pg, C) {
       var u = pg.u;

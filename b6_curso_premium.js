@@ -209,7 +209,7 @@
       } else {
         var bx = 48, by = 118, bw = e.rot.length ? 840 : 1184, bh = 440;
         x.fillStyle = '#FFFFFF'; x.fillRect(bx, by, bw, bh);
-        if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, cur.fin || e.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
+        if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, e.fin ? 1 : cur.ad ? pAnim() : cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
         else if (im && im.complete && im.naturalWidth) { var r = Math.min(bw / im.naturalWidth, bh / im.naturalHeight); var w = im.naturalWidth * r, h = im.naturalHeight * r; x.drawImage(im, bx + (bw - w) / 2, by + (bh - h) / 2, w, h); }
         var low = e.texto.toLowerCase(), ry = by + 10;
         e.rot.forEach(function (rt) {
@@ -236,7 +236,7 @@
     function mini(m, i, t) {
       var e = m.e, g = m.g, im = img(e.id); g.fillStyle = T.bg; g.fillRect(0, 0, 320, 180);
       if (e.tipo === 'pregunta') { g.fillStyle = T.acc; g.font = '600 96px ' + T.tit; g.textAlign = 'center'; g.fillText('?', 160, 124); g.textAlign = 'start'; return; }
-      var p = e.fin ? 1 : i === cur.k && cur.play ? (cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
+      var p = e.fin ? 1 : i === cur.k && cur.play ? (cur.ad ? pAnim() : cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
       if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(g, D.anim[e.anim], im, 0, 0, 320, 180, p);
       else if (im && im.complete && im.naturalWidth) { var r = Math.min(320 / im.naturalWidth, 180 / im.naturalHeight); g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 180); g.drawImage(im, (320 - im.naturalWidth * r) / 2, (180 - im.naturalHeight * r) / 2, im.naturalWidth * r, im.naturalHeight * r); }
       else { g.fillStyle = T.txt; g.font = '600 22px ' + T.tit; ajustaEn(g, e.t, 290).slice(0, 4).forEach(function (l, j) { g.fillText(l, 16, 44 + j * 30); }); }
@@ -251,12 +251,15 @@
     var raf = 0; function bucle() { if (cur.play && !cur.b && !cur.fin) { cur.pos = Math.max(cur.pos, (performance.now() - cur.t0) / 1000 * 14.5 * (cur.vel || 1)); } pinta(); minis(); raf = requestAnimationFrame(bucle); }
     bucle();
 
+    function pAnim() { return Math.min(1, (performance.now() - cur.ta0) / Math.max(1, cur.ad)); }
     function escena(k, alAcabar) {
       var L = cur.L, e = L.escenas[k]; cur.k = k; cur.pos = 0; cur.fin = false; cur.rev = false; cur.b = false; cur.t0 = performance.now();
+      /* Fátima, 18-10-2026: la animación va más lenta que la voz (×1,4, mínimo 8 s) y la escena siguiente espera a que termine */
+      cur.ta0 = performance.now(); cur.ad = e.anim && !e.fin && e.tipo !== 'pregunta' ? Math.max(8000, e.texto.length / 14.5 * 1000 * 1.4) / (cur.vel || 1) : 0;
       pintaPregunta(e); textoBajo(e);
       var sigue = function () {
         if (e.tipo === 'pregunta' && !cur.rev) { setTimeout(function () { if (!cur.play) return; cur.rev = true; textoBajo(e); habla(e.sol, function () { setTimeout(alAcabar, 900); }); }, 3500); return; }
-        cur.fin = true; setTimeout(alAcabar, 700);
+        cur.fin = true; setTimeout(alAcabar, 700 + (cur.ad ? Math.max(0, cur.ad - (performance.now() - cur.ta0)) : 0));
       };
       habla(e.texto, sigue);
     }
@@ -300,7 +303,7 @@
     }
     function textoBajo(e) { $('#bajo').textContent = e.tipo === 'pregunta' && cur.rev ? e.sol : e.texto; }
     function abre(L) {
-      para(); cur.L = L; cur.k = 0; cur.pos = 0; cur.fin = false;
+      para(); cur.L = L; cur.k = 0; cur.pos = 0; cur.fin = false; cur.ad = 0;
       $('#tl').textContent = L.t; var ix = LEC.indexOf(L); $('#pos').textContent = 'Módulo ' + (L.mi + 1) + ' · Lección ' + (L.li + 1) + ' de ' + D.modulos[L.mi].lecciones.length + ' · ' + (ix + 1) + '/' + LEC.length;
       $('#ant').disabled = ix <= 0; $('#sig').disabled = ix >= LEC.length - 1; document.body.classList.remove('verMenu'); $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
       $('#reproductor').style.display = ''; $('#zonaTest').style.display = 'none'; textoBajo(L.escenas[0]); pintaPregunta(L.escenas[0]);
@@ -348,8 +351,10 @@
     /* certificado profesional (Fátima, 9-10-2026): firma y sello de Fátima Caldea, horas del curso
        cronometradas con la narración y los tests, número de certificado y descarga en PDF A4 apaisado (sin librerías) */
     function horasCurso() {
+      if (D.horasOficiales) return D.horasOficiales;   /* (18-10-2026, Fátima) cifra oficial del programa: Peluquería ≈ 600 h */
+      if (D.minTotal) return Math.max(1, Math.ceil(D.minTotal / 60));   /* (18-10-2026, Fátima) la misma cifra total que Hotmart: lecciones + tests y examen + audio del libro */
       var seg = 0, nq = (D.examen || []).length;
-      D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { L.escenas.forEach(function (e) { seg += String(e.texto || '').length / 14.5 + 2 + (e.tipo === 'pregunta' ? 20 : 0); }); }); });
+      D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { L.escenas.forEach(function (e) { var nl = String(e.texto || '').length / 14.5; seg += e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 : nl + 2 + (e.tipo === 'pregunta' ? 20 : 0); });   /* (18-10-2026) cada escena animada dura lo que dura su animación, como al reproducir */ }); });
       seg += nq * 45;
       return Math.max(1, Math.ceil(seg / 3600));
     }
@@ -415,7 +420,7 @@
       g.strokeStyle = ORO; g.lineWidth = 2; g.beginPath(); g.moveTo(W / 2 - 600, 720); g.lineTo(W / 2 + 600, 720); g.stroke();
       centro('ha completado con éxito el curso', 800, 'italic 42px ' + T.tit, T.txt);
       ajustaT(D.titulo, W - 600, '600 66px ' + T.tit).slice(0, 2).forEach(function (l, i) { centro(l, 890 + i * 78, '600 66px ' + T.tit, T.acc); });
-      centro(D.modulos.length + ' módulos · ' + LEC.length + ' lecciones · ' + horas + (horas === 1 ? ' hora' : ' horas') + ' · examen final: ' + ST.examen + ' %', 1060, '36px ' + T.tit, T.txt);
+      centro(D.modulos.length + ' módulos · ' + LEC.length + ' lecciones · ' + (D.horasOficiales ? 'aprox. ' + horas + ' horas de formación técnica y práctica' : horas + (horas === 1 ? ' hora' : ' horas')) + ' · examen final: ' + ST.examen + ' %', 1060, '36px ' + T.tit, T.txt);
       centro('Expedido el ' + new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }), 1120, '34px ' + T.tit, T.txt);
       /* firma y sello */
       var fx = 560, ly = 1390;
@@ -524,10 +529,40 @@
       '<div id="zonaTest" style="display:none"></div></main></div><button id="cerrarMenu" class="cta" style="position:fixed;top:10px;right:10px;z-index:21">✕ Cerrar</button><script>(' + REPRODUCTOR.toString() + ')();<\/script></body></html>';
   }
 
-  function hotmart(z, D) {
+  /* 18-10-2026 (Fátima: «cuenta el audio de todo el libro y del curso, son veintipico módulos»): duración total en minutos =
+     lecciones (cada escena animada lo que dura su animación) + 45 s por pregunta de test y examen + narración del libro entero (14,5 letras/s) */
+  function minLeccion(L) { var seg = 0; (L.escenas || []).forEach(function (e) { var nl = (String(e.texto || '').length + String(e.sol || '').length) / 14.5; seg += e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 : nl + 2; }); return seg / 60; }
+  function audioLibro(res) {
+    if (!res) return 0; if (res._audioLibro != null) return res._audioLibro;
+    var ED = window.EU_EDITORIAL, LA = window.EU_PELU_LIBRO_ANIM, seg = 0;
+    (res.pages || []).forEach(function (pg) {
+      try {
+        /* página animada: cada escena dura lo que su animación en el libro (mín. 8 s, ×1,4) */
+        var d = pg.tipo === 'pe_animada' && LA && LA.datos ? LA.datos(pg.tec) : null;
+        if (d) d.E.escenas.forEach(function (e) { seg += Math.max(8, String(e.texto || '').length / 14.5 * 1.4) + 0.7; });
+        else seg += String(ED.textoVoz(pg, res.C) || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().length / 14.5;
+      } catch (e) { }
+    });
+    return (res._audioLibro = seg / 60);
+  }
+  function duracion(res, D) {
+    var lec = 0, nq = (D.examen || []).length; D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { lec += minLeccion(L); }); });
+    var o = { lecciones: lec, tests: nq * 0.75, libro: audioLibro(res) }; o.total = o.lecciones + o.tests + o.libro;
+    o.oficial = HORAS_OFICIALES[(res.C && res.C.mat) || ''] || 0;   /* horas oficiales del programa (formación técnica y práctica), 0 = sin cifra oficial */
+    return o;
+  }
+  /* 18-10-2026 (Fátima): duración oficial del programa de Peluquería = aproximadamente 600 horas de formación técnica y práctica (12 meses de taller y estudio) */
+  var HORAS_OFICIALES = { pelu: 600 };
+  function hotmart(z, D, meses, du) {
     var raiz = 'hotmart/';
     z.file(raiz + 'LEEME.txt', 'Estructura para Hotmart, Teachable o similar.\nCada carpeta es un módulo y cada .txt una lección: título, descripción, página del libro y guion.\n' +
-      'Graba los vídeos abriendo curso/index.html#grabar («Grabar todos los vídeos»): cada archivo sale con el mismo nombre que su lección (M01-L02-…).\nGuárdalos en su carpeta y súbelos lección por lección. Adjunta el libro en PDF como material descargable.\n');
+      'Graba los vídeos abriendo curso/index.html#grabar («Grabar todos los vídeos»): cada archivo sale con el mismo nombre que su lección (M01-L02-…).\nGuárdalos en su carpeta y súbelos lección por lección. Adjunta el libro en PDF como material descargable.\n' +
+      (du && du.oficial ? 'Duración total oficial: aproximadamente ' + du.oficial + ' horas de formación técnica y práctica' + (meses ? ' (equivalente a los ' + meses + (meses === 1 ? ' mes' : ' meses') + ' de taller y estudio)' : '') + '.\n' : '') +
+      (du ? (du.oficial ? 'Contenido lectivo: ' : 'Duración total: ') + h1(du.total) + ' h (lecciones ' + h1(du.lecciones) + ' h · tests y examen ' + h1(du.tests) + ' h · audio del libro ' + h1(du.libro) + ' h).\n' : '') +
+      (meses ? 'Duración del programa (con práctica): ' + meses + (meses === 1 ? ' mes' : ' meses') + '.\n' : '') +
+      /* 18-10-2026 (Fátima): diferencia pedagógica entre horas lectivas y práctica de taller */
+      (du ? 'Horas lectivas y práctica: las ' + h1(du.total) + ' h son de contenido lectivo directo y narración animada. El tiempo de práctica real del alumno comprende ' + (du.oficial ? 'el resto de las ' + du.oficial + ' horas oficiales, en taller ' : 'cientos de horas de taller ') + (meses ? 'a lo largo de los ' + meses + (meses === 1 ? ' mes' : ' meses') + ' del programa' : 'a lo largo del programa') + ', ya que cada técnica requiere pausar, dividir y practicar sobre el maniquí hasta dominar el procedimiento.\n' : ''));
+    function h1(m) { return (m / 60).toFixed(1).replace('.', ','); }
     D.modulos.forEach(function (M, i) {
       var dir = raiz + 'Modulo-' + dos(i + 1) + '-' + slug(M.t) + '/';
       M.lecciones.forEach(function (L, j) {
@@ -585,6 +620,7 @@
       var z = new JSZip(), base = slug(D.titulo) + '-premium/';
       Object.keys(VIDEOS).forEach(function (n) { z.file(base + 'curso/' + n, VIDEOS[n]); });
       /* index.html autónomo: datos y animaciones dentro (abierto desde el gestor de archivos del móvil, los <script src> sueltos no cargan) */
+      var du0 = duracion(res, D); D.minTotal = du0.total; D.horasOficiales = du0.oficial;   /* certificado = duración total, u oficial si la hay (18-10-2026) */
       var datosIn = '<script>window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';<\/script>';
       var animIn = D.anim && window.EU_CURSO_ANIM ? '<script>' + EU_CURSO_ANIM.js().replace(/<\//g, '<\\/') + '<\/script>' : '';
       z.file(base + 'curso/index.html', cursoHTML(D).replace('<script src="datos.js"></script>', function () { return datosIn; }).replace('<script src="anim.js"></script>', function () { return animIn; }));
@@ -602,7 +638,7 @@
       z.file(base + 'laminas/index.html', '<!DOCTYPE html><meta charset="utf-8"><title>Láminas</title><body style="font-family:Georgia,serif;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:16px">' +
         li.map(function (f) { return '<figure style="margin:0"><img src="' + f + '" style="width:100%;border:1px solid #ddd"><figcaption style="font-size:13px">' + f.replace(/\.(jpg|svg)$/, '').replace(/-/g, ' ') + '</figcaption></figure>'; }).join('') + '</body>');
       z.file(base + 'guion-voz.txt', guionTXT(D));
-      hotmart(z, D);
+      var mA = ((res.C && res.C.cfg && res.C.cfg.acab) || {}).meses; hotmart(z, D, mA != null && mA !== '' ? +mA || 0 : res.C && res.C.mat === 'pelu' ? 12 : 0, duracion(res, D));
       var nL = 0, nV = 0; D.modulos.forEach(function (M) { nL += M.lecciones.length; M.lecciones.forEach(function (L) { if (L.video) nV++; }); });
       z.file(base + 'LEEME.txt', D.titulo + ' — paquete premium\n\n' +
         '1. curso/index.html — el curso: ' + D.modulos.length + ' módulos, ' + nL + ' lecciones (' + nV + ' vídeos paso a paso), tests, examen final y certificado. Funciona sin internet; la voz es la «Google español» de Chrome.\n' +
@@ -632,5 +668,5 @@
   }
   if (!enganchar()) (function espera(n) { if (!enganchar() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
 
-  window.EU_CURSO_PREMIUM = { construir: construir, imagenes: imagenes, cursoHTML: cursoHTML, guion: guionTXT, paquete: paquete };
+  window.EU_CURSO_PREMIUM = { duracion: duracion, audioLibro: audioLibro, construir: construir, imagenes: imagenes, cursoHTML: cursoHTML, guion: guionTXT, paquete: paquete };
 })();

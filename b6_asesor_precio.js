@@ -82,7 +82,7 @@
       preg += (M.test || []).length;
       M.lecciones.forEach(function (l) {
         L++; if (l.video) V++; if (/__pizarra$/.test(l.id || '')) piz++; if (l.animada || /^(Diagramación|Clase|Técnica|Variante) ·/.test(l.t || '')) anim++;
-        (l.escenas || []).forEach(function (e) { esc_++; letras += String(e.texto || '').length + String(e.sol || '').length; });
+        (l.escenas || []).forEach(function (e) { esc_++; var nl = (String(e.texto || '').length + String(e.sol || '').length) / 14.5; letras += (e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 - 2 : nl) * 14.5; });   /* (18-10-2026) escenas animadas: su duración real */
       });
     });
     preg += (D.examen || []).length;
@@ -101,8 +101,9 @@
 
   function panel(ed, D, caja) {
     var res = ed.res, C = res.C, pk = PAISES[C.pk] ? C.pk : 'es', cfg = C.cfg || {};
-    var S = escanea(res), K = cursoDatos(D), prof = !!(C.adulto || /^(fp|adu)$/.test(cfg.nivel) || OFICIO.test(C.mat || cfg.materia || ''));
+    var S = escanea(res), K = cursoDatos(D), CPd = window.EU_CURSO_PREMIUM, prof = !!(C.adulto || /^(fp|adu)$/.test(cfg.nivel) || OFICIO.test(C.mat || cfg.materia || ''));
     var extra = K.animadas > 0 || K.pizarra > 0;
+    if (CPd && CPd.duracion) { var du = CPd.duracion(res, D); K.horas = du.oficial || du.total / 60; K.oficial = du.oficial; }   /* oficial: Peluquería ≈ 600 h (18-10-2026) */
     var tL = escalon(LIBRO, S.hojas), tC = escalon(CURSO, K.horas);
     var uL = recomienda(tL, prof, extra), uC = recomienda(tC, prof, extra);
     var T = '#16223A', O = '#B08D57';
@@ -126,7 +127,7 @@
     var conPiz = res.pages.some(function (q) { return q.tipo === 'tutor'; });
     var incL = 'libro interactivo con voz' + (conPiz ? ' y pizarra del tutor' : '') + ', PDF imprimible y EPUB · ' + S.hojas + ' hojas';
     var incC = K.modulos + ' módulos, ' + K.lecciones + ' lecciones (' + K.videos + ' en vídeo), ' + K.preguntas + ' preguntas de test y examen, certificado y el libro completo';
-    var tiles = [['Hojas', S.hojas], ['Módulos', K.modulos], ['Lecciones', K.lecciones], ['Vídeos', K.videos], ['Horas aprox.', K.horas.toFixed(1).replace('.', ',')], ['Preguntas', K.preguntas], ['Lecciones animadas', K.animadas], ['Lecciones de pizarra', K.pizarra]]
+    var tiles = [['Hojas', S.hojas], ['Módulos', K.modulos], ['Lecciones', K.lecciones], ['Vídeos', K.videos], [K.oficial ? 'Horas oficiales' : 'Horas aprox.', K.oficial ? '≈ ' + K.oficial : K.horas.toFixed(1).replace('.', ',')], ['Preguntas', K.preguntas], ['Lecciones animadas', K.animadas], ['Lecciones de pizarra', K.pizarra]]
       .map(function (x) { return '<div style="background:' + T + ';color:#fff;border-radius:10px;padding:8px 12px;min-width:92px"><div style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:' + O + '">' + x[0] + '</div><div style="font-size:20px;font-weight:800">' + x[1] + '</div></div>'; }).join('');
     var hojas = S.grupos.map(function (g) { return '<tr><td style="padding:3px 8px">' + esc(g[0]) + '</td><td style="padding:3px 8px;text-align:right">' + g[1] + '</td></tr>'; }).join('');
     var filas = Object.keys(PAISES).map(function (p) {
@@ -140,16 +141,16 @@
       var p = precioN(usd, pk), usdP = pk === 'us' || pk === 've' ? p : p / aLocal(1, pk), n = neto(usdP, pk), loc = function (v) { return dice(aLocal(v, pk)); };
       return tit + ': precio recomendado en ' + PAISES[pk][0] + ', ' + dice(p) + '. El rango va de ' + dice(precioN(t[2], pk)) + ' a ' + dice(precioN(t[3], pk)) + ', ' + t[4] + '. Incluye ' + inc + '. Por cada venta te quedan ' + loc(n.hot) + ' en Hotmart, ' + loc(n.str) + ' con Stripe y ' + loc(n.pp) + ' con PayPal.';
     }
-    var vozTxt = 'Asesor de precio de ' + (C.titulo || 'este libro') + '. ' + (prof ? 'Es formación profesional o para adultos' : 'Es material escolar') + (extra ? ', con animaciones o pizarra' : '') + '. ' +
+    var vozTxt = 'Asesor de precio de ' + (C.titulo || 'este libro') + '. ' + (prof ? 'Es nivel profesional o para adultos' : 'Es material escolar') + (extra ? ', con animaciones o pizarra' : '') + '. ' +
       'El libro tiene ' + S.hojas + ' hojas: ' + S.grupos.map(function (g) { return g[1] + ' de ' + g[0].toLowerCase(); }).join(', ') + '. ' +
-      'El curso tiene ' + K.modulos + ' módulos, ' + K.lecciones + ' lecciones y unas ' + K.horas.toFixed(1).replace('.', ',') + ' horas. ' +
+      'El curso tiene ' + K.modulos + ' módulos, ' + K.lecciones + ' lecciones y ' + (K.oficial ? 'aproximadamente ' + K.oficial + ' horas de formación técnica y práctica. ' : 'unas ' + K.horas.toFixed(1).replace('.', ',') + ' horas. ') +
       (S.hojas < 56 ? 'Con menos de 56 hojas conviene usar el libro como producto de entrada o regalo, y vender el curso. ' : '') +
       voz1('Libro digital', tL, uL, incL) + ' ' + voz1('Curso premium más libro', tC, uC, incC) + ' ' +
       'Por país: ' + Object.keys(PAISES).map(function (p) { return PAISES[p][0].replace(/\s*\(.*\)/, '').replace('Rep. Dominicana', 'República Dominicana').replace('EE. UU.', 'Estados Unidos') + ', libro ' + dice(precioN(uL, p), p) + ' y curso ' + dice(precioN(uC, p), p); }).join('; ') + '. ' +
       'Para vender en Instagram y Facebook: Meta no permite poner productos descargables en su tienda; se publica y se enlaza al pago de Hotmart, Stripe o PayPal. Con Hotmart el comprador recibe el acceso solo. Es orientativo: el precio final lo decides tú.';
     caja.innerHTML = '<div style="background:#f6f7fb;border-radius:12px;padding:16px;color:#1f2433;font-family:system-ui,Segoe UI,sans-serif;max-width:1100px;margin:0 auto">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div style="font-size:18px;font-weight:800;color:' + T + '">💰 Asesor de precio · ' + esc(C.titulo || '') + '</div><button data-asesor-voz style="font:600 13px system-ui,sans-serif;padding:7px 14px;border-radius:99px;border:0;background:' + T + ';color:#fff;cursor:pointer">🔊 Escuchar el asesor</button></div>' +
-      '<div style="font-size:12.5px;color:#55607a;margin:2px 0 12px">' + (prof ? 'Formación profesional / adultos' : 'Material escolar') + (extra ? ' · con animaciones o pizarra' : '') + ' · país del libro: ' + esc(PAISES[pk][0]) + '. Orientativo: el precio final lo decides tú.</div>' +
+      '<div style="font-size:12.5px;color:#55607a;margin:2px 0 12px">' + (prof ? 'Nivel profesional / adultos' : 'Material escolar') + (extra ? ' · con animaciones o pizarra' : '') + ' · país del libro: ' + esc(PAISES[pk][0]) + '. Orientativo: el precio final lo decides tú.</div>' +
       aviso + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">' + tiles + '</div>' +
       '<div style="display:flex;gap:12px;flex-wrap:wrap">' + tarjeta('📘', 'Libro digital', incL, tL, uL) + tarjeta('🎓', 'Curso premium + libro (Carpeta HOTMART)', incC, tC, uC) + '</div>' +
       '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">' +
@@ -157,7 +158,7 @@
       '<div style="flex:1 1 280px;background:#fff;border:1px solid #e3e6ee;border-radius:12px;padding:12px 14px"><div style="font-weight:700;color:' + T + ';margin-bottom:6px">Escaneado hoja por hoja</div><table style="width:100%;font-size:13px;border-collapse:collapse">' + hojas + '</table></div></div>' +
       '<div style="background:#fff;border:1px solid #e3e6ee;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px;line-height:1.55">' +
       '<b>Cómo vender en Instagram y Facebook:</b> Meta no permite poner productos descargables en su tienda; se publica (carrusel, reel, historia) y se enlaza al pago: el enlace de Hotmart, un enlace de pago de Stripe o PayPal. Con Hotmart el comprador recibe el acceso solo; con Stripe o PayPal lo envías tú.<br>' +
-      '<b>En qué se basa:</b> escalón por hojas (libro) y por horas de contenido (curso); dentro del escalón, más arriba si es formación profesional o lleva animaciones/pizarra. Precios terminados en 7, como recomienda Hotmart. Hotmart cobra además 1 USD por cada retiro (no por venta).<br>' +
+      '<b>En qué se basa:</b> escalón por hojas (libro) y por horas de contenido (curso); dentro del escalón, más arriba si es de nivel profesional o lleva animaciones/pizarra. Precios terminados en 7, como recomienda Hotmart. Hotmart cobra además 1 USD por cada retiro (no por venta).<br>' +
       '<b>Fuentes:</b> ' + FUENTES.map(function (f) { return '<a href="' + f[1] + '" target="_blank" rel="noopener" style="color:' + T + '">' + esc(f[0]) + '</a>'; }).join(' · ') + '</div></div>';
     var bt = caja.querySelector('[data-asesor-voz]'), SS = window.speechSynthesis;
     if (bt && !SS) bt.style.display = 'none';

@@ -32,7 +32,7 @@
     return { id: v && EP.portada(v) ? v : autoPara(C), cfg: {} };
   }
   function textoLibro(C) {
-    var sub = C.libre ? (C.cfg.subtitulo || C.subtitulo || '') : [C.cursoN, C.N && C.N.n].filter(Boolean).join(' · ');
+    var sub = C.libre ? (C.cfg.subtitulo || C.subtitulo || '') : [C.cursoN, C.N && C.N.n && String(C.cursoN).indexOf(C.N.n) !== 0 ? C.N.n : ''].filter(Boolean).join(' · ');
     return { titulo: C.titulo || C.matN || '', sub: sub, autor: C.cfg.autor || '', sello: C.cfg.centro || C.matN || '', anio: new Date().getFullYear() };
   }
   function svgPara(C) {

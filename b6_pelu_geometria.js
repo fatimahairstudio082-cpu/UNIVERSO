@@ -17,7 +17,7 @@
       texto: 'Todas las capas a 30°: las puntas se abren y ganan movimiento sin acortar.' },
     { id: 'cuadrado', n: 'Corte cuadrado', capas: v(5, 0), part: 'vertical', linea: 'recta', acabado: 'recto', altura: 'barbilla', foto: 'bob_recto.jpg',
       texto: 'Solo la parte de atrás: guía en el centro a 0° y corte recto de lado a lado; el corte queda cuadrado.' },
-    { id: 'redondeado', n: 'Corte redondeado', capas: v(5, 0), part: 'vertical', linea: 'redondeada', acabado: 'recto', altura: 'barbilla',
+    { id: 'redondeado', n: 'Corte redondeado', capas: v(5, 0), part: 'vertical', linea: 'redondeada', acabado: 'recto', altura: 'barbilla', foto: 'basicos_0grados.jpg',
       texto: 'La misma guía en el centro a 0°, pero la línea de corte se lleva hacia delante: el corte queda redondeado.' },
     { id: 'corte_25', n: 'Corte a 25°', capas: v(5, 25), part: 'vertical', acabado: 'recto', altura: 'labio',
       texto: 'Todas las capas a 25°, en el lateral y en las verticales: peso abajo con una graduación suave.' },
@@ -128,7 +128,10 @@
     VF = n1.concat(n2);
     return VF;
   }
+  /* Fátima, 18-10-2026: cortes básicos sin elevación primero (cuadrado, redondo, V, U, V invertida…), luego los avanzados */
+  var BASICOS = ['cuadrado', 'redondeado', 'p1_punta', 'p1_curvo', 'p1_v_invertida', 'p1_wap', 'p1_horizontal', 'p1_vertical_corto'];
+  function basicos() { return BASICOS.map(tecnica).filter(Boolean); }
   function variante(id) { return (/^vf_/.test(id) ? variantesForma() : variantes()).filter(function (v) { return v.id === id; })[0] || null; }
 
-  window.EU_GEOMETRIA_CAPILAR = { TECNICAS: TECNICAS, ELEVACIONES: ELEVACIONES, tecnica: tecnica, receta: receta, mios: mios, guardar: guardar, quitar: quitar, variantes: variantes, variantesForma: variantesForma, variante: variante, ALT_N: ALT_N };
+  window.EU_GEOMETRIA_CAPILAR = { TECNICAS: TECNICAS, BASICOS: BASICOS, basicos: basicos, ELEVACIONES: ELEVACIONES, tecnica: tecnica, receta: receta, mios: mios, guardar: guardar, quitar: quitar, variantes: variantes, variantesForma: variantesForma, variante: variante, ALT_N: ALT_N };
 })();

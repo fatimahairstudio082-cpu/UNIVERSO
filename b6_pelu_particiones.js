@@ -137,6 +137,31 @@
     if (modo === 'producto' || modo === 'plancha' || modo === 'bigudi' || modo === 'secado') return '#D9C7A8';
     var m = /(\d{1,2})[.,]\d/.exec(((t.ficha || {}).formula) || ''); var n = m ? Math.max(1, Math.min(10, +m[1])) : 6; return NIVEL[n];
   }
+  function nivelDe(t) { var m = /(\d{1,2})[.,]\d/.exec(((t.ficha || {}).formula) || ''); return m ? Math.max(1, Math.min(10, +m[1])) : 0; }
+  /* Fátima, 18-10-2026 (opción C): la carta de tonos va AL LADO del maniquí, como apoyo, sin tapar la animación
+     (lienzo 1280×720, recorte 190–1090: tira a la derecha, fuera de la cabeza); el tono del medio es el de la fórmula */
+  function carta(K, n, t0) {
+    var tr = [], x0 = 950, y0 = 300, w = 110, h = 62;
+    [n + 1, n, n - 1].forEach(function (k, i) {
+      if (k < 1 || k > 10) return;
+      var y = y0 + i * (h + 8), med = k === n;
+      tr.push(zona([x0, y, x0 + w, y, x0 + w, y + h, x0, y + h], [t0, t0 + 0.06], NIVEL[k], 1, med ? '#1F1B18' : '#D8D2C8'), K.chapa([x0 + w / 2, y + h / 2], String(k), med ? '#1F1B18' : '#8E847A', t0 + 0.04));
+    });
+    tr.push(K.rotulo('Carta de tonos · altura ' + n + ' (la de la fórmula, al centro)', '#1F1B18', t0));
+    return tr;
+  }
+  /* el resultado: el cabello del maniquí pasa del natural al tono de la fórmula, de la nuca hacia arriba */
+  function escQuedaColor(K, t, col, n) {
+    var v = 'nuca', tr = [], phs = []; for (var ph0 = K.NUCA - 1.75; ph0 <= K.NUCA + 1.75; ph0 += 0.03) phs.push(ph0);   /* como «Cómo queda · atrás» de las mechas */
+    phs.forEach(function (ph, i) {
+      var q = mecha(K, v, ph, 0.3, 0, 1); if (!q) return;
+      tr.push(K.linea(q, [0, 0.05], '#3A2418', 4.2, { x: 0.6 }));
+      tr.push(K.linea(q, [0.1 + 0.45 * i / phs.length, 0.3 + 0.45 * i / phs.length], col, 4.2));
+      if (i % 3 === 0) tr.push(K.linea(q.slice(4), [0.82, 0.95], 'rgba(255,240,220,0.4)', 1.4));
+    });
+    tr.push(K.rotulo('Cómo queda · color de la fórmula' + ((t.ficha || {}).formula ? ': ' + t.ficha.formula : ''), '#1F1B18', 0), K.rotulo('Antes: cabello natural', '#8E847A', 0.02, { x: 0.12 }), K.rotulo('Después: el tono de la fórmula', '#18906A', 0.75));
+    return { v: v, tr: tr.concat(n ? carta(K, n, 0.1) : []) };
+  }
   function minutos(t, p) { var s = (p && p.n || '') + ' ' + (((t.ficha || {}).tiempos) || ''), m = /(\d{1,3})\s*min/.exec(s); return m ? +m[1] : 0; }
   function proporcion(t) { var fi = t.ficha || {}, m = /(\d+(?:[.,]\d+)?)(?:\s*de\s+[a-záéíóú]+)?\s*:\s*(\d+(?:[.,]\d+)?)/i.exec((fi.proporciones || '') + ' ' + (fi.formula || '')); return m ? [parseFloat(m[1].replace(',', '.')), parseFloat(m[2].replace(',', '.'))] : null; }
 
@@ -348,6 +373,69 @@
       K.rotulo('Arranque ' + Math.round(desde * 100) + ' %' + (desde <= 0.15 ? ' · líneas bien profundas' : desde >= 0.6 ? ' · iluminaciones' : '') + (cant ? ' · producto ' + cant : ''), '#9A7B2E', 0));
     return { v: v, tr: tr };
   }
+  /* 18-10-2026 (Fátima: «de lado y de frente no se ven los mechones, cómo se sacan»; sus dibujos «diagrama balayage»,
+     «divisiones para mechas con papel de aluminio» y «técnica de balayage»): el mechón que se saca de la sección se ve
+     como un triángulo oscuro y la parte donde va el producto, en amarillo, desde el arranque hasta las puntas.
+     De lado: secciones en diagonal hacia atrás, mechón a 90°; en mechas el papel debajo y los papeles quedan montados.
+     De frente: sección en triángulo, mechón hacia un lado sobre la paleta y producto con el pincel.
+     Por detrás (mechas): raya central, líneas en diagonal y papeles montados. Geometría y paleta a validar por Fátima. */
+  var C_MECH = '#3A3340', C_PROD_M = '#F2C14E';
+  /* Fátima: primero las 6 divisiones del motor (raya central, oreja a oreja y la línea donde termina el cuello) */
+  function seisBase(K, v) { var L = lineasSeis(K); return dibujar(K, v, [{ d: L.raya, t: [0, 0.06], c: C_RAYA, w: 3 }, { d: L.orejas, t: [0.04, 0.1], c: C_OREJAS, w: 3.5 }, { d: L.nuca, t: [0.08, 0.14], c: C_NUCA, w: 3.5 }], { '1': 0.14, '2': 0.14, '3': 0.14, '4': 0.14, '5': 0.14, '6': 0.14 }, zonasSeis(K)); }
+  function triMechon(K, v, a, b, punta, desde, t0, t1, ext, papel) {
+    var tr = [], lp = function (p, q, u) { return [p[0] + (q[0] - p[0]) * u, p[1] + (q[1] - p[1]) * u]; };
+    if (papel) { var dx = punta[0] - (a[0] + b[0]) / 2, dy = punta[1] - (a[1] + b[1]) / 2, L = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / L * 30, ny = dx / L * 30, m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      tr.push(Object.assign(zona([m[0] + nx, m[1] + ny, punta[0] + nx + dx * 0.06, punta[1] + ny + dy * 0.06, punta[0] - nx + dx * 0.06, punta[1] - ny + dy * 0.06, m[0] - nx, m[1] - ny], [t0, t0 + (t1 - t0) * 0.2], C_PAPEL, 0.96, C_PAPEL_B), ext)); }
+    tr.push(Object.assign(zona([a[0], a[1], b[0], b[1], punta[0], punta[1]], [t0 + (t1 - t0) * 0.15, t0 + (t1 - t0) * 0.45], C_MECH, 0.92), ext));
+    var a2 = lp(a, punta, desde), b2 = lp(b, punta, desde);
+    tr.push(Object.assign(zona([a2[0], a2[1], b2[0], b2[1], punta[0], punta[1]], [t0 + (t1 - t0) * 0.5, t1], C_PROD_M, 0.95), ext));
+    return tr;
+  }
+  function escMechonLado(K, t, col, desde, papel) {
+    var v = 'lateral', tr = seisBase(K, 'lateral'), n = 5, PI2 = Math.PI;
+    var lin = function (i) { var h = 0.42 + i * 0.25; return [[PI2 - 0.25, h], [PI2 + 1.05, h + 0.55]]; };
+    for (var i = 0; i < n; i++) { var L = lin(i); tr = tr.concat(K.lineas(K.tramos(v, K.recta(L[0], L[1]), 20), [0.02 + i * 0.03, 0.08 + i * 0.03], '#C0392B', 2.2)); }
+    for (var j = 0; j < n - 1; j++) {
+      var ta = 0.2 + j * 0.78 / (n - 1), tb = ta + 0.78 / (n - 1), dt = tb - ta, A = lin(j), B = lin(j + 1), ult = j === n - 2;
+      var pa = [A[0][0] + (A[1][0] - A[0][0]) * 0.3, A[0][1] + (A[1][1] - A[0][1]) * 0.15 + 0.12], pb = [A[0][0] + (A[1][0] - A[0][0]) * 0.85, A[0][1] + (A[1][1] - A[0][1]) * 0.85 + 0.12];
+      if (!K.seVe(v, pa[0], pa[1]) || !K.seVe(v, pb[0], pb[1])) continue;
+      var mc = [(pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2], c0 = K.P(mc[0], mc[1]), punta = K.pr(v, c0.clone().add(K.dirElev(mc[0], mc[1], 90).multiplyScalar(1.5)));
+      var ext = ult ? {} : { x: tb - dt * 0.05, lev: 1 };
+      tr = tr.concat(triMechon(K, v, K.pr(v, K.P(pa[0], pa[1])), K.pr(v, K.P(pb[0], pb[1])), punta, desde, ta, ta + dt * 0.8, ext, papel));
+      if (papel && !ult) { var e0 = K.pr(v, K.P(pa[0] - 0.05, pa[1] - 0.05)), e1 = K.pr(v, K.P(pb[0] + 0.05, pb[1] - 0.05)), e2 = K.pr(v, K.P(pb[0] + 0.05, pb[1] + 0.2)), e3 = K.pr(v, K.P(pa[0] - 0.05, pa[1] + 0.2));
+        tr.push(zona([e0[0], e0[1], e1[0], e1[1], e2[0], e2[1], e3[0], e3[1]], [tb - dt * 0.05, tb], C_PAPEL, 0.96, C_PAPEL_B)); }
+    }
+    tr.push(K.rotulo('De lado · 6 divisiones y secciones en diagonal hacia atrás', '#1F1B18', 0), K.rotulo('El mechón se saca a 90°' + (papel ? ' sobre el papel de aluminio' : ''), C_MECH, 0.2),
+      K.rotulo('Amarillo = producto, desde el arranque (' + Math.round(desde * 100) + ' %) hasta las puntas', '#9A7B2E', 0.35));
+    return { v: v, tr: tr, crop: [120, 0, 1100, 720] };
+  }
+  function escMechonFrente(K, t, col, desde) {
+    var v = 'frente', tr = seisBase(K, 'frente'), C = K.CARA, ap = [C, 0.36], b1 = [C - 0.4, 0.84], b2 = [C + 0.4, 0.84];
+    [[ap, b1], [b1, b2], [b2, ap]].forEach(function (s) { tr = tr.concat(K.lineas(K.tramos(v, K.recta(s[0], s[1]), 16), [0.02, 0.15], '#C0392B', 3)); });
+    var ra = K.pr(v, K.P(C - 0.28, 0.76)), rb = K.pr(v, K.P(C + 0.28, 0.76)), punta = [ra[0] - 260, ra[1] + 330];
+    var dx = punta[0] - (ra[0] + rb[0]) / 2, dy = punta[1] - (ra[1] + rb[1]) / 2, L = Math.sqrt(dx * dx + dy * dy), nx = -dy / L, ny = dx / L, m = [(ra[0] + rb[0]) / 2 + dx * 0.25, (ra[1] + rb[1]) / 2 + dy * 0.25];
+    /* la paleta, detrás del mechón */
+    tr.push(zona([m[0] + nx * 46, m[1] + ny * 46, punta[0] + nx * 40 + dx * 0.1, punta[1] + ny * 40 + dy * 0.1, punta[0] - nx * 40 + dx * 0.1, punta[1] - ny * 40 + dy * 0.1, m[0] - nx * 46, m[1] - ny * 46], [0.18, 0.3], '#2B2A2E', 0.92));
+    tr = tr.concat(triMechon(K, v, ra, rb, punta, desde, 0.3, 0.85, {}, false));
+    for (var k = 0; k <= 6; k++) { var u = k / 6, r0 = [ra[0] + (rb[0] - ra[0]) * u, ra[1] + (rb[1] - ra[1]) * u]; tr.push(K.linea([r0[0], r0[1], punta[0] + (u - 0.5) * 30, punta[1]], [0.35, 0.5], '#FFFFFF', 1)); }
+    /* el pincel entra por el arranque */
+    var pp = [ra[0] + dx * desde + nx * 10, ra[1] + dy * desde + ny * 10];
+    tr.push(K.linea([pp[0] + 170, pp[1] - 120, pp[0] + 34, pp[1] - 24], [0.55, 0.7], '#2B2A2E', 7), K.linea([pp[0] + 34, pp[1] - 24, pp[0], pp[1]], [0.55, 0.7], C_PROD_M, 11));
+    tr.push(K.rotulo('De frente · sección en triángulo', '#1F1B18', 0), K.rotulo('El mechón se saca hacia un lado, sobre la paleta', C_MECH, 0.2),
+      K.rotulo('Pincel: producto desde el arranque (' + Math.round(desde * 100) + ' %) hasta las puntas', '#9A7B2E', 0.55));
+    return { v: v, tr: tr, crop: [100, 0, 1000, 720] };
+  }
+  function escMechonDetras(K, t, col) {
+    var v = 'nuca', tr = seisBase(K, 'nuca'), N0 = K.NUCA, n = 7;
+    for (var i = 0; i < n; i++) { var h = 0.45 + i * 0.19; tr = tr.concat(K.lineas(K.tramos(v, K.recta([N0, h], [N0 + 0.95, h + 0.3]), 14), [0.08 + i * 0.02, 0.16 + i * 0.02], '#C0392B', 1.8)); }
+    for (var j = n - 2; j >= 0; j--) {
+      var k = n - 2 - j, ta = 0.25 + k * 0.7 / (n - 1), tb = ta + 0.7 / (n - 1), h0 = 0.45 + j * 0.19;
+      var q = [[N0 - 0.06, h0 + 0.02], [N0 - 0.95, h0 + 0.32], [N0 - 1.05, h0 + 0.62], [N0 - 0.06, h0 + 0.3]].map(function (p) { return K.pr(v, K.P(p[0], p[1], 1.08)); });
+      tr.push(zona([].concat(q[0], q[1], q[2], q[3]), [ta, tb], C_PAPEL, 0.97, '#55606E'));
+    }
+    tr.push(K.rotulo('Por detrás · 6 divisiones, raya central y líneas en diagonal', '#1F1B18', 0), K.rotulo('Línea de la nuca: donde termina el cuello', C_NUCA, 0.08), K.rotulo('Los papeles quedan montados uno sobre otro', '#55606E', 0.25));
+    return { v: v, tr: tr };
+  }
   function escLatQueda(K, vert, desde) {
     /* cómo queda: primero el cabello oscuro, luego el aclarado en blanco difuminado desde el arranque hasta las puntas */
     var v = 'lateral', tr = [], n = vert ? 9 : 11, ph, i, j;
@@ -517,6 +605,35 @@
     tr.push(K.rotulo(tit || (agua ? 'Emulsión y aclarado' : 'Acabado'), agua ? C_AGUA : '#E58A3A', 0.05));
     return { v: v, tr: tr };
   }
+  /* 18-10-2026 (Fátima: «las 22 láminas ya existen, solo reconéctalas»): tras el paso de divisiones, una escena por cada lámina
+     de b6_divisiones.js de esa técnica (EU_DIVISIONES.laminasDe), dibujándose en una tarjeta AL LADO del maniquí, que sigue con
+     sus divisiones trazadas. La voz lee el nombre y la explicación de la lámina tal como están. En la planta del balayage, la
+     misma lámina con el arranque al 10, 25, 50 y 75 % (la escala de la lámina). */
+  var CROP_LAM = [190, 0, 1360, 720];
+  /* mechón resaltado (Fátima, 18-10-2026, su lámina «formas y técnicas balayage»): solo en mechas, balayage, babylights y sombré,
+     sobre las láminas de perfil (sale por detrás, hacia abajo) y de nuca (tres mechones hacia abajo) */
+  function mechDe(id, lam) {
+    if (!/^(mechas_aluminio|color_balayage|color_babylights|color_sombre)$/.test(id)) return {};
+    var desde = /balayage|sombre/.test(id) ? ARRANQUE : 0.1;
+    if (/^perfil/.test(lam)) return { mech: [118], mv: 'perfil', desde: desde };
+    if (/^nuca/.test(lam)) return { mech: [70, 90, 110], mv: 'nuca', desde: desde };
+    return {};
+  }
+  function laminasEsc(K, t, id, divs) {
+    var DV = window.EU_DIVISIONES, out = []; if (!DV || !DV.laminasDe) return out;
+    DV.laminasDe(id).forEach(function (L, j) {
+      (L.id === 'plantaBalayage' ? [0.10, 0.25, 0.50, 0.75] : [null]).forEach(function (pc, k) {
+        var b = escDivisiones(K, t, divs.length ? divs : [{ id: 'cuatro', n: 'Cuatro secciones' }], 0, 0.06), nom = (j + 1) + '. ' + L.n, pct = pc == null ? '' : Math.round(pc * 100);
+        b.tr = b.tr.filter(function (s) { return s.k !== 'e'; });
+        b.tr.push(Object.assign({ k: 'dv', id: L.id, n: nom, ds: L.d, t: [0.06, 0.9], c: '#B0873C', bx: 1110, by: 30, cw: 436, ch: 660, o: pc == null ? {} : { desde: pc } }, pc == null ? {} : { R: 108, cy: 200, pct: pc }, mechDe(id, L.id)),
+          K.rotulo('Lámina ' + nom + (pc == null ? '' : ' · arranque ' + pct + ' %'), '#B0873C', 0));
+        b.crop = CROP_LAM;
+        out.push({ tipo: 'cb_lam_' + L.id + (pc == null ? '' : '_' + pct), vista: b.v, t: 'Lámina · ' + L.n + (pc == null ? '' : ' · arranque ' + pct + ' %'), a: b,
+          texto: (pc == null || k === 0 ? L.n.replace(/ · /g, ', ') + '. ' + L.d + ' ' : '') + (pc == null ? '' : 'Arranque al ' + pct + ' por ciento: el producto entra desde el ' + pct + ' por ciento hasta las puntas. El arranque lo decide la clienta.') });
+      });
+    });
+    return out;
+  }
   function deCerebro(K, id) {
     var CB = window.EU_CEREBRO, t = CB && CB.obtener(id); if (!t || !(t.pasos || []).length) return null;
     var modo = MODO[id] || 'global', col = tono(t, modo), divs = CB.divisiones ? CB.divisiones(id) : [], esc = [], na = 0;
@@ -550,10 +667,33 @@
         else { tr3.push(K.rotulo('Preparación', C_RAYA, 0)); (fi2.herramientas || []).slice(0, 4).forEach(function (h, j) { tr3.push(K.rotulo('✔ ' + h, '#18906A', 0.1 + j * 0.12)); }); if ((fi2.seguridad || [])[0]) tr3.push(K.rotulo('Seguridad: ' + String(fi2.seguridad[0]).replace(/\.$/, ''), '#B01E45', 0.62)); a = { v: 'tres', tr: tr3 }; }
       }
       else a = escAplicar(K, t, modo, col, na++);
-      /* sin cartel rojo «Cuidado» (Fátima: alerta genérica); el error típico sigue en la ficha */
-      esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || ''), a: a });
+      /* sin cartel rojo «Cuidado» (Fátima: alerta genérica). Fátima, 18-10-2026 (opción D): el error común del paso vuelve
+         con diseño limpio, una línea sobria al final de la escena, sin rojo ni señales; la animación no cambia */
+      if (p.e) a.tr.push(K.rotulo('Error común: ' + String(p.e).replace(/\.$/, ''), '#5B4A2E', 0.8));
+      esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || '') + (p.e ? ' Error común: ' + String(p.e).replace(/\.?$/, '.') : ''), a: a });
+      if (f === 'divisiones' && !esc.some(function (e) { return /^cb_lam_/.test(e.tipo); })) laminasEsc(K, t, id, divs).forEach(function (e) { esc.push(e); });
+      /* C: en los tintes (raíz y global), al cerrar, el maniquí muestra el tono de la fórmula con la carta al lado */
+      if (f === 'cierre' && (modo === 'global' || modo === 'raiz') && !esc.some(function (e) { return e.tipo === 'cb_queda_color'; }))
+        esc.push({ tipo: 'cb_queda_color', vista: 'nuca', t: 'Cómo queda · color de la fórmula', a: escQuedaColor(K, t, col, nivelDe(t)),
+          texto: 'Así queda: el cabello toma el tono de la fórmula' + ((t.ficha || {}).formula ? ', ' + t.ficha.formula : '') + '. Al lado, la carta de tonos con esa altura de tono en el centro.' });
+      /* 18-10-2026 (Fátima: «para neutralizar un color antes hay que decolorar; las mechas que quedan naranjas se neutralizan»):
+         al cerrar mechas y balayage se reconectan las escenas de neutralización que ya existen en la decoloración */
+      if (f === 'cierre' && /^(mechas_aluminio|mechas_gorro|color_balayage|color_babylights)$/.test(id) && !esc.some(function (e) { return e.tipo === 'cb_neu_amarillo'; }) && K.mechon)
+        esc.push({ tipo: 'cb_neu_amarillo', vista: 'lateral', t: 'Si el aclarado queda amarillo · neutralizar con violeta', a: escDecoColor(K, true),
+          texto: 'Lo aclarado se ha decolorado: si el fondo queda amarillo, se neutraliza con violeta, matizador violeta o tinte punto dos. El amarillo desaparece y queda un rubio neutro.' },
+          { tipo: 'cb_neu_naranja', vista: 'lateral', t: 'Si el aclarado queda naranja · neutralizar con azul', a: escDecoColor(K, true, true),
+          texto: 'Si las mechas quedan naranjas, se neutralizan con azul, es decir, con ceniza: tintes punto uno o punto once. Así desaparece el naranja y queda un tono ceniza.' });
       /* Fátima, 10-10-2026: el balayage también se hace profundo — se empieza a unos 5 cm del cuello, atrás, con zigzag grande;
          el mechón se eleva a 90° y se coloca el producto. Se añade como escena propia; la de arriba no cambia. */
+      if (/^(mechas_aluminio|color_balayage|color_babylights|color_sombre)$/.test(id) && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_mech_lado'; }) && K.dirElev && K.mechon) {
+        var papM = id !== 'color_balayage' && id !== 'color_sombre', desM = papM ? 0.10 : ARRANQUE;
+        esc.push({ tipo: 'cb_mech_lado', vista: 'lateral', t: 'De lado · cómo se saca el mechón', a: escMechonLado(K, t, col, desM, papM),
+          texto: 'Primero las seis divisiones: raya central, de oreja a oreja y la línea de la nuca, donde termina el cuello. De lado: secciones en diagonal hacia atrás. De cada sección se saca el mechón a 90 grados' + (papM ? ', sobre el papel de aluminio' : '') + '. Lo oscuro es el mechón y lo amarillo, donde va el producto: desde el arranque hasta las puntas.' + (papM ? ' Los papeles quedan montados.' : ' El arranque lo decide la clienta.') },
+          { tipo: 'cb_mech_frente', vista: 'frente', t: 'De frente · cómo se saca el mechón', a: escMechonFrente(K, t, col, desM),
+          texto: 'De frente: la sección en triángulo. El mechón se saca hacia un lado, sobre la paleta, y con el pincel se pone el producto desde el arranque hasta las puntas.' });
+        if (papM) esc.push({ tipo: 'cb_mech_detras', vista: 'nuca', t: 'Por detrás · papeles montados', a: escMechonDetras(K, t, col),
+          texto: 'Por detrás se ven las seis divisiones, con la línea de la nuca donde termina el cuello. Raya central y líneas en diagonal. En cada línea se saca el mechón, se pone el producto y el papel de aluminio; los papeles quedan montados uno sobre otro.' });
+      }
       if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_lat_h'; }) && K.dirElev && K.mechon) {
         var tecLat = id === 'color_balayage' ? 'balayage' : 'mechas con papel';
         esc.push({ tipo: 'cb_lat_h', vista: 'lateral', t: 'Lateral en horizontal · arranque 10 %', a: escLatAccion(K, t, col, false, 0.10),
@@ -890,5 +1030,5 @@
 
   window.EU_PARTICIONES = { TECNICAS: TECNICAS, catalogo: catalogo, tecnica: tecnica, construir: construir, construirYa: construirYa, lecciones: lecciones, registrar: registrar,
     /* ayudantes de dibujo para los módulos que registran técnicas (mismos trazos que las del Cerebro) */
-    ayudas: { escAplicar: escAplicar, escCierre: escCierre, zona: zona, mecha: mecha, NIVEL: NIVEL } };
+    ayudas: { escAplicar: escAplicar, escCierre: escCierre, zona: zona, mecha: mecha, NIVEL: NIVEL, carta: carta } };
 })();

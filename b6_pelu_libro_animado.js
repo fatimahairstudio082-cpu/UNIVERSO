@@ -41,7 +41,7 @@
     'document.addEventListener("click",function(ev){var b=ev.target.closest("[data-pa-play]");if(b){var pg=b.closest("[data-pa-pg]");if(act&&act.pg===pg)return para();para();if(!window.DG_PINTA)return;V=V||voz();' +
     'var A=JSON.parse(pg.querySelector("[data-pa-anim]").textContent),gr=pg.querySelector("[data-pa-grid]"),sub=pg.querySelector("[data-pa-sub]"),cv=document.createElement("canvas");cv.width=640;cv.height=512;cv.style.cssText="width:100%;max-width:150mm;height:auto;display:block;margin:0 auto 2mm;border-radius:6px";gr.parentNode.insertBefore(cv,gr);gr.style.display="none";' +
     'var x=cv.getContext("2d"),i=0,me={pg:pg,b:b,cv:cv,gr:gr,sub:sub};act=me;b.textContent="❚❚ Parar";cv.scrollIntoView({block:"nearest",behavior:"smooth"});' +
-    '(function sig(){if(act!==me)return;if(i>=A.length){para();return}var a=A[i++],im=fondo(a.v),dur=Math.max(5000,a.s.length*65),t0=performance.now(),hab=0,acabo=0;if(sub)sub.textContent=i+"/"+A.length+" · "+a.t+": "+a.s;' +
+    '(function sig(){if(act!==me)return;if(i>=A.length){para();return}var a=A[i++],im=fondo(a.v),dur=Math.max(8000,a.s.length*91),t0=performance.now(),hab=0,acabo=0;if(sub)sub.textContent=i+"/"+A.length+" · "+a.t+": "+a.s;' +
     'function fin(){if(hab&&acabo&&act===me)setTimeout(sig,400)}' +
     '(function cuadro(){if(act!==me)return;var p=Math.min(1,(performance.now()-t0)/dur);DG_PINTA(x,a.a,im,0,0,640,512,p);if(p<1)requestAnimationFrame(cuadro);else{acabo=1;fin()}})();' +
     'if(V&&window.speechSynthesis){var u=new SpeechSynthesisUtterance(a.t+". "+a.s);u.voice=V;u.lang="es-ES";u.onend=u.onerror=function(){hab=1;fin()};speechSynthesis.speak(u)}else hab=1})();return}' +
@@ -77,6 +77,9 @@
   var doc0 = ED.documento;
   ED.documento = function (res, modo) {
     var h = doc0.apply(this, arguments), DG = window.EU_DIAGRAMA;
+    /* 18-10-2026 · láminas de divisiones en las técnicas animadas: su código, una vez */
+    var dvs = DG && DG.divSrc ? DG.divSrc() : '';
+    if (modo === 'web' && dvs && /data-pa-pg/.test(h) && !/data-eu-div/.test(h)) h = h.replace(/<\/body>/i, function () { return '<script data-eu-div="1">' + dvs.replace(/<\/script/gi, '<\\/script') + '<\/script></body>'; });
     if (modo !== 'web' || !DG || !/data-pa-pg/.test(h) || /window\.DG_FONDOS=/.test(h)) return h;
     var F = DG.fondosYa && DG.fondosYa(); if (!F) return h;
     var s = '<script>window.DG_FONDOS=' + JSON.stringify(F) + ';window.DG_PINTA=' + DG.pinta.toString() + ';<\/script>';

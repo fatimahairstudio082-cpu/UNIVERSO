@@ -73,7 +73,7 @@
     x.fillStyle = T.suave;
     x.font = FS('600', 10);
     x.letterSpacing = '1.6px';
-    x.fillText((d.centro || 'Centro de formación profesional').toUpperCase(), m, y);
+    x.fillText((d.centro || 'Centro de formación').toUpperCase(), m, y);
     var der = (d.modulo || 'Módulo profesional').toUpperCase();
     x.textAlign = 'right';
     x.fillText(der, A4.w - m, y);
