@@ -542,6 +542,26 @@
     tr.push(K.rotulo(tit || (agua ? 'Emulsión y aclarado' : 'Acabado'), agua ? C_AGUA : '#E58A3A', 0.05));
     return { v: v, tr: tr };
   }
+  /* 18-10-2026 (Fátima: «las 22 láminas ya existen, solo reconéctalas»): tras el paso de divisiones, una escena por cada lámina
+     de b6_divisiones.js de esa técnica (EU_DIVISIONES.laminasDe), dibujándose en una tarjeta AL LADO del maniquí, que sigue con
+     sus divisiones trazadas. La voz lee el nombre y la explicación de la lámina tal como están. En la planta del balayage, la
+     misma lámina con el arranque al 10, 25, 50 y 75 % (la escala de la lámina). */
+  var CROP_LAM = [190, 0, 1360, 720];
+  function laminasEsc(K, t, id, divs) {
+    var DV = window.EU_DIVISIONES, out = []; if (!DV || !DV.laminasDe) return out;
+    DV.laminasDe(id).forEach(function (L, j) {
+      (L.id === 'plantaBalayage' ? [0.10, 0.25, 0.50, 0.75] : [null]).forEach(function (pc, k) {
+        var b = escDivisiones(K, t, divs.length ? divs : [{ id: 'cuatro', n: 'Cuatro secciones' }], 0, 0.06), nom = (j + 1) + '. ' + L.n, pct = pc == null ? '' : Math.round(pc * 100);
+        b.tr = b.tr.filter(function (s) { return s.k !== 'e'; });
+        b.tr.push(Object.assign({ k: 'dv', id: L.id, n: nom, ds: L.d, t: [0.06, 0.9], c: '#B0873C', bx: 1110, by: 30, cw: 436, ch: 660, o: pc == null ? {} : { desde: pc } }, pc == null ? {} : { R: 108, cy: 200 }),
+          K.rotulo('Lámina ' + nom + (pc == null ? '' : ' · arranque ' + pct + ' %'), '#B0873C', 0));
+        b.crop = CROP_LAM;
+        out.push({ tipo: 'cb_lam_' + L.id + (pc == null ? '' : '_' + pct), vista: b.v, t: 'Lámina · ' + L.n + (pc == null ? '' : ' · arranque ' + pct + ' %'), a: b,
+          texto: (pc == null || k === 0 ? L.n.replace(/ · /g, ', ') + '. ' + L.d + ' ' : '') + (pc == null ? '' : 'Arranque al ' + pct + ' por ciento: el producto entra desde el ' + pct + ' por ciento hasta las puntas. El arranque lo decide la clienta.') });
+      });
+    });
+    return out;
+  }
   function deCerebro(K, id) {
     var CB = window.EU_CEREBRO, t = CB && CB.obtener(id); if (!t || !(t.pasos || []).length) return null;
     var modo = MODO[id] || 'global', col = tono(t, modo), divs = CB.divisiones ? CB.divisiones(id) : [], esc = [], na = 0;
@@ -579,10 +599,18 @@
          con diseño limpio, una línea sobria al final de la escena, sin rojo ni señales; la animación no cambia */
       if (p.e) a.tr.push(K.rotulo('Error común: ' + String(p.e).replace(/\.$/, ''), '#5B4A2E', 0.8));
       esc.push({ tipo: tipo, vista: a.v, t: p.t || 'Paso ' + (i + 1), texto: (p.n || '') + (p.e ? ' Error común: ' + String(p.e).replace(/\.?$/, '.') : ''), a: a });
+      if (f === 'divisiones' && !esc.some(function (e) { return /^cb_lam_/.test(e.tipo); })) laminasEsc(K, t, id, divs).forEach(function (e) { esc.push(e); });
       /* C: en los tintes (raíz y global), al cerrar, el maniquí muestra el tono de la fórmula con la carta al lado */
       if (f === 'cierre' && (modo === 'global' || modo === 'raiz') && !esc.some(function (e) { return e.tipo === 'cb_queda_color'; }))
         esc.push({ tipo: 'cb_queda_color', vista: 'nuca', t: 'Cómo queda · color de la fórmula', a: escQuedaColor(K, t, col, nivelDe(t)),
           texto: 'Así queda: el cabello toma el tono de la fórmula' + ((t.ficha || {}).formula ? ', ' + t.ficha.formula : '') + '. Al lado, la carta de tonos con esa altura de tono en el centro.' });
+      /* 18-10-2026 (Fátima: «para neutralizar un color antes hay que decolorar; las mechas que quedan naranjas se neutralizan»):
+         al cerrar mechas y balayage se reconectan las escenas de neutralización que ya existen en la decoloración */
+      if (f === 'cierre' && /^(mechas_aluminio|mechas_gorro|color_balayage|color_babylights)$/.test(id) && !esc.some(function (e) { return e.tipo === 'cb_neu_amarillo'; }) && K.mechon)
+        esc.push({ tipo: 'cb_neu_amarillo', vista: 'lateral', t: 'Si el aclarado queda amarillo · neutralizar con violeta', a: escDecoColor(K, true),
+          texto: 'Lo aclarado se ha decolorado: si el fondo queda amarillo, se neutraliza con violeta, matizador violeta o tinte punto dos. El amarillo desaparece y queda un rubio neutro.' },
+          { tipo: 'cb_neu_naranja', vista: 'lateral', t: 'Si el aclarado queda naranja · neutralizar con azul', a: escDecoColor(K, true, true),
+          texto: 'Si las mechas quedan naranjas, se neutralizan con azul, es decir, con ceniza: tintes punto uno o punto once. Así desaparece el naranja y queda un tono ceniza.' });
       /* Fátima, 10-10-2026: el balayage también se hace profundo — se empieza a unos 5 cm del cuello, atrás, con zigzag grande;
          el mechón se eleva a 90° y se coloca el producto. Se añade como escena propia; la de arriba no cambia. */
       if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_lat_h'; }) && K.dirElev && K.mechon) {

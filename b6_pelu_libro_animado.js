@@ -77,6 +77,9 @@
   var doc0 = ED.documento;
   ED.documento = function (res, modo) {
     var h = doc0.apply(this, arguments), DG = window.EU_DIAGRAMA;
+    /* 18-10-2026 · láminas de divisiones en las técnicas animadas: su código, una vez */
+    var dvs = DG && DG.divSrc ? DG.divSrc() : '';
+    if (modo === 'web' && dvs && /data-pa-pg/.test(h) && !/data-eu-div/.test(h)) h = h.replace(/<\/body>/i, function () { return '<script data-eu-div="1">' + dvs.replace(/<\/script/gi, '<\\/script') + '<\/script></body>'; });
     if (modo !== 'web' || !DG || !/data-pa-pg/.test(h) || /window\.DG_FONDOS=/.test(h)) return h;
     var F = DG.fondosYa && DG.fondosYa(); if (!F) return h;
     var s = '<script>window.DG_FONDOS=' + JSON.stringify(F) + ';window.DG_PINTA=' + DG.pinta.toString() + ';<\/script>';

@@ -822,6 +822,20 @@
       /* z: zona rellena que aparece (producto aplicado, papel de aluminio); b = borde, a = opacidad final */
       else if (T.k === 'z') { x.setLineDash([]); x.globalAlpha = (T.a || 0.45) * su(u); camino(T.p, T.p.length); x.closePath(); x.fill(); x.globalAlpha = 1; if (T.b && u > 0.05) { x.strokeStyle = T.b; x.lineWidth = 1.6; x.stroke(); } }
       /* c: reloj de exposición (minutos que avanzan) */
+      else if (T.k === 'dv') {   /* 18-10-2026 · lámina de divisiones de b6_divisiones.js en una tarjeta al lado del maniquí, sin taparlo */
+        var DV = window.EU_DIVISIONES; if (!DV || !DV.dibujarUna) return;
+        x.save(); x.setLineDash([]); x.translate(ox, oy); x.scale(s, s); x.globalAlpha = Math.min(1, u * 5);
+        var cw = T.cw || 360, ch = T.ch || 610, cx0 = T.bx == null ? 1280 - cw - 16 : T.bx, cy0 = T.by == null ? 64 : T.by;
+        x.fillStyle = '#FBF8F2'; x.fillRect(cx0, cy0, cw, ch); x.strokeStyle = '#B0873C'; x.lineWidth = 2; x.strokeRect(cx0, cy0, cw, ch);
+        x.fillStyle = '#1a1a2e'; x.font = '800 15px system-ui,sans-serif'; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText(T.n || '', cx0 + 14, cy0 + 27);
+        x.save(); x.beginPath(); x.rect(cx0 + 1, cy0 + 38, cw - 2, ch - 140); x.clip();
+        DV.dibujarUna(x, T.id, cx0 + cw / 2, T.cy || cy0 + 38 + (ch - 140) * 0.46, T.R || cw * 0.27, su(u), T.o || {});
+        x.restore();
+        if (T.ds) { x.font = '600 13px system-ui,sans-serif'; x.fillStyle = '#4a4a60'; x.textAlign = 'left'; var dw = String(T.ds).split(' '), dl = '', dy = cy0 + ch - 84;
+          dw.forEach(function (w) { var tt = dl ? dl + ' ' + w : w; if (x.measureText(tt).width > cw - 28 && dl) { x.fillText(dl, cx0 + 14, dy); dy += 18; dl = w; } else dl = tt; });
+          if (dl) x.fillText(dl, cx0 + 14, dy); }
+        x.restore();
+      }
       else if (T.k === 'c') {
         x.setLineDash([]); var Rc = Math.min(54, bh * 0.14), kx = bx + bw - Rc - 46, ky = by + bh * 0.42, fc = Math.min(1, (T.m || 0) / 60) * su(u), ac = -Math.PI / 2 + 2 * Math.PI * fc;
         x.fillStyle = 'rgba(255,255,255,.94)'; x.beginPath(); x.arc(kx, ky, Rc, 0, 7); x.fill(); x.strokeStyle = '#6B625A'; x.lineWidth = 2; x.stroke();
@@ -858,7 +872,7 @@
     return fondos().then(function (F) {
       var E = escenas(id); if (!E) return null;
       E.fondos = F;
-      E.escenas.forEach(function (e) { e.anim = { crop: RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; });
+      E.escenas.forEach(function (e) { e.anim = { crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; });
       return E;
     });
   }
@@ -868,7 +882,7 @@
     var F = fondosYa(); if (!F) return null;
     var E = escenas(id); if (!E) return null;
     E.fondos = F;
-    E.escenas.forEach(function (e) { e.anim = { crop: RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; });
+    E.escenas.forEach(function (e) { e.anim = { crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; });
     return E;
   }
   /* Fotograma final de una escena (JPEG) para el libro impreso. */
@@ -881,14 +895,25 @@
 
   /* Técnicas como datos (b6_pelu_particiones.js): los mismos ayudantes de dibujo y la misma salida que los cortes. */
   var KIT = { P: P, N: N, V3: V3, recta: recta, dirElev: dirElev, pr: pr, seVe: seVe, tramos: tramos, plano: plano, bezier: bezier, linea: linea, lineas: lineas, mechon: mechon, tijera: tijera, rotulo: rotulo, regla: regla, chapa: chapa, r1: r1, thCapa: thCapa, CARA: CARA, NUCA: NUCA, IZQ: IZQ, DER: DER, COL: COL, TINTA: TINTA, ROJO: ROJO, VERDE: VERDE, CORTE: CORTE };
-  function armar(fn, F) { if (!F) return null; var E = fn(KIT); if (!E) return null; E.fondos = F; E.escenas.forEach(function (e) { e.anim = { crop: RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; }); return E; }
+  function armar(fn, F) { if (!F) return null; var E = fn(KIT); if (!E) return null; E.fondos = F; E.escenas.forEach(function (e) { e.anim = { crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr }; delete e.a; }); return E; }
 
+  /* 18-10-2026 · las láminas de divisiones (trazo 'dv') necesitan b6_divisiones.js en el libro web y en el curso descargado:
+     se guarda su código tal cual (se pide al servidor una vez) para copiarlo allí */
+  var DIV_SRC = null;
+  function divSrc() {
+    if (DIV_SRC === null && window.EU_DIVISIONES && window.fetch) {
+      DIV_SRC = ''; var el = document.querySelector('script[src*="b6_divisiones.js"]'), u = el ? el.getAttribute('src') : './b6_divisiones.js';
+      fetch(u).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) { if (/EU_DIVISIONES/.test(t)) DIV_SRC = t; }).catch(function () {});
+    }
+    return DIV_SRC || '';
+  }
+  setTimeout(divSrc, 3000);
   window.EU_DIAGRAMA = {
     ALTURAS: ALTURAS, RECETAS: RECETAS, VISTAS: VISTAS,
     construirCon: function (fn) { return fondos().then(function (F) { return armar(fn, F); }); },
     construirConYa: function (fn) { return armar(fn, fondosYa()); },
     receta: receta, desdeGuia: desdeGuia, libre: libre, construir: construir, fondos: fondos, pinta: pinta,
-    construirYa: construirYa, fondosYa: fondosYa, foto: foto,
+    construirYa: construirYa, fondosYa: fondosYa, foto: foto, divSrc: divSrc,
     /* código del reproductor para el curso descargado (sin dependencias) */
     js: function () { return 'window.CURSO_ANIM={pinta:(' + pinta.toString() + ')};'; }
   };

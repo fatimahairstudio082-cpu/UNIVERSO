@@ -149,6 +149,12 @@
     var uds0 = CU.unidades;
     CU.unidades = function (mat) {
       var L = uds0.apply(this, arguments);
+      /* 18-10-2026 (Fátima: «la decoloración antes de los tintes»): la unidad de decoloración pasa justo antes del primer
+         tinte (cb_color_*), en libro y curso; no se quita ninguna unidad */
+      if (mat === 'pelu' && L && L.slice) {
+        var iD = -1, iC = -1; L.forEach(function (u, i) { if (u.id === 'cb_quim_decoloracion') iD = i; else if (iC < 0 && /^cb_color_/.test(u.id)) iC = i; });
+        if (iD > iC && iC >= 0) { L = L.slice(); var uD = L.splice(iD, 1)[0]; L.splice(iC, 0, uD); }
+      }
       if (mat !== 'pelu' || !TEMA || !TEMAS[TEMA] || !L || !L.slice) return L;
       var es = function (u) { return TEMAS[TEMA].some(function (r) { return r.test(u.id); }); };
       var cab = L.filter(function (u) { return BASE.test(u.id); }).concat(L.filter(function (u) { return !BASE.test(u.id) && es(u); }));
