@@ -592,7 +592,8 @@
     /* Fátima, 15-10-2026 (dibujo «visualizar en V el corte»): la V vista de atrás es un triángulo de lados rectos que acaba en punta;
        los lados cortos (4 dedos sobre el hombro), el centro largo según la guía */
     var xV0 = Pc0 && pr(v, V3(Pc0.x * 1.02, YB, Pc0.z * 1.02))[0], Pl = P(NUCA + Math.PI / 2, 1.35, 1.05), anchoV = Math.abs(pr(v, V3(Pl.x * 1.02, YB, Pl.z * 1.02))[0] - xV0) || 1,
-      yPunta = Math.min(700, pr(v, V3(Pc0.x * 1.02, YB - 0.6 - profV, Pc0.z * 1.02))[1]), yLadoV = Math.max(pr(v, V3(Pl.x * 1.02, -0.3, Pl.z * 1.02))[1], yPunta - 2.4 * anchoV);
+      yPunta = Math.min(700, pr(v, V3(Pc0.x * 1.02, YB - 0.6 - profV, Pc0.z * 1.02))[1]), yLadoV = Math.max(pr(v, V3(Pl.x * 1.02, todo0 ? YB + 0.6 : -0.3, Pl.z * 1.02))[1], yPunta - (todo0 ? 1.6 : 2.4) * anchoV);
+    /* Fátima, 18-10-2026: la V corta se queda; en la V de cabello largo (corte básico a 0°) los lados también caen largos, por debajo del hombro, y la punta queda abajo */
     /* Fátima, 15-10-2026: de frente, más cabello en el maniquí (mechones más juntos cerca de la cara) para que se vea el resultado */
     for (var ph = -Math.PI; ph < Math.PI; ph += frente && Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 1.2 ? 0.008 : 0.03) {
       var a = Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA)), d = Math.abs(a) / Math.PI, cerca = Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 0.55;
