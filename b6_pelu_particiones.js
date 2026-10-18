@@ -380,6 +380,8 @@
      De frente: sección en triángulo, mechón hacia un lado sobre la paleta y producto con el pincel.
      Por detrás (mechas): raya central, líneas en diagonal y papeles montados. Geometría y paleta a validar por Fátima. */
   var C_MECH = '#3A3340', C_PROD_M = '#F2C14E';
+  /* Fátima: primero las 6 divisiones del motor (raya central, oreja a oreja y la línea donde termina el cuello) */
+  function seisBase(K, v) { var L = lineasSeis(K); return dibujar(K, v, [{ d: L.raya, t: [0, 0.06], c: C_RAYA, w: 3 }, { d: L.orejas, t: [0.04, 0.1], c: C_OREJAS, w: 3.5 }, { d: L.nuca, t: [0.08, 0.14], c: C_NUCA, w: 3.5 }], { '1': 0.14, '2': 0.14, '3': 0.14, '4': 0.14, '5': 0.14, '6': 0.14 }, zonasSeis(K)); }
   function triMechon(K, v, a, b, punta, desde, t0, t1, ext, papel) {
     var tr = [], lp = function (p, q, u) { return [p[0] + (q[0] - p[0]) * u, p[1] + (q[1] - p[1]) * u]; };
     if (papel) { var dx = punta[0] - (a[0] + b[0]) / 2, dy = punta[1] - (a[1] + b[1]) / 2, L = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / L * 30, ny = dx / L * 30, m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
@@ -390,7 +392,7 @@
     return tr;
   }
   function escMechonLado(K, t, col, desde, papel) {
-    var v = 'lateral', tr = [], n = 5, PI2 = Math.PI;
+    var v = 'lateral', tr = seisBase(K, 'lateral'), n = 5, PI2 = Math.PI;
     var lin = function (i) { var h = 0.42 + i * 0.25; return [[PI2 - 0.25, h], [PI2 + 1.05, h + 0.55]]; };
     for (var i = 0; i < n; i++) { var L = lin(i); tr = tr.concat(K.lineas(K.tramos(v, K.recta(L[0], L[1]), 20), [0.02 + i * 0.03, 0.08 + i * 0.03], '#C0392B', 2.2)); }
     for (var j = 0; j < n - 1; j++) {
@@ -402,14 +404,13 @@
       tr = tr.concat(triMechon(K, v, K.pr(v, K.P(pa[0], pa[1])), K.pr(v, K.P(pb[0], pb[1])), punta, desde, ta, ta + dt * 0.8, ext, papel));
       if (papel && !ult) { var e0 = K.pr(v, K.P(pa[0] - 0.05, pa[1] - 0.05)), e1 = K.pr(v, K.P(pb[0] + 0.05, pb[1] - 0.05)), e2 = K.pr(v, K.P(pb[0] + 0.05, pb[1] + 0.2)), e3 = K.pr(v, K.P(pa[0] - 0.05, pa[1] + 0.2));
         tr.push(zona([e0[0], e0[1], e1[0], e1[1], e2[0], e2[1], e3[0], e3[1]], [tb - dt * 0.05, tb], C_PAPEL, 0.96, C_PAPEL_B)); }
-      var qn = K.pr(v, c0); tr.push({ k: 'n', x: qn[0], y: qn[1], s: String(j + 1), c: C_CAPA[j % 3], t: [ta, 1] });
     }
-    tr.push(K.rotulo('De lado · secciones en diagonal hacia atrás', '#1F1B18', 0), K.rotulo('El mechón se saca a 90°' + (papel ? ' sobre el papel de aluminio' : ''), C_MECH, 0.2),
+    tr.push(K.rotulo('De lado · 6 divisiones y secciones en diagonal hacia atrás', '#1F1B18', 0), K.rotulo('El mechón se saca a 90°' + (papel ? ' sobre el papel de aluminio' : ''), C_MECH, 0.2),
       K.rotulo('Amarillo = producto, desde el arranque (' + Math.round(desde * 100) + ' %) hasta las puntas', '#9A7B2E', 0.35));
     return { v: v, tr: tr, crop: [120, 0, 1100, 720] };
   }
   function escMechonFrente(K, t, col, desde) {
-    var v = 'frente', tr = [], C = K.CARA, ap = [C, 0.36], b1 = [C - 0.4, 0.84], b2 = [C + 0.4, 0.84];
+    var v = 'frente', tr = seisBase(K, 'frente'), C = K.CARA, ap = [C, 0.36], b1 = [C - 0.4, 0.84], b2 = [C + 0.4, 0.84];
     [[ap, b1], [b1, b2], [b2, ap]].forEach(function (s) { tr = tr.concat(K.lineas(K.tramos(v, K.recta(s[0], s[1]), 16), [0.02, 0.15], '#C0392B', 3)); });
     var ra = K.pr(v, K.P(C - 0.28, 0.76)), rb = K.pr(v, K.P(C + 0.28, 0.76)), punta = [ra[0] - 260, ra[1] + 330];
     var dx = punta[0] - (ra[0] + rb[0]) / 2, dy = punta[1] - (ra[1] + rb[1]) / 2, L = Math.sqrt(dx * dx + dy * dy), nx = -dy / L, ny = dx / L, m = [(ra[0] + rb[0]) / 2 + dx * 0.25, (ra[1] + rb[1]) / 2 + dy * 0.25];
@@ -425,16 +426,14 @@
     return { v: v, tr: tr, crop: [100, 0, 1000, 720] };
   }
   function escMechonDetras(K, t, col) {
-    var v = 'nuca', tr = [], N0 = K.NUCA, n = 7;
-    tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [N0, 0.1 + u * 1.75]; }, 30), [0, 0.08], '#C0392B', 2.6));
+    var v = 'nuca', tr = seisBase(K, 'nuca'), N0 = K.NUCA, n = 7;
     for (var i = 0; i < n; i++) { var h = 0.45 + i * 0.19; tr = tr.concat(K.lineas(K.tramos(v, K.recta([N0, h], [N0 + 0.95, h + 0.3]), 14), [0.08 + i * 0.02, 0.16 + i * 0.02], '#C0392B', 1.8)); }
     for (var j = n - 2; j >= 0; j--) {
       var k = n - 2 - j, ta = 0.25 + k * 0.7 / (n - 1), tb = ta + 0.7 / (n - 1), h0 = 0.45 + j * 0.19;
       var q = [[N0 - 0.06, h0 + 0.02], [N0 - 0.95, h0 + 0.32], [N0 - 1.05, h0 + 0.62], [N0 - 0.06, h0 + 0.3]].map(function (p) { return K.pr(v, K.P(p[0], p[1], 1.08)); });
       tr.push(zona([].concat(q[0], q[1], q[2], q[3]), [ta, tb], C_PAPEL, 0.97, '#55606E'));
-      tr.push({ k: 'n', x: (q[0][0] + q[2][0]) / 2, y: (q[0][1] + q[2][1]) / 2, s: String(k + 1), c: C_CAPA[k % 3], t: [tb - 0.02, 1] });
     }
-    tr.push(K.rotulo('Por detrás · raya central y líneas en diagonal', '#1F1B18', 0), K.rotulo('Los papeles quedan montados uno sobre otro', '#55606E', 0.25));
+    tr.push(K.rotulo('Por detrás · 6 divisiones, raya central y líneas en diagonal', '#1F1B18', 0), K.rotulo('Línea de la nuca: donde termina el cuello', C_NUCA, 0.08), K.rotulo('Los papeles quedan montados uno sobre otro', '#55606E', 0.25));
     return { v: v, tr: tr };
   }
   function escLatQueda(K, vert, desde) {
@@ -689,11 +688,11 @@
       if (/^(mechas_aluminio|color_balayage|color_babylights|color_sombre)$/.test(id) && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_mech_lado'; }) && K.dirElev && K.mechon) {
         var papM = id !== 'color_balayage' && id !== 'color_sombre', desM = papM ? 0.10 : ARRANQUE;
         esc.push({ tipo: 'cb_mech_lado', vista: 'lateral', t: 'De lado · cómo se saca el mechón', a: escMechonLado(K, t, col, desM, papM),
-          texto: 'De lado: secciones en diagonal hacia atrás. De cada sección se saca el mechón a 90 grados' + (papM ? ', sobre el papel de aluminio' : '') + '. Lo oscuro es el mechón y lo amarillo, donde va el producto: desde el arranque hasta las puntas.' + (papM ? ' Los papeles quedan montados.' : ' El arranque lo decide la clienta.') },
+          texto: 'Primero las seis divisiones: raya central, de oreja a oreja y la línea de la nuca, donde termina el cuello. De lado: secciones en diagonal hacia atrás. De cada sección se saca el mechón a 90 grados' + (papM ? ', sobre el papel de aluminio' : '') + '. Lo oscuro es el mechón y lo amarillo, donde va el producto: desde el arranque hasta las puntas.' + (papM ? ' Los papeles quedan montados.' : ' El arranque lo decide la clienta.') },
           { tipo: 'cb_mech_frente', vista: 'frente', t: 'De frente · cómo se saca el mechón', a: escMechonFrente(K, t, col, desM),
           texto: 'De frente: la sección en triángulo. El mechón se saca hacia un lado, sobre la paleta, y con el pincel se pone el producto desde el arranque hasta las puntas.' });
         if (papM) esc.push({ tipo: 'cb_mech_detras', vista: 'nuca', t: 'Por detrás · papeles montados', a: escMechonDetras(K, t, col),
-          texto: 'Por detrás: raya central y líneas en diagonal. En cada línea se saca el mechón, se pone el producto y el papel de aluminio; los papeles quedan montados uno sobre otro.' });
+          texto: 'Por detrás se ven las seis divisiones, con la línea de la nuca donde termina el cuello. Raya central y líneas en diagonal. En cada línea se saca el mechón, se pone el producto y el papel de aluminio; los papeles quedan montados uno sobre otro.' });
       }
       if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_lat_h'; }) && K.dirElev && K.mechon) {
         var tecLat = id === 'color_balayage' ? 'balayage' : 'mechas con papel';
