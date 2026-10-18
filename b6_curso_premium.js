@@ -553,7 +553,9 @@
     z.file(raiz + 'LEEME.txt', 'Estructura para Hotmart, Teachable o similar.\nCada carpeta es un módulo y cada .txt una lección: título, descripción, página del libro y guion.\n' +
       'Graba los vídeos abriendo curso/index.html#grabar («Grabar todos los vídeos»): cada archivo sale con el mismo nombre que su lección (M01-L02-…).\nGuárdalos en su carpeta y súbelos lección por lección. Adjunta el libro en PDF como material descargable.\n' +
       (du ? 'Duración total: ' + h1(du.total) + ' h (lecciones ' + h1(du.lecciones) + ' h · tests y examen ' + h1(du.tests) + ' h · audio del libro ' + h1(du.libro) + ' h).\n' : '') +
-      (meses ? 'Duración del programa (con práctica): ' + meses + (meses === 1 ? ' mes' : ' meses') + '.\n' : ''));
+      (meses ? 'Duración del programa (con práctica): ' + meses + (meses === 1 ? ' mes' : ' meses') + '.\n' : '') +
+      /* 18-10-2026 (Fátima): diferencia pedagógica entre horas lectivas y práctica de taller */
+      (du ? 'Horas lectivas y práctica: las ' + h1(du.total) + ' h son de contenido lectivo directo y narración animada. El tiempo de práctica real del alumno comprende cientos de horas de taller ' + (meses ? 'a lo largo de los ' + meses + (meses === 1 ? ' mes' : ' meses') + ' del programa' : 'a lo largo del programa') + ', ya que cada técnica requiere pausar, dividir y practicar sobre el maniquí hasta dominar el procedimiento.\n' : ''));
     function h1(m) { return (m / 60).toFixed(1).replace('.', ','); }
     D.modulos.forEach(function (M, i) {
       var dir = raiz + 'Modulo-' + dos(i + 1) + '-' + slug(M.t) + '/';
