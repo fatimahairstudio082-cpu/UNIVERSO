@@ -140,7 +140,7 @@
         proporciones: '1 : 1 · con 1:1,5 sólo si el fabricante lo indica para su gama',
         productos: ['Tinte 7.0', 'Oxidante 20 vol', 'Protector de cutícula'],
         cantidades: '60 g + 60 ml para melena por debajo del hombro',
-        tiempos: 'Cabello virgen: 10 min en el largo, luego raíz y 30 min más. Sobre color ya hecho, al revés: raíz 25 min y el largo los 10 últimos.',
+        tiempos: 'Aproximadamente 45 minutos en tintes con amoníaco; en tintes sin amoníaco se puede dejar 50 minutos. Hay que estar revisando el cabello.',   /* Fátima, 18-10-2026 */
         temperaturas: 'Ambiente.',
         herramientas: ['Bol', 'Pincel', 'Peine de cola', 'Pinzas'],
         errores: ['Aplicar raíz y largo a la vez: la raíz sale más clara por el calor', 'Cantidad corta y zonas sin cubrir'],
@@ -150,9 +150,12 @@
       pasos: [
         { t: 'Divisiones', n: 'Se divide el cabello en cuatro o seis partes en la parte de atrás, que quede cuadrado. La cabeza y la parte de adelante se dividen con dos pinzas.', e: 'Secciones desiguales.', d: 4, fase: 'divisiones' },
         { t: 'Mechón por mechón', n: 'Se divide en mechas muy finas. Se va sacando mechón por mechón, se va resaltando y se va aplicando el tinte correspondiente desde la raíz, penetrando bien la raíz para cubrir canas, y luego deslizando hacia abajo el producto del tinte.', d: 6, fase: 'aplicacion' },   /* palabras de Fátima, 18-10-2026 */
+        { t: 'Líneas finas de raíz a punta', n: 'Luego se sacan las líneas bien finitas en esta partición, en esta división del cabello, y se van sacando los mechones finamente, cubriendo bastante con el tinte, de raíz a punta.', d: 6, fase: 'aplicacion' },   /* palabras de Fátima, 18-10-2026 */
+        { t: 'Para cubrir las canas', n: 'Para cubrir las canas, primero se aplica bien abundante producto en la raíz y luego se aplica producto en las puntas.', d: 6, fase: 'aplicacion' },   /* palabras de Fátima, 18-10-2026 */
         { t: 'Medios y puntas', n: 'Aplica primero de medios a puntas y deja actuar diez minutos.', e: 'Tocar la raíz ahora: se aclara de más.', d: 6, fase: 'aplicacion' },
         { t: 'Raíz', n: 'Baja a la raíz y satura los dos primeros centímetros.', e: 'Escatimar producto en la línea de la cara.', d: 5, fase: 'aplicacion' },
-        { t: 'Exposición', n: 'Treinta minutos más desde la última pincelada.', e: 'Añadir calor sin necesidad.', d: 5, fase: 'tiempo' },
+        { t: 'Exposición', n: 'Tiempo aproximado: cuarenta y cinco minutos en tintes con amoníaco. En tintes sin amoníaco se puede dejar cincuenta minutos.', e: 'Añadir calor sin necesidad.', d: 5, fase: 'tiempo' },   /* Fátima, 18-10-2026 */
+        { t: 'Revisar el cabello', n: 'Hay que estar revisando el cabello: a los diez minutos, cinco minutos después de haber colocado el tinte.', d: 4, fase: 'tiempo' },   /* Fátima, 18-10-2026 · a confirmar */
         { t: 'Cierre', n: 'Emulsiona, aclara y sella con acidificante.', e: 'Saltarse el acidificante y perder brillo.', d: 4, fase: 'cierre' }
       ],
       repaso: [
