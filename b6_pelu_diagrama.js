@@ -197,8 +197,9 @@
      y(d): desplazamiento en pantalla de las puntas (d = 0 centro … 1 lados); th(d): forma de la sección; lat: se ve de perfil. */
   var FORMAS_ATRAS = {
     recta: { n: 'recta', y: function () { return 0; }, th: function () { return 0; } },
-    redondeada: { n: 'redondeada (U)', y: function (d) { return -46 * d * d; }, th: function (d) { return -0.22 * d * d; } },
-    u: { n: 'en U', y: function (d) { return -95 * d * d * d; }, th: function (d) { return -0.42 * d * d * d; } },
+    redondeada: { n: 'redondeada', y: function (d) { return -46 * d * d; }, th: function (d) { return -0.22 * d * d; } },
+    /* Fátima, 18-10-2026 (su referencia «cortes simétricos a cero grados»): la U es honda, casi tan larga en el centro como la V pero con la punta redonda */
+    u: { n: 'en U', y: function (d) { return -130 * Math.pow(d, 1.6); }, th: function (d) { return -0.58 * Math.pow(d, 1.6); } },
     v: { n: 'en V', y: function (d) { return -110 * d; }, th: function (d) { return -0.5 * d; } },
     a: { n: 'en A (V invertida)', y: function (d) { return 62 * d - 20; }, th: function (d) { return 0.22 * d; } },
     diag_delante: { n: 'diagonal hacia delante', lat: 1, s: 1 },
@@ -568,7 +569,7 @@
   /* Fátima, 10-10-2026 · CÓMO QUEDA el corte, antes y después, dando la vuelta a la cabeza (atrás, lateral, frente).
      El cabello largo (antes), la tijera siguiendo la línea del corte y el cabello cortado (después) con su sombreado.
      La forma sale de la línea del corte: recta (cuadrado), redondeada (U), en V, en A o en diagonal. */
-  var FORMA_Y = { recta: function () { return 0; }, redondeada: function (d) { return 0.5 * d * d; }, u: function (d) { return 0.9 * d * d * d; }, v: function (d) { return 0.9 * d; },
+  var FORMA_Y = { recta: function () { return 0; }, redondeada: function (d) { return 0.5 * d * d; }, u: function (d) { return 1.05 * Math.pow(d, 1.6); }, v: function (d) { return 0.9 * d; },
     a: function (d) { return -0.5 * d; }, diag_delante: function (d) { return -0.6 * d; }, diag_atras: function (d) { return 0.6 * d; } };
   function lineaDe(R) {
     if (FORMA_Y[R.linea]) return R.linea;
@@ -582,7 +583,7 @@
     var todo0 = !((R.capas && R.capas.pila) || []).some(function (g) { return +g > 0; }), YB = todo0 ? ALTURAS.cuello.y : -1.45;
     /* Fátima, 15-10-2026: la V (o la A) se alarga con el largo de la guía, como en sus técnicas en V y en punta;
        y el resultado usa las elevaciones del corte con el calculador que ya existe (EU_CALCULO_CAPILAR) */
-    var CC = window.EU_CALCULO_CAPILAR, medQ = CC && CC.medidas ? Object.assign({}, CC.medidas(), R.medidas || {}) : null, profV = (lin === 'v' || lin === 'a') ? 0.6 * Math.min(2, Math.max(0.5, ((medQ && +medQ.guia) || 20) / 20)) : 0;
+    var CC = window.EU_CALCULO_CAPILAR, medQ = CC && CC.medidas ? Object.assign({}, CC.medidas(), R.medidas || {}) : null, profV = (lin === 'v' || lin === 'a' || lin === 'u') ? 0.6 * Math.min(2, Math.max(0.5, ((medQ && +medQ.guia) || 20) / 20)) : 0;
     /* Fátima, 10-10-2026: con pollina (guía bajo las cejas o «flequillo» en el nombre) o sin pollina, largo más abajo del rostro */
     var pollina = R.altura === 'cejas' || /flequillo|pollina|fleco/i.test(R.n || ''), yCejas = ALTURAS.cejas.y - 0.06, yLargo = Math.min(YB + FY(1) + 0.15, ALTURAS.rostro.y - 0.3);
     /* altura a la que un mechón de atrás termina en la misma línea de pantalla que el del centro (corte recto visto de atrás) */
@@ -621,6 +622,8 @@
       var yC = Math.max(YB - 0.85, YB + FY(d) - (lin === 'v' ? profV * (1 - d) : lin === 'a' ? profV * d : 0)) + (d > 0.8 ? 0.15 : 0), largo = cola(YB - 0.95), corto = cola(yC);
       /* Fátima, 15-10-2026: en «recta · cuadrado» la línea de atrás se ve recta y horizontal, con esquinas (antes salía en arco por la cabeza redonda) */
       if (lin === 'recta' && v === 'nuca' && visto) { yC = yPlano(base); corto = cola(yC); }
+      /* Fátima, 18-10-2026 (su referencia «corte en U»): vista de atrás honda como la V, pero con el fondo redondo y los lados casi rectos */
+      if (lin === 'u' && v === 'nuca' && visto) { var fU = Math.min(1, Math.abs(pr(v, V3(base.x * 1.02, YB, base.z * 1.02))[0] - xV0) / anchoV); yC = yPlano(base, yPunta + (yLadoV - yPunta) * 0.8 * (1 - Math.sqrt(Math.max(0, 1 - fU * fU)))); corto = cola(yC); }
       if (lin === 'v' && v === 'nuca' && visto) { var fV = Math.min(1, Math.abs(pr(v, V3(base.x * 1.02, YB, base.z * 1.02))[0] - xV0) / anchoV); yC = yPlano(base, yPunta + (yLadoV - yPunta) * fV); corto = cola(yC); }
       if (corto.length < 2) continue;
       tr.push(linea(plano(largo), [0.02, 0.28], '#3A2418', 5, { x: 0.5 }));
