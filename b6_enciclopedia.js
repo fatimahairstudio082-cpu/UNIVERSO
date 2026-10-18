@@ -40,7 +40,7 @@
     var cel = function (a, b) { return '<div style="padding:1.2mm 2.5mm;border-left:0.6mm solid ' + T0.acc + ';background:' + T0.soft + '"><div style="font-size:.78em;opacity:.75;text-transform:uppercase;letter-spacing:.08em">' + a + '</div><div style="font-weight:600">' + b + '</div></div>'; };
     return '<div data-enc-ficha="1" style="display:grid;grid-template-columns:repeat(' + (par ? 4 : 3) + ',minmax(0,1fr));gap:2mm;margin:-2mm 0 3mm;font-size:.72em;line-height:1.3">' +
       cel('Código', 'U' + dos(pg.n) + ' · ' + es(u.id.replace(/_/g, '-').toUpperCase().slice(0, 18))) +
-      cel('Etapa', es((C.N && C.N.n) || '') + (C.libre ? '' : ' · ' + es(C.cursoN || ''))) +
+      cel('Nivel', C.libre ? es((C.N && C.N.n) || '') : es(C.cursoN || '')) +
       (par ? cel('Parte', es(par)) : '') +
       cel('Referente', es(C.libre ? (C.P.id === 'us' ? 'Estados Unidos' : C.P.n) : (C.P.marcoCorto || C.P.n))) + '</div>';
   }

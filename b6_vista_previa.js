@@ -114,8 +114,9 @@
   }
   /* resumen de la Carpeta HOTMART: módulos, lecciones, vídeos a grabar, minutos aproximados y, si se pide, archivos y peso exactos */
   function minutos(L) {   /* misma cuenta que el certificado: narración a 14,5 letras/s + 2 s por escena */
-    var letras = 0; (L.escenas || []).forEach(function (e) { letras += String(e.texto || '').length + String(e.sol || '').length; });
-    return (letras / 14.5 + 2 * (L.escenas || []).length) / 60;
+    /* (18-10-2026, Fátima: «cada animación de clase tiene su duración») la escena animada cuenta lo que dura su animación al reproducirse */
+    var seg = 0; (L.escenas || []).forEach(function (e) { var nl = (String(e.texto || '').length + String(e.sol || '').length) / 14.5; seg += e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 : nl + 2; });
+    return seg / 60;
   }
   function resumenHotmart(ed, D, caja) {
     var T = '#16223A', O = '#B08D57', tot = 0, nL = 0, nV = 0, nT = 0;

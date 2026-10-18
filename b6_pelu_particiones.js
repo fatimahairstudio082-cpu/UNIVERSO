@@ -547,13 +547,22 @@
      sus divisiones trazadas. La voz lee el nombre y la explicación de la lámina tal como están. En la planta del balayage, la
      misma lámina con el arranque al 10, 25, 50 y 75 % (la escala de la lámina). */
   var CROP_LAM = [190, 0, 1360, 720];
+  /* mechón resaltado (Fátima, 18-10-2026, su lámina «formas y técnicas balayage»): solo en mechas, balayage, babylights y sombré,
+     sobre las láminas de perfil (sale por detrás, hacia abajo) y de nuca (tres mechones hacia abajo) */
+  function mechDe(id, lam) {
+    if (!/^(mechas_aluminio|color_balayage|color_babylights|color_sombre)$/.test(id)) return {};
+    var desde = /balayage|sombre/.test(id) ? ARRANQUE : 0.1;
+    if (/^perfil/.test(lam)) return { mech: [150], mv: 'perfil', desde: desde };
+    if (/^nuca/.test(lam)) return { mech: [70, 90, 110], mv: 'nuca', desde: desde };
+    return {};
+  }
   function laminasEsc(K, t, id, divs) {
     var DV = window.EU_DIVISIONES, out = []; if (!DV || !DV.laminasDe) return out;
     DV.laminasDe(id).forEach(function (L, j) {
       (L.id === 'plantaBalayage' ? [0.10, 0.25, 0.50, 0.75] : [null]).forEach(function (pc, k) {
         var b = escDivisiones(K, t, divs.length ? divs : [{ id: 'cuatro', n: 'Cuatro secciones' }], 0, 0.06), nom = (j + 1) + '. ' + L.n, pct = pc == null ? '' : Math.round(pc * 100);
         b.tr = b.tr.filter(function (s) { return s.k !== 'e'; });
-        b.tr.push(Object.assign({ k: 'dv', id: L.id, n: nom, ds: L.d, t: [0.06, 0.9], c: '#B0873C', bx: 1110, by: 30, cw: 436, ch: 660, o: pc == null ? {} : { desde: pc } }, pc == null ? {} : { R: 108, cy: 200 }),
+        b.tr.push(Object.assign({ k: 'dv', id: L.id, n: nom, ds: L.d, t: [0.06, 0.9], c: '#B0873C', bx: 1110, by: 30, cw: 436, ch: 660, o: pc == null ? {} : { desde: pc } }, pc == null ? {} : { R: 108, cy: 200, pct: pc }, mechDe(id, L.id)),
           K.rotulo('Lámina ' + nom + (pc == null ? '' : ' · arranque ' + pct + ' %'), '#B0873C', 0));
         b.crop = CROP_LAM;
         out.push({ tipo: 'cb_lam_' + L.id + (pc == null ? '' : '_' + pct), vista: b.v, t: 'Lámina · ' + L.n + (pc == null ? '' : ' · arranque ' + pct + ' %'), a: b,

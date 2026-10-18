@@ -828,9 +828,42 @@
         var cw = T.cw || 360, ch = T.ch || 610, cx0 = T.bx == null ? 1280 - cw - 16 : T.bx, cy0 = T.by == null ? 64 : T.by;
         x.fillStyle = '#FBF8F2'; x.fillRect(cx0, cy0, cw, ch); x.strokeStyle = '#B0873C'; x.lineWidth = 2; x.strokeRect(cx0, cy0, cw, ch);
         x.fillStyle = '#1a1a2e'; x.font = '800 15px system-ui,sans-serif'; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText(T.n || '', cx0 + 14, cy0 + 27);
-        x.save(); x.beginPath(); x.rect(cx0 + 1, cy0 + 38, cw - 2, ch - 140); x.clip();
-        DV.dibujarUna(x, T.id, cx0 + cw / 2, T.cy || cy0 + 38 + (ch - 140) * 0.46, T.R || cw * 0.27, su(u), T.o || {});
+        var PX = cx0 + cw / 2, PY = T.cy || cy0 + 38 + (ch - 140) * 0.46, PR = T.R || cw * 0.27;
+        x.save(); x.beginPath(); x.rect(cx0 + 1, cy0 + 38, cw - 2, T.pct != null ? 262 : ch - 140); x.clip();
+        DV.dibujarUna(x, T.id, PX, PY, PR, su(u), T.o || {});
+        /* Fátima, 18-10-2026 (su lámina «formas y técnicas balayage»): el mechón que se saca de la sección, resaltado,
+           y en amarillo el tramo donde se aplica el producto (desde el arranque hasta las puntas) */
+        var rx = T.mv === 'nuca' ? 0.84 : 1, ryy = T.mv === 'nuca' ? 1 : 1.02;
+        (T.mech || []).forEach(function (g, k) {
+          var um = Math.max(0, Math.min(1, (u - 0.45 - k * 0.07) / 0.3)); if (!um) return;
+          var a0 = g * Math.PI / 180, P = function (aa, r) { return [PX + Math.cos(aa) * PR * rx * r, PY + Math.sin(aa) * PR * ryy * r]; };
+          var b1 = P(a0 - 0.15, 1), b2 = P(a0 + 0.15, 1), ap = P(a0, 1 + 0.8 * su(um)), L = function (q, t) { return [q[0] + (ap[0] - q[0]) * t, q[1] + (ap[1] - q[1]) * t]; };
+          x.globalAlpha = 0.92; x.fillStyle = '#3A3340'; x.beginPath(); x.moveTo(b1[0], b1[1]); x.lineTo(ap[0], ap[1]); x.lineTo(b2[0], b2[1]); x.closePath(); x.fill();
+          var dd = T.desde == null ? 0.5 : T.desde, q1 = L(b1, dd), q2 = L(b2, dd);
+          if (um > 0.6) { x.globalAlpha = Math.min(1, (um - 0.6) / 0.4); x.shadowColor = '#F2C14E'; x.shadowBlur = 14; x.fillStyle = '#F2C14E'; x.beginPath(); x.moveTo(q1[0], q1[1]); x.lineTo(ap[0], ap[1]); x.lineTo(q2[0], q2[1]); x.closePath(); x.fill(); x.shadowBlur = 0; }
+          x.globalAlpha = 1;
+        });
         x.restore();
+        /* el mechón con sus porcentajes, grande y nítido: el producto entra desde el arranque elegido hasta las puntas */
+        if (T.pct != null) {
+          var yT = cy0 + 330, yB = cy0 + 540, mx = PX + 10, wT = 34, wB = 6, Y = function (v) { return yT + (yB - yT) * v; }, W = function (v) { return wT + (wB - wT) * v; };
+          var forma = function () { x.beginPath(); x.moveTo(mx - wT, yT); x.quadraticCurveTo(mx - wT * 0.9, Y(0.6), mx - wB, yB); x.lineTo(mx + wB, yB); x.quadraticCurveTo(mx + wT * 0.9, Y(0.6), mx + wT, yT); x.closePath(); };
+          forma(); x.fillStyle = '#5A3A28'; x.fill();
+          x.save(); forma(); x.clip();
+          var gp = Math.max(0, Math.min(1, (u - 0.3) / 0.55)), ya = Y(T.pct);
+          if (gp > 0) { var gr0 = x.createLinearGradient(0, ya, 0, yB); gr0.addColorStop(0, '#F7E2A0'); gr0.addColorStop(1, '#F2C14E'); x.fillStyle = gr0; x.fillRect(mx - wT - 2, ya, wT * 2 + 4, (yB - ya) * su(gp)); }
+          x.strokeStyle = 'rgba(255,255,255,.28)'; x.lineWidth = 1.2; for (var hl = -3; hl <= 3; hl++) { x.beginPath(); x.moveTo(mx + hl * wT / 4, yT); x.lineTo(mx + hl * wB / 4, yB); x.stroke(); }
+          x.restore();
+          x.textBaseline = 'middle';
+          [[0.10, '#9A7B2E'], [0.25, '#d94141'], [0.50, '#6b6b80'], [0.75, '#2fa36b']].forEach(function (m) {
+            var yy = Y(m[0]), w = W(m[0]); x.strokeStyle = m[1]; x.lineWidth = 2.5; x.beginPath(); x.moveTo(mx - w - 14, yy); x.lineTo(mx + w + 6, yy); x.stroke();
+            x.fillStyle = m[1]; x.font = '800 17px system-ui,sans-serif'; x.textAlign = 'right'; x.fillText(Math.round(m[0] * 100) + ' %', mx - w - 20, yy);
+          });
+          x.strokeStyle = '#B0873C'; x.lineWidth = 3.5; x.beginPath(); x.moveTo(mx - W(T.pct) - 6, ya); x.lineTo(mx + W(T.pct) + 30, ya); x.stroke();
+          x.fillStyle = '#B0873C'; x.font = '800 17px system-ui,sans-serif'; x.textAlign = 'left'; x.fillText('arranque ' + Math.round(T.pct * 100) + ' %', mx + W(T.pct) + 36, ya);
+          x.fillStyle = '#4a4a60'; x.font = '700 14px system-ui,sans-serif'; x.fillText('raíz', mx + wT + 8, yT + 2); x.fillText('puntas', mx + wB + 12, yB - 4);
+          x.textBaseline = 'alphabetic';
+        }
         if (T.ds) { x.font = '600 13px system-ui,sans-serif'; x.fillStyle = '#4a4a60'; x.textAlign = 'left'; var dw = String(T.ds).split(' '), dl = '', dy = cy0 + ch - 84;
           dw.forEach(function (w) { var tt = dl ? dl + ' ' + w : w; if (x.measureText(tt).width > cw - 28 && dl) { x.fillText(dl, cx0 + 14, dy); dy += 18; dl = w; } else dl = tt; });
           if (dl) x.fillText(dl, cx0 + 14, dy); }

@@ -352,7 +352,7 @@
        cronometradas con la narración y los tests, número de certificado y descarga en PDF A4 apaisado (sin librerías) */
     function horasCurso() {
       var seg = 0, nq = (D.examen || []).length;
-      D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { L.escenas.forEach(function (e) { seg += String(e.texto || '').length / 14.5 + 2 + (e.tipo === 'pregunta' ? 20 : 0); }); }); });
+      D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { L.escenas.forEach(function (e) { var nl = String(e.texto || '').length / 14.5; seg += e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 : nl + 2 + (e.tipo === 'pregunta' ? 20 : 0); });   /* (18-10-2026) cada escena animada dura lo que dura su animación, como al reproducir */ }); });
       seg += nq * 45;
       return Math.max(1, Math.ceil(seg / 3600));
     }

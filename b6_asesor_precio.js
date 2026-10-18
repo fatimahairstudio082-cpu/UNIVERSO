@@ -82,7 +82,7 @@
       preg += (M.test || []).length;
       M.lecciones.forEach(function (l) {
         L++; if (l.video) V++; if (/__pizarra$/.test(l.id || '')) piz++; if (l.animada || /^(Diagramación|Clase|Técnica|Variante) ·/.test(l.t || '')) anim++;
-        (l.escenas || []).forEach(function (e) { esc_++; letras += String(e.texto || '').length + String(e.sol || '').length; });
+        (l.escenas || []).forEach(function (e) { esc_++; var nl = (String(e.texto || '').length + String(e.sol || '').length) / 14.5; letras += (e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 - 2 : nl) * 14.5; });   /* (18-10-2026) escenas animadas: su duración real */
       });
     });
     preg += (D.examen || []).length;

@@ -196,6 +196,23 @@
     }
   };
 
+  /* Niveles de Fátima (18-10-2026): en todas las materias y países las etapas
+     se llaman solo Infantil, Principiante, Intermedio, Avanzado y Profesional,
+     sin siglas ni nombres oficiales (ESO, FP, GED, LOMLOE, ministerios…).
+     Los ids internos (inf, pri, sec, bach, fp, adu) y las bandas no cambian. */
+  var NIVEL_N = { inf: 'Infantil', pri: 'Principiante', sec: 'Intermedio', bach: 'Avanzado', fp: 'Profesional', adu: 'Profesional' };
+  Object.keys(PAISES).forEach(function (k) {
+    var P = PAISES[k];
+    P.marco = 'Contenido propio de la autora, fruto de su experiencia profesional';
+    P.marcoCorto = 'Contenido propio de la autora';
+    P.autoridad = '';
+    Object.keys(P.niveles).forEach(function (id) {
+      var N = P.niveles[id], L = NIVEL_N[id] || N.n;
+      N.n = L;
+      N.c.forEach(function (c, i) { c.n = N.c.length > 1 ? L + ' ' + (i + 1) : L; });
+    });
+  });
+
   /* ─────────── Materias ─────────── */
   var MATERIAS = [
     { id: 'lengua', n: 'Lengua y literatura', ico: '📖', al: { es: 'Lengua Castellana y Literatura', mx: 'Lenguajes · Español', co: 'Lengua Castellana', ar: 'Prácticas del Lenguaje', cl: 'Lenguaje y Comunicación', ve: 'Lengua y Literatura', do: 'Lengua Española', us: 'Artes del Lenguaje en Español' } },
@@ -210,7 +227,7 @@
     { id: 'tecno', n: 'Tecnología e informática', ico: '💻', al: { es: 'Tecnología y Digitalización', co: 'Tecnología e Informática' } },
     { id: 'valores', n: 'Valores y ética', ico: '🤲', al: { es: 'Educación en Valores Cívicos y Éticos', co: 'Ética y Valores Humanos', mx: 'Formación Cívica y Ética', do: 'Formación Integral Humana y Religiosa' } },
     { id: 'religion', n: 'Religión y cultura religiosa', ico: '🕊', al: { co: 'Educación Religiosa', do: 'Formación Integral Humana y Religiosa' } },
-    { id: 'pelu', n: 'Peluquería y estética', ico: '💇', al: { es: 'Peluquería y Cosmética Capilar (FP)' } }
+    { id: 'pelu', n: 'Peluquería y estética', ico: '💇', al: { es: 'Peluquería y Cosmética Capilar' } }
   ];
 
   /* ─────────── Banco de unidades ───────────

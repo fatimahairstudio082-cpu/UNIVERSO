@@ -453,7 +453,7 @@
 
     cursos: {
       nombre: 'Cursos y academia',
-      titulos: ['Formación Profesional', 'Nuestros Cursos', 'Aprende con Nosotras', 'Academia'],
+      titulos: ['Nivel Profesional', 'Nuestros Cursos', 'Aprende con Nosotras', 'Academia'],
       subs: ['Formación práctica con modelo real',
              'Plazas limitadas y material incluido',
              'De cero a trabajar: temario completo',
