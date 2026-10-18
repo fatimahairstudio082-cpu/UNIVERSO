@@ -351,6 +351,7 @@
     /* certificado profesional (Fátima, 9-10-2026): firma y sello de Fátima Caldea, horas del curso
        cronometradas con la narración y los tests, número de certificado y descarga en PDF A4 apaisado (sin librerías) */
     function horasCurso() {
+      if (D.minTotal) return Math.max(1, Math.ceil(D.minTotal / 60));   /* (18-10-2026, Fátima) la misma cifra total que Hotmart: lecciones + tests y examen + audio del libro */
       var seg = 0, nq = (D.examen || []).length;
       D.modulos.forEach(function (M) { nq += (M.test || []).length; M.lecciones.forEach(function (L) { L.escenas.forEach(function (e) { var nl = String(e.texto || '').length / 14.5; seg += e.anim && e.tipo !== 'pregunta' ? Math.max(8, nl * 1.4) + 0.7 : nl + 2 + (e.tipo === 'pregunta' ? 20 : 0); });   /* (18-10-2026) cada escena animada dura lo que dura su animación, como al reproducir */ }); });
       seg += nq * 45;
@@ -611,6 +612,7 @@
       var z = new JSZip(), base = slug(D.titulo) + '-premium/';
       Object.keys(VIDEOS).forEach(function (n) { z.file(base + 'curso/' + n, VIDEOS[n]); });
       /* index.html autónomo: datos y animaciones dentro (abierto desde el gestor de archivos del móvil, los <script src> sueltos no cargan) */
+      D.minTotal = duracion(res, D).total;   /* certificado = duración total (18-10-2026) */
       var datosIn = '<script>window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';<\/script>';
       var animIn = D.anim && window.EU_CURSO_ANIM ? '<script>' + EU_CURSO_ANIM.js().replace(/<\//g, '<\\/') + '<\/script>' : '';
       z.file(base + 'curso/index.html', cursoHTML(D).replace('<script src="datos.js"></script>', function () { return datosIn; }).replace('<script src="anim.js"></script>', function () { return animIn; }));

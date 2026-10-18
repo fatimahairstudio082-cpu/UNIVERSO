@@ -101,8 +101,9 @@
 
   function panel(ed, D, caja) {
     var res = ed.res, C = res.C, pk = PAISES[C.pk] ? C.pk : 'es', cfg = C.cfg || {};
-    var S = escanea(res), K = cursoDatos(D), prof = !!(C.adulto || /^(fp|adu)$/.test(cfg.nivel) || OFICIO.test(C.mat || cfg.materia || ''));
+    var S = escanea(res), K = cursoDatos(D), CPd = window.EU_CURSO_PREMIUM, prof = !!(C.adulto || /^(fp|adu)$/.test(cfg.nivel) || OFICIO.test(C.mat || cfg.materia || ''));
     var extra = K.animadas > 0 || K.pizarra > 0;
+    if (CPd && CPd.duracion) K.horas = CPd.duracion(res, D).total / 60;   /* (18-10-2026, Fátima) la misma cifra total que Hotmart y el certificado: con el audio del libro */
     var tL = escalon(LIBRO, S.hojas), tC = escalon(CURSO, K.horas);
     var uL = recomienda(tL, prof, extra), uC = recomienda(tC, prof, extra);
     var T = '#16223A', O = '#B08D57';
@@ -140,7 +141,7 @@
       var p = precioN(usd, pk), usdP = pk === 'us' || pk === 've' ? p : p / aLocal(1, pk), n = neto(usdP, pk), loc = function (v) { return dice(aLocal(v, pk)); };
       return tit + ': precio recomendado en ' + PAISES[pk][0] + ', ' + dice(p) + '. El rango va de ' + dice(precioN(t[2], pk)) + ' a ' + dice(precioN(t[3], pk)) + ', ' + t[4] + '. Incluye ' + inc + '. Por cada venta te quedan ' + loc(n.hot) + ' en Hotmart, ' + loc(n.str) + ' con Stripe y ' + loc(n.pp) + ' con PayPal.';
     }
-    var vozTxt = 'Asesor de precio de ' + (C.titulo || 'este libro') + '. ' + (prof ? 'Es formación profesional o para adultos' : 'Es material escolar') + (extra ? ', con animaciones o pizarra' : '') + '. ' +
+    var vozTxt = 'Asesor de precio de ' + (C.titulo || 'este libro') + '. ' + (prof ? 'Es nivel profesional o para adultos' : 'Es material escolar') + (extra ? ', con animaciones o pizarra' : '') + '. ' +
       'El libro tiene ' + S.hojas + ' hojas: ' + S.grupos.map(function (g) { return g[1] + ' de ' + g[0].toLowerCase(); }).join(', ') + '. ' +
       'El curso tiene ' + K.modulos + ' módulos, ' + K.lecciones + ' lecciones y unas ' + K.horas.toFixed(1).replace('.', ',') + ' horas. ' +
       (S.hojas < 56 ? 'Con menos de 56 hojas conviene usar el libro como producto de entrada o regalo, y vender el curso. ' : '') +
@@ -149,7 +150,7 @@
       'Para vender en Instagram y Facebook: Meta no permite poner productos descargables en su tienda; se publica y se enlaza al pago de Hotmart, Stripe o PayPal. Con Hotmart el comprador recibe el acceso solo. Es orientativo: el precio final lo decides tú.';
     caja.innerHTML = '<div style="background:#f6f7fb;border-radius:12px;padding:16px;color:#1f2433;font-family:system-ui,Segoe UI,sans-serif;max-width:1100px;margin:0 auto">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div style="font-size:18px;font-weight:800;color:' + T + '">💰 Asesor de precio · ' + esc(C.titulo || '') + '</div><button data-asesor-voz style="font:600 13px system-ui,sans-serif;padding:7px 14px;border-radius:99px;border:0;background:' + T + ';color:#fff;cursor:pointer">🔊 Escuchar el asesor</button></div>' +
-      '<div style="font-size:12.5px;color:#55607a;margin:2px 0 12px">' + (prof ? 'Formación profesional / adultos' : 'Material escolar') + (extra ? ' · con animaciones o pizarra' : '') + ' · país del libro: ' + esc(PAISES[pk][0]) + '. Orientativo: el precio final lo decides tú.</div>' +
+      '<div style="font-size:12.5px;color:#55607a;margin:2px 0 12px">' + (prof ? 'Nivel profesional / adultos' : 'Material escolar') + (extra ? ' · con animaciones o pizarra' : '') + ' · país del libro: ' + esc(PAISES[pk][0]) + '. Orientativo: el precio final lo decides tú.</div>' +
       aviso + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">' + tiles + '</div>' +
       '<div style="display:flex;gap:12px;flex-wrap:wrap">' + tarjeta('📘', 'Libro digital', incL, tL, uL) + tarjeta('🎓', 'Curso premium + libro (Carpeta HOTMART)', incC, tC, uC) + '</div>' +
       '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">' +
@@ -157,7 +158,7 @@
       '<div style="flex:1 1 280px;background:#fff;border:1px solid #e3e6ee;border-radius:12px;padding:12px 14px"><div style="font-weight:700;color:' + T + ';margin-bottom:6px">Escaneado hoja por hoja</div><table style="width:100%;font-size:13px;border-collapse:collapse">' + hojas + '</table></div></div>' +
       '<div style="background:#fff;border:1px solid #e3e6ee;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px;line-height:1.55">' +
       '<b>Cómo vender en Instagram y Facebook:</b> Meta no permite poner productos descargables en su tienda; se publica (carrusel, reel, historia) y se enlaza al pago: el enlace de Hotmart, un enlace de pago de Stripe o PayPal. Con Hotmart el comprador recibe el acceso solo; con Stripe o PayPal lo envías tú.<br>' +
-      '<b>En qué se basa:</b> escalón por hojas (libro) y por horas de contenido (curso); dentro del escalón, más arriba si es formación profesional o lleva animaciones/pizarra. Precios terminados en 7, como recomienda Hotmart. Hotmart cobra además 1 USD por cada retiro (no por venta).<br>' +
+      '<b>En qué se basa:</b> escalón por hojas (libro) y por horas de contenido (curso); dentro del escalón, más arriba si es de nivel profesional o lleva animaciones/pizarra. Precios terminados en 7, como recomienda Hotmart. Hotmart cobra además 1 USD por cada retiro (no por venta).<br>' +
       '<b>Fuentes:</b> ' + FUENTES.map(function (f) { return '<a href="' + f[1] + '" target="_blank" rel="noopener" style="color:' + T + '">' + esc(f[0]) + '</a>'; }).join(' · ') + '</div></div>';
     var bt = caja.querySelector('[data-asesor-voz]'), SS = window.speechSynthesis;
     if (bt && !SS) bt.style.display = 'none';

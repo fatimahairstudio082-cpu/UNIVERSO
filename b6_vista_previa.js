@@ -42,7 +42,7 @@
     ed.aviso('Vista previa del curso: preparando…');
     return (window.EU_CURSO_ANIM ? EU_CURSO_ANIM.enriquecer(D, ed.res, function (t) { ed.aviso(t); }) : Promise.resolve(D))
       .then(function () { return CP.imagenes(D, function (f) { ed.aviso('Vista previa del curso: dibujos ' + Math.round(f * 100) + ' %'); }); })
-      .then(function () { return D; });
+      .then(function () { if (CP.duracion) D.minTotal = CP.duracion(ed.res, D).total; return D; });   /* certificado = duración total (18-10-2026) */
   }
   function htmlCurso(D) {
     var CP = window.EU_CURSO_PREMIUM;
