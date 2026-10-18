@@ -595,6 +595,12 @@
     var xV0 = Pc0 && pr(v, V3(Pc0.x * 1.02, YB, Pc0.z * 1.02))[0], Pl = P(NUCA + Math.PI / 2, 1.35, 1.05), anchoV = Math.abs(pr(v, V3(Pl.x * 1.02, YB, Pl.z * 1.02))[0] - xV0) || 1,
       yPunta = Math.min(700, pr(v, V3(Pc0.x * 1.02, YB - 0.6 - profV, Pc0.z * 1.02))[1]), yLadoV = Math.max(pr(v, V3(Pl.x * 1.02, todo0 ? YB + 0.6 : -0.3, Pl.z * 1.02))[1], yPunta - (todo0 ? 1.6 : 2.4) * anchoV);
     /* Fátima, 18-10-2026: la V corta se queda; en la V de cabello largo (corte básico a 0°) los lados también caen largos, por debajo del hombro, y la punta queda abajo */
+    /* de lado: extremos de la línea (atrás, en la nuca, y delante, junto a la oreja) para trazarla recta */
+    var latRecta = null;
+    if (v === 'lateral' && (lin === 'recta' || lin === 'diag_delante' || lin === 'diag_atras')) {
+      var phF = [CARA + 0.6, CARA - 0.6].filter(function (q) { return seVe(v, q, 1.35); })[0];
+      if (phF != null) { var dF = Math.abs(Math.atan2(Math.sin(phF - NUCA), Math.cos(phF - NUCA))) / Math.PI, PF = P(phF, 1.35, 1.05), qB = pr(v, V3(Pc0.x * 1.02, YB + FY(0), Pc0.z * 1.02)), qF = pr(v, V3(PF.x * 1.02, YB + FY(dF), PF.z * 1.02)); latRecta = [qB[0], qB[1], qF[0], lin === 'recta' ? qB[1] : qF[1]]; }
+    }
     /* Fátima, 15-10-2026: de frente, más cabello en el maniquí (mechones más juntos cerca de la cara) para que se vea el resultado */
     for (var ph = -Math.PI; ph < Math.PI; ph += frente && Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 1.2 ? 0.008 : 0.03) {
       var a = Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA)), d = Math.abs(a) / Math.PI, cerca = Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) < 0.55;
@@ -612,11 +618,13 @@
         /* sin pollina: raya en medio, el cabello se peina a los lados y cae largo, por fuera de la cara, más abajo del rostro */
         var qf = null, cap = [];
         /* de frente, el cabello cubre el cuero cabelludo desde la raya hasta el nacimiento del pelo (no se ve calva).
-           Fátima, 18-10-2026: sin pollina el borde sobre la frente sube en arco desde la raya (antes era recto y parecía pollina) */
-        if (frente && !pollina) { for (th = 0.06; th <= 1.4; th += 0.04) { var qc = [ph + lado * th * 0.06, th], pc = P(qc[0], qc[1], 1.05); var dC = Math.abs(Math.atan2(Math.sin(qc[0] - CARA), Math.cos(qc[0] - CARA))) / 0.55; if (pc.y < ALTURAS.cejas.y + 0.38 + 0.22 * Math.max(0, 1 - dC * dC)) break; cap.push(pr(v, pc)); } if (cap.length > 1) tr.push(linea(plano(cap), tf, '#3A2418', 5)); }
+           Fátima, 18-10-2026: sin pollina el borde sobre la frente sube en arco desde la raya y baja hasta las sienes, como su foto «sin pollina, todo parejo» (antes era recto y parecía pollina) */
+        if (frente && !pollina) { for (th = 0.06; th <= 1.4; th += 0.015) { var qc = [ph + lado * th * 0.06, th], pc = P(qc[0], qc[1], 1.05); var dC = Math.min(1, Math.abs(Math.atan2(Math.sin(qc[0] - CARA), Math.cos(qc[0] - CARA))) / 0.55); if (pc.y < ALTURAS.cejas.y + 0.16 + 0.44 * Math.sqrt(Math.max(0, 1 - dC * dC))) break; cap.push(pr(v, pc)); } if (cap.length > 1) tr.push(linea(plano(cap), tf, '#3A2418', 5)); }
         for (th = 0.12; th <= 1.0; th += 0.08) { var q0 = [ph + lado * (th - 0.12) * 0.9, th]; if (seVe(v, q0[0], q0[1])) { qf = P(q0[0], q0[1], 1.05); sup.push(pr(v, qf)); } }
         /* de lado, el cabello junto a la cara termina en la línea del corte (antes caía largo y dejaba un bloque oscuro junto al cuello en U, V y redonda) */
         var yFin = v === 'lateral' ? Math.max(yLargo, YB + FY(d) - (lin === 'a' ? profV * d : 0) + (d > 0.8 ? 0.15 : 0)) : yLargo;
+        if (qf && latRecta) { var xq = pr(v, V3(qf.x * 1.12, YB, qf.z * 1.04))[0], fq = Math.max(0, Math.min(1, (xq - latRecta[0]) / ((latRecta[2] - latRecta[0]) || 1))), yT = latRecta[1] + (latRecta[3] - latRecta[1]) * fq, lo2 = YB - 2, hi2 = qf.y;
+          for (var it2 = 0; it2 < 22; it2++) { var md = (lo2 + hi2) / 2; if (pr(v, V3(qf.x * 1.12, md, qf.z * 1.04))[1] > yT) lo2 = md; else hi2 = md; } yFin = (lo2 + hi2) / 2; }   /* de lado, también junto a la cara la línea queda recta */
         if (qf) { var ox = qf.x * 1.12, oz = qf.z * 1.04; for (var yy2 = qf.y - 0.1; yy2 >= yFin; yy2 -= 0.1) sup.push(pr(v, V3(ox, yy2, oz))); sup.push(pr(v, V3(ox, yFin, oz))); }
         if (sup.length > 1) tr.push(linea(plano(sup), tf, '#3A2418', 5));
         continue;
@@ -627,6 +635,8 @@
       var yC = Math.max(YB - 0.85, YB + FY(d) - (lin === 'v' ? profV * (1 - d) : lin === 'a' ? profV * d : 0)) + (d > 0.8 ? 0.15 : 0), largo = cola(YB - 0.95), corto = cola(yC);
       /* Fátima, 15-10-2026: en «recta · cuadrado» la línea de atrás se ve recta y horizontal, con esquinas (antes salía en arco por la cabeza redonda) */
       if (lin === 'recta' && v === 'nuca' && visto) { yC = yPlano(base); corto = cola(yC); }
+      /* Fátima, 18-10-2026 (su lámina «formas de atrás de cómo hacer un corte»): de lado, la línea recta se ve horizontal y las diagonales rectas, no en arco */
+      if (v === 'lateral' && visto && latRecta) { var xs = pr(v, V3(base.x * 1.02, YB, base.z * 1.02))[0], fL = Math.max(0, Math.min(1, (xs - latRecta[0]) / ((latRecta[2] - latRecta[0]) || 1))); yC = yPlano(base, latRecta[1] + (latRecta[3] - latRecta[1]) * fL); corto = cola(yC); }
       /* Fátima, 18-10-2026 (su referencia «corte en U»): vista de atrás honda como la V, pero con el fondo redondo y los lados casi rectos */
       if (lin === 'u' && v === 'nuca' && visto) { var fU = Math.min(1, Math.abs(pr(v, V3(base.x * 1.02, YB, base.z * 1.02))[0] - xV0) / anchoV); yC = yPlano(base, yPunta + (yLadoV - yPunta) * 0.8 * (1 - Math.sqrt(Math.max(0, 1 - fU * fU)))); corto = cola(yC); }
       if (lin === 'v' && v === 'nuca' && visto) { var fV = Math.min(1, Math.abs(pr(v, V3(base.x * 1.02, YB, base.z * 1.02))[0] - xV0) / anchoV); yC = yPlano(base, yPunta + (yLadoV - yPunta) * fV); corto = cola(yC); }
@@ -690,7 +700,7 @@
         if (pts.length < 3) return;
         pts.sort(function (p, o) { return p[0] - o[0]; });
         var col = COL[i % 7], t0 = 0.8 + i * 0.04;
-        tr.push(linea(plano(pts), [t0, Math.min(0.97, t0 + 0.08)], col, 2.8, { d: 1 }), chapa(pts[Math.floor(pts.length * 0.35)], q[1], col, t0));
+        tr.push(linea(plano(pts), [t0, Math.min(0.97, t0 + 0.08)], col, 2.8, { d: 1 }), chapa(pts[Math.floor(pts.length * (v === "nuca" ? 0.6 : 0.4))], q[1], col, t0));
       });
       tr.push(rotulo('Todo a 0°: cada línea, más larga que la de abajo', TINTA, 0.8));
     }
