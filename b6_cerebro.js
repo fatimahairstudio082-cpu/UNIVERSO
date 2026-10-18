@@ -37,6 +37,7 @@
     laterales:  { n: 'Laterales', tipo: 'z', y: 0.50, d: 'Las dos zonas de las sienes hacia la oreja.' },
     diagAdel:   { n: 'Diagonal adelante', tipo: 'd', k: 1, d: 'La partición cae hacia la cara. Acumula peso al frente.' },
     diagAtras:  { n: 'Diagonal atrás', tipo: 'd', k: -1, d: 'La partición cae hacia la nuca. Alarga y descarga la cara.' },
+    capasH:     { n: 'Capas finas horizontales', tipo: 'h', d: 'Capas finas horizontales en la parte del frente, del lado y de atrás, cada una con su pinza.' },   /* palabras de Fátima, 18-10-2026 */
     cuatro:     { n: 'Cuatro secciones', tipo: 'z', d: 'Media + oreja a oreja: los cuatro cuartos clásicos del químico.' },
     nueve:      { n: 'Nueve secciones', tipo: 'z', d: 'Cuatro cuartos más franja central: el mapa del alisado.' },
     mediaLuna:  { n: 'Media luna', tipo: 'h', y: 0.18, d: 'Un arco a un centímetro del nacimiento. Se aparta para no quemar la línea.' },
@@ -103,7 +104,7 @@
     {
       id: 'color_raiz', fam: 'color', n: 'Retoque de raíz',
       resumen: 'Solo el crecimiento: dos centímetros desde el cuero cabelludo, sin pisar el color anterior.',
-      divs: ['cuatro', 'orejas', 'media'],
+      divs: ['cuatro', 'nuca'],   /* Fátima, 18-10-2026: atrás en cuatro o seis partes, cuadrado; adelante dos pinzas */
       ficha: f({
         formula: '6.0 + 6.3 (1:1 entre tonos) · oxidante 20 vol (6 %)',
         proporciones: '1 de color : 1 de oxidante',
@@ -117,8 +118,9 @@
         recomendaciones: ['Trabajar de nuca hacia el frente', 'Secciones de 1 cm para que entre bien', 'Cronómetro en la última pincelada, no en la primera']
       }),
       pasos: [
-        { t: 'Cuatro secciones', n: 'Divide en cuatro con la línea media y la de oreja a oreja. Sujeta cada cuarto con su pinza.', e: 'Secciones torcidas: el color entra desigual.', d: 4, fase: 'divisiones' },
+        { t: 'Divisiones', n: 'Se divide el cabello en cuatro o seis partes en la parte de atrás, que quede cuadrado. La cabeza y la parte de adelante se dividen con dos pinzas.', e: 'Secciones torcidas: el color entra desigual.', d: 4, fase: 'divisiones' },
         { t: 'Mezcla', n: 'Treinta gramos de color con otros treinta de oxidante veinte volúmenes: uno a uno. Bate hasta crema lisa.', e: 'Bol metálico: oxida la mezcla antes de tiempo.', d: 4, fase: 'formula' },
+        { t: 'Mechón por mechón', n: 'Se divide en mechas muy finas. Se va sacando mechón por mechón, se va resaltando y se va aplicando el tinte correspondiente desde la raíz, penetrando bien la raíz para cubrir canas.', d: 6, fase: 'aplicacion' },   /* palabras de Fátima, 18-10-2026 */
         { t: 'Nuca primero', n: 'Empieza por la nuca, que es la zona más fría, en secciones de un centímetro.', e: 'Arrancar por el frente y sobreprocesar la cara.', d: 6, fase: 'aplicacion' },
         { t: 'Solo el crecimiento', n: 'Dos centímetros desde el cuero cabelludo. No invadas el largo teñido.', e: 'Pisar el color viejo y crear una banda oscura.', d: 6, fase: 'aplicacion' },
         { t: 'Exposición', n: 'Treinta y cinco minutos desde la última pincelada, a temperatura ambiente.', e: 'Contar desde la primera pincelada y quedarte corta.', d: 5, fase: 'tiempo' },
@@ -132,7 +134,7 @@
     {
       id: 'color_global', fam: 'color', n: 'Color global',
       resumen: 'Raíz, medios y puntas del mismo tono, en un solo servicio.',
-      divs: ['cuatro', 'orejas', 'media'],
+      divs: ['cuatro', 'nuca'],   /* Fátima, 18-10-2026 */
       ficha: f({
         formula: '7.0 · oxidante 20 vol (6 %)',
         proporciones: '1 : 1 · con 1:1,5 sólo si el fabricante lo indica para su gama',
@@ -146,7 +148,8 @@
         recomendaciones: ['Largo primero si está virgen, raíz al final', 'Sobre color ya hecho, raíz primero: el largo sólo refresca', 'Saturar bien: el color no estira']
       }),
       pasos: [
-        { t: 'Cuatro secciones', n: 'Divide en cuatro cuartos limpios.', e: 'Secciones desiguales.', d: 4, fase: 'divisiones' },
+        { t: 'Divisiones', n: 'Se divide el cabello en cuatro o seis partes en la parte de atrás, que quede cuadrado. La cabeza y la parte de adelante se dividen con dos pinzas.', e: 'Secciones desiguales.', d: 4, fase: 'divisiones' },
+        { t: 'Mechón por mechón', n: 'Se divide en mechas muy finas. Se va sacando mechón por mechón, se va resaltando y se va aplicando el tinte correspondiente desde la raíz, penetrando bien la raíz para cubrir canas, y luego deslizando hacia abajo el producto del tinte.', d: 6, fase: 'aplicacion' },   /* palabras de Fátima, 18-10-2026 */
         { t: 'Medios y puntas', n: 'Aplica primero de medios a puntas y deja actuar diez minutos.', e: 'Tocar la raíz ahora: se aclara de más.', d: 6, fase: 'aplicacion' },
         { t: 'Raíz', n: 'Baja a la raíz y satura los dos primeros centímetros.', e: 'Escatimar producto en la línea de la cara.', d: 5, fase: 'aplicacion' },
         { t: 'Exposición', n: 'Treinta minutos más desde la última pincelada.', e: 'Añadir calor sin necesidad.', d: 5, fase: 'tiempo' },
@@ -304,7 +307,7 @@
     {
       id: 'hidra_profunda', fam: 'hidratacion', n: 'Hidratación profunda',
       resumen: 'Agua y activos dentro de la fibra, con calor controlado y sellado final.',
-      divs: ['cuatro', 'orejas', 'media'],
+      divs: ['capasH'],   /* Fátima, 18-10-2026: la misma técnica de líneas horizontales que el secado y el planchado */
       ficha: f({
         formula: 'Mascarilla hidratante + ampolla de ácido hialurónico',
         proporciones: '1 nuez de mascarilla por sección + 1 ampolla',
@@ -314,15 +317,17 @@
         temperaturas: 'Vapor o climazón a 40 °C. Nunca por encima de 45 °C.',
         herramientas: ['Vaporizador o climazón', 'Bol', 'Pincel', 'Gorro térmico', 'Peine ancho'],
         errores: ['Aplicar sobre pelo goteando: el agua diluye el activo', 'Calor excesivo que abre la cutícula de más', 'Saltarse el sellado y perder todo lo puesto'],
-        recomendaciones: ['Escurrir con toalla antes de aplicar', 'Peinar con púa ancha para repartir', 'Cerrar siempre con acidificante o agua fría']
+        recomendaciones: ['Escurrir con toalla antes de aplicar', 'Peinar con púa ancha para repartir', 'Cerrar siempre con acidificante o agua fría', 'Hidratación natural: mezcla una clara de huevo con una cucharada de aceite de oliva. Aplica en todo el cabello durante 30 minutos. Retira siempre con agua fría, nunca tibia ni caliente, ya que el agua tibia abre la fibra capilar y causa más daño.']
       }),
       pasos: [
         { t: 'Lavado de apertura', n: 'Lava con champú neutro y escurre bien con la toalla.', e: 'Dejar el pelo chorreando y diluir la mascarilla.', d: 5, fase: 'preparacion' },
-        { t: 'Cuatro secciones', n: 'Divide en cuatro para no dejar zonas sin producto.', e: 'Aplicar a bulto y dejar la nuca seca.', d: 4, fase: 'divisiones' },
+        { t: 'Capas finas horizontales', n: 'Se divide el cabello en capas finas horizontales, tanto en la parte del frente como del lado y en la parte de atrás, colocando sus diferentes pinzas correspondientes. Se agarran capas finas.', e: 'Aplicar a bulto y dejar la nuca seca.', d: 4, fase: 'divisiones' },
         { t: 'Aplicar de medios a puntas', n: 'Reparte de medios a puntas y sube hacia la raíz solo si el cuero está seco.', e: 'Saturar la raíz en cuero graso.', d: 6, fase: 'aplicacion' },
         { t: 'Calor', n: 'Veinte minutos con vapor o climazón a cuarenta grados.', e: 'Subir la temperatura pensando que penetra más.', d: 6, fase: 'tiempo' },
         { t: 'Reposo frío', n: 'Cinco minutos sin calor para que la fibra se estabilice.', e: 'Aclarar en caliente y perder el activo.', d: 4, fase: 'tiempo' },
-        { t: 'Sellado', n: 'Aclara con agua templada y cierra con acidificante.', e: 'Terminar sin sellar la cutícula.', d: 4, fase: 'cierre' }
+        { t: 'Sellado', n: 'Aclara con agua templada y cierra con acidificante.', e: 'Terminar sin sellar la cutícula.', d: 4, fase: 'cierre' },
+        { t: 'Hidratación natural', n: 'Mezcla una clara de huevo con una cucharada de aceite de oliva. Aplica en todo el cabello durante 30 minutos. Retira siempre con agua fría, nunca tibia ni caliente.', e: 'Retirar con agua tibia: el agua tibia abre la fibra capilar y causa más daño.', d: 6, fase: 'aplicacion' },   /* hidratación natural de Fátima (su cerebro de colorimetría) */
+        { t: 'Secado con aire frío', n: 'Después del proceso se puede secar bien con aire frío y luego se hacen las divisiones del cabello.', d: 5, fase: 'cierre' }   /* palabras de Fátima, 18-10-2026 */
       ],
       repaso: [
         { p: '¿Por qué se escurre el pelo antes de la mascarilla?', o: ['Para no manchar', 'Porque el agua sobrante diluye el activo', 'Para ir más rápido'], c: 1, x: 'La fibra ya está llena de agua. Si no escurres, el producto no tiene dónde entrar.' },
@@ -332,7 +337,7 @@
     {
       id: 'hidra_nutricion', fam: 'hidratacion', n: 'Nutrición con aceites',
       resumen: 'Lípidos para pelo poroso y áspero. No es lo mismo que hidratar.',
-      divs: ['cuatro', 'nuca'],
+      divs: ['capasH'],   /* Fátima, 18-10-2026 */
       ficha: f({
         formula: 'Baño de aceites vegetales + mascarilla nutritiva',
         proporciones: '3 partes de mascarilla : 1 de aceite',
@@ -342,14 +347,15 @@
         temperaturas: '35 a 40 °C.',
         herramientas: ['Bol', 'Pincel', 'Gorro', 'Peine ancho'],
         errores: ['Nutrir un pelo que lo que necesita es agua', 'Exceso de aceite que apelmaza'],
-        recomendaciones: ['Prueba de porosidad antes de decidir', 'Solo de medios a puntas']
+        recomendaciones: ['Prueba de porosidad antes de decidir', 'Solo de medios a puntas', 'Hidratación natural: mezcla una clara de huevo con una cucharada de aceite de oliva. Aplica en todo el cabello durante 30 minutos. Retira siempre con agua fría, nunca tibia ni caliente, ya que el agua tibia abre la fibra capilar y causa más daño.']
       }),
       pasos: [
         { t: 'Diagnóstico', n: 'Prueba de porosidad: si el pelo absorbe rápido y se ve áspero, pide grasa.', e: 'Nutrir cuando falta agua y dejarlo pesado.', d: 5, fase: 'preparacion' },
-        { t: 'Secciones', n: 'Cuatro secciones y trabaja de nuca a frente.', e: 'Aplicación desigual.', d: 4, fase: 'divisiones' },
+        { t: 'Capas finas horizontales', n: 'Se divide el cabello en capas finas horizontales, tanto en la parte del frente como del lado y en la parte de atrás, colocando sus diferentes pinzas correspondientes. Se agarran capas finas.', e: 'Aplicación desigual.', d: 4, fase: 'divisiones' },
         { t: 'Aplicar', n: 'Solo de medios a puntas, sin tocar el cuero cabelludo.', e: 'Aceite en la raíz: pelo grasiento al día siguiente.', d: 6, fase: 'aplicacion' },
         { t: 'Calor suave', n: 'Quince minutos con gorro y calor bajo.', e: 'Calor fuerte que volatiliza el aceite.', d: 5, fase: 'tiempo' },
-        { t: 'Aclarado', n: 'Emulsiona con agua antes de aclarar para arrastrar el exceso.', e: 'Aclarar sin emulsionar y dejar residuo.', d: 4, fase: 'cierre' }
+        { t: 'Aclarado', n: 'Emulsiona con agua antes de aclarar para arrastrar el exceso.', e: 'Aclarar sin emulsionar y dejar residuo.', d: 4, fase: 'cierre' },
+        { t: 'Secado con aire frío', n: 'Después del proceso se puede secar bien con aire frío y luego se hacen las divisiones del cabello.', d: 5, fase: 'cierre' }   /* palabras de Fátima, 18-10-2026 */
       ],
       repaso: [
         { p: 'Hidratar y nutrir…', o: ['Es lo mismo', 'Hidratar aporta agua, nutrir aporta grasa', 'Nutrir es más suave'], c: 1, x: 'Son necesidades distintas. Un pelo hinchado y sin cuerpo no necesita aceite; necesita proteína o agua bien sellada.' }
@@ -480,7 +486,7 @@
     {
       id: 'cab_secado', fam: 'cabello', n: 'Secado con cepillo',
       resumen: 'Se seca con el cepillo y aire caliente, a temperatura alta: se estira bien el cabello, sin pegar al cráneo.',   /* palabras de Fátima, 18-10-2026 */
-      divs: ['orejas', 'media', 'parietal', 'nuca', 'coronilla'],
+      divs: ['capasH'],   /* Fátima, 18-10-2026 */
       ficha: f({
         formula: 'Protector térmico + espuma de volumen',
         proporciones: 'Una nuez de espuma en melena media',
@@ -494,7 +500,7 @@
       }),
       pasos: [
         { t: 'Presecado', n: 'Seca al setenta por ciento con la mano, sin cepillo.', e: 'Empezar el brushing con el pelo empapado.', d: 5, fase: 'preparacion' },
-        { t: 'Secciones', n: 'Oreja a oreja y línea media. Nuca suelta primero.', e: 'Trabajar sin separar y volver sobre lo seco.', d: 5, fase: 'divisiones' },
+        { t: 'Capas finas horizontales', n: 'Se divide el cabello en capas finas horizontales, tanto en la parte del frente como del lado y en la parte de atrás, colocando sus diferentes pinzas correspondientes.', e: 'Trabajar sin separar y volver sobre lo seco.', d: 5, fase: 'divisiones' },
         { t: 'Mecha y tensión', n: 'Mechas del ancho del cepillo: se jala el cabello con el cepillo y se estira bien, sin pegarlo al cráneo.', e: 'Mecha más ancha que el cepillo: no se forma.', d: 6, fase: 'aplicacion' },
         { t: 'Aire caliente', n: 'Aire caliente, a temperatura alta, de raíz a punta, siguiendo el cepillo mientras se estira.', e: 'Aire en contra y frizz garantizado.', d: 6, fase: 'aplicacion' }
       ],
@@ -505,7 +511,7 @@
     {
       id: 'cab_planchado', fam: 'cabello', n: 'Planchado',
       resumen: 'Se estira bien el cabello con el cepillo y se pasa la plancha lentamente, dos o tres veces. No hasta que quede liso: eso quema el pelo y las cutículas.',   /* palabras de Fátima, 18-10-2026 */
-      divs: ['nueve', 'orejas', 'media', 'nuca'],
+      divs: ['capasH'],   /* Fátima, 18-10-2026 */
       ficha: f({
         formula: 'Protector térmico en spray',
         proporciones: 'Una pulverización por mecha',
@@ -519,7 +525,7 @@
       }),
       pasos: [
         { t: 'Pelo seco al cien por cien', n: 'Comprueba que no queda humedad.', e: 'Planchar húmedo y romper la fibra.', d: 5, fase: 'preparacion' },
-        { t: 'Secciones', n: 'Nueve secciones, empezando por la nuca.', e: 'Sin orden: zonas dobles y zonas sin planchar.', d: 5, fase: 'divisiones' },
+        { t: 'Capas finas horizontales', n: 'Se divide el cabello en capas finas horizontales, tanto en la parte del frente como del lado y en la parte de atrás, colocando sus diferentes pinzas correspondientes.', e: 'Sin orden: zonas dobles y zonas sin planchar.', d: 5, fase: 'divisiones' },
         { t: 'Protector', n: 'Pulveriza protector mecha a mecha.', e: 'Rociar por encima y creer que cubre.', d: 5, fase: 'aplicacion' },
         { t: 'Estirar y planchar', n: 'Se estira bien la mecha con el cepillo y se pasa la plancha lentamente, dos o tres veces. Ya queda listo.', e: 'Seguir pasando la plancha hasta que quede liso: quema el pelo y las cutículas.', d: 7, fase: 'aplicacion' },
         { t: 'Acabado', n: 'Sérum en puntas, muy poco.', e: 'Exceso de sérum y pelo grasiento.', d: 4, fase: 'cierre' }

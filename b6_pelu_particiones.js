@@ -186,14 +186,17 @@
 
   /* divisiones de la técnica (nombres del catálogo del Cerebro) → líneas en la vista de arriba o de la nuca */
   function escDivisiones(K, t, divs, ta, tb) {
-    var L = lineasSeis(K), Z = zonasSeis(K), ids = divs.map(function (d) { return d.id; }), v = /ladrillo|espiga/.test(ids.join(' ')) ? 'nuca' : 'arriba', lin = [], sec = {}, tr = [];
+    var L = lineasSeis(K), Z = zonasSeis(K), ids = divs.map(function (d) { return d.id; }), v = /ladrillo|espiga/.test(ids.join(' ')) ? 'nuca' : ids.indexOf('capasH') >= 0 ? 'tres' : 'arriba', lin = [], sec = {}, tr = [];
     var paso = (tb - ta) / Math.max(1, ids.length);
     ids.forEach(function (id, i) {
       var t0 = ta + i * paso, t1 = t0 + paso * 0.9;
       if (id === 'media' || id === 'cuatro' || id === 'nueve') lin.push({ d: L.raya, t: [t0, t1], c: C_RAYA });
       if (id === 'orejas' || id === 'cuatro' || id === 'nueve') { lin.push({ d: L.orejas, t: [t0, t1], c: C_OREJAS, w: 4.5 }); ['1', '2', '3', '4'].forEach(function (n, j) { sec[n] = t1 + j * 0.02; }); }
       if (id === 'nueve') { lin.push({ d: ['meridiano', K.CARA - 0.35, 1.2, K.NUCA + 0.35, 1.9], t: [t0, t1], c: C_NUCA, w: 3 }, { d: ['meridiano', K.CARA + 0.35, 1.2, K.NUCA - 0.35, 1.9], t: [t0, t1], c: C_NUCA, w: 3 }); }
-      if (id === 'nuca') lin.push({ d: L.nuca, t: [t0, t1], c: C_NUCA, w: 4.5 });
+      if (id === 'nuca') lin.push({ d: L.nuca, t: [t0, t1], c: C_NUCA, w: 4.5 })
+      if (id === 'nuca' && sec['1'] != null) { sec['5'] = t1; sec['6'] = t1 + 0.02; }   /* Fátima, 18-10-2026: atrás en cuatro o seis, cuadrado; adelante dos pinzas = las 6 del motor */
+      /* Fátima, 18-10-2026 · secado, planchado e hidratación: capas finas horizontales en el frente, el lado y atrás, de la nuca hacia arriba */
+      if (id === 'capasH') [1.62, 1.38, 1.14, 0.9, 0.66].forEach(function (th, j, A) { var q0 = t0 + (t1 - t0) * j / A.length; lin.push({ d: ['paralelo', th, 0, 2 * PI], t: [q0, q0 + (t1 - t0) / A.length], c: j % 2 ? '#2C6FD1' : C_NUCA, w: 3.5 }); });
       if (id === 'parietal') lin.push({ d: ['paralelo', 0.8, 0, 2 * PI], t: [t0, t1], c: '#7A4BD1', w: 3.5 });
       if (id === 'coronilla') lin.push({ d: ['paralelo', 0.4, 0, 2 * PI], t: [t0, t1], c: '#D9920E', w: 4 });
       if (id === 'frontal') lin.push({ d: ['paralelo', 0.8, K.CARA - 1.3, K.CARA + 1.3], t: [t0, t1], c: '#C96A1E', w: 4 });
