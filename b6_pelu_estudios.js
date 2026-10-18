@@ -84,7 +84,7 @@
 
   function pagina(pg, C, modo) {
     var H = ED.H, T = C.T, t = TEC[pg.tec]; if (!t) return H.cabecera(C, pg) + H.folio(C, pg);
-    var web = modo === 'web', print = !web, rad = Math.min(T.r || 4, 6), n = t.narr.length, max = Math.min(n, 6);
+    var web = modo === 'web', print = !web, rad = Math.min(T.r || 4, 6), n = t.narr.length, max = n;   /* (18-10-2026, Fátima: «Sí, todos») salen todos los pasos, no 6 */
     var sel = []; for (var i = 0; i < max; i++) sel.push(Math.round(i * (n - 1) / Math.max(1, max - 1)));
     /* Fátima, 10-10-2026: los fotogramas de Estudios salían casi iguales. Cada paso lleva, si la hay, una escena
        distinta de la técnica animada (con cabello y resultado) que no esté ya en su página «pe_animada»; si faltan, el de Estudios. */
@@ -108,6 +108,16 @@
     }
     var nL = Math.min(pool.length, sel.length);
     for (var q = 0; q < nL; q++) aJ[Math.round(q * (sel.length - 1) / Math.max(1, nL - 1))] = pool[Math.round(q * (pool.length - 1) / Math.max(1, nL - 1))];
+    /* (18-10-2026, Fátima) cada paso con la escena de su propio paso (mismo título); si ya sale en la página animada o arriba, a mitad de escena.
+       El paso que no tiene escena propia va solo con su texto: así ningún dibujo lleva el título de otro paso */
+    var PS0 = []; try { PS0 = (window.EU_CEREBRO && EU_CEREBRO.pasos && EU_CEREBRO.pasos(t.id)) || []; } catch (e) { PS0 = []; }
+    if (da && PS0.length) sel.forEach(function (k, j) {
+      var tt = PS0[k] && PS0[k].t, ix = -1; if (!tt) { delete aJ[j]; return; }
+      da.E.escenas.forEach(function (e, x) { if (ix < 0 && e.t === tt && !NOI.test(e.tipo || '')) ix = x; });
+      if (ix < 0) { delete aJ[j]; return; }
+      aJ[j] = [ix, da.sel.indexOf(ix) >= 0 || ix === bigK ? 0.55 : 1, 1];
+    });
+    if (!pg.partes && n > 6) bigK = -2;   /* en una hoja con más de 6 pasos no cabe el dibujo grande */
     /* (18-10-2026, Fátima: «el alumno no es adivino») cada escena lleva lo que enseña: su título y, si es una lámina o un mechón, su explicación y su porcentaje */
     var PS = []; try { PS = (window.EU_CEREBRO && EU_CEREBRO.pasos && EU_CEREBRO.pasos(t.id)) || []; } catch (e) { PS = []; }
     var pieEsc = function (a, big, k) {
@@ -130,9 +140,9 @@
       return '<div data-est-k="' + j + '" data-est-t="' + es(t.narr[k]) + '" style="display:grid;grid-template-columns:30mm minmax(0,1fr);gap:2.5mm;align-items:center;border-radius:' + rad + 'px;padding:1mm;transition:opacity .3s">' +
         (an ? '<div style="aspect-ratio:4/3;overflow:hidden;border-radius:' + rad + 'px;position:relative;background:#E6EAF1"><img src="' + an + '" alt="Paso ' + (k + 1) + '" style="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block"></div>' :
         src ? '<div style="aspect-ratio:4/3;overflow:hidden;border-radius:' + rad + 'px;position:relative;background:#F2EAD9"><img src="' + src + '" alt="Paso ' + (k + 1) + '" style="position:absolute;width:250%;max-width:none;left:-82%;top:-38%;display:block"></div>' : '<div></div>') +
-        '<div style="font-size:.78em;line-height:1.35"><b style="display:inline-flex;width:5mm;height:5mm;border-radius:50%;background:' + T.acc + ';color:#fff;align-items:center;justify-content:center;font-size:.85em;margin-right:1.5mm">' + (k + 1) + '</b>' + es(t.narr[k]) + pieEsc(aJ[j]) + '</div></div>';
+        '<div style="font-size:.78em;line-height:1.35"><b style="display:inline-flex;width:5mm;height:5mm;border-radius:50%;background:' + T.acc + ';color:#fff;align-items:center;justify-content:center;font-size:.85em;margin-right:1.5mm">' + (k + 1) + '</b>' + es(t.narr[k]) + (aJ[j] && aJ[j][2] ? '' : pieEsc(aJ[j])) + '</div></div>';
     }).join('');
-    var dg = tieneDiag(t.id) ? render(t.id, 'diagrama', 1) : '', bigA = bigK >= 0 ? LA.foto('cb_' + t.id, bigK, 960, bigP) : '', big0 = bigA || (pg.partes ? '' : render(t.id, 'maniqui', 1));
+    var dg = tieneDiag(t.id) ? render(t.id, 'diagrama', 1) : '', bigA = bigK >= 0 ? LA.foto('cb_' + t.id, bigK, 960, bigP) : '', big0 = bigA || (pg.partes || n > 6 ? '' : render(t.id, 'maniqui', 1));
     /* (18-10-2026, Fátima: «los maniquíes están apretados, no explica paso a paso») en dos hojas: cada paso en su fila, la escena entera
        (sin recortar) a 58 mm y al lado el paso, el título de la escena y su explicación */
     if (pg.partes) {
@@ -142,7 +152,7 @@
       cuad = sel.slice(de, a).map(function (k, jj) {
         var j = de + jj, rep = aJ[j] != null && vistas[aJ[j][0]], an = aJ[j] != null && !rep ? LA.foto('cb_' + t.id, aJ[j][0], 640, aJ[j][1] === 1 ? null : aJ[j][1]) : '';
         if (aJ[j] != null) vistas[aJ[j][0]] = 1;
-        return '<div data-est-k="' + j + '" data-est-t="' + es(t.narr[k]) + '" style="display:grid;grid-template-columns:' + (an ? (a - de > 2 ? (pg.parte === 2 && dg ? 56 : 72) : 85) + 'mm ' : '') + 'minmax(0,1fr);gap:4mm;align-items:start;margin:0 0 4mm;padding:0 0 3mm;border-bottom:0.3mm solid ' + (T.soft || '#E6EAF1') + ';transition:opacity .3s">' +
+        return '<div data-est-k="' + j + '" data-est-t="' + es(t.narr[k]) + '" style="display:grid;grid-template-columns:' + (an ? (a - de > 3 ? Math.max(32, Math.min(85, Math.round(((pg.parte === 2 && dg ? 160 : 195) / (a - de) - 8) / 0.78))) : a - de > 2 ? (pg.parte === 2 && dg ? 56 : 72) : 85) + 'mm ' : '') + 'minmax(0,1fr);gap:4mm;align-items:start;margin:0 0 4mm;padding:0 0 3mm;border-bottom:0.3mm solid ' + (T.soft || '#E6EAF1') + ';transition:opacity .3s">' +
           (an ? '<img src="' + an + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px">' : '') +
           '<div style="font-size:.86em;line-height:1.4"><b style="display:inline-flex;width:6mm;height:6mm;border-radius:50%;background:' + T.acc + ';color:#fff;align-items:center;justify-content:center;font-size:.85em;margin-right:2mm">' + (k + 1) + '</b><b>' + (PS[k] && PS[k].t ? es(PS[k].t) + '. ' : '') + es(t.narr[k]) + '</b>' + (PS[k] && PS[k].e ? '<div style="margin-top:1mm;font-size:.95em"><b style="color:#9A3B2E">Error común:</b> ' + es(PS[k].e) + '</div>' : '') + (rep ? '' : pieEsc(aJ[j], 1, k)).replace('font-size:.8em', 'font-size:.95em;margin-top:1.5mm') + '</div></div>';
       }).join('');
@@ -152,9 +162,9 @@
     return H.cabecera(C, pg) + '<div data-est="1" data-acc="' + es(T.acc) + '">' +
       '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">Técnica paso a paso · ' + n + ' pasos' + (pg.partes ? ' · hoja ' + pg.parte + ' de 2' : '') + '</div>' + H.h1(C, es(t.n)) +
       (t.resumen && pg.parte !== 2 ? '<p style="margin:0 0 2.5mm;max-width:160mm;font-size:.9em">' + es(t.resumen) + '</p>' : '') + ctrl +
-      (big0 ? '<img data-est-big="1" src="' + big0 + '" alt="' + es(t.n) + '" style="width:100%;max-height:' + (bigA ? 62 : 72) + 'mm;object-fit:contain;display:block;border-radius:' + rad + 'px;margin:0 0 ' + (bigA ? '1.5mm' : '3mm') + ';transition:opacity .18s">' + (bigA ? '<div style="margin:0 0 3mm">' + pieEsc([bigK], 1) + '</div>' : '') : '') +
+      (big0 ? '<img data-est-big="1" src="' + big0 + '" alt="' + es(t.n) + '" style="width:100%;max-height:' + (bigA ? 52 : 72) + 'mm;object-fit:contain;display:block;border-radius:' + rad + 'px;margin:0 0 ' + (bigA ? '1.5mm' : '3mm') + ';transition:opacity .18s">' + (bigA ? '<div style="margin:0 0 3mm">' + pieEsc([bigK], 1) + '</div>' : '') : '') +
       (pg.partes ? cuad : '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5mm 3mm">' + cuad + '</div>') +
-      (dg && pg.parte !== 1 ? '<div style="margin-top:3mm"><div style="font-size:.74em;font-weight:700;color:' + T.acc + ';margin:0 0 1mm">Divisiones de la técnica</div><img src="' + dg + '" alt="Divisiones" style="width:100%;max-height:' + (pg.partes ? 34 : 50) + 'mm;object-fit:contain;object-position:50% 50%;display:block;border-radius:' + rad + 'px"></div>' : '') +
+      (dg && pg.parte !== 1 ? '<div style="margin-top:3mm"><div style="font-size:.74em;font-weight:700;color:' + T.acc + ';margin:0 0 1mm">Divisiones de la técnica</div><img src="' + dg + '" alt="Divisiones" style="width:100%;max-height:' + (pg.partes || n > 6 ? 34 : 50) + 'mm;object-fit:contain;object-position:50% 50%;display:block;border-radius:' + rad + 'px"></div>' : '') +
       '</div>' + (web ? SCRIPT : '') + H.folio(C, pg);
   }
   ED.registrar({ paginas: { pe_tecnica: pagina }, voz: { pe_tecnica: function (pg) { var t = TEC[pg.tec]; if (!t) return ''; var m = Math.ceil(t.narr.length / 2), nr = !pg.partes ? t.narr : pg.parte === 2 ? t.narr.slice(m) : t.narr.slice(0, m); return t.n + '. ' + nr.join(' '); } } });
