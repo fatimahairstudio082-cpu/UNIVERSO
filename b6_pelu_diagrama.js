@@ -903,9 +903,11 @@
      (en U, en V o cuadrada), desde ahí la guía a dos dedos, luego el cabello se eleva en vertical y se corta a dos dedos,
      y al final se ve cada capa como quedó. Escenas aparte: las del pixie de antes no se tocan. */
   function escPixieCorto(R) {
-    var YFL = ALTURAS.ojo.y * 0.35 + ALTURAS.nariz.y * 0.65, L = [], DOS = 0.36, ROJ = CORTE, FORMAS = [['u', 'En U', COL[2]], ['v', 'En V', COL[4]], ['recta', 'Cuadrada', COL[0]]];
+    var YFL = ALTURAS.ojo.y * 0.35 + ALTURAS.nariz.y * 0.65, L = [], DOS = 0.36, TRES = 0.54, PR = CARA + 0.32, ROJ = CORTE, FORMAS = [['u', 'En U', COL[2]], ['v', 'En V', COL[4]], ['recta', 'Cuadrada', COL[0]]];
     var lin = /^(u|v|recta)$/.test(R.linea) ? R.linea : R.linea === 'redondeada' ? 'u' : 'recta';
     function thF(f, d) { return 1.98 + formaTh(f, d) * 0.9; }
+    /* Fátima, 19-10-2026: abajo dos dedos de la raíz y arriba más largo (tres dedos): se toma el mechón con el de abajo y se corta menos */
+    function largo(th) { return DOS + (TRES - DOS) * Math.max(0, Math.min(1, (1.5 - th) / 1.1)); }
     /* 1 · la forma de atrás: U, V y cuadrada sobre la nuca */
     var v = 'nuca', tr = [];
     FORMAS.forEach(function (F, i) {
@@ -941,15 +943,15 @@
       for (var j = 0; j <= 8; j++) {
         var th = 0.4 + j * 0.19; if (!seVe(v, ph, th)) continue;
         var a = P(ph, th), n = N(ph, th), ks = [], kl = [];
-        for (var m = 0; m <= 5; m++) { var w = m / 5, dd = V3(0, -1, 0).multiplyScalar(1 - w).add(n.clone().multiplyScalar(w)).normalize(); ks.push([].concat(pr(v, a), pr(v, a.clone().add(dd.clone().multiplyScalar(DOS))))); kl.push([].concat(pr(v, a.clone().add(dd.clone().multiplyScalar(DOS))), pr(v, a.clone().add(dd.multiplyScalar(0.8))))); }
+        for (var m = 0; m <= 5; m++) { var w = m / 5, dd = V3(0, -1, 0).multiplyScalar(1 - w).add(n.clone().multiplyScalar(w)).normalize(); ks.push([].concat(pr(v, a), pr(v, a.clone().add(dd.clone().multiplyScalar(largo(th)))))); kl.push([].concat(pr(v, a.clone().add(dd.clone().multiplyScalar(largo(th)))), pr(v, a.clone().add(dd.multiplyScalar(0.8))))); }
         tr.push(mechon(kl, [ta + 0.02, ta + 0.08], '#8E847A', 1.8, { x: ta + 0.11 }), mechon(ks, [ta + 0.02, ta + 0.08], c, 3));
         tk.push(ks[5].slice(2));
       }
       if (tk.length > 1) tr.push(tijera(plano(tk), [ta + 0.08, ta + 0.15], ROJ, false, ext), linea(plano(tk), [ta + 0.15, tb], c, 2.4), chapa(tk[tk.length - 1], (k + 1) + ' · 90°', c, ta + 0.12));
       tr.push(regla(0, 90, [ta + 0.02, ta + 0.08], c, 'Sección ' + (k + 1) + ' · vertical', ext));
     });
-    tr.push(rotulo('Secciones verticales · el cabello se eleva en vertical', TINTA, 0.04), rotulo('Se corta a dos dedos de la raíz', ROJ, 0.12));
-    L.push({ tipo: 'pixc_vertical', vista: v, t: 'Pixie corto · elevado en vertical', texto: 'Desde la guía, el cabello se toma en secciones verticales y se eleva en vertical, a noventa grados de la cabeza. Cada mechón se corta a dos dedos de la raíz, igual que la guía.', a: { v: v, tr: tr, banda: true } });
+    tr.push(rotulo('Secciones verticales · el cabello se eleva en vertical', TINTA, 0.04), rotulo('Abajo dos dedos · arriba se corta menos: tres dedos', ROJ, 0.12));
+    L.push({ tipo: 'pixc_vertical', vista: v, t: 'Pixie corto · elevado en vertical', texto: 'Desde la guía, el cabello se toma en secciones verticales y se eleva en vertical, a noventa grados de la cabeza. Abajo cada mechón se corta a dos dedos de la raíz, igual que la guía. Arriba se toma el mechón junto con el de abajo como guía y se corta menos, a unos tres dedos, para que quede más alargado.', a: { v: v, tr: tr, banda: true } });
     /* 4 · el resultado de cada capa */
     [['lateral', 'de lado'], ['nuca', 'atrás'], ['frente', 'de frente']].forEach(function (q) {
       var v2 = q[0], tr2 = [];
@@ -959,23 +961,42 @@
         phs.forEach(function (ph) {
           for (var j = 0; j <= 9; j++) {
             var th = 0.35 + j * 0.18; if (v2 === 'nuca') th = Math.min(th, thF(lin, (ph - NUCA) / 1.25)); if (v2 === 'frente' && th > 1.0 + 0.5 * Math.abs(ph - CARA) / 1.1) continue; if (!seVe(v2, ph, th)) continue;
-            var a = P(ph, th), n = N(ph, th), dd = n.clone().multiplyScalar(0.35).add(V3(0, -1, 0)).normalize(), b = a.clone().add(dd.multiplyScalar(DOS));
+            var a = P(ph, th), n = N(ph, th), dd = n.clone().multiplyScalar(0.35).add(V3(0, -1, 0)).normalize(), b = a.clone().add(dd.multiplyScalar(largo(th)));
             /* Fátima, 19-10-2026: delante más largo y cayendo de ladito hacia ambos lados, hasta entre el ojo y la nariz */
             if (v2 === 'frente' && Math.abs(ph - CARA) < 0.95 && th < 1.15) {
               var fw = P(CARA, Math.PI / 2).normalize(), o = V3(a.x, 0, a.z); o.sub(fw.clone().multiplyScalar(o.dot(fw))); if (o.length() < 0.05) o = V3(fw.z, 0, -fw.x).multiplyScalar(ph < CARA ? 1 : -1); o.normalize();
-              var bL = a.clone().add(o.clone().multiplyScalar(0.42 + 0.25 * (1 - Math.abs(ph - CARA)))).add(fw.clone().multiplyScalar(0.12)); bL.y = YFL - 0.1 * Math.abs(ph - CARA);
+              /* la línea va de lado (raya en PR): el cabello cae desde la raya hacia cada lado, con suficiente cabello en ambos */
+              o = V3(fw.z, 0, -fw.x).multiplyScalar(ph < PR ? -1 : 1).normalize();
+              var bL = a.clone().add(o.clone().multiplyScalar(0.42 + 0.25 * (1 - Math.min(1, Math.abs(ph - PR))))).add(fw.clone().multiplyScalar(0.12)); bL.y = YFL - 0.1 * Math.abs(ph - CARA);
               var cL = a.clone().add(fw.clone().multiplyScalar(0.3)).add(o.clone().multiplyScalar(0.15)); cL.y = Math.max(a.y, cL.y);
               var bz = bezier(v2, a, cL, bL, 12); tr2.push(linea(bz, [ta, ta + 0.1], c, 3)); pts.push([bz[bz.length - 2], bz[bz.length - 1]]); continue;
             }
             tr2.push(linea(plano([pr(v2, a), pr(v2, b)]), [ta, ta + 0.1], c, 3)); pts.push(pr(v2, b));
           }
         });
-        if (pts.length > 1) tr2.push(linea(plano(pts), [ta + 0.1, ta + 0.15], c, 2.4, { d: 1 }), chapa(pts[pts.length - 1], (k + 1) + ' · 2 dedos', c, ta + 0.12));
+        if (pts.length > 1) tr2.push(linea(plano(pts), [ta + 0.1, ta + 0.15], c, 2.4, { d: 1 }), chapa(pts[pts.length - 1], 'Capa ' + (k + 1), c, ta + 0.12));
       });
-      tr2.push(rotulo('Cómo quedó cada capa · ' + q[1] + ' · todo a dos dedos', TINTA, 0.05));
-      if (v2 === 'frente') tr2.push(rotulo('Delante más largo: cae de ladito, a ambos lados, entre el ojo y la nariz', COL[2], 0.6));
-      L.push({ tipo: 'pixc_queda_' + v2, vista: v2, t: 'Pixie corto · cómo queda ' + q[1], texto: v2 === 'frente' ? 'De frente se deja un poco más largo y el cabello cae de ladito, hacia ambos lados, como un flequillo que llega entre donde termina el ojo y la nariz. Atrás y a los lados queda a dos dedos.' : 'Así queda cada capa: todo el cabello a dos dedos de la raíz, con la forma de atrás marcada.', a: { v: v2, tr: tr2, banda: true } });
+      tr2.push(rotulo('Cómo quedó cada capa · ' + q[1] + ' · abajo dos dedos, arriba tres', TINTA, 0.05));
+      if (v2 === 'frente') { tr2.push(rotulo('Delante más largo · cae a ambos lados, entre el ojo y la nariz', COL[2], 0.6)); tr2 = tr2.concat(lineas(tramos(v2, function (u) { return [PR, 0.05 + u * 1.0]; }, 30), [0, 0.03], TINTA, 3)); tr2.push(rotulo('Raya de lado', TINTA, 0)); }
+      L.push({ tipo: 'pixc_queda_' + v2, vista: v2, t: 'Pixie corto · cómo queda ' + q[1], texto: v2 === 'frente' ? 'De frente se deja un poco más largo, con la raya de lado, y el cabello cae hacia ambos lados, con suficiente cabello en cada uno, como un flequillo que llega entre donde termina el ojo y la nariz. Atrás y a los lados queda a dos dedos.' : 'Así queda cada capa: abajo a dos dedos de la raíz y arriba más largo, a tres dedos, con la forma de atrás marcada.', a: { v: v2, tr: tr2, banda: true } });
     });
+    /* Fátima, 19-10-2026: de lado se saca la forma en curvatura por encima de la oreja, alineada con delante, para que el corte
+       quede definido y la oreja descubierta; en la nuca, la forma de atrás */
+    var v4 = 'lateral', tr4 = [], ruta = [], tk4 = [];
+    function seg(a, b, nn) { for (var i = 0; i <= nn; i++) { var u = i / nn; ruta.push([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]); } }
+    seg([CARA + 0.6, 1.78], [DER - 0.62, 1.7], 10);
+    for (var i4 = 1; i4 <= 16; i4++) { var u4 = i4 / 16; ruta.push([DER - 0.62 + 1.24 * u4, 1.7 - 0.42 * Math.sin(Math.PI * u4)]); }
+    seg([DER + 0.62, 1.7], [NUCA + 2 * Math.PI - 0.25, thF(lin, 0.2)], 10);
+    tr4 = tr4.concat(lineas(tramos(v4, function (u) { var k = Math.min(ruta.length - 1, Math.round(u * (ruta.length - 1))); return ruta[k]; }, ruta.length - 1), [0.05, 0.3], '#2C6FD1', 4));
+    ruta.forEach(function (q, i) {
+      if (i % 3 || !seVe(v4, q[0], q[1])) return;
+      var a4 = P(q[0], q[1], 1.02), r4 = P(q[0], Math.max(0.9, q[1] - 0.55), 1.03);
+      tr4.push(linea(plano([pr(v4, r4), pr(v4, a4.clone().add(V3(0, -0.3, 0)))]), [0.3, 0.45], '#8E847A', 2, { x: 0.75 }), linea(plano([pr(v4, r4), pr(v4, a4)]), [0.7, 0.8], COL[5], 2.6));
+      tk4.push(pr(v4, a4));
+    });
+    if (tk4.length > 1) tr4.push(tijera(plano(tk4), [0.45, 0.75], ROJ, false));
+    tr4.push(rotulo('De lado: la forma en curvatura por encima de la oreja', '#2C6FD1', 0.05), rotulo('Alineada con delante y con la nuca: la oreja queda descubierta', COL[5], 0.3), rotulo('Se corta siguiendo la curva', ROJ, 0.45));
+    L.push({ tipo: 'pixc_oreja', vista: v4, t: 'Pixie corto · curva por encima de la oreja', texto: 'De lado se saca la forma en curvatura por encima de la oreja, alineándola con la parte de delante y con la nuca. Así el corte queda definido y la oreja descubierta.', a: { v: v4, tr: tr4, banda: true } });
     /* emparejar: el largo de delante se une con los dos dedos de atrás, a 0°, de lado */
     var v3 = 'lateral', tr3 = [], pe = [], yAtras = P(NUCA, thF(lin, 0)).y - DOS;
     for (var e = 0; e <= 14; e++) {
