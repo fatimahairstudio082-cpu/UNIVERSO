@@ -970,7 +970,7 @@
     { id: 'p_seis', n: 'Seccionado en 4 y 6 secciones · escala 0–225°', unidad: 'pe_u_base', uso: ['corte', 'color', 'queratina'], fn: seis, fuente: 'Diagramas de Fátima · formas de dividir un cabello, tipos de diagrama 0–225' },
     { id: 'p_sobreproy', n: 'Particiones horizontales, pivote y sobreproyección', unidad: 'pe_u_base', uso: ['corte', 'color'], fn: sobreproy, fuente: 'Diseño de Fátima · con efecto colores' },
     { id: 'p_long_layers', n: 'Long Layers · proyección a un punto', unidad: 'pe_u_base', uso: ['corte'], fn: longLayers, fuente: 'Diseño de Fátima · forma de frente (Long Layers)' },
-    { id: 'p_pixie', n: 'Pixie · abanico, flequillo en triángulo y espiga', unidad: 'pe_u_base', uso: ['corte'], fn: pixie, fuente: 'Diseño de Fátima · pixie corte diagrama' },
+    { id: 'p_pixie', n: 'Pixie · abanico, flequillo en triángulo y espiga', unidad: 'pe_u_c_cortos', uso: ['corte'], fn: pixie, fuente: 'Diseño de Fátima · pixie corte diagrama' },
     { id: 'p_seg_quimica', n: 'Seguridad en los químicos · antes y después', unidad: 'pe_u_fund', uso: ['color', 'queratina'], fn: segQuimica, fuente: 'Reglas de Fátima · seguridad y errores comunes (9-10-2026)' }
   ];
   /* técnicas que otros módulos registran (cerebro de colorimetría…): van después de las del Cerebro de su unidad */

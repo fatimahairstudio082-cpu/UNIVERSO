@@ -193,8 +193,13 @@
        en las unidades base (antes salían en el libro y en el curso de esos bloques) */
     var opD = cfg.op || {}, sinCortes = opD.solo === 'si' && opD.tema && opD.tema !== 'cortes' && opD.tema !== 'todo';
     if (sinCortes) otras = [];
+    /* Fátima, 19-10-2026: una técnica de corte no va en una unidad de color, química o tratamiento (salía «Corte cuadrado» en
+       Decoloración): fuera de las unidades de corte, solo en «Secciones, elevación y mecha guía» */
+    otras = otras.filter(function (u) { return u === 'pe_u_base'; });
     var todas = cortes.concat(otras), j = 0;
-    extra.forEach(function (dg) { for (var v = 0; v < todas.length; v++) { if (pon(todas[(j + v) % todas.length], dg, dg.id || dg.o.n)) { j = (j + v + 1) % todas.length; return; } } });
+    /* Fátima, 19-10-2026: el box (su diagrama «box universal») va con los cortos de dama, junto al pixie */
+    var PREF = { box: 'pe_u_c_cortos' };
+    extra.forEach(function (dg) { if (PREF[dg.id] && todas.indexOf(PREF[dg.id]) >= 0 && pon(PREF[dg.id], dg, dg.id)) return; for (var v = 0; v < todas.length; v++) { if (pon(todas[(j + v) % todas.length], dg, dg.id || dg.o.n)) { j = (j + v + 1) % todas.length; return; } } });
     /* 4 · variantes de técnicas (atrás una, delante otra): en los huecos de relleno que queden en las unidades de corte
        y en «Secciones, elevación y mecha guía»; no sustituyen lecturas. Ninguna se repite en el libro. */
     var VAR = (GC && GC.variantesForma ? GC.variantesForma() : []).concat(GC && GC.variantes ? GC.variantes() : []).filter(nivOk), dest = cortes.concat(otras.filter(function (u) { return u === 'pe_u_base'; })), iv = 0, hay = true;

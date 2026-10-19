@@ -393,6 +393,9 @@
     /* unidades con lista propia de modelos (u.mods, p. ej. Peluquería): solo esos modelos de la biblioteca */
     var MO = window.EU_MODELOS;
     if (u && u.mods && MO && MO.modelo) t = t.filter(function (x) { return !MO.modelo(x) || u.mods.indexOf(x) >= 0; });
+    /* Peluquería (Fátima, 19-10-2026): sin «Encuesta de la clase» con votos inventados; en las unidades de corte, nada de
+       láminas de otros temas (diluciones, pH…): solo sus dibujos */
+    if (m === 'pelu') t = t.filter(function (x) { return x !== 'datos' && (!u || !/^pe_u_c_/.test(u.id) || UNICOS[x] || (MO && MO.modelo && MO.modelo(x))); });
     return t;
   }
   var EXTRA = [];
