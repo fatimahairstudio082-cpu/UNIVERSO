@@ -30,9 +30,16 @@
   function pista(idea, sol, preg) {
     if (!idea) return '';
     var r = String(sol || '').trim(), p = idea;
-    if (r.length > 1 && !/^(verdadero|falso)$/i.test(r)) p = p.replace(new RegExp(r.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '____');
+    /* (19-10-2026) solo la palabra o cifra entera: «0°» ya no tapa el 0 de «70°» */
+    if (r.length > 1 && !/^(verdadero|falso)$/i.test(r)) p = p.replace(new RegExp('(^|[^0-9A-Za-zÀ-ÿ])' + r.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![0-9A-Za-zÀ-ÿ])', 'gi'), '$1____');
     var w = pal(p), q = pal(preg), c = w.filter(function (x) { return q.indexOf(x) >= 0; }).length;
-    return w.length && c / w.length > 0.7 ? '' : p;
+    /* si la pista es la misma descripción de la pregunta con la respuesta tapada, regala la respuesta: no se da */
+    if (w.length && c / w.length > (/____/.test(p) ? 0.5 : 0.7)) return '';
+    /* si la respuesta sigue dentro de la pista (sus palabras o sus cifras), la regala: no se da */
+    var aw = pal(r), cif = r.match(/\d+/g) || [], pw = pal(p);
+    if ((aw.length || cif.length) && aw.every(function (x) { return pw.indexOf(x) >= 0; }) && cif.every(function (n) { return new RegExp('(^|\\D)' + n + '(\\D|$)').test(p); })) return '';
+    /* el hueco se lee «…» (con la voz, «____» sonaba «barra baja») */
+    return p.replace(/_{4}/g, '…');
   }
 
   /* ─── datos de la página (se calculan al armar y se guardan en pg.tut) ─── */
@@ -187,13 +194,20 @@
       if (t.ej && !ya('__enc_ej')) L.push({ id: u.id + '__tutor_ej', t: 'Ejemplo resuelto · ' + titulo, pag: pg.num, video: 0, escenas: [
         { tipo: 'idea', id: id, t: 'Ejemplo resuelto', texto: 'Resolvemos juntos. ' + txt(sub(t.ej.e, C)), rot: [] },
         { tipo: 'idea', id: id, t: 'Solución', texto: 'La respuesta es: ' + txt(t.ej.s) + '.' + (t.ej.x ? ' Por qué: ' + txt(t.ej.x) : ''), rot: [] }] });
-      var esc = (t.items || []).map(function (x) {
-        var e = txt(sub(x.e, C)), pista = x.pista ? ' Pista: ' + x.pista : '', sol = 'La respuesta correcta es: ' + txt(x.sol) + '.' + (x.porque ? ' ' + x.porque : '');
+      /* (19-10-2026) cada pregunta con su nombre: «Pregunta 1 de 3 · <término de la idea de la unidad>» */
+      var nq = (t.items || []).length, titQ = function (x, k) {
+        var idea = ideaDe(u, txt(x.e) + ' ' + x.sol, C), m = String(idea || '').match(/^([^:.;]{3,40}):/), tm = m ? m[1].trim().toLowerCase() : '';
+        /* el término solo si ya está en la pregunta y no es la respuesta (si no, el título la regalaría) */
+        var ok = tm && txt(x.e).toLowerCase().indexOf(tm) >= 0 && String(x.sol).toLowerCase().indexOf(tm) < 0;
+        return 'Pregunta ' + (k + 1) + ' de ' + nq + (ok ? ' · ' + m[1].trim() : '');
+      };
+      var esc = (t.items || []).map(function (x, k) {
+        var e = txt(sub(String(x.e).replace(/<span[^>]*>(&#160;|\u00a0|\s)*<\/span>/g, '…'), C)), pista = x.pista ? ' Pista: ' + x.pista : '', sol = 'La respuesta correcta es: ' + txt(x.sol) + '.' + (x.porque ? ' ' + x.porque : '');
         if (x.tipo === 'mc' || x.tipo === 'vf') {
           var o = x.tipo === 'vf' ? ['Verdadero', 'Falso'] : (x.o || []).map(txt), c = x.tipo === 'vf' ? (x.sol === 'Verdadero' ? 0 : 1) : x.c;
-          return { tipo: 'pregunta', id: id, t: 'Practica con tu tutor', texto: 'Piensa: ' + e + pista, rot: [], q: { e: e, o: o, c: c }, sol: sol };
+          return { tipo: 'pregunta', id: id, t: titQ(x, k), texto: 'Piensa: ' + e + pista, rot: [], q: { e: e, o: o, c: c }, sol: sol };
         }
-        return { tipo: 'idea', id: id, t: 'Practica con tu tutor', texto: 'Piensa: ' + e + pista + ' … ' + sol, rot: [] };
+        return { tipo: 'idea', id: id, t: titQ(x, k), texto: 'Piensa: ' + e + pista + ' … ' + sol, rot: [] };
       });
       if (esc.length) L.push({ id: u.id + '__tutor_pr', t: 'Practica con tu tutor · ' + titulo, pag: pg.num, video: 0, escenas: esc });
       var ks = (u.k || []).map(function (k) { return txt(sub(k, C)); }).filter(Boolean);

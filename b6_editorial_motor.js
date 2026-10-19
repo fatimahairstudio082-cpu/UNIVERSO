@@ -492,7 +492,8 @@
     (u.i || []).forEach(function (idea) {
       var s = sub(idea, C);
       (u.k || []).some(function (k0) {
-        var k = sub(k0, C), i = s.toLowerCase().indexOf(k.toLowerCase());
+        /* (19-10-2026) solo la palabra entera: antes «sección» dentro de «secciones» dejaba «en s:» */
+        var k = sub(k0, C), mk = k ? new RegExp('(^|[^0-9A-Za-zÀ-ÿ])' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![0-9A-Za-zÀ-ÿ])', 'i').exec(s) : null, i = mk ? mk.index + mk[1].length : -1;
         if (i >= 0 && k.length > 2) { pool.push(it('corta', 'Completa: «' + s.slice(0, i) + '<span style="display:inline-block;min-width:26mm;border-bottom:1.5px solid currentColor">&#160;</span>' + s.slice(i + k.length) + '»', k)); return true; }
         return false;
       });
@@ -870,7 +871,7 @@
       }
       return arriba + '<div style="font-size:.82em;line-height:1.6;margin-top:' + (arriba ? 6 : 0) + 'mm' + (arriba ? ';padding-top:3mm;border-top:1px solid ' + C.T.soft : '') + '">' +
         '<p style="margin:0 0 3mm"><b>' + esc(C.titulo) + '</b><br/>' + (C.libre ? esc(C.matN) : esc(etq(C))) + '</p>' +
-        '<p style="margin:0 0 3mm">Autoría: ' + esc(C.cfg.autor || '________________') + '<br/>' + (C.cfg.centro ? 'Centro: ' + esc(C.cfg.centro) + '<br/>' : '') + (C.libre ? '' : 'Referente curricular: ') + esc(C.libre ? '' : C.P.marco) + '</p>' +
+        '<p style="margin:0 0 3mm">' + ((C.cfg.autor || (C.cfg.acab || {}).por) ? 'Autoría: ' + esc(C.cfg.autor || C.cfg.acab.por) + '<br/>' : '') + (C.cfg.centro ? 'Centro: ' + esc(C.cfg.centro) + '<br/>' : '') + (C.libre ? '' : 'Referente curricular: ') + esc(C.libre ? '' : C.P.marco) + '</p>' +
         (ed ? '<p style="margin:0 0 3mm">ISBN: ________________ · Depósito legal: ________________<br/>Edición: 1.ª, ' + y + '</p>' : '') +
         '<p style="margin:0">© ' + y + ' ' + esc(C.cfg.autor || 'la autora o el autor') + '. ' + (ed ? 'Reservados todos los derechos.' : 'Material de uso educativo.') + ' Maquetado con Estudio Universal.</p></div>';
     },
@@ -1165,7 +1166,7 @@
       'document.addEventListener("click",function(e){var b=e.target.closest("[data-comprobar]");if(!b)return;var pg=b.closest(".pg"),bien=0,tot=0;' +
       'pg.querySelectorAll("[data-acepta]").forEach(function(i){tot++;var ok=i.dataset.acepta.split("|").some(function(a){return n(a)===n(i.value)});if(ok)bien++;i.style.borderColor=ok?"#1a8f4c":"#c0392b";i.style.background=ok?"#e7f6ec":"#fbe9e7"});' +
       'var g={};pg.querySelectorAll("input[type=radio]").forEach(function(r){g[r.name]=g[r.name]||[];g[r.name].push(r)});Object.keys(g).forEach(function(k){tot++;var s=g[k].filter(function(r){return r.checked})[0];var ok=s&&s.hasAttribute("data-ok");if(ok)bien++;g[k].forEach(function(r){r.parentNode.style.color=r.hasAttribute("data-ok")&&s?"#1a8f4c":(r===s?"#c0392b":"")})});' +
-      'var o=pg.querySelector("[data-resultado]");if(o)o.textContent=bien+" de "+tot+" bien";if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(bien===tot?"¡Todo bien!":"Llevas "+bien+" de "+tot+". Revisa las que están en rojo.");u.lang="' + C.P.lang + '";speechSynthesis.cancel();speechSynthesis.speak(u)}});' +
+      'var o=pg.querySelector("[data-resultado]"),ab="Son respuestas abiertas: compáralas con el solucionario.";if(o)o.textContent=tot?bien+" de "+tot+" bien":ab;if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(!tot?ab:bien===tot?"¡Todo bien!":"Llevas "+bien+" de "+tot+". Revisa las que están en rojo.");u.lang="' + C.P.lang + '";speechSynthesis.cancel();speechSynthesis.speak(u)}});' +
       'document.querySelectorAll(".pg").forEach(function(p){var b=document.createElement("button");b.textContent="Escuchar";b.style.cssText="position:absolute;top:6mm;right:6mm;font:12px sans-serif;padding:4px 10px;border-radius:99px;border:1px solid #999;background:#fff;cursor:pointer";b.onclick=function(){var u=new SpeechSynthesisUtterance(p.innerText.replace(/Escuchar|Comprobar/g,""));u.lang="' + C.P.lang + '";speechSynthesis.cancel();speechSynthesis.speak(u)};p.appendChild(b)})})();<\/script>' : '';
     return '<!DOCTYPE html><html lang="' + C.P.lang + '"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>' + esc(titulo || C.titulo) + '</title><link rel="stylesheet" href="' + FUENTES + '"/>' + EXTRA_FUENTES.map(function (f) { return '<link rel="stylesheet" href="' + f + '"/>'; }).join('') + '<style>' + css + '</style></head><body>' + pags + script + '</body></html>';
   }
