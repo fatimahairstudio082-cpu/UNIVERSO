@@ -903,7 +903,7 @@
      (en U, en V o cuadrada), desde ahí la guía a dos dedos, luego el cabello se eleva en vertical y se corta a dos dedos,
      y al final se ve cada capa como quedó. Escenas aparte: las del pixie de antes no se tocan. */
   function escPixieCorto(R) {
-    var L = [], DOS = 0.36, ROJ = CORTE, FORMAS = [['u', 'En U', COL[2]], ['v', 'En V', COL[4]], ['recta', 'Cuadrada', COL[0]]];
+    var YFL = ALTURAS.ojo.y * 0.35 + ALTURAS.nariz.y * 0.65, L = [], DOS = 0.36, ROJ = CORTE, FORMAS = [['u', 'En U', COL[2]], ['v', 'En V', COL[4]], ['recta', 'Cuadrada', COL[0]]];
     var lin = /^(u|v|recta)$/.test(R.linea) ? R.linea : R.linea === 'redondeada' ? 'u' : 'recta';
     function thF(f, d) { return 1.98 + formaTh(f, d) * 0.9; }
     /* 1 · la forma de atrás: U, V y cuadrada sobre la nuca */
@@ -960,14 +960,33 @@
           for (var j = 0; j <= 9; j++) {
             var th = 0.35 + j * 0.18; if (v2 === 'nuca') th = Math.min(th, thF(lin, (ph - NUCA) / 1.25)); if (v2 === 'frente' && th > 1.0 + 0.5 * Math.abs(ph - CARA) / 1.1) continue; if (!seVe(v2, ph, th)) continue;
             var a = P(ph, th), n = N(ph, th), dd = n.clone().multiplyScalar(0.35).add(V3(0, -1, 0)).normalize(), b = a.clone().add(dd.multiplyScalar(DOS));
+            /* Fátima, 19-10-2026: delante más largo y cayendo de ladito hacia ambos lados, hasta entre el ojo y la nariz */
+            if (v2 === 'frente' && Math.abs(ph - CARA) < 0.95 && th < 1.15) {
+              var fw = P(CARA, Math.PI / 2).normalize(), o = V3(a.x, 0, a.z); o.sub(fw.clone().multiplyScalar(o.dot(fw))); if (o.length() < 0.05) o = V3(fw.z, 0, -fw.x).multiplyScalar(ph < CARA ? 1 : -1); o.normalize();
+              var bL = a.clone().add(o.clone().multiplyScalar(0.42 + 0.25 * (1 - Math.abs(ph - CARA)))).add(fw.clone().multiplyScalar(0.12)); bL.y = YFL - 0.1 * Math.abs(ph - CARA);
+              var cL = a.clone().add(fw.clone().multiplyScalar(0.3)).add(o.clone().multiplyScalar(0.15)); cL.y = Math.max(a.y, cL.y);
+              var bz = bezier(v2, a, cL, bL, 12); tr2.push(linea(bz, [ta, ta + 0.1], c, 3)); pts.push([bz[bz.length - 2], bz[bz.length - 1]]); continue;
+            }
             tr2.push(linea(plano([pr(v2, a), pr(v2, b)]), [ta, ta + 0.1], c, 3)); pts.push(pr(v2, b));
           }
         });
         if (pts.length > 1) tr2.push(linea(plano(pts), [ta + 0.1, ta + 0.15], c, 2.4, { d: 1 }), chapa(pts[pts.length - 1], (k + 1) + ' · 2 dedos', c, ta + 0.12));
       });
       tr2.push(rotulo('Cómo quedó cada capa · ' + q[1] + ' · todo a dos dedos', TINTA, 0.05));
-      L.push({ tipo: 'pixc_queda_' + v2, vista: v2, t: 'Pixie corto · cómo queda ' + q[1], texto: 'Así queda cada capa: todo el cabello a dos dedos de la raíz, con la forma de atrás marcada.', a: { v: v2, tr: tr2, banda: true } });
+      if (v2 === 'frente') tr2.push(rotulo('Delante más largo: cae de ladito, a ambos lados, entre el ojo y la nariz', COL[2], 0.6));
+      L.push({ tipo: 'pixc_queda_' + v2, vista: v2, t: 'Pixie corto · cómo queda ' + q[1], texto: v2 === 'frente' ? 'De frente se deja un poco más largo y el cabello cae de ladito, hacia ambos lados, como un flequillo que llega entre donde termina el ojo y la nariz. Atrás y a los lados queda a dos dedos.' : 'Así queda cada capa: todo el cabello a dos dedos de la raíz, con la forma de atrás marcada.', a: { v: v2, tr: tr2, banda: true } });
     });
+    /* emparejar: el largo de delante se une con los dos dedos de atrás, a 0°, de lado */
+    var v3 = 'lateral', tr3 = [], pe = [], yAtras = P(NUCA, thF(lin, 0)).y - DOS;
+    for (var e = 0; e <= 14; e++) {
+      var w = e / 14, ph3 = CARA + 0.45 + w * (Math.PI - 0.75), th3 = 1.2 + 0.35 * w; if (!seVe(v3, ph3, th3)) continue;
+      var a3 = P(ph3, th3, 1.03), yE = YFL + (yAtras - YFL) * Math.pow(w, 0.8), b3 = V3(a3.x * 1.04, Math.min(a3.y - 0.08, yE), a3.z * 1.04), lg = V3(a3.x * 1.04, Math.min(a3.y - 0.08, yE) - 0.35, a3.z * 1.04);
+      tr3.push(linea(plano([pr(v3, a3), pr(v3, lg)]), [0.05, 0.3], '#8E847A', 2, { x: 0.6 }), linea(plano([pr(v3, a3), pr(v3, b3)]), [0.55, 0.62], COL[3], 2.6));
+      pe.push(pr(v3, b3));
+    }
+    if (pe.length > 1) tr3.push(tijera(plano(pe), [0.3, 0.6], ROJ, false), linea(plano(pe), [0.6, 0.75], COL[3], 3.2));
+    tr3.push(rotulo('Se empareja delante con atrás · a 0°, hacia el suelo', TINTA, 0.05), rotulo('Del largo de delante a los dos dedos de atrás', COL[3], 0.3), regla(0, 0, [0.05, 0.3], COL[3], 'Emparejar · 0°'));
+    L.push({ tipo: 'pixc_emparejar', vista: v3, t: 'Pixie corto · emparejar delante y atrás', texto: 'Al final se empareja todo: a cero grados, hacia el suelo, se une el largo de delante con los dos dedos de atrás y se le hace su forma, atrás y adelante.', a: { v: v3, tr: tr3, banda: true } });
     return L;
   }
   function escenas(id) {
