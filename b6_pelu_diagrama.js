@@ -629,6 +629,45 @@
     var todo0 = !((R.capas && R.capas.pila) || []).some(function (g) { return +g > 0; });
     return todo0 && /\(corto\)/i.test(R.n || '') ? ALTURAS.barbilla.y : todo0 ? ALTURAS.cuello.y : -1.45;
   }
+  /* Fátima, 19-10-2026 (su imagen «para dibujar en el maniquí 5»: «se debe ver así»): en los cortes cortos, cómo queda de lado y atrás
+     dibujado como su lámina: el cabello corto pegado a la cabeza en mechones con textura, la oreja descubierta (curva por encima),
+     el flequillo hacia la cara y la nuca que baja en punta sobre el cuello, sombreada. Largos a validar por Fátima */
+  function escQuedaCorto(R, v, CT) {
+    var tr = [], tips = [], YB = yBase(R), n = 0, ph, yOA = P(DER - 0.05, 1.56).y, yOM = P(DER - 0.05, 1.72).y;   /* alto y medio de la oreja */
+    function ang(q) { return Math.abs(Math.atan2(Math.sin(q - NUCA), Math.cos(q - NUCA))); }
+    for (ph = -Math.PI; ph < Math.PI; ph += 0.035) {
+      var a = ang(ph), jit = ((n * 37) % 9) / 8 - 0.5, lado = Math.sin(ph - NUCA) >= 0 ? 1 : -1, pts = [], th, thC, ext = null;
+      if (!seVe(v, ph, 0.9) && !seVe(v, ph, 1.3)) { n++; continue; }
+      /* curva por encima de la oreja: la misma del «Pixie corto · curva por encima de la oreja» (centro, ancho y alto) */
+      var dO = Math.min(Math.abs(Math.atan2(Math.sin(ph - (DER - 0.05)), Math.cos(ph - (DER - 0.05)))), Math.abs(Math.atan2(Math.sin(ph - (IZQ + 0.05)), Math.cos(ph - (IZQ + 0.05)))));
+      if (a < 1.3) thC = 1.5;                                                     /* nuca y detrás de la oreja: siguen hacia el cuello */
+      else thC = 1.8 - (dO < 0.24 ? 0.24 * Math.sqrt((1 + Math.cos(Math.PI * dO / 0.24)) / 2) : 0) + 0.03 * jit;
+      /* delante de la oreja: patilla corta junto a la oreja y, hacia la cara, el flequillo a la altura de la frente */
+      var yL = a < 1.78 ? -9 : a < 1.86 ? yOM : yOA + 0.15 + (ALTURAS.cejas.y + 0.35 - yOA - 0.15) * Math.min(1, (a - 1.86) / 0.5) + 0.08 * jit;
+      var sw = a > 2.05 ? lado * 0.18 : a > 0.95 ? lado * 0.07 : 0;               /* el mechón se peina hacia delante */
+      for (th = 0.06; th <= thC + 1e-6; th += 0.07) { var u = th / thC; if (P(ph, th).y < yL) break; if (seVe(v, ph + sw * u, th)) pts.push(pr(v, P(ph + sw * u * u, th, 1.08 + 0.06 * Math.sin(Math.PI * Math.min(1, u * 1.2))))); }
+      if (a < 1.3) {                                                              /* nuca en punta: baja sobre el cuello y se estrecha */
+        var f = 1 - a / 1.3, p1 = P(ph, 1.5, 1.08), yE = YB + 0.25 - 0.75 * Math.pow(f, 1.25) + 0.05 * jit, sq = 0.45 + 0.55 * (1 - f);
+        for (var s2 = 1; s2 <= 5; s2++) { var w = s2 / 5; pts.push(pr(v, V3(p1.x * (1 + (sq - 1) * w), p1.y + (yE - p1.y) * w, p1.z * (1 + (sq - 1) * w * 0.6)))); }
+        ext = pts[pts.length - 1];
+      }
+      if (pts.length > 1) {
+        var t0 = 0.08 + 0.5 * (n % 11) / 11;
+        tr.push(linea(plano(pts), [t0, t0 + 0.2], n % 3 ? '#2E1C12' : '#5A3A26', n % 3 ? 4.2 : 2.6));
+        if (n % 4 === 1) tr.push(linea(plano(pts.slice(1)), [t0 + 0.1, t0 + 0.3], 'rgba(255,236,214,0.35)', 1.3));
+        if (ext && seVe(v, ph, 1.3)) tips.push(ext);
+      }
+      n++;
+    }
+    /* sombreado de la nuca: rayitas cruzadas junto a las puntas, como en su lámina */
+    tips.sort(function (p, q) { return p[0] - q[0]; });
+    tips.forEach(function (p, i) { if (i % 2) return; var h = 16, d = 6; tr.push(linea(plano([[p[0] - d, p[1] - h], [p[0] + d, p[1]]]), [0.7, 0.85], '#2B2620', 1.3), linea(plano([[p[0] + d, p[1] - h], [p[0] - d, p[1]]]), [0.7, 0.85], '#2B2620', 1.3)); });
+    if (tips.length > 2) tr.push(tijera(plano(tips), [0.72, 0.9], CORTE, R.desg));
+    tr.push(rotulo('Cabello corto pegado a la cabeza, con textura', TINTA, 0.05));
+    if (v === 'lateral') tr.push(rotulo('La oreja queda descubierta: curva por encima', TINTA, 0.35));
+    tr.push(rotulo('La nuca baja en punta sobre el cuello, sombreada', CORTE, 0.6), rotulo('Largos: a validar por Fátima', '#8A6D3B', 0.85));
+    return { v: v, tr: tr, banda: 1 };
+  }
   function escQueda(R, v) {
     var tr = [], lin = lineaDe(R), FY = FORMA_Y[lin], tips = [], k = 0, frente = v === 'frente', CT = cortoDe(R);
     /* Fátima, 18-10-2026: no todas se cortan con elevación; en los cortes todo a 0° (parejo) el maniquí lleva el cabello largo, hasta el cuello */
@@ -700,23 +739,6 @@
       if (k % 4 === 0) tr.push(linea(plano(corto.slice(Math.floor(corto.length * 0.15))), [0.74, 0.94], 'rgba(255,236,214,0.32)', 1.8));
       if (visto) tips.push(corto[corto.length - 1]);
       k++;
-    }
-    /* Fátima, 19-10-2026 (sus imágenes «para dibujar en el maniquí» 5, 6 y 7): en los cortes cortos, atrás y de lado, el cabello
-       sobresale de la cabeza y baja sombreado sobre el cuello, más largo en el centro de la nuca y más corto hacia las orejas,
-       con las puntas sueltas; así se ve la forma del corto. Largos a validar por Fátima */
-    if (CT && !frente) {
-      var nS = 0;
-      for (var phS = NUCA - 1.45; phS <= NUCA + 1.45; phS += 0.022) {
-        if (!seVe(v, phS, 1.2)) continue;
-        var dn = Math.min(1, Math.abs(Math.atan2(Math.sin(phS - NUCA), Math.cos(phS - NUCA))) / 1.45), jit = ((nS * 37) % 9) / 8 - 0.5;
-        var p0 = P(phS, 0.95, 1.06), p1 = P(phS, 1.3, 1.14), yE = YB - (0.85 - 0.3 * CT.nuca) * (1 - Math.pow(dn, 1.6)) + 0.07 * jit, sq = 0.5 + 0.5 * dn;
-        var ptsS = [pr(v, p0), pr(v, p1)];
-        for (var s = 1; s <= 6; s++) { var u = s / 6, ex = p1.x * (1 + (sq - 1) * u * u), ez = p1.z * (1 + (sq - 1) * u * u) * 0.98, ey = p1.y + (yE - p1.y) * u; ptsS.push(pr(v, V3(ex, ey, ez))); }
-        var t0S = 0.55 + 0.15 * (nS % 7) / 7;
-        tr.push(linea(plano(ptsS), [t0S, t0S + 0.12], nS % 3 ? '#2A1910' : '#6A4630', nS % 3 ? 3.4 : 1.6));
-        nS++;
-      }
-      tr.push(rotulo('Atrás el cabello sobresale y cubre el cuello: más largo en el centro de la nuca', TINTA, 0.6));
     }
     /* la tijera sigue la línea; si hay un hueco (la cara, de frente) va en dos tramos */
     tips.sort(function (p, q) { return p[0] - q[0]; });
@@ -1111,6 +1133,11 @@
      ['lateral', 'lateral', 'Ahora de lado: así cae el cabello cortado y así se ve la línea ' + nomQ + ' de perfil.'],
      ['frente', 'de frente', 'Y de frente: el cabello enmarca el rostro y se ve la forma final del corte.']].forEach(function (q) {
       var a = escQueda(R, q[0]); L.push({ tipo: 'queda_' + q[0], vista: q[0], t: 'Cómo queda · ' + q[1], texto: q[2], a: a });
+    });
+    /* Fátima, 19-10-2026: los cortos, además, como su lámina (de lado y atrás, nuca en punta sobre el cuello) */
+    if (cortoDe(R)) [['lateral', 'de lado', 'Así queda el corto de lado: el cabello pegado a la cabeza, la oreja descubierta y la nuca que baja en punta sobre el cuello.'],
+      ['nuca', 'atrás', 'Y atrás: la nuca se estrecha y baja en punta sobre el cuello, con el sombreado de las puntas.']].forEach(function (q) {
+      L.push({ tipo: 'queda_corto_' + q[0], vista: q[0], t: 'Cómo queda el corto · ' + q[1], texto: q[2], a: escQuedaCorto(R, q[0], cortoDe(R)) });
     });
     return { R: R, escenas: L, preguntas: qs, calculo: calc };
   }
