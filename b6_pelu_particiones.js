@@ -683,9 +683,9 @@
       /* 18-10-2026 (Fátima: «para neutralizar un color antes hay que decolorar; las mechas que quedan naranjas se neutralizan»):
          al cerrar mechas y balayage se reconectan las escenas de neutralización que ya existen en la decoloración */
       if (f === 'cierre' && /^(mechas_aluminio|mechas_gorro|color_balayage|color_babylights)$/.test(id) && !esc.some(function (e) { return e.tipo === 'cb_neu_amarillo'; }) && K.mechon)
-        esc.push({ tipo: 'cb_neu_amarillo', vista: 'lateral', t: 'Si el aclarado queda amarillo · neutralizar con violeta', a: escDecoColor(K, true),
+        esc.push({ tipo: 'cb_neu_amarillo', vista: 'lateral', t: 'Si el aclarado queda amarillo · neutralizar con violeta', a: banda(escDecoColor(K, true)),
           texto: 'Lo aclarado se ha decolorado: si el fondo queda amarillo, se neutraliza con violeta, matizador violeta o tinte punto dos. El amarillo desaparece y queda un rubio neutro.' },
-          { tipo: 'cb_neu_naranja', vista: 'lateral', t: 'Si el aclarado queda naranja · neutralizar con azul', a: escDecoColor(K, true, true),
+          { tipo: 'cb_neu_naranja', vista: 'lateral', t: 'Si el aclarado queda naranja · neutralizar con azul', a: banda(escDecoColor(K, true, true)),
           texto: 'Si las mechas quedan naranjas, se neutralizan con azul, es decir, con ceniza: tintes punto uno o punto once. Así desaparece el naranja y queda un tono ceniza.' });
       /* Fátima, 10-10-2026: el balayage también se hace profundo — se empieza a unos 5 cm del cuello, atrás, con zigzag grande;
          el mechón se eleva a 90° y se coloca el producto. Se añade como escena propia; la de arriba no cambia. */
@@ -721,15 +721,15 @@
       if (id === 'quim_decoloracion' && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_deco_neutro'; }) && K.mechon) {
         esc.push({ tipo: 'cb_deco_capas', vista: 'lateral', t: 'Decoloración por capas · del frente hacia atrás', a: escDecoCapas(K, t),
           texto: 'Antes de empezar se hace una prueba de mechón para ver si el cabello resiste. Se prepara el polvo decolorante con el oxidante de 20, 30 o 40 volúmenes, según la ficha, y se aplica de inmediato: si se deja esperar, pierde consistencia. Se divide el cabello en capas finas, del frente hacia atrás. En cada capa se aplica el producto, mechón a mechón, desde unos cinco centímetros de la raíz hasta las puntas, y se coloca el papel de aluminio. Así hasta terminar atrás.' },
-          { tipo: 'cb_deco_amarillo', vista: 'lateral', t: 'Resultado · el negro sube a amarillo', a: escDecoColor(K, false),
+          { tipo: 'cb_deco_amarillo', vista: 'lateral', t: 'Resultado · el negro sube a amarillo', a: banda(escDecoColor(K, false)),
           texto: 'Sobre un cabello negro, al decolorar el fondo sube y probablemente queda amarillo. Ese amarillo hay que neutralizarlo.' },
-          { tipo: 'cb_deco_neutro', vista: 'lateral', t: 'Neutralizar el amarillo con violeta', a: escDecoColor(K, true),
+          { tipo: 'cb_deco_neutro', vista: 'lateral', t: 'Neutralizar el amarillo con violeta', a: banda(escDecoColor(K, true)),
           texto: 'El amarillo se neutraliza con violeta: matizador violeta o tinte punto dos. Al neutralizar, el amarillo desaparece y queda un rubio neutro.' });
         esc.splice(esc.length - 2, 0, { tipo: 'cb_deco_gorro', vista: 'lateral', t: 'Gorro y revisión cada 5 minutos', a: escDecoGorro(K),
           texto: 'En lugar de papel de aluminio también se puede poner una bolsa o un gorro, plástico o térmico. Se va revisando a los cinco, diez, quince y veinte minutos para ver cómo procesa.' });
-        esc.push({ tipo: 'cb_deco_naranja', vista: 'lateral', t: 'Resultado · si queda naranja', a: escDecoColor(K, false, true),
+        esc.push({ tipo: 'cb_deco_naranja', vista: 'lateral', t: 'Resultado · si queda naranja', a: banda(escDecoColor(K, false, true)),
           texto: 'Si el fondo queda naranja, también hay que neutralizarlo.' },
-          { tipo: 'cb_deco_neutro_nar', vista: 'lateral', t: 'Neutralizar el naranja con azul', a: escDecoColor(K, true, true),
+          { tipo: 'cb_deco_neutro_nar', vista: 'lateral', t: 'Neutralizar el naranja con azul', a: banda(escDecoColor(K, true, true)),
           texto: 'El naranja se neutraliza con azul, es decir, con ceniza: tintes punto uno o punto once. Así desaparece el naranja y queda un tono ceniza.' });
       }
       if ((id === 'mechas_aluminio' || id === 'color_balayage') && (f === 'aplicacion' || !p.fase) && !esc.some(function (e) { return e.tipo === 'cb_queda_frente'; }) && K.dirElev && K.mechon) {

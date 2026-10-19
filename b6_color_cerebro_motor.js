@@ -54,54 +54,72 @@
   function sector(cx, cy, r, a0, a1) { var p = [cx, cy]; for (var i = 0; i <= 10; i++) { var a = a0 + (a1 - a0) * i / 10; p.push(Math.round(cx + r * Math.cos(a)), Math.round(cy + r * Math.sin(a))); } return p; }
   function panel(t) { return A.zona(rect(330, 250, 620, 420), t, PANEL, 0.9, '#D8D2C8'); }
 
+  /* Fátima, 19-10-2026: «el cartel tapa al maniquí»: la liga y la rueda van en una tarjeta a la derecha (como la carta de tonos)
+     y el cabello del maniquí toma los colores que nombra el paso, uno tras otro, de la nuca hacia arriba */
+  function tarjeta(t) { return A.zona(rect(955, 230, 130, 420), t, PANEL, 0.92, '#D8D2C8'); }
+  function pelo(K, cols) {
+    /* cabello entero del perfil (como las escenas de decoloración): cada color cubre las mechas una tras otra, encima del anterior */
+    var v = 'lateral', tr = [], phs = [], n = cols.length; for (var d = -1.0; d <= 1.3; d += 0.06) if (K.seVe(v, K.DER - d, 1.0)) phs.push(K.DER - d);
+    phs.forEach(function (ph, j) { var q = A.mecha(K, v, ph, 0.35, 0, 1); if (q) tr.push(K.linea(q, [0, 0.05], '#3A2418', 4.2)); });
+    cols.forEach(function (c, i) {
+      var a = 0.1 + 0.85 * i / n, b = 0.1 + 0.85 * (i + 1) / n;
+      phs.forEach(function (ph, j) { var q = A.mecha(K, v, ph, 0.35, 0.05, 1); if (q) tr.push(K.linea(q, [a + (b - a) * 0.7 * j / phs.length, a + (b - a) * (0.3 + 0.7 * j / phs.length)], c, 4.2)); });
+    });
+    return { v: v, tr: tr };
+  }
+
   /* ── liga de tonos (mezclas): los tonos que nombra el paso + la proporción que dice ── */
-  function escLiga(K, txt) {
-    var tr = [panel([0, 0.08])], cods = [], m, re = /\b(\d{1,2}[.,]\d{1,2})\b/g;
+  function escLiga(K, txt, k) {
+    var cods = [], m, re = /\b(\d{1,2}[.,]\d{1,2})\b/g;
     while ((m = re.exec(txt)) && cods.length < 3) if (colorDe(m[1]) && cods.indexOf(m[1]) < 0) cods.push(m[1]);
     var prop = null, p1 = /(\d{1,3})\s*\/\s*(\d{1,3})/.exec(txt), p2 = /\b(\d+(?:[.,]\d+)?)\s*:\s*(\d+(?:[.,]\d+)?)\b/.exec(txt), p3 = /(\d{1,2})\s*-\s*(\d{1,2})\s*%/.exec(txt);
     if (p1 && +p1[1] + +p1[2] === 100) prop = [+p1[1], +p1[2]];
     else if (p2) prop = [parseFloat(p2[1].replace(',', '.')), parseFloat(p2[2].replace(',', '.'))];
     else if (p3) prop = [+p3[2], 100 - +p3[2]];
-    var x0 = 400, y = 330;
+    var res = null;
+    if (cods.length >= 2) { var t = prop ? prop[1] / (prop[0] + prop[1]) : 0.5; res = mezcla(colorDe(cods[0]), colorDe(cods[1]), t); }
+    var cols = cods.map(colorDe); if (res) cols.push(res);
+    var base = cols.length ? pelo(K, cols) : { v: 'tres', tr: [] }, tr = [tarjeta([0, 0.08])];
     cods.forEach(function (c, i) {
-      var cx = x0 + 70 + i * 170, ta = 0.12 + i * 0.12;
-      tr.push(A.zona(circ(cx, y, 52), [ta, ta + 0.1], colorDe(c), 1, TINTA), K.chapa([cx, y + 78], c, TINTA, ta + 0.05));
+      var y = 280 + i * 70, ta = 0.12 + i * 0.12;
+      tr.push(A.zona(circ(995, y, 24), [ta, ta + 0.1], colorDe(c), 1, TINTA), K.chapa([1052, y], c, TINTA, ta + 0.05));
     });
-    if (cods.length >= 2) {
-      var res = colorDe(cods[0]), t = prop ? prop[1] / (prop[0] + prop[1]) : 0.5; res = mezcla(colorDe(cods[0]), colorDe(cods[1]), t);
-      var cx = x0 + 70 + cods.length * 170;
-      if (cx < 900) tr.push(A.zona(circ(cx, y, 58), [0.5, 0.62], res, 1, TINTA), K.chapa([cx, y + 82], '=', TINTA, 0.55));
-    }
+    if (res) { var yr = 280 + cods.length * 70; tr.push(A.zona(circ(995, yr, 26), [0.5, 0.62], res, 1, TINTA), K.chapa([1052, yr], '=', TINTA, 0.55)); }
     if (prop) {
-      var W = 440, bx = 420, by = 470, w1 = Math.round(W * prop[0] / (prop[0] + prop[1]));
+      var W = 110, bx = 965, by = 575, w1 = Math.round(W * prop[0] / (prop[0] + prop[1]));
       var c1 = cods[0] ? colorDe(cods[0]) : '#8A5A33', c2 = cods[1] ? colorDe(cods[1]) : '#D9C7A8';
-      tr.push(A.zona(rect(bx, by, w1, 46), [0.6, 0.78], c1, 0.95, TINTA), A.zona(rect(bx + w1, by, W - w1, 46), [0.78, 0.92], c2, 0.95, TINTA));
-      tr.push(K.chapa([bx + w1 / 2, by + 70], String(prop[0]), TINTA, 0.7), K.chapa([bx + w1 + (W - w1) / 2, by + 70], String(prop[1]), TINTA, 0.85));
+      tr.push(A.zona(rect(bx, by, w1, 30), [0.6, 0.78], c1, 0.95, TINTA), A.zona(rect(bx + w1, by, W - w1, 30), [0.78, 0.92], c2, 0.95, TINTA));
+      tr.push(K.chapa([bx + w1 / 2, by + 52], String(prop[0]), TINTA, 0.7), K.chapa([bx + w1 + (W - w1) / 2, by + 52], String(prop[1]), TINTA, 0.85));
     }
-    return { v: 'tres', tr: tr };
+    return { v: base.v, tr: base.tr.concat(tr) };
   }
 
   /* ── rueda de neutralización (matización y corrección): los opuestos que nombra el paso se encuentran ── */
   var RUEDA = [['amarillo', '#F2C230', /amarill|dorad/], ['naranja', '#E67E22', /naranj|cobriz|cobre/], ['rojo', '#C0392B', /\brojo|rojiz|caoba/],
     ['violeta', '#8E44AD', /violet|morad|irisad|lila/], ['azul', '#2C6FD1', /\bazul|ceniza/], ['verde', '#27AE60', /verde|verdos/]];
-  function escRueda(K, txt) {
-    var tr = [panel([0, 0.08])], cx = 640, cy = 430, r = 150, s = txt.toLowerCase(), hay = [];
+  /* colores que el paso puede nombrar y no están en la rueda: también se pintan en el cabello */
+  var OTROS = [['fucsia', '#C2185B', /fucsia|magenta/], ['rosado', '#E89AB0', /rosad|\brosa\b/], ['negro', '#1E1A18', /\bnegr/]];
+  function escRueda(K, txt, k) {
+    var tr = [tarjeta([0, 0.08])], cx = 1020, cy = 360, r = 52, s = txt.toLowerCase(), hay = [], cols = [];
+    RUEDA.concat(OTROS).forEach(function (c) { var mm = c[2].exec(s); if (mm) cols.push([mm.index, c[1]]); });
+    cols.sort(function (a, b) { return a[0] - b[0]; });
+    var base = cols.length ? pelo(K, cols.slice(0, 4).map(function (c) { return c[1]; })) : { v: 'tres', tr: [] };
     RUEDA.forEach(function (c, i) {
       var a0 = -Math.PI / 2 + (i - 0.5) * Math.PI / 3, a1 = a0 + Math.PI / 3;
       tr.push(A.zona(sector(cx, cy, r, a0, a1), [0.06 + i * 0.05, 0.16 + i * 0.05], c[1], 0.95, '#FFFFFF'));
       if (c[2].test(s)) hay.push(i);
     });
-    RUEDA.forEach(function (c, i) { var a = -Math.PI / 2 + i * Math.PI / 3; tr.push(K.chapa([Math.round(cx + (r + 26) * Math.cos(a)), Math.round(cy + (r + 26) * Math.sin(a))], c[0].charAt(0).toUpperCase(), c[1], 0.4)); });
+    RUEDA.forEach(function (c, i) { var a = -Math.PI / 2 + i * Math.PI / 3; tr.push(K.chapa([Math.round(cx + (r + 16) * Math.cos(a)), Math.round(cy + (r + 16) * Math.sin(a))], c[0].charAt(0).toUpperCase(), c[1], 0.4)); });
     /* si el paso nombra un color y su opuesto (a 3 sectores), la flecha los une por el centro: se neutralizan */
     var par = null; hay.forEach(function (i) { if (hay.indexOf((i + 3) % 6) >= 0 && !par) par = [i, (i + 3) % 6]; });
     if (par) {
       var pa = function (i) { var a = -Math.PI / 2 + i * Math.PI / 3; return [Math.round(cx + r * 0.7 * Math.cos(a)), Math.round(cy + r * 0.7 * Math.sin(a))]; };
       var q0 = pa(par[0]), q1 = pa(par[1]);
-      tr.push(K.linea([q0[0], q0[1], cx, cy], [0.5, 0.65], TINTA, 4, { fl: 1 }), K.linea([q1[0], q1[1], cx, cy], [0.5, 0.65], TINTA, 4, { fl: 1 }));
-      tr.push(A.zona(circ(cx, cy, 34), [0.68, 0.8], '#9A948C', 1, TINTA));
+      tr.push(K.linea([q0[0], q0[1], cx, cy], [0.5, 0.65], TINTA, 3, { fl: 1 }), K.linea([q1[0], q1[1], cx, cy], [0.5, 0.65], TINTA, 3, { fl: 1 }));
+      tr.push(A.zona(circ(cx, cy, 14), [0.68, 0.8], '#9A948C', 1, TINTA));
       tr.push(K.rotulo(RUEDA[par[0]][0] + ' + ' + RUEDA[par[1]][0] + ' = se neutralizan', TINTA, 0.68));
     }
-    return { v: 'tres', tr: tr };
+    return { v: base.v, tr: base.tr.concat(tr) };
   }
 
   /* ── ficha (alertas, diagnóstico): solo el texto, sobre el perfil del maniquí.
@@ -115,8 +133,8 @@
     var tipo = blq[0], txt = limpio(blq[1]), a, t, voz = txt, col = TINTA;
     if (tipo === 'punto') {
       t = 'Paso ' + k;
-      if (c.t === 'mezcla') a = escLiga(K, txt);
-      else if (c.t === 'correccion' || c.t === 'matizacion' || /neutraliz/i.test(txt)) a = escRueda(K, txt);
+      if (c.t === 'mezcla') a = escLiga(K, txt, k);
+      else if (c.t === 'correccion' || c.t === 'matizacion' || /neutraliz/i.test(txt)) a = escRueda(K, txt, k);
       else if (MODO[c.t]) {
         var m = /\b(?:nivel|base|tono)\s*(\d{1,2})\b/i.exec(txt), modo = /ra[ií]z|ra[ií]ces/i.test(txt) && c.t === 'tinte' ? 'raiz' : MODO[c.t];
         a = A.escAplicar(K, {}, modo, m ? A.NIVEL[Math.min(10, +m[1])] : (c.t === 'queratina' || c.t === 'hidratacion' ? '#D9C7A8' : c.t === 'tinte' ? A.NIVEL[6] : '#E9C979'), k);
@@ -128,7 +146,7 @@
       t = tipo === 'alerta' ? 'Por qué no' : tipo === 'importante' ? 'Importante' : 'Consejo profesional';
       col = tipo === 'alerta' ? ROJO : tipo === 'importante' ? AMBAR : VERDE;
       voz = (tipo === 'alerta' ? 'Atención. ' : tipo === 'importante' ? 'Importante. ' : 'Consejo profesional. ') + txt;
-      a = c.t === 'correccion' || c.t === 'matizacion' ? escRueda(K, txt) : escFicha(K, tipo, col);
+      a = c.t === 'correccion' || c.t === 'matizacion' ? escRueda(K, txt, i) : escFicha(K, tipo, col);
     }
     /* rótulos: título arriba, luego el texto del paso y al final las etiquetas del dibujo */
     var dib = a.tr.filter(function (s) { return s.k !== 'e'; }), etq = a.tr.filter(function (s) { return s.k === 'e'; });
