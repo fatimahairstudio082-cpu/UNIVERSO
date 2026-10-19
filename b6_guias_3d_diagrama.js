@@ -11,7 +11,7 @@
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
-  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['dos', '◫ Lateral + nuca']];
+  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['peinado_*', 'Línea por línea'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['queda_*', 'Cómo queda'], ['pix_*', 'Pixie · referencia'], ['dos', '◫ Lateral + nuca']];
   var DUR = 20000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
@@ -60,10 +60,12 @@
     x.fillStyle = '#B5476B'; x.fillRect(0, 0, W, 6);
     if (!o || !o.R) { x.fillStyle = '#1F1B18'; x.font = '600 28px Georgia,serif'; x.fillText('Carga un corte para ver su diagramación.', 48, 90); return; }
     if (!o.E) { x.fillStyle = '#1F1B18'; x.font = '600 28px Georgia,serif'; x.fillText(o.err ? 'No se pudo preparar: ' + o.err : 'Preparando la diagramación de ' + o.R.n + '…', 48, 90); return; }
+    if (st._chE !== o.E && el._dgSincro) { st._chE = o.E; el._dgSincro(); }
     var L = o.E.escenas, ahora = performance.now(), t0 = st.t0 || (st.t0 = ahora), dt = ahora - t0;
     var modo = st.modo || 'todo', e, prog, k;
     if (modo === 'todo') { k = Math.floor(dt / DUR) % L.length; e = L[k]; prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
     else if (modo === 'dos') { prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
+    else if (/\*$/.test(modo)) { var Lp = L.filter(function (z) { return z.tipo.indexOf(modo.slice(0, -1)) === 0; }); if (!Lp.length) Lp = [L[0]]; k = Math.floor(dt / DUR) % Lp.length; e = Lp[k]; prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
     else { e = L.filter(function (z) { return z.tipo === modo; })[0] || L[0]; prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
     x.fillStyle = '#B5476B'; x.font = '600 18px Georgia,serif'; x.fillText(('Diagramación · ' + o.R.n + (o.R.liso ? ' · liso extremo' : '')).toUpperCase(), 40, 38);
     x.fillStyle = '#1F1B18'; x.font = '600 32px Georgia,serif';
@@ -92,10 +94,14 @@
     fila.appendChild(lab);
     var on = document.createElement('button'); on.textContent = '📐 Diagramación'; on.setAttribute('data-eu-dg', '1');
     var chips = [];
+    el._dgSincro = function () { sincro(); };
     function sincro() {
       var st = el._dg || {};
       on.style.cssText = st.on ? CHIP_ON : CHIP_OFF;
       chips.forEach(function (b) { b.style.cssText = (st.on && st.modo === b._m) ? CHIP_ON : CHIP_OFF; b.style.display = st.on ? '' : 'none'; });
+      /* grupos «Línea por línea», «Cómo queda», «Pixie · referencia»: solo si el corte cargado tiene esas escenas */
+      var oE = st.on && (recetaDe(el) || {}).E;
+      chips.forEach(function (b) { if (oE && /\*$/.test(b._m) && !oE.escenas.some(function (z) { return z.tipo.indexOf(b._m.slice(0, -1)) === 0; })) b.style.display = 'none'; });
     }
     on.onclick = function () { el._dg = el._dg || { modo: 'todo' }; el._dg.on = !el._dg.on; el._dg.t0 = 0; sincro(); };
     fila.appendChild(on);
