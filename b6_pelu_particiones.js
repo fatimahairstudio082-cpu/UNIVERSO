@@ -898,6 +898,41 @@
       tr.push(K.rotulo('Secciones verticales de frente', '#4A4A55', 0.04), K.rotulo('Flequillo en triángulo asimétrico', C_ROJO, 0.58));
       esc.push({ tipo: 'px_frente', vista: v, t: 'Pixie de frente · flequillo en triángulo', texto: 'De frente, las secciones también son verticales. El flequillo se marca con un triángulo asimétrico: más largo hacia un lado, cubriendo la frente en diagonal.', a: { v: v, tr: tr } });
     })();
+    /* 19-10-2026 (Fátima, su lámina «pixe corte diagrama» y «para dibujar en el maniquí»): el cabello dibujado en líneas finas,
+       como en su lámina: de frente cae desde la raya de lado hasta la línea del flequillo en diagonal; de lado cae vertical
+       hasta la línea del corte, con el contorno discontinuo. Las escenas de arriba se quedan; largos a validar por Fátima */
+    (function () {
+      var v = 'frente', tr = [], A = [0.4, 0.2], Li = [-0.74, -0.72], Rd = [0.66, -0.74], n = 24, i;
+      function corte(x) { if (x <= A[0]) { var u = Math.max(0, Math.min(1, (A[0] - x) / (A[0] - Li[0]))); return A[1] + (Li[1] - A[1]) * u; } var w = Math.max(0, Math.min(1, (x - A[0]) / (Rd[0] - A[0]))); return A[1] + (Rd[1] - A[1]) * w; }
+      tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [K.CARA - 1.3 + u * 2.6, 0.95]; }, 60), [0, 0.1], '#8E847A', 1.6, { d: 1 }));
+      for (i = 0; i <= n; i++) {
+        var x = -0.88 + 1.76 * i / n, yr = 1.22 * Math.sqrt(Math.max(0, 1 - x * x / 1.25)) * 0.97, zr = 0.3 + 0.35 * (1 - Math.abs(x)), yc = corte(Math.max(Li[0], Math.min(Rd[0], x))), zc = 1.0 - 0.45 * Math.abs(x);
+        var sg = x < 0.3 ? -1 : 1, pts = [];
+        for (var k = 0; k <= 10; k++) { var u = k / 10, xx = x + sg * 0.06 * Math.sin(Math.PI * u), yy = yr + (yc - yr) * u, zz = zr + (zc - zr) * Math.sqrt(u) + 0.12 * Math.sin(Math.PI * u); pts.push(W(K, v, xx, yy, zz)); }
+        tr.push(K.linea(K.plano(pts), [0.15 + i * 0.016, 0.3 + i * 0.016], '#4A4A55', 1.7));
+      }
+      tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [K.CARA + 0.3, 0.04 + u * 0.98]; }, 30), [0.04, 0.14], '#1F1B18', 3.4));
+      var a = W(K, v, A[0], A[1], 1.0), l = W(K, v, Li[0], Li[1], 0.68), r = W(K, v, Rd[0], Rd[1], 0.7);
+      tr.push(K.linea(K.plano([r, a, l]), [0.62, 0.8], C_ROJO, 2.6, { d: 1 }));
+      tr.push(K.tijera(K.plano([a, l]), [0.8, 0.95], C_ROJO, false));
+      tr.push(K.rotulo('Raya de lado', '#1F1B18', 0.04), K.rotulo('El cabello cae en líneas desde la raya', '#4A4A55', 0.15), K.rotulo('Flequillo en diagonal: largo hacia un lado', C_ROJO, 0.62), K.rotulo('Largos: a validar por Fátima', '#8A6D3B', 0.85));
+      esc.push({ tipo: 'px_frente_pelo', vista: v, t: 'Pixie de frente · el cabello en líneas', texto: 'De frente, con la raya de lado, el cabello cae en líneas desde la raya. El flequillo se corta en diagonal, como un triángulo: más corto sobre una ceja y largo hacia el otro lado, hasta la mandíbula.', a: { v: v, tr: tr } });
+    })();
+    (function () {
+      var v = 'lateral', tr = [], n = 22, i, tips = [];
+      /* línea del corte de lado (z: + cara, − nuca): delante largo, por encima de la oreja, nuca corta y en punta */
+      function corte(z) { var P2 = [[1.0, -0.55], [0.6, -0.35], [0.32, 0.02], [0.05, 0.1], [-0.22, 0.02], [-0.5, -0.32], [-0.85, -0.7], [-1.1, -0.82]]; for (var q = 0; q < P2.length - 1; q++) if (z <= P2[q][0] && z >= P2[q + 1][0]) { var u = (P2[q][0] - z) / (P2[q][0] - P2[q + 1][0]), s2 = (1 - Math.cos(Math.PI * u)) / 2; return P2[q][1] + (P2[q + 1][1] - P2[q][1]) * s2; } return z > 0 ? -0.55 : -0.82; }
+      for (i = 0; i <= n; i++) {
+        var z = 0.98 - 2.06 * i / n, yr = 1.22 * Math.sqrt(Math.max(0, 1 - z * z / 1.32)) * 0.99, yc = corte(z), zc = z + (z < -0.3 ? -0.08 : 0.04), pts = [];
+        for (var k = 0; k <= 10; k++) { var u = k / 10; pts.push(W(K, v, 0, yr + (yc - yr) * u, z + (zc - z) * u + (z < 0 ? -0.06 : 0.05) * Math.sin(Math.PI * u))); }
+        tr.push(K.linea(K.plano(pts), [0.05 + i * 0.016, 0.2 + i * 0.016], '#4A4A55', 1.7));
+        tips.push(pts[pts.length - 1]);
+      }
+      tr.push(K.linea(K.plano(tips.slice().reverse()), [0.62, 0.82], C_ROJO, 2.6, { d: 1 }));
+      tr.push(K.tijera(K.plano(tips.slice().reverse()), [0.62, 0.82], C_ROJO, false));
+      tr.push(K.rotulo('De lado: el cabello cae en líneas verticales', '#4A4A55', 0.05), K.rotulo('Línea del corte', C_ROJO, 0.45), K.rotulo('Nuca corta · por encima de la oreja · delante largo', C_ROJO, 0.62), K.rotulo('Largos: a validar por Fátima', '#8A6D3B', 0.85));
+      esc.push({ tipo: 'px_perfil_pelo', vista: v, t: 'Pixie de lado · el cabello en líneas', texto: 'De lado, el cabello cae en líneas verticales hasta la línea del corte: la nuca corta y en punta, por encima de la oreja, y delante más largo, donde empieza el flequillo.', a: { v: v, tr: tr } });
+    })();
     (function () {
       var v = 'arriba', tr = [], O = [K.NUCA, 1.05], fin = [], i;
       for (i = 0; i <= 10; i++) fin.push([K.NUCA - 1.45 + i * 0.29, 1.95]);
