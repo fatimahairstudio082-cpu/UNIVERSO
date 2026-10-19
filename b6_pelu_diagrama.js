@@ -833,6 +833,61 @@
     tr.push(rotulo((v === 'nuca' ? 'Atrás' : v === 'lateral' ? 'De lado' : 'De frente') + ' · línea por línea', TINTA, 0.97));
     return { v: v, tr: tr, banda: true };
   }
+  /* 19-10-2026 (Fátima: «detalla la imagen y realiza ese mismo dibujo en el motor»): el pixie como en su referencia (lámina de otra
+     autora, solo como guía del dibujo): herradura atrás, diagonal de lado con la nuca en secciones horizontales, la nuca entre los
+     dedos y las secciones de arriba elevadas. Las elevaciones son las del pixie del sistema; el reparto de las secciones, a validar por Fátima. */
+  function escPixieRef(R) {
+    var pila = R.capas.pila, g0 = R.guia.g, L = [];
+    /* б · atrás: raya central, herradura y línea de oreja a oreja */
+    var v = 'nuca', tr = [];
+    tr = tr.concat(lineas(tramos(v, function (u) { return [NUCA, 0.22 + u * 1.43]; }, 30), [0.04, 0.22], TINTA, 3, { d: 1 }));
+    [-1, 1].forEach(function (sg) { tr = tr.concat(lineas(tramos(v, function (u) { return [NUCA + sg * u * 1.32, 0.22 + 1.43 * Math.pow(u, 0.75)]; }, 40), [0.26, 0.5], '#2C6FD1', 3.2, { d: 1 })); });
+    tr = tr.concat(lineas(tramos(v, function (u) { return [NUCA - 1.35 + u * 2.7, 1.65]; }, 40), [0.54, 0.72], '#18906A', 3.2, { d: 1 }));
+    tr.push(rotulo('1 · Raya central: de la coronilla a la altura de las orejas', TINTA, 0.04), rotulo('2 · Herradura: de la coronilla a detrás de cada oreja', '#2C6FD1', 0.26), rotulo('3 · De oreja a oreja: separa la nuca', '#18906A', 0.54));
+    [[NUCA, 0.9, 'Arriba · largo'], [NUCA + 1.05, 1.35, 'Lado'], [NUCA, 1.85, 'Nuca · corto']].forEach(function (q, i) { if (seVe(v, q[0], q[1])) tr.push(chapa(pr(v, P(q[0], q[1])), q[2], COL[[6, 4, 0][i]], 0.78)); });
+    L.push({ tipo: 'pix_herradura', vista: v, t: 'Pixie · divisiones de atrás', texto: 'Atrás se divide así: la raya central, de la coronilla hasta la altura de las orejas; la herradura, que baja de la coronilla hasta detrás de cada oreja; y una línea de oreja a oreja que separa la nuca. Dentro de la herradura va el largo; fuera, el corto.', a: { v: v, tr: tr, banda: true } });
+    /* в · de lado: diagonal de la coronilla a detrás de la oreja y la nuca en secciones horizontales */
+    v = 'lateral'; tr = [];
+    tr = tr.concat(lineas(tramos(v, recta([NUCA + 0.25, 0.3], [DER + 0.32, 1.55]), 40), [0.04, 0.2], '#2C6FD1', 3.2, { d: 1 }));
+    tr.push(rotulo('Diagonal: de la coronilla a detrás de la oreja', '#2C6FD1', 0.04));
+    var nS = 4, tips = [];
+    for (var k = 0; k < nS; k++) {
+      var th = 1.95 - k * 0.12, g = pila[Math.min(k, pila.length - 1)] || g0, c = COL[k % 7], ta = 0.24 + k * 0.16, tb = ta + 0.16, ext = {};
+      tr = tr.concat(lineas(tramos(v, function (u) { return [DER + 0.8 + u * 0.85, th]; }, 20), [ta, ta + 0.03], c, 2.6));
+      var tk = [];
+      for (var i = 0; i <= 6; i++) { var ph = DER + 0.85 + i / 6 * 0.7; if (!seVe(v, ph, th)) continue; var a = P(ph, th), ks = []; for (var m = 0; m <= 5; m++) ks.push([].concat(pr(v, a), pr(v, a.clone().add(dirElev(ph, th, g * m / 5).multiplyScalar(0.85))))); tr.push(mechon(ks, [ta + 0.03, ta + 0.09], c, 2.4, ext)); tk.push(ks[5].slice(2)); }
+      if (tk.length > 1) { tr.push(tijera(plano(tk), [ta + 0.09, tb], c, false, ext), chapa(tk[tk.length - 1], (k + 1) + ' · ' + g + '°', c, ta + 0.1)); }
+      tr.push(regla(k ? pila[k - 1] || g0 : 0, g, [ta + 0.03, ta + 0.09], c, 'Nuca · sección ' + (k + 1), ext));
+    }
+    tr.push(rotulo('La nuca en secciones horizontales, de abajo arriba', TINTA, 0.24));
+    L.push({ tipo: 'pix_lado', vista: v, t: 'Pixie · de lado', texto: 'De lado, la diagonal baja de la coronilla hasta detrás de la oreja. Debajo, la nuca se trabaja en secciones horizontales de abajo arriba: ' + pila.slice(0, nS).map(function (g, k) { return 'sección ' + (k + 1) + ' a ' + g + ' grados'; }).join(', ') + '.', a: { v: v, tr: tr, banda: true } });
+    /* г · atrás: la nuca se toma entre los dedos y se corta en horizontal */
+    v = 'nuca'; tr = [];
+    tr = tr.concat(lineas(tramos(v, function (u) { return [NUCA - 1.35 + u * 2.7, 1.65]; }, 40), [0, 0.08], '#18906A', 3, { d: 1 }));
+    var th2 = 1.85, tk2 = [];
+    for (var j = 0; j <= 10; j++) { var ph2 = NUCA - 0.9 + j / 10 * 1.8; if (!seVe(v, ph2, th2)) continue; var a2 = P(ph2, th2), ks2 = []; for (var m2 = 0; m2 <= 5; m2++) ks2.push([].concat(pr(v, a2), pr(v, a2.clone().add(dirElev(ph2, th2, g0 * m2 / 5).multiplyScalar(0.55))))); tr.push(mechon(ks2, [0.1, 0.35], COL[0], 2.4)); tk2.push(ks2[5].slice(2)); }
+    if (tk2.length > 1) {
+      var yD = tk2.reduce(function (s2, q) { return s2 + q[1]; }, 0) / tk2.length - 18;
+      tr.push(linea(plano([[tk2[0][0] - 30, yD], [tk2[tk2.length - 1][0] + 30, yD]]), [0.35, 0.45], '#C9A27E', 14), linea(plano([[tk2[0][0] - 30, yD + 22], [tk2[tk2.length - 1][0] + 30, yD + 22]]), [0.35, 0.45], '#C9A27E', 14));
+      tr.push(tijera(plano(tk2.map(function (q) { return [q[0], yD + 34]; })), [0.5, 0.9], CORTE, false), chapa([tk2[tk2.length - 1][0] + 40, yD + 11], '1 · ' + g0 + '°', COL[0], 0.36));
+    }
+    tr.push(rotulo('La nuca entre los dedos · guía a ' + g0 + '°', COL[0], 0.1), rotulo('Se corta en horizontal, por debajo de los dedos', CORTE, 0.5), regla(0, g0, [0.1, 0.35], COL[0], 'Guía de la nuca'));
+    L.push({ tipo: 'pix_dedos', vista: v, t: 'Pixie · la nuca entre los dedos', texto: 'La primera sección de la nuca es la guía: se toma entre los dedos, elevada a ' + g0 + ' grados, y se corta en horizontal por debajo de los dedos.', a: { v: v, tr: tr, banda: true } });
+    /* arriba: secciones de la frente a la coronilla, elevadas */
+    v = 'lateral'; tr = [];
+    var nA = 4, fw = P(CARA, Math.PI / 2).normalize();
+    function arco(off) { var a = P(DER, 1.25).add(fw.clone().multiplyScalar(off)), b = P(IZQ, 1.25).add(fw.clone().multiplyScalar(off)); return function (u) { return sph(a.clone().lerp(b, u)); }; }
+    for (var q = 0; q < nA; q++) {
+      var off = 0.55 - q * 0.32, gq = pila[Math.min(pila.length - 1, 3 + q)] || 90, cq = COL[(3 + q) % 7], taq = 0.06 + q * 0.22, tbq = taq + 0.22, tkq = [], f = arco(off);
+      tr = tr.concat(lineas(tramos(v, f, 30), [taq, taq + 0.03], cq, 2.6, { d: 1 }));
+      for (var i3 = 0; i3 <= 8; i3++) { var c3 = f(0.22 + i3 / 8 * 0.28); if (!seVe(v, c3[0], c3[1])) continue; var a3 = P(c3[0], c3[1]), n3 = N(c3[0], c3[1]), ks3 = []; for (var m3 = 0; m3 <= 5; m3++) { var w3 = Math.sin(gq * m3 / 5 * Math.PI / 180); ks3.push([].concat(pr(v, a3), pr(v, a3.clone().add(V3(0, -1, 0).multiplyScalar(1 - w3).add(V3(0, 1, -0.3).multiplyScalar(w3)).add(n3.clone().multiplyScalar(0.25 * w3)).normalize().multiplyScalar(0.5))))); } tr.push(mechon(ks3, [taq + 0.03, taq + 0.1], cq, 2.4)); tkq.push(ks3[5].slice(2)); }
+      if (tkq.length > 1) { tkq.sort(function (p1, p2) { return p1[0] - p2[0]; }); tr.push(tijera(plano(tkq), [taq + 0.1, tbq], cq, R.desg), chapa(tkq[0], (q + 5) + ' · ' + gq + '°', cq, taq + 0.12)); }
+      tr.push(regla(q ? gq : (pila[2] || 75), gq, [taq + 0.03, taq + 0.1], cq, 'Arriba · sección ' + (q + 1), q < nA - 1 ? { x: tbq } : {}));
+    }
+    tr.push(rotulo('Arriba: secciones de la frente a la coronilla, elevadas', TINTA, 0.06));
+    L.push({ tipo: 'pix_arriba', vista: v, t: 'Pixie · arriba', texto: 'Arriba, dentro de la herradura, el cabello se toma en secciones de la frente a la coronilla y cada una se eleva y se corta: ' + pila.slice(3, 3 + nA).map(function (g, k) { return 'sección ' + (k + 1) + ' a ' + g + ' grados'; }).join(', ') + '.', a: { v: v, tr: tr, banda: true } });
+    return L;
+  }
   function escenas(id) {
     var R = typeof id === 'object' ? id : receta(id); if (!R) return null;
     var A = ALTURAS[R.altura], pila = R.capas.pila;
@@ -877,6 +932,7 @@
     if (AY && AY.escCierre && !/^(rizado|afro)$/.test(R.cab || '') && !/seco/i.test(R.n || '')) {
       try { var aL = AY.escCierre(KIT, true, 'Antes de cortar · lavar y mojar'); L.unshift({ tipo: 'lavado', vista: aL.v || 'lateral', t: 'Antes de cortar · lavar el cabello', texto: 'Antes de cortar, el cabello se lava. El cabello debe estar mojado para cortarlo.', a: aL }); } catch (e) { }
     }
+    if (/pixie/i.test(R.n || '')) { try { var LP = escPixieRef(R), iq = L.map(function (e) { return e.tipo; }).indexOf('particion') + 1; L.splice.apply(L, [iq, 0].concat(LP)); } catch (e) { } }
     /* geometría calculada: ángulos y largos (calculadora capilar) y coronilla en triángulo oblicuo */
     var CC = window.EU_CALCULO_CAPILAR, calc = null;
     try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias && R.guias.length ? R.guias : cero ? ['f'] : R.guias, ref: R.ref }, R.medidas) : null; } catch (e) { calc = null; }
