@@ -68,7 +68,7 @@
         (L.escenas || []).forEach(function (e) {
           if (e.tipo === 'pregunta' || !e.anim || !D.anim[e.anim] || esLam(D, e) || visto[e.anim]) return;
           if (/_cb_receta$|_preparacion$/.test(e.anim) || !D.img || !D.img[e.id]) return;
-          visto[e.anim] = 1; pool.push({ id: e.id, anim: e.anim, pri: pri });
+          visto[e.anim] = 1; pool.push({ id: e.id, anim: e.anim, pri: pri, t: e.t });
         });
       };
       M.lecciones.forEach(function (L) { if (L.animada || /^Técnica/.test(L.t || '')) tomar(L, 0); });
@@ -90,7 +90,12 @@
           if (esLam(D, e) || e.anim) { ult = e.id; return; }
           var rep = cuenta[e.id]; cuenta[e.id] = (rep || 0) + 1;
           if ((ideas && e.tipo === 'idea') || (rep && /^tutor_/.test(e.id || ''))) {
-            var p = sig(); if (p) { e.id = p.id; e.anim = p.anim; }
+            /* 19-10-2026 (Fátima: «en secado debe verse el secado»): la escena del paso que nombra la idea («Presecado: …»)
+               y su título; antes quedaba el nombre del dibujo de biblioteca («Trenza de tres cabos») sobre otra escena */
+            var nom = String(e.texto || '').split(':')[0].trim().toLowerCase(), p = null;
+            for (var q = 0; q < pool.length && !p; q++) if (pool[q].t && String(pool[q].t).trim().toLowerCase() === nom) p = pool[q];
+            if (!p) p = sig();
+            if (p) { e.id = p.id; e.anim = p.anim; if (ideas && p.t) e.t = p.t; }
           }
           ult = e.id;
         });
