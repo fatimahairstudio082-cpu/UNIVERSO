@@ -159,6 +159,7 @@
     }, function (er) { ESPERA = 0; console.warn('Diagramación del libro', er); });
   }
   function repartir(res, cfg) {
+    if (res && res.C && res.C.cfg && res.C.cfg.materia === 'pelu') cfg = res.C.cfg;   /* el cfg con el nivel ya resuelto (b6_pelu_premium.js) */
     if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || !window.EU_DIAGRAMA || (((cfg.acab || {}).diagramas) === 'no')) return res;
     if (!window.EU_DIAGRAMA.fondosYa()) { prepararMotor(); return res; }
     var GC = window.EU_GEOMETRIA_CAPILAR, cortes = [], otras = [], libres = {}, hechos = {}, g3d = {}, quitadas = {}, n = 0;
@@ -187,7 +188,7 @@
     var extra = (GC ? GC.mios() : []).map(function (o) { return { k: 'mio', o: o }; }).concat((GC ? (function (b) { return b.concat(GC.TECNICAS.filter(function (t) { return t.nivel === 1 && b.indexOf(t) < 0; }), GC.TECNICAS.filter(function (t) { return t.nivel !== 1 && b.indexOf(t) < 0; })); })(GC.basicos ? GC.basicos() : []) : []).map(function (t) { return { k: 'tec', id: t.id }; }));   /* básicos sin elevación (Fátima, 18-10-2026) y nivel 1 (principiantes) primero */
     /* Fátima, 15/16-10-2026: «Nivel de las clases» también filtra los cortes: 1 = todo a 0° (principiante); 2 = con elevación (intermedio);
        3 = además navaja o tijera de desgrafilar (acabado desgrafilado, avanzado), y el avanzado ve también lo del intermedio */
-    var nivSel = String((cfg.op || {}).nivel || ''), nivOk = function (o) { if (!o || !/^[123]$/.test(nivSel)) return true; var nv = o.acabado === 'desgrafilado' ? 3 : o.nivel || ((o.capas || []).some(function (g) { return +g > 0; }) ? 2 : 1); return nivSel === '1' ? nv === 1 : nivSel === '2' ? nv <= 2 : true; };   /* 19-10-2026: cada nivel suma los anteriores (Fátima: «paquete completo») */
+    var nivSel = String((cfg.op || {}).nivel || ''), nivOk = function (o) { if (!o || !/^[123]$/.test(nivSel)) return true; var nv = o.acabado === 'desgrafilado' ? 2 : o.nivel || ((o.capas || []).some(function (g) { return +g > 0; }) ? 2 : 1); return nivSel === '1' ? nv === 1 : nivSel === '2' ? nv <= 2 : true; };   /* 19-10-2026: cada nivel suma los anteriores (Fátima: «paquete completo»); el desgrafilado va en Intermedio */
     extra = extra.filter(function (dg) { return nivOk(dg.k === 'mio' ? dg.o : GC && GC.tecnica(dg.id)); });
     /* Fátima, 16-10-2026: con «Solo este bloque» de color, queratina, hidratación, secado o permanente no entran técnicas de corte
        en las unidades base (antes salían en el libro y en el curso de esos bloques) */
@@ -199,10 +200,30 @@
     var todas = cortes.concat(otras), j = 0;
     /* Fátima, 19-10-2026: el box (su diagrama «box universal») va con los cortos de dama, junto al pixie */
     var PREF = { box: 'pe_u_c_cortos' };
-    extra.forEach(function (dg) { if (PREF[dg.id] && todas.indexOf(PREF[dg.id]) >= 0 && pon(PREF[dg.id], dg, dg.id)) return; for (var v = 0; v < todas.length; v++) { if (pon(todas[(j + v) % todas.length], dg, dg.id || dg.o.n)) { j = (j + v + 1) % todas.length; return; } } });
+    /* Fátima, 19-10-2026: tras el box, sus formas cortas (cuadrado, redondeado, U, V) en el mismo maniquí, también con los cortos de dama */
+    var ib = -1; extra.forEach(function (dg, i) { if (dg.id === 'box') ib = i; });
+    if (ib >= 0 && GC && GC.variantesForma) extra.splice.apply(extra, [ib + 1, 0].concat(GC.variantesForma().filter(function (x) { return /^vf_box__/.test(x.id) && nivOk(x); }).map(function (x) { PREF[x.id] = 'pe_u_c_cortos'; return { k: 'var', id: x.id }; })));
+    var pend = [];
+    extra.forEach(function (dg) { if (PREF[dg.id] && todas.indexOf(PREF[dg.id]) >= 0 && pon(PREF[dg.id], dg, dg.id)) return;
+      if ((dg.id === 'box' || /^vf_box__/.test(dg.id || '')) && todas.indexOf('pe_u_c_cortos') >= 0) return pend.push(dg); for (var v = 0; v < todas.length; v++) { if (pon(todas[(j + v) % todas.length], dg, dg.id || dg.o.n)) { j = (j + v + 1) % todas.length; return; } } });
+    /* sin hueco en «Cortos de dama», el box y sus formas van en hojas nuevas tras sus diagramas (Fátima, 19-10-2026: que se vea la variedad) */
+    if (pend.length) {
+      var ult = -1, ult2 = -1; res.pages.forEach(function (p, i) { if (p.u && p.u.id === 'pe_u_c_cortos') { if (p.tipo === 'pe_diagrama') ult = i; else if (p.tipo !== 'tutor') ult2 = i; } }); if (ult < 0) ult = ult2;
+      if (ult >= 0) {
+        var ref = res.pages[ult], nuevas = pend.map(function (dg) { n++; return { tipo: 'pe_diagrama', u: ref.u, n: ref.n, dg: dg, titulo: dg.id }; });
+        res.pages.splice.apply(res.pages, [ult + 1, 0].concat(nuevas));
+        var nueva = {};
+        res.pages.forEach(function (p, i) { if (p.num != null && nuevas.indexOf(p) < 0) nueva[p.num] = i + 1; });
+        res.pages.forEach(function (p, i) { if (p.num != null || nuevas.indexOf(p) >= 0) p.num = i + 1; });
+        res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas.forEach(function (e) { if (nueva[e.p]) e.p = nueva[e.p]; }); });
+        var q = {}; Object.keys(quitadas).forEach(function (k) { q[nueva[k] || k] = 1; }); quitadas = q;
+        cortes.concat(otras).forEach(function (u) { libres[u] = huecos(res, u, g3d); });
+      }
+    }
     /* 4 · variantes de técnicas (atrás una, delante otra): en los huecos de relleno que queden en las unidades de corte
        y en «Secciones, elevación y mecha guía»; no sustituyen lecturas. Ninguna se repite en el libro. */
     var VAR = (GC && GC.variantesForma ? GC.variantesForma() : []).concat(GC && GC.variantes ? GC.variantes() : []).filter(nivOk), dest = cortes.concat(otras.filter(function (u) { return u === 'pe_u_base'; })), iv = 0, hay = true;
+    VAR = VAR.filter(function (x) { return !/^vf_box__/.test(x.id); });
     while (hay && iv < VAR.length) { hay = false; for (var w = 0; w < dest.length && iv < VAR.length; w++) if (pon(dest[w], { k: 'var', id: VAR[iv].id }, VAR[iv].id, 2)) { iv++; hay = true; } }
     res.variantes = iv;
     /* las soluciones de las páginas sustituidas salen del solucionario (la página nueva lleva las suyas) */

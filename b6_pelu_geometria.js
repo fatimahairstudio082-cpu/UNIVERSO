@@ -125,6 +125,11 @@
           (liso ? ' Cabello liso extremo: todas las secciones en horizontal.' : ' Cabello normal u ondulado: secciones en vertical.') + ' Guía del frente desde la nariz. ' +
           (emp === 'atras' ? 'Al final se empareja el de delante hacia atrás: queda redondo.' : emp === 'delante' ? 'Al final se empareja el de atrás hacia delante.' : '') });
     }); }); }); });
+    /* Fátima, 19-10-2026: box corto con distintas formas de atrás en el mismo maniquí (elevaciones del box del sistema, a validar por Fátima) */
+    var bx = tecnica('box'), BXN = { recta: 'cuadrado', redondeada: 'redondeado', u: 'en U', v: 'en V' };
+    if (bx) n2 = ['recta', 'redondeada', 'u', 'v'].map(function (lin) { return { id: 'vf_box__' + lin, variante: true, forma: true, nivel: 2, validar: true,
+      n: 'Box corto · forma ' + BXN[lin], capas: bx.capas.slice(), part: bx.part, coronilla: bx.coronilla, altura: bx.altura, linea: lin, acabado: bx.acabado,
+      texto: bx.texto + ' Atrás queda ' + BXN[lin] + '.' }; }).concat(n2);
     VF = n1.concat(n2);
     return VF;
   }
