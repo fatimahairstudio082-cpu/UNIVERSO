@@ -814,7 +814,9 @@
   }
 
   var API = {
-    familias: function () { return FAMILIAS.slice(); },
+    /* 19-10-2026 (Fátima: «en el sistema no van cortes de caballero, es muy distinto»): las familias de caballero (cab_*) quedan
+       ocultas en todo el sistema (Guías 3D, Escáner, biblioteca, libro y curso). Siguen en el código: window.EU_PELU_CABALLERO = true. */
+    familias: function () { return FAMILIAS.filter(function (f) { return window.EU_PELU_CABALLERO || !/^cab_/.test(f.id); }); },
 
     /* Datos técnicos del corte para las fichas dibujadas (b6_pelu_fichas.js). */
     tecnica: function (id) {
@@ -827,7 +829,7 @@
     cabellos: function () { return CABELLOS.slice(); },
 
     lista: function (fam) {
-      return C.filter(function (c) { return !fam || c.fam === fam; })
+      return C.filter(function (c) { return (!fam || c.fam === fam) && (window.EU_PELU_CABALLERO || !/^cab_/.test(c.fam)); })
         .map(function (c) {
           return { id: c.id, n: c.n, fam: c.fam, d: c.d, mejor: c.mejor.slice() };
         });

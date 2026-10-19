@@ -14,10 +14,12 @@
   if (window.EU_ESCANER_CORTES) return;
 
   /* nombres habituales (solo nombres: la técnica y las cifras las pone Fátima) */
-  var HABITUALES = ['Mullet', 'Hime cut', 'Octopus cut', 'Jellyfish cut', 'Undercut', 'Pompadour', 'Quiff', 'Crew cut', 'Taper',
+  /* 19-10-2026 (Fátima): sin nombres de caballero (Undercut, Pompadour, Quiff, Crew cut, Taper, French crop, Caesar, Buzz fade,
+     Afro con degradado, Degradado con raya) */
+  var HABITUALES = ['Mullet', 'Hime cut', 'Octopus cut', 'Jellyfish cut',
     'Bowl cut · tazón', 'Bob graduado', 'Bob invertido', 'Bob en capas', 'Lob en capas', 'Feathered · plumas', 'Corte en V', 'Corte en U',
-    'Rachel', 'Shag corto', 'Pixie largo', 'Melena recta con capas en el rostro', 'Flequillo lateral', 'Flequillo micro', 'Degradado con raya',
-    'French crop', 'Caesar', 'Buzz fade', 'Afro con degradado', 'Rizos definidos en capas', 'Corte asimétrico largo'];
+    'Rachel', 'Shag corto', 'Pixie largo', 'Melena recta con capas en el rostro', 'Flequillo lateral', 'Flequillo micro',
+    'Rizos definidos en capas', 'Corte asimétrico largo'];
   /* alias para comparar nombres (todo en minúsculas y sin tildes) */
   var ALIAS = [['long bob', 'lob'], ['curtain bangs', 'flequillo cortina'], ['tazon', 'bowl cut'], ['plumas', 'feathered'], ['wolf cut', 'wolf'], ['butterfly cut', 'butterfly', 'mariposa'], ['shag cut', 'shag']];
   var CLAVE = 'eu_cortes_lista';

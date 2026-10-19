@@ -744,6 +744,12 @@
     L.forEach(function (e) { if (e.a && e.a.v) e.vista = e.a.v; });
     if (R.oblicua) L.splice(1, 0, { tipo: 'oblicua', vista: 'nuca', t: 'Partición oblicua · box universal', texto: 'Partición oblicua: dos diagonales en X que bajan hacia detrás de las orejas. La nuca se corta en abanico, los lados en secciones diagonales y arriba queda el triángulo.', a: escOblicua(R) });
     if (R.libre) L.forEach(function (e) { if (e.tipo === 'guia') e.texto = 'Línea guía en la nuca a ' + R.guia.g + ' grados, medida desde la caída natural.'; });
+    /* 19-10-2026 (Fátima: «el cabello debe lavarse antes de cortar; debe estar mojado»): primera escena de cada corte, salvo los
+       que se cortan en seco (rizado y afro). Animación del agua de EU_PARTICIONES (la misma del aclarado). */
+    var AY = window.EU_PARTICIONES && window.EU_PARTICIONES.ayudas;
+    if (AY && AY.escCierre && !/^(rizado|afro)$/.test(R.cab || '') && !/seco/i.test(R.n || '')) {
+      try { var aL = AY.escCierre(KIT, true, 'Antes de cortar · lavar y mojar'); L.unshift({ tipo: 'lavado', vista: aL.v || 'lateral', t: 'Antes de cortar · lavar el cabello', texto: 'Antes de cortar, el cabello se lava. El cabello debe estar mojado para cortarlo.', a: aL }); } catch (e) { }
+    }
     /* geometría calculada: ángulos y largos (calculadora capilar) y coronilla en triángulo oblicuo */
     var CC = window.EU_CALCULO_CAPILAR, calc = null;
     try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias && R.guias.length ? R.guias : cero ? ['f'] : R.guias, ref: R.ref }, R.medidas) : null; } catch (e) { calc = null; }

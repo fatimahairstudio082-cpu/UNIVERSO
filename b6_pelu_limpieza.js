@@ -9,7 +9,9 @@
   'use strict';
   var MO = window.EU_MODELOS; if (!MO || window.EU_PELU_LIMPIEZA) return;
   var FUERA = ['pe_manicura', 'pe_uña', 'pe_piel_tipos', 'pe_depilacion_cera', 'pe_cejas', 'pe_limpieza_facial', 'pe_maquillaje',
-    'pe_pinzas_depilar', 'pe_elevacion', 'pe_caspa', 'pe_degradado'];
+    'pe_pinzas_depilar', 'pe_elevacion', 'pe_caspa', 'pe_degradado',
+    /* 19-10-2026 (Fátima): sin caballero (fade con máquina) y sin la agenda con «Corte caballero» y tiempos que no son suyos */
+    'pe_fade_niveles', 'pe_tiempo_servicio'];
   var NO = {}; FUERA.forEach(function (id) { NO[id] = 1; });
 
   var lista0 = MO.lista, modelo0 = MO.modelo;

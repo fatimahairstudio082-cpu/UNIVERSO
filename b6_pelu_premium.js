@@ -49,6 +49,7 @@
     var limpio = function (t) { return String(t || '').replace(/\s*\((FP|Formación Profesional)\)/gi, '').replace(/Formación Profesional/gi, 'Profesional'); };
     var cs = (C.N && C.N.c) || [], i = Math.max(0, cs.map(function (c) { return c.n; }).indexOf(C.cursoN));
     var niv = C.nivel === 'fp' ? (cs.length >= 3 ? NIVELES3[Math.min(2, i)] : cs.length === 2 ? NIVELES3[1 + Math.min(1, i)] : 'Profesional') : 'Profesional';
+    if (NIVEL) niv = NIVELES3[NIVEL - 1];   /* nivel elegido (19-10-2026): la cabecera dice ese nivel */
     var ant = C.cursoN;
     C.matN = limpio(C.matN);
     C.cursoN = 'Nivel ' + niv;
@@ -105,7 +106,8 @@
   }
   /* ─── «Clases por tema» (Fátima, 12-10-2026): cuántas clases del cerebro de colorimetría (Clase · …, ids cc_*) entran por
      unidad, en su orden original, en el libro y en el curso (los mismos). Las técnicas de diagramación y del Cerebro no se tocan. ─── */
-  function nivDe(cfg) { var v = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.nivel; return { 1: 'p', 2: 'i', 3: 'a' }[v] || ''; }
+  /* 19-10-2026 (Fátima: «todo es un paquete completo»): el nivel suma los anteriores (Intermedio = sus clases y las de Principiante) */
+  function nivDe(cfg) { var v = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.nivel; return { 1: 'p', 2: 'pi', 3: 'pia' }[v] || ''; }
   function limDe(cfg) { var v = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.clases; return v && v !== 'todas' ? +v || 0 : 0; }
   var PA = window.EU_PARTICIONES;
   if (PA && PA.catalogo && !PA.catalogo._clasesPelu) {
@@ -115,7 +117,7 @@
       var n = {}; return L.filter(function (t) {
         if (!/^cc_/.test(t.id)) return true;
         /* Nivel (Fátima, 15-10-2026): el código de cada clase suya, _p principiante · _i intermedio · _a avanzado (tin_p01…) */
-        var m = /_([pia])\d+$/.exec(t.id); if (NIV && m && m[1] !== NIV) return false;
+        var m = /_([pia])\d+$/.exec(t.id); if (NIV && m && NIV.indexOf(m[1]) < 0) return false;
         if (!LIM) return true; n[t.unidad] = (n[t.unidad] || 0) + 1; return n[t.unidad] <= LIM;
       });
     };
@@ -167,6 +169,21 @@
     quimica: [/^cb_quera_/, /^cb_quim_/, /^cb_hidra_/, /^cb_cab_/]
   };
   var BASE = /^pe_u_(fund|cab)$/, TEMA = null, SOLO = false;
+  /* ─── Niveles del libro y del curso (19-10-2026, Fátima): Principiante = higiene, cabello, secciones y elevación, cortes
+     básicos a 0° (cuadrado, redondo, U, V, escalonado), niños y niñas, secado, planchado, hidratación y el tinte; Intermedio = todo
+     lo de Principiante más los cortes con elevación (pixie, shag, mariposa…); Avanzado y Profesional = todo. Las clases de su
+     cerebro de colorimetría van por su código (_p, _i, _a). En el selector: Principiante (pri), Intermedio (sec), Avanzado (bach),
+     o «Nivel de las clases» 1 · 2 · 3. Avanzado: a validar por Fátima. ─── */
+  var NIVEL = 0;
+  var POR_NIVEL = {
+    1: [/^pe_u_(fund|cab|base)$/, /^pe_u_c_(basicos|ninos)$/, /^cb_cab_(secado|planchado)$/, /^cb_hidra_/, /^cb_color_global$/],
+    2: [/^pe_u_(fund|cab|base)$/, /^pe_u_c_/, /^cb_cab_(secado|planchado)$/, /^cb_hidra_/, /^cb_color_global$/]
+  };
+  function nivelDe(cfg) {
+    if (!cfg || cfg.materia !== 'pelu') return 0;
+    var v = cfg.op && cfg.op.nivel; if (/^[123]$/.test(String(v))) return +v;
+    return { pri: 1, sec: 2, bach: 3 }[cfg.nivel] || 0;
+  }
   var CU = window.EU_CURRICULO;
   if (CU && CU.unidades && !CU.unidades._temaPelu) {
     var uds0 = CU.unidades;
@@ -178,6 +195,7 @@
         var iD = -1, iC = -1; L.forEach(function (u, i) { if (u.id === 'cb_quim_decoloracion') iD = i; else if (iC < 0 && /^cb_color_/.test(u.id)) iC = i; });
         if (iD > iC && iC >= 0) { L = L.slice(); var uD = L.splice(iD, 1)[0]; L.splice(iC, 0, uD); }
       }
+      if (mat === 'pelu' && NIVEL && POR_NIVEL[NIVEL] && L && L.filter) L = L.filter(function (u) { return POR_NIVEL[NIVEL].some(function (r) { return r.test(u.id); }); });
       if (mat !== 'pelu' || !TEMA || !TEMAS[TEMA] || !L || !L.slice) return L;
       var es = function (u) { return TEMAS[TEMA].some(function (r) { return r.test(u.id); }); };
       var cab = L.filter(function (u) { return BASE.test(u.id); }).concat(L.filter(function (u) { return !BASE.test(u.id) && es(u); }));
@@ -196,9 +214,15 @@
   if (!ED.ensamblar._temaPelu) {
     var ens = ED.ensamblar;
     ED.ensamblar = function (cfg) {
-      var prev = TEMA, prevS = SOLO; TEMA = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.tema && cfg.op.tema !== 'todo' ? cfg.op.tema : null;
+      var prev = TEMA, prevS = SOLO, prevN = NIVEL; TEMA = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.tema && cfg.op.tema !== 'todo' ? cfg.op.tema : null;
       SOLO = !!(TEMA && cfg.op.solo === 'si');
-      try { return ens.apply(this, arguments); } finally { TEMA = prev; SOLO = prevS; }
+      NIVEL = nivelDe(cfg);
+      /* Principiante/Intermedio/Avanzado del selector general: Peluquería se arma con el temario profesional y el nivel filtra
+         unidades y clases (antes «Principiante» daba solo cortes, sin secado ni planchado, y la cabecera decía «Profesional») */
+      if (NIVEL && /^(pri|sec|bach)$/.test(cfg.nivel)) cfg = Object.assign({}, cfg, { nivel: 'fp', curso: 0 });
+      if (NIVEL) cfg = Object.assign({}, cfg, { op: Object.assign({}, cfg.op, { nivel: String(NIVEL) }) });
+      var args = [cfg].concat([].slice.call(arguments, 1));
+      try { return ens.apply(this, args); } finally { TEMA = prev; SOLO = prevS; NIVEL = prevN; }
     };
     ED.ensamblar._temaPelu = 1;
   }
