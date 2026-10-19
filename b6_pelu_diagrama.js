@@ -984,9 +984,13 @@
        quede definido y la oreja descubierta; en la nuca, la forma de atrás */
     var v4 = 'lateral', tr4 = [], ruta = [], tk4 = [];
     function seg(a, b, nn) { for (var i = 0; i <= nn; i++) { var u = i / nn; ruta.push([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]); } }
-    seg([CARA + 0.6, 1.78], [DER - 0.62, 1.7], 10);
-    for (var i4 = 1; i4 <= 16; i4++) { var u4 = i4 / 16; ruta.push([DER - 0.62 + 1.24 * u4, 1.7 - 0.42 * Math.sin(Math.PI * u4)]); }
-    seg([DER + 0.62, 1.7], [NUCA + 2 * Math.PI - 0.25, thF(lin, 0.2)], 10);
+    /* 19-10-2026 (Fátima: «la tijera sobrepasó la oreja, tenía que quedar al ras; la curva pequeña, en U, sacada desde la nuca,
+       como un sombreado»): la curva abraza la oreja del maniquí (centro DER − 0,05 · 1,72, radio ≈ 0,11 × 0,13) con poco margen, en U suave,
+       y se recorre de la nuca hacia delante */
+    var OC = [DER - 0.05, 1.72], OW = 0.24, OB = 1.8, OH = 0.24;
+    seg([NUCA + 2 * Math.PI - 0.25, thF(lin, 0.2)], [OC[0] + OW, OB], 10);
+    for (var i4 = 1; i4 < 20; i4++) { var d4 = OW - 2 * OW * i4 / 20; ruta.push([OC[0] + d4, OB - OH * Math.sqrt((1 + Math.cos(Math.PI * d4 / OW)) / 2)]); }
+    seg([OC[0] - OW, OB], [CARA + 0.6, 1.8], 10);
     tr4 = tr4.concat(lineas(tramos(v4, function (u) { var k = Math.min(ruta.length - 1, Math.round(u * (ruta.length - 1))); return ruta[k]; }, ruta.length - 1), [0.05, 0.3], '#2C6FD1', 4));
     ruta.forEach(function (q, i) {
       if (i % 3 || !seVe(v4, q[0], q[1])) return;
@@ -995,8 +999,8 @@
       tk4.push(pr(v4, a4));
     });
     if (tk4.length > 1) tr4.push(tijera(plano(tk4), [0.45, 0.75], ROJ, false));
-    tr4.push(rotulo('De lado: la forma en curvatura por encima de la oreja', '#2C6FD1', 0.05), rotulo('Alineada con delante y con la nuca: la oreja queda descubierta', COL[5], 0.3), rotulo('Se corta siguiendo la curva', ROJ, 0.45));
-    L.push({ tipo: 'pixc_oreja', vista: v4, t: 'Pixie corto · curva por encima de la oreja', texto: 'De lado se saca la forma en curvatura por encima de la oreja, alineándola con la parte de delante y con la nuca. Así el corte queda definido y la oreja descubierta.', a: { v: v4, tr: tr4, banda: true } });
+    tr4.push(rotulo('Desde la nuca: curva pequeña en U, al ras de la oreja', '#2C6FD1', 0.05), rotulo('Alineada con delante y con la nuca: la oreja queda descubierta', COL[5], 0.3), rotulo('La tijera sigue la curva, sin pasar la oreja', ROJ, 0.45));
+    L.push({ tipo: 'pixc_oreja', vista: v4, t: 'Pixie corto · curva por encima de la oreja', texto: 'De lado se saca la forma desde la nuca, con el mismo corte, como un sombreado: una curva pequeña en U por encima de la oreja, al ras, sin que la tijera pase la oreja, alineada con la parte de delante. Así el corte queda definido y la oreja descubierta.', a: { v: v4, tr: tr4, banda: true } });
     /* emparejar: el largo de delante se une con los dos dedos de atrás, a 0°, de lado */
     var v3 = 'lateral', tr3 = [], pe = [], yAtras = P(NUCA, thF(lin, 0)).y - DOS;
     for (var e = 0; e <= 14; e++) {
