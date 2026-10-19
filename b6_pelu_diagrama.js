@@ -701,6 +701,23 @@
       if (visto) tips.push(corto[corto.length - 1]);
       k++;
     }
+    /* Fátima, 19-10-2026 (sus imágenes «para dibujar en el maniquí» 5, 6 y 7): en los cortes cortos, atrás y de lado, el cabello
+       sobresale de la cabeza y baja sombreado sobre el cuello, más largo en el centro de la nuca y más corto hacia las orejas,
+       con las puntas sueltas; así se ve la forma del corto. Largos a validar por Fátima */
+    if (CT && !frente) {
+      var nS = 0;
+      for (var phS = NUCA - 1.45; phS <= NUCA + 1.45; phS += 0.022) {
+        if (!seVe(v, phS, 1.2)) continue;
+        var dn = Math.min(1, Math.abs(Math.atan2(Math.sin(phS - NUCA), Math.cos(phS - NUCA))) / 1.45), jit = ((nS * 37) % 9) / 8 - 0.5;
+        var p0 = P(phS, 0.95, 1.06), p1 = P(phS, 1.3, 1.14), yE = YB - (0.85 - 0.3 * CT.nuca) * (1 - Math.pow(dn, 1.6)) + 0.07 * jit, sq = 0.5 + 0.5 * dn;
+        var ptsS = [pr(v, p0), pr(v, p1)];
+        for (var s = 1; s <= 6; s++) { var u = s / 6, ex = p1.x * (1 + (sq - 1) * u * u), ez = p1.z * (1 + (sq - 1) * u * u) * 0.98, ey = p1.y + (yE - p1.y) * u; ptsS.push(pr(v, V3(ex, ey, ez))); }
+        var t0S = 0.55 + 0.15 * (nS % 7) / 7;
+        tr.push(linea(plano(ptsS), [t0S, t0S + 0.12], nS % 3 ? '#2A1910' : '#6A4630', nS % 3 ? 3.4 : 1.6));
+        nS++;
+      }
+      tr.push(rotulo('Atrás el cabello sobresale y cubre el cuello: más largo en el centro de la nuca', TINTA, 0.6));
+    }
     /* la tijera sigue la línea; si hay un hueco (la cara, de frente) va en dos tramos */
     tips.sort(function (p, q) { return p[0] - q[0]; });
     var tramo = [];
