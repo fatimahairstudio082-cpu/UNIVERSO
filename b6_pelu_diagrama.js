@@ -951,14 +951,14 @@
     tr.push(rotulo('Secciones verticales · el cabello se eleva en vertical', TINTA, 0.04), rotulo('Se corta a dos dedos de la raíz', ROJ, 0.12));
     L.push({ tipo: 'pixc_vertical', vista: v, t: 'Pixie corto · elevado en vertical', texto: 'Desde la guía, el cabello se toma en secciones verticales y se eleva en vertical, a noventa grados de la cabeza. Cada mechón se corta a dos dedos de la raíz, igual que la guía.', a: { v: v, tr: tr, banda: true } });
     /* 4 · el resultado de cada capa */
-    [['lateral', 'de lado'], ['nuca', 'atrás']].forEach(function (q) {
+    [['lateral', 'de lado'], ['nuca', 'atrás'], ['frente', 'de frente']].forEach(function (q) {
       var v2 = q[0], tr2 = [];
       secs.forEach(function (ph0, k) {
         var c = COL[k % 7], ta = 0.05 + k * 0.17, pts = [];
-        var phs = v2 === 'nuca' ? [NUCA - 1.1 + k * 0.55] : [ph0];
+        var phs = v2 === 'nuca' ? [NUCA - 1.1 + k * 0.55] : v2 === 'frente' ? [CARA - 1.1 + k * 0.55] : [ph0];
         phs.forEach(function (ph) {
           for (var j = 0; j <= 9; j++) {
-            var th = 0.35 + j * 0.18; if (v2 === 'nuca') th = Math.min(th, thF(lin, (ph - NUCA) / 1.25)); if (!seVe(v2, ph, th)) continue;
+            var th = 0.35 + j * 0.18; if (v2 === 'nuca') th = Math.min(th, thF(lin, (ph - NUCA) / 1.25)); if (v2 === 'frente' && th > 1.0 + 0.5 * Math.abs(ph - CARA) / 1.1) continue; if (!seVe(v2, ph, th)) continue;
             var a = P(ph, th), n = N(ph, th), dd = n.clone().multiplyScalar(0.35).add(V3(0, -1, 0)).normalize(), b = a.clone().add(dd.multiplyScalar(DOS));
             tr2.push(linea(plano([pr(v2, a), pr(v2, b)]), [ta, ta + 0.1], c, 3)); pts.push(pr(v2, b));
           }
