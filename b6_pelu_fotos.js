@@ -68,7 +68,7 @@
   function enganchar() {
     CA = window.EU_CURSO_ANIM;
     if (!CA || !CA.enriquecer) return false;
-    if (CA.enriquecer._fotosPelu) return true;
+    if (CA.enriquecer._fotosPelu) { window.EU_PELU_FOTOS_OK = 1; return true; }
     var enr = CA.enriquecer;
     CA.enriquecer = function (D, res) {
       return Promise.resolve(enr.apply(this, arguments)).then(function (D2) {
@@ -76,7 +76,7 @@
         return mat === 'pelu' ? poner(R) : R;
       });
     };
-    CA.enriquecer._fotosPelu = 1;
+    CA.enriquecer._fotosPelu = 1; window.EU_PELU_FOTOS_OK = 1;   /* marca estable para b6_pelu_videos.js (19-10-2026) */
     return true;
   }
   if (!enganchar()) (function espera(n) { if (!enganchar() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);

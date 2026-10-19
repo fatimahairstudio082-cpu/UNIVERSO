@@ -613,9 +613,9 @@
       return aligerar(D);
     }).then(function () {
       /* Fátima, 17-10-2026: su vídeo de presentación optimizado (referencias/curso/<mp4>, 720p, ~1 MB) va dentro de curso/ si una lección lo pide */
-      var mp4 = null; D.modulos.some(function (M) { return M.lecciones.some(function (L) { if (L.mp4) mp4 = L.mp4; return !!mp4; }); });
-      if (!mp4) return;
-      return fetch('./referencias/curso/' + mp4).then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (b) VIDEOS[mp4] = b; }).catch(function () { });
+      /* 19-10-2026: también los vídeos de módulo y de cierre de nivel (b6_pelu_videos.js): todos los que pidan las lecciones */
+      var mp4s = []; D.modulos.forEach(function (M) { M.lecciones.forEach(function (L) { if (L.mp4 && mp4s.indexOf(L.mp4) < 0) mp4s.push(L.mp4); }); });
+      return Promise.all(mp4s.map(function (mp4) { return fetch('./referencias/curso/' + mp4).then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (b) VIDEOS[mp4] = b; }).catch(function () { }); }));
     }).then(function () {
       var z = new JSZip(), base = slug(D.titulo) + '-premium/';
       Object.keys(VIDEOS).forEach(function (n) { z.file(base + 'curso/' + n, VIDEOS[n]); });

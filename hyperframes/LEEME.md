@@ -18,6 +18,15 @@ Se renderiza en local, sin cuenta ni pago (Node 22 + FFmpeg). Las skills están 
 3. `cd colorimetria && npx hyperframes@0.8.169 check && npx hyperframes@0.8.169 render`.
 4. Optimizar: `ffmpeg -i renders/<archivo>.mp4 -c:v libx264 -crf 27 -preset slow -movflags +faststart -an ../salidas/<nombre>.mp4`.
 
+## Vídeos de módulo y de cierre de nivel (19-10-2026, conectados al curso premium)
+- `gen_modulos.py modulo <id>` / `gen_modulos.py cierre <pri|sec|bach|fp>` escribe `modulos/index.html`
+  con las imágenes de `modulos/assets/` (fotos de Fátima y escenas del maniquí sacadas del curso armado,
+  lista en `modulos/modulos.json`; módulos de cada nivel en `modulos/niveles.json`).
+- Render: `cd modulos && npx hyperframes@0.8.169 render -o renders/<id>.mp4`, optimizar con ffmpeg a
+  `referencias/curso/modulos/<id>.mp4` y añadir el nombre a `referencias/curso/modulos/lista.json`.
+- `b6_pelu_videos.js` pone la lección «Presentación · <módulo>» al principio de cada módulo y
+  «Cierre · Nivel …» al final del curso; el ZIP los lleva en `curso/modulos/`.
+- Textos «Comienza la clase», «Lecciones terminadas» y «Ahora, tu examen y tu certificado»: a validar por Fátima.
+
 ## Pendiente (con Fátima)
-- Conectarlo al curso premium / ZIP de Hotmart (por ejemplo, vídeo resumen al empezar cada módulo de color).
 - Más piezas: secado, planchado, mechas con gorro; versiones con su voz cuando esté lista.

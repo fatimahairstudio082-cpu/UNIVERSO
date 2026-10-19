@@ -1,0 +1,735 @@
+[
+ {
+  "id": "pe_u_fund",
+  "t": "Higiene, seguridad y herramientas",
+  "f": [
+   [
+    "pe_u_fund_0.jpg",
+    "foto_portada_curso",
+    "Peluquería y estética"
+   ],
+   [
+    "pe_u_fund_1.jpg",
+    "p_seg_quimica_sq_mechon",
+    "Prueba de mechón antes de cualquier químico"
+   ],
+   [
+    "pe_u_fund_2.jpg",
+    "p_seg_quimica_sq_antes_despues",
+    "Cantidades exactas · antes y después"
+   ],
+   [
+    "pe_u_fund_3.jpg",
+    "p_seg_quimica_sq_guantes",
+    "Guantes en todo procedimiento químico"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_cab",
+  "t": "El cabello y el diagnóstico",
+  "f": [
+   [
+    "pe_u_cab_0.jpg",
+    "cc_bio_p03_cc1_punto",
+    "Paso 1"
+   ],
+   [
+    "pe_u_cab_1.jpg",
+    "cc_bio_p03_cc2_punto",
+    "Paso 2"
+   ],
+   [
+    "pe_u_cab_2.jpg",
+    "cc_bio_p03_cc3_punto",
+    "Paso 3"
+   ],
+   [
+    "pe_u_cab_3.jpg",
+    "cc_bio_p03_cc4_punto",
+    "Paso 4"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_base",
+  "t": "Secciones, elevación y mecha guía",
+  "f": [
+   [
+    "pe_u_base_0.jpg",
+    "p_formas_lineas_fl_larga_frente",
+    "Melena larga en capas · picado · de frente"
+   ],
+   [
+    "pe_u_base_1.jpg",
+    "p_formas_lineas_fl_redondo_frente",
+    "Box corto · bob redondeado con la nuca graduada · de frente"
+   ],
+   [
+    "pe_u_base_2.jpg",
+    "p_formas_lineas_fl_linea_frente",
+    "Bob a una sola línea · de frente"
+   ],
+   [
+    "pe_u_base_3.jpg",
+    "p_seis_p6_raya",
+    "Raya central desde la nariz"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_basicos",
+  "t": "Cortes · Cortes básicos · sin elevación",
+  "f": [
+   [
+    "pe_u_c_basicos_0.jpg",
+    "basico_cuadrado_queda_frente",
+    "Básico cuadrado"
+   ],
+   [
+    "pe_u_c_basicos_1.jpg",
+    "basico_redondeado_queda_frente",
+    "Básico redondeado"
+   ],
+   [
+    "pe_u_c_basicos_2.jpg",
+    "basico_u_queda_frente",
+    "Básico en U"
+   ],
+   [
+    "pe_u_c_basicos_3.jpg",
+    "basico_v_queda_frente",
+    "Básico en V"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_melenas",
+  "t": "Cortes · Melenas y bob",
+  "f": [
+   [
+    "pe_u_c_melenas_0.jpg",
+    "bob_recto_queda_frente",
+    "Bob recto clásico"
+   ],
+   [
+    "pe_u_c_melenas_1.jpg",
+    "lob_queda_frente",
+    "Long bob · lob"
+   ],
+   [
+    "pe_u_c_melenas_2.jpg",
+    "bob_asimetrico_queda_frente",
+    "Bob asimétrico"
+   ],
+   [
+    "pe_u_c_melenas_3.jpg",
+    "carre_a_queda_frente",
+    "Carré en línea A"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_capas",
+  "t": "Cortes · Capas y desfilados",
+  "f": [
+   [
+    "pe_u_c_capas_0.jpg",
+    "foto_corte_mariposa",
+    "Cortes · Capas y desfilados"
+   ],
+   [
+    "pe_u_c_capas_1.jpg",
+    "capas_largas_queda_frente",
+    "Capas largas clásicas"
+   ],
+   [
+    "pe_u_c_capas_2.jpg",
+    "capas_90_queda_frente",
+    "Capas uniformes a 90°"
+   ],
+   [
+    "pe_u_c_capas_3.jpg",
+    "desfilado_punta_queda_frente",
+    "Desfilado en punta de tijera"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_cortos",
+  "t": "Cortes · Cortos de dama",
+  "f": [
+   [
+    "pe_u_c_cortos_0.jpg",
+    "pixie_queda_frente",
+    "Pixie clásico"
+   ],
+   [
+    "pe_u_c_cortos_1.jpg",
+    "pixie_pixc_queda_lateral",
+    "Pixie corto · cómo queda de lado"
+   ],
+   [
+    "pe_u_c_cortos_2.jpg",
+    "pixie_desfilado_queda_frente",
+    "Pixie desfilado"
+   ],
+   [
+    "pe_u_c_cortos_3.jpg",
+    "pixie_desfilado_pixc_queda_lateral",
+    "Pixie corto · cómo queda de lado"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_media",
+  "t": "Cortes · Media melena · shag y wolf",
+  "f": [
+   [
+    "pe_u_c_media_0.jpg",
+    "media_45_queda_frente",
+    "Media melena en 45°"
+   ],
+   [
+    "pe_u_c_media_1.jpg",
+    "shag_queda_frente",
+    "Shag"
+   ],
+   [
+    "pe_u_c_media_2.jpg",
+    "wolf_queda_frente",
+    "Wolf cut"
+   ],
+   [
+    "pe_u_c_media_3.jpg",
+    "butterfly_queda_frente",
+    "Butterfly"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_flequillos",
+  "t": "Cortes · Flequillos",
+  "f": [
+   [
+    "pe_u_c_flequillos_0.jpg",
+    "fleq_recto_queda_frente",
+    "Flequillo recto"
+   ],
+   [
+    "pe_u_c_flequillos_1.jpg",
+    "fleq_cortina_queda_frente",
+    "Flequillo cortina"
+   ],
+   [
+    "pe_u_c_flequillos_2.jpg",
+    "fleq_desfilado_queda_frente",
+    "Flequillo desfilado"
+   ],
+   [
+    "pe_u_c_flequillos_3.jpg",
+    "fleq_baby_queda_frente",
+    "Flequillo baby"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_ninos",
+  "t": "Cortes · Niños y niñas",
+  "f": [
+   [
+    "pe_u_c_ninos_0.jpg",
+    "nino_escolar_queda_frente",
+    "Niño escolar"
+   ],
+   [
+    "pe_u_c_ninos_1.jpg",
+    "nino_flequillo_queda_frente",
+    "Niño con flequillo"
+   ],
+   [
+    "pe_u_c_ninos_2.jpg",
+    "nina_capas_queda_frente",
+    "Niña · capas suaves"
+   ],
+   [
+    "pe_u_c_ninos_3.jpg",
+    "nina_pollina_largo_queda_frente",
+    "Niña · básico con pollina (largo)"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_rizado",
+  "t": "Cortes · Rizado y afro",
+  "f": [
+   [
+    "pe_u_c_rizado_0.jpg",
+    "rizo_seco_queda_frente",
+    "Corte en seco rizo a rizo"
+   ],
+   [
+    "pe_u_c_rizado_1.jpg",
+    "curly_bob_queda_frente",
+    "Curly bob"
+   ],
+   [
+    "pe_u_c_rizado_2.jpg",
+    "afro_capas_queda_frente",
+    "Afro con capas y perfilado"
+   ],
+   [
+    "pe_u_c_rizado_3.jpg",
+    "rizo_seco_peinado_nuca",
+    "Línea por línea · atrás"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_c_moda",
+  "t": "Cortes · Cortes de moda",
+  "f": [
+   [
+    "pe_u_c_moda_0.jpg",
+    "blunt_queda_frente",
+    "Blunt cut"
+   ],
+   [
+    "pe_u_c_moda_1.jpg",
+    "italian_bob_queda_frente",
+    "Italian bob"
+   ],
+   [
+    "pe_u_c_moda_2.jpg",
+    "bixie_queda_frente",
+    "Bixie"
+   ],
+   [
+    "pe_u_c_moda_3.jpg",
+    "blunt_peinado_nuca",
+    "Línea por línea · atrás"
+   ]
+  ]
+ },
+ {
+  "id": "cb_quim_decoloracion",
+  "t": "Decoloración global",
+  "f": [
+   [
+    "cb_quim_decoloracion_0.jpg",
+    "foto_quimicos",
+    "Decoloración global"
+   ],
+   [
+    "cb_quim_decoloracion_1.jpg",
+    "cb_quim_decoloracion_cb_lam_plantaCuatro",
+    "Lámina · Planta · cuatro secciones"
+   ],
+   [
+    "cb_quim_decoloracion_2.jpg",
+    "cb_quim_decoloracion_cb2_aplicacion",
+    "Medios y puntas"
+   ],
+   [
+    "cb_quim_decoloracion_3.jpg",
+    "cb_quim_decoloracion_cb3_aplicacion",
+    "Raíz al final"
+   ]
+  ]
+ },
+ {
+  "id": "cb_color_raiz",
+  "t": "Retoque de raíz",
+  "f": [
+   [
+    "cb_color_raiz_0.jpg",
+    "foto_tinte_correccion",
+    "Retoque de raíz"
+   ],
+   [
+    "cb_color_raiz_1.jpg",
+    "cb_color_raiz_cb_queda_color",
+    "Cómo queda · color de la fórmula"
+   ],
+   [
+    "cb_color_raiz_2.jpg",
+    "cb_color_raiz_cb_lam_plantaCuatro",
+    "Lámina · Planta · cuatro secciones"
+   ],
+   [
+    "cb_color_raiz_3.jpg",
+    "cb_color_raiz_cb4_aplicacion",
+    "Solo el crecimiento"
+   ]
+  ]
+ },
+ {
+  "id": "cb_color_global",
+  "t": "Color global",
+  "f": [
+   [
+    "cb_color_global_0.jpg",
+    "foto_colorimetria",
+    "Color global"
+   ],
+   [
+    "cb_color_global_1.jpg",
+    "cb_color_global_cb_queda_color",
+    "Cómo queda · color de la fórmula"
+   ],
+   [
+    "cb_color_global_2.jpg",
+    "cb_color_global_cb_lam_plantaCuatro",
+    "Lámina · Planta · cuatro secciones"
+   ],
+   [
+    "cb_color_global_3.jpg",
+    "cb_color_global_cb1_aplicacion",
+    "Mechón por mechón"
+   ]
+  ]
+ },
+ {
+  "id": "cb_color_balayage",
+  "t": "Balayage",
+  "f": [
+   [
+    "cb_color_balayage_0.jpg",
+    "foto_color_balayage",
+    "Balayage"
+   ],
+   [
+    "cb_color_balayage_1.jpg",
+    "foto_balayage_90",
+    "Balayage"
+   ],
+   [
+    "cb_color_balayage_2.jpg",
+    "cb_color_balayage_cb_queda_frente",
+    "Cómo queda · de frente"
+   ],
+   [
+    "cb_color_balayage_3.jpg",
+    "cb_color_balayage_cb_lat_h_queda",
+    "Lateral en horizontal · cómo queda"
+   ]
+  ]
+ },
+ {
+  "id": "cb_color_babylights",
+  "t": "Babylights",
+  "f": [
+   [
+    "cb_color_babylights_0.jpg",
+    "cb_color_babylights_cb_mech_lado",
+    "De lado · cómo se saca el mechón"
+   ],
+   [
+    "cb_color_babylights_1.jpg",
+    "cb_color_babylights_cb_lam_perfilInternacional",
+    "Lámina · Perfil · mechas internacional"
+   ],
+   [
+    "cb_color_babylights_2.jpg",
+    "cb_color_babylights_cb2_aplicacion",
+    "Papel"
+   ],
+   [
+    "cb_color_babylights_3.jpg",
+    "cb_color_babylights_cb3_aplicacion",
+    "Ladrillo"
+   ]
+  ]
+ },
+ {
+  "id": "cb_color_sombre",
+  "t": "Sombré",
+  "f": [
+   [
+    "cb_color_sombre_0.jpg",
+    "cb_color_sombre_cb_mech_lado",
+    "De lado · cómo se saca el mechón"
+   ],
+   [
+    "cb_color_sombre_1.jpg",
+    "cb_color_sombre_cb_lam_plantaBalayage_10",
+    "Lámina · Planta · diagrama balayage · arranque 10 %"
+   ],
+   [
+    "cb_color_sombre_2.jpg",
+    "cb_color_sombre_cb_lam_perfilZigzag",
+    "Lámina · Perfil · divisiones finas en zigzag"
+   ],
+   [
+    "cb_color_sombre_3.jpg",
+    "cb_color_sombre_cb1_aplicacion",
+    "Aclarado"
+   ]
+  ]
+ },
+ {
+  "id": "cb_mechas_aluminio",
+  "t": "Mechas con papel de aluminio",
+  "f": [
+   [
+    "cb_mechas_aluminio_0.jpg",
+    "foto_mechas_aluminio",
+    "Mechas con papel de aluminio"
+   ],
+   [
+    "cb_mechas_aluminio_1.jpg",
+    "foto_mechas_aluminio_2",
+    "Mechas con papel de aluminio"
+   ],
+   [
+    "cb_mechas_aluminio_2.jpg",
+    "cb_mechas_aluminio_cb_queda_frente",
+    "Cómo queda · de frente"
+   ],
+   [
+    "cb_mechas_aluminio_3.jpg",
+    "cb_mechas_aluminio_cb_lat_h_queda",
+    "Lateral en horizontal · cómo queda"
+   ]
+  ]
+ },
+ {
+  "id": "cb_mechas_gorro",
+  "t": "Mechas con gorro",
+  "f": [
+   [
+    "cb_mechas_gorro_0.jpg",
+    "foto_mechas_gorro",
+    "Mechas con gorro"
+   ],
+   [
+    "cb_mechas_gorro_1.jpg",
+    "foto_mechas_gorro_2",
+    "Mechas con gorro"
+   ],
+   [
+    "cb_mechas_gorro_2.jpg",
+    "cb_mechas_gorro_cb_lam_gorro",
+    "Lámina · Nuca · gorro perforado"
+   ],
+   [
+    "cb_mechas_gorro_3.jpg",
+    "cb_mechas_gorro_cb2_aplicacion",
+    "Aplicar"
+   ]
+  ]
+ },
+ {
+  "id": "cb_hidra_profunda",
+  "t": "Hidratación profunda",
+  "f": [
+   [
+    "cb_hidra_profunda_0.jpg",
+    "cb_hidra_profunda_cb_lam_perfilHorizontal",
+    "Lámina · Perfil · capas horizontales"
+   ],
+   [
+    "cb_hidra_profunda_1.jpg",
+    "cb_hidra_profunda_cb2_aplicacion",
+    "Aplicar de medios a puntas"
+   ],
+   [
+    "cb_hidra_profunda_2.jpg",
+    "cb_hidra_profunda_cb6_aplicacion",
+    "Hidratación natural"
+   ],
+   [
+    "cb_hidra_profunda_3.jpg",
+    "cc_hid_i01_cc1_punto",
+    "Paso 1"
+   ]
+  ]
+ },
+ {
+  "id": "cb_hidra_nutricion",
+  "t": "Nutrición con aceites",
+  "f": [
+   [
+    "cb_hidra_nutricion_0.jpg",
+    "cb_hidra_nutricion_cb_lam_perfilHorizontal",
+    "Lámina · Perfil · capas horizontales"
+   ],
+   [
+    "cb_hidra_nutricion_1.jpg",
+    "cb_hidra_nutricion_cb2_aplicacion",
+    "Aplicar"
+   ],
+   [
+    "cb_hidra_nutricion_2.jpg",
+    "cb_hidra_nutricion_cb1_divisiones",
+    "Capas finas horizontales"
+   ],
+   [
+    "cb_hidra_nutricion_3.jpg",
+    "cb_hidra_nutricion_cb3_tiempo",
+    "Calor suave"
+   ]
+  ]
+ },
+ {
+  "id": "cb_quera_alisado",
+  "t": "Alisado de queratina",
+  "f": [
+   [
+    "cb_quera_alisado_0.jpg",
+    "cb_quera_alisado_cb_lam_plantaNueve",
+    "Lámina · Planta · nueve secciones"
+   ],
+   [
+    "cb_quera_alisado_1.jpg",
+    "cb_quera_alisado_cb2_aplicacion",
+    "Aplicar"
+   ],
+   [
+    "cb_quera_alisado_2.jpg",
+    "cb_quera_alisado_cb4_aplicacion",
+    "Secado"
+   ],
+   [
+    "cb_quera_alisado_3.jpg",
+    "cb_quera_alisado_cb5_aplicacion",
+    "Plancha"
+   ]
+  ]
+ },
+ {
+  "id": "cb_quera_botox",
+  "t": "Botox capilar",
+  "f": [
+   [
+    "cb_quera_botox_0.jpg",
+    "cb_quera_botox_cb_lam_plantaCuatro",
+    "Lámina · Planta · cuatro secciones"
+   ],
+   [
+    "cb_quera_botox_1.jpg",
+    "cb_quera_botox_cb2_aplicacion",
+    "Aplicar"
+   ],
+   [
+    "cb_quera_botox_2.jpg",
+    "cb_quera_botox_cb1_divisiones",
+    "Secciones"
+   ],
+   [
+    "cb_quera_botox_3.jpg",
+    "cb_quera_botox_cb3_tiempo",
+    "Reposo"
+   ]
+  ]
+ },
+ {
+  "id": "cb_quim_permanente",
+  "t": "Permanente",
+  "f": [
+   [
+    "cb_quim_permanente_0.jpg",
+    "cb_quim_permanente_cb_lam_plantaRadialOcho",
+    "Lámina · Planta · radial en ocho"
+   ],
+   [
+    "cb_quim_permanente_1.jpg",
+    "cb_quim_permanente_cb2_aplicacion",
+    "Montaje"
+   ],
+   [
+    "cb_quim_permanente_2.jpg",
+    "cb_quim_permanente_cb3_aplicacion",
+    "Reducción"
+   ],
+   [
+    "cb_quim_permanente_3.jpg",
+    "cb_quim_permanente_cb1_divisiones",
+    "Nueve secciones"
+   ]
+  ]
+ },
+ {
+  "id": "cb_cab_secado",
+  "t": "Secado con cepillo",
+  "f": [
+   [
+    "cb_cab_secado_0.jpg",
+    "foto_secado",
+    "Secado con cepillo"
+   ],
+   [
+    "cb_cab_secado_1.jpg",
+    "cb_cab_secado_cb_lam_perfilHorizontal",
+    "Lámina · Perfil · capas horizontales"
+   ],
+   [
+    "cb_cab_secado_2.jpg",
+    "cb_cab_secado_cb2_aplicacion",
+    "Mecha y tensión"
+   ],
+   [
+    "cb_cab_secado_3.jpg",
+    "cb_cab_secado_cb3_aplicacion",
+    "Aire caliente"
+   ]
+  ]
+ },
+ {
+  "id": "cb_cab_planchado",
+  "t": "Planchado",
+  "f": [
+   [
+    "cb_cab_planchado_0.jpg",
+    "foto_planchado",
+    "Planchado"
+   ],
+   [
+    "cb_cab_planchado_1.jpg",
+    "cb_cab_planchado_cb_lam_perfilHorizontal",
+    "Lámina · Perfil · capas horizontales"
+   ],
+   [
+    "cb_cab_planchado_2.jpg",
+    "cb_cab_planchado_cb2_aplicacion",
+    "Protector"
+   ],
+   [
+    "cb_cab_planchado_3.jpg",
+    "cb_cab_planchado_cb3_aplicacion",
+    "Estirar y planchar"
+   ]
+  ]
+ },
+ {
+  "id": "cb_cab_derriz",
+  "t": "Derriz",
+  "f": [
+   [
+    "cb_cab_derriz_0.jpg",
+    "cb_cab_derriz_cb_lam_plantaNueve",
+    "Lámina · Planta · nueve secciones"
+   ],
+   [
+    "cb_cab_derriz_1.jpg",
+    "cb_cab_derriz_cb2_aplicacion",
+    "Aplicar"
+   ],
+   [
+    "cb_cab_derriz_2.jpg",
+    "cb_cab_derriz_cb1_divisiones",
+    "Nueve secciones"
+   ],
+   [
+    "cb_cab_derriz_3.jpg",
+    "cb_cab_derriz_cb3_tiempo",
+    "Prueba de elasticidad"
+   ]
+  ]
+ },
+ {
+  "id": "pe_u_neg",
+  "t": "El salón como negocio",
+  "f": []
+ }
+]
