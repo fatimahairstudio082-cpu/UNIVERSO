@@ -311,6 +311,9 @@
       var vv = $('#vidLec'); if (vv) vv.parentNode.removeChild(vv);
       if (L.mp4) { var vd = document.createElement('video'); vd.id = 'vidLec'; vd.src = (window.CURSO_MP4_BASE || '') + L.mp4; vd.controls = true; vd.playsInline = true; vd.style.cssText = 'width:100%;max-height:70vh;background:#000;border-radius:6px'; vd.onerror = function () { if (vd.parentNode) vd.parentNode.removeChild(vd); }; cv.parentNode.insertBefore(vd, cv); }
       $('#escenas').innerHTML = ''; MINI = []; kMini = -1;
+      /* (19-10-2026) títulos repetidos en la misma lección («Repaso», «Paso 1»…) se numeran: Repaso 1, Repaso 2 */
+      var nT = {}, vT = {}; L.escenas.forEach(function (e) { if (!e._n) nT[e.t] = (nT[e.t] || 0) + 1; });
+      L.escenas.forEach(function (e) { if (e._n || !e.t || nT[e.t] < 2) return; var b0 = e.t; vT[b0] = (vT[b0] || 0) + 1; e.t = b0 + (/\d$/.test(b0) ? ' (' + vT[b0] + ')' : ' ' + vT[b0]); e._n = 1; });
       L.escenas.forEach(function (e, k) {
         var b = document.createElement('button'), c = document.createElement('canvas'), t = document.createElement('b'); b.className = 'card'; c.width = 320; c.height = 180;
         t.textContent = (k + 1) + '. ' + e.t; b.appendChild(c); b.appendChild(t); b.onclick = function () { reproduce(k); }; $('#escenas').appendChild(b);
@@ -613,9 +616,9 @@
       return aligerar(D);
     }).then(function () {
       /* Fátima, 17-10-2026: su vídeo de presentación optimizado (referencias/curso/<mp4>, 720p, ~1 MB) va dentro de curso/ si una lección lo pide */
-      var mp4 = null; D.modulos.some(function (M) { return M.lecciones.some(function (L) { if (L.mp4) mp4 = L.mp4; return !!mp4; }); });
-      if (!mp4) return;
-      return fetch('./referencias/curso/' + mp4).then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (b) VIDEOS[mp4] = b; }).catch(function () { });
+      /* 19-10-2026: también los vídeos de módulo y de cierre de nivel (b6_pelu_videos.js): todos los que pidan las lecciones */
+      var mp4s = []; D.modulos.forEach(function (M) { M.lecciones.forEach(function (L) { if (L.mp4 && mp4s.indexOf(L.mp4) < 0) mp4s.push(L.mp4); }); });
+      return Promise.all(mp4s.map(function (mp4) { return fetch('./referencias/curso/' + mp4).then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (b) VIDEOS[mp4] = b; }).catch(function () { }); }));
     }).then(function () {
       var z = new JSZip(), base = slug(D.titulo) + '-premium/';
       Object.keys(VIDEOS).forEach(function (n) { z.file(base + 'curso/' + n, VIDEOS[n]); });

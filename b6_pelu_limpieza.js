@@ -11,7 +11,9 @@
   var FUERA = ['pe_manicura', 'pe_uña', 'pe_piel_tipos', 'pe_depilacion_cera', 'pe_cejas', 'pe_limpieza_facial', 'pe_maquillaje',
     'pe_pinzas_depilar', 'pe_elevacion', 'pe_caspa', 'pe_degradado',
     /* 19-10-2026 (Fátima): sin caballero (fade con máquina) y sin la agenda con «Corte caballero» y tiempos que no son suyos */
-    'pe_fade_niveles', 'pe_tiempo_servicio'];
+    'pe_fade_niveles', 'pe_tiempo_servicio',
+    /* 19-10-2026 (Fátima, auditoría): sin barbería (arreglo de barba) ni cera capilar (productos de fijación) */
+    'pe_barba', 'pe_productos_fijar'];
   var NO = {}; FUERA.forEach(function (id) { NO[id] = 1; });
 
   var lista0 = MO.lista, modelo0 = MO.modelo;
@@ -19,6 +21,10 @@
   var fam0 = MO.familias;
   MO.familias = function (mat) { return fam0.call(MO, mat).map(function (f) { f.total = MO.lista(mat, f.id).length; return f; }).filter(function (f) { return f.total; }); };
   MO.modelo = function (id) { return NO[id] ? undefined : modelo0.call(MO, id); };
+  /* las bibliotecas b6_lib_peluqueria*.js llegan después (paquete diferido) y volvían a registrar estos dibujos en EU_SVG:
+     se descartan también cuando llegan tarde */
+  var agregar0 = MO.agregar;
+  MO.agregar = function (mat, lista) { var a = [].slice.call(arguments); if (Array.isArray(lista)) a[1] = lista.filter(function (m) { return !(m && NO[m.id]); }); return agregar0.apply(MO, a); };
   if (window.EU_SVG && window.EU_SVG.visual) FUERA.forEach(function (id) { window.EU_SVG.visual(id, function () { return null; }, { materias: /^$/ }); });
 
   /* divisiones: EU_DIVISIONES (lienzo) → imagen dentro del lienzo 200×150 del modelo */

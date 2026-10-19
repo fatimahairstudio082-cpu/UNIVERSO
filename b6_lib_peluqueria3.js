@@ -87,7 +87,7 @@
       q: [['¿Por qué se desmaquilla antes de limpiar?', 'El maquillaje necesita un producto que lo disuelva.'], ['¿Para qué sirve el tónico?', 'Equilibra el pH tras el lavado.'], ['¿Por qué protector solar a diario?', 'Los rayos UV envejecen la piel incluso con nubes.']],
       porque: 'La radiación UV rompe el colágeno de la piel poco a poco.' },
     { id: 'pe_masaje_capilar', fam: 'est', n: 'Masaje capilar',
-      d: function (K) { var s = K.suelo(100, 136, 60) + K.e(100, 74, 44, 52, C.pelo) + K.e(100, 110, 20, 18, C.piel); [[76, 50], [124, 50], [70, 80], [130, 80], [100, 36]].forEach(function (q) { s += K.c(q[0], q[1], 6, C.piel) + K.l('M' + (q[0] - 8) + ' ' + q[1] + ' a8 8 0 1 1 16 0', '#fff', { w: .8 }); }); return s + K.t(100, 132, 'Yemas en círculos, sin uñas', { s: 6.8, b: 1 }); },
+      d: function (K) { var s = K.suelo(100, 136, 60) + K.e(100, 74, 44, 52, C.pelo) + K.e(100, 110, 20, 18, C.piel); [[76, 50], [124, 50], [70, 80], [130, 80], [100, 36]].forEach(function (q) { s += K.c(q[0], q[1], 6, C.piel) + K.l('M' + (q[0] - 8) + ' ' + q[1] + ' a8 8 0 1 1 16 0', '#fff', { w: .8 }); }); return s + K.t(100, 132, 'Yemas en círculos', { s: 6.8, b: 1 }); },
       intro: 'Movimientos circulares con las yemas relajan y activan el riego del cuero cabelludo.',
       q: [['¿Con qué parte de la mano?', 'Con las yemas de los dedos.'], ['¿Cuánto dura?', 'Entre 3 y 5 minutos.'], ['¿Cuándo se evita?', 'Con heridas, infección o psoriasis activa.']],
       porque: 'Mover la piel sobre el cráneo aumenta la circulación en la zona.' },
