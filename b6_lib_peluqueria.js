@@ -122,7 +122,7 @@
       d: function (K) { return K.suelo(100, 140, 90) + K.p('M40 70 Q40 40 100 40 Q160 40 160 70 Q140 100 100 100 Q60 100 40 70 Z', M.blanco) + K.e(100, 64, 44, 18, '#DDEBF0') + K.p('M100 100 L96 138 L104 138 Z', '#C8C8CC') + K.l('M150 30 L150 56 Q150 62 144 62', '#C8C8CC', { w: 3 }) + K.r(140, 60, 10, 6, 2, '#8E979F') + K.p('M20 120 L60 90 L64 96 L28 126 Z', '#2A2A30') + K.e(62, 72, 16, 10, C.piel); },
       rot: [['Hueco para el cuello', 76, 86, 30, 110], ['Ducha', 145, 62, 186, 70]],
       intro: 'Pila con hueco para el cuello: el cliente se recuesta y el agua cae hacia atrás.',
-      q: [['¿Cómo se comprueba la temperatura del agua?', 'En la muñeca antes de mojar la cabeza.'], ['¿Qué se protege al lavar?', 'La cara, los ojos y los oídos.'], ['¿Por qué se masajea con las yemas?', 'Las uñas pueden arañar el cuero cabelludo.']],
+      q: [['¿Cómo se comprueba la temperatura del agua?', 'En la muñeca antes de mojar la cabeza.'], ['¿Qué se protege al lavar?', 'La cara, los ojos y los oídos.'], ['¿Por qué se masajea con las yemas?', 'Así no se araña el cuero cabelludo.']],
       porque: 'Recostado hacia atrás, el agua y el champú caen lejos de la cara.' },
     { id: 'pe_sillon', fam: 'apa', n: 'Sillón hidráulico',
       d: function (K) { return K.suelo(100, 140, 60) + K.r(60, 30, 80, 50, 8, C.negroP) + K.r(56, 76, 88, 20, 6, '#3A3A40') + K.r(48, 70, 14, 30, 4, C.negroP) + K.r(138, 70, 14, 30, 4, C.negroP) + K.cil(100, 96, 8, 30, '#C8C8CC') + K.e(100, 132, 36, 8, '#C8C8CC') + K.p('M134 126 L160 118 L162 124 L138 130 Z', '#8E979F'); },

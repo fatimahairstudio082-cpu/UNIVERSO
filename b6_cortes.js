@@ -813,7 +813,7 @@
     return CABELLOS[1];
   }
 
-  var OCULTOS = { nino_escolar: 1, nino_flequillo: 1 };
+  var OCULTOS = { nino_escolar: 1, nino_flequillo: 1, afro_capas: 1 };
   var API = {
     /* 19-10-2026 (Fátima: «en el sistema no van cortes de caballero, es muy distinto»): las familias de caballero (cab_*) quedan
        ocultas en todo el sistema (Guías 3D, Escáner, biblioteca, libro y curso). Siguen en el código: window.EU_PELU_CABALLERO = true. */
