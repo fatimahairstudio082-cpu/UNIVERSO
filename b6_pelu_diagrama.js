@@ -899,6 +899,77 @@
     L.push({ tipo: 'pix_arriba', vista: v, t: 'Pixie · arriba', texto: 'Arriba, dentro de la herradura, el cabello se toma en secciones de la frente a la coronilla y cada una se eleva y se corta: ' + pila.slice(3, 3 + nA).map(function (g, k) { return 'sección ' + (k + 1) + ' a ' + g + ' grados'; }).join(', ') + '.', a: { v: v, tr: tr, banda: true } });
     return L;
   }
+  /* 19-10-2026 (Fátima: «crea el verdadero pixie corto»): se deja mínimo dos dedos de la raíz. Primero se saca la forma
+     (en U, en V o cuadrada), desde ahí la guía a dos dedos, luego el cabello se eleva en vertical y se corta a dos dedos,
+     y al final se ve cada capa como quedó. Escenas aparte: las del pixie de antes no se tocan. */
+  function escPixieCorto(R) {
+    var L = [], DOS = 0.36, ROJ = CORTE, FORMAS = [['u', 'En U', COL[2]], ['v', 'En V', COL[4]], ['recta', 'Cuadrada', COL[0]]];
+    var lin = /^(u|v|recta)$/.test(R.linea) ? R.linea : R.linea === 'redondeada' ? 'u' : 'recta';
+    function thF(f, d) { return 1.98 + formaTh(f, d) * 0.9; }
+    /* 1 · la forma de atrás: U, V y cuadrada sobre la nuca */
+    var v = 'nuca', tr = [];
+    FORMAS.forEach(function (F, i) {
+      var ta = 0.04 + i * 0.3, ext = i < 2 ? { x: ta + 0.3 } : {};
+      tr = tr.concat(lineas(tramos(v, function (u) { var d = u * 2 - 1; return [NUCA + d * 1.25, thF(F[0], d)]; }, 50), [ta, ta + 0.14], F[2], 4.5, ext));
+      tr.push(rotulo('Forma ' + F[1].toLowerCase() + ' · se marca en la nuca', F[2], ta, ext));
+    });
+    tr.push(rotulo('Primero se saca la forma: en U, en V o cuadrada', TINTA, 0));
+    L.push({ tipo: 'pixc_forma', vista: v, t: 'Pixie corto · la forma', texto: 'En el pixie corto primero se saca la forma de atrás. Se puede sacar en U, en V o cuadrada.', a: { v: v, tr: tr, banda: true } });
+    /* 2 · la guía a dos dedos de la raíz, siguiendo la forma elegida */
+    tr = []; var tips = [];
+    tr = tr.concat(lineas(tramos(v, function (u) { var d = u * 2 - 1; return [NUCA + d * 1.25, thF(lin, d)]; }, 50), [0, 0.03], '#2C6FD1', 3.6));
+    for (var i = 0; i <= 12; i++) {
+      var d = i / 6 - 1, ph = NUCA + d * 1.15, th = thF(lin, d); if (!seVe(v, ph, th)) continue;
+      var a = P(ph, th, 1.03), b = a.clone().add(V3(0, -0.85, 0)), c = a.clone().add(V3(0, -DOS, 0));
+      tr.push(linea(plano([pr(v, a), pr(v, b)]), [0.08, 0.3], '#8E847A', 2), linea(plano([pr(v, a), pr(v, c)]), [0.3, 0.45], COL[0], 3.4));
+      tips.push(pr(v, c));
+    }
+    if (tips.length > 1) {
+      tr.push(tijera(plano(tips), [0.5, 0.85], ROJ, false));
+      var m0 = tips[Math.floor(tips.length / 2)];
+      tr.push(chapa([m0[0] + 70, m0[1] - 22], '2 dedos', COL[0], 0.32), linea(plano(tips), [0.85, 0.95], COL[0], 3.4));
+    }
+    tr.push(rotulo('La forma ' + (FORMAS.filter(function (F) { return F[0] === lin; })[0] || FORMAS[2])[1].toLowerCase() + ' en la raíz', '#2C6FD1', 0), rotulo('Guía: se deja dos dedos desde la raíz', COL[0], 0.3), rotulo('Se corta la guía a dos dedos', ROJ, 0.5));
+    L.push({ tipo: 'pixc_guia', vista: v, t: 'Pixie corto · guía a dos dedos', texto: 'Desde la forma se saca la guía: se deja mínimo dos dedos desde la raíz y ahí se corta.', a: { v: v, tr: tr, banda: true } });
+    /* 3 · de lado: secciones verticales, el cabello elevado en vertical y cortado a dos dedos */
+    v = 'lateral'; tr = [];
+    var nS = 5, secs = [];
+    for (var k = 0; k < nS; k++) secs.push(DER + 0.3 + k * ((NUCA + 2 * Math.PI - DER - 0.75) / (nS - 1)));
+    secs.forEach(function (ph, k) {
+      var c = COL[k % 7], ta = 0.04 + k * 0.18, tb = ta + 0.18, ext = k < nS - 1 ? { x: tb } : {}, tk = [];
+      tr = tr.concat(lineas(tramos(v, function (u) { return [ph, 0.35 + u * 1.62]; }, 30), [ta, ta + 0.03], c, 2.6, { d: 1 }));
+      for (var j = 0; j <= 8; j++) {
+        var th = 0.4 + j * 0.19; if (!seVe(v, ph, th)) continue;
+        var a = P(ph, th), n = N(ph, th), ks = [], kl = [];
+        for (var m = 0; m <= 5; m++) { var w = m / 5, dd = V3(0, -1, 0).multiplyScalar(1 - w).add(n.clone().multiplyScalar(w)).normalize(); ks.push([].concat(pr(v, a), pr(v, a.clone().add(dd.clone().multiplyScalar(DOS))))); kl.push([].concat(pr(v, a.clone().add(dd.clone().multiplyScalar(DOS))), pr(v, a.clone().add(dd.multiplyScalar(0.8))))); }
+        tr.push(mechon(kl, [ta + 0.02, ta + 0.08], '#8E847A', 1.8, { x: ta + 0.11 }), mechon(ks, [ta + 0.02, ta + 0.08], c, 3));
+        tk.push(ks[5].slice(2));
+      }
+      if (tk.length > 1) tr.push(tijera(plano(tk), [ta + 0.08, ta + 0.15], ROJ, false, ext), linea(plano(tk), [ta + 0.15, tb], c, 2.4), chapa(tk[tk.length - 1], (k + 1) + ' · 90°', c, ta + 0.12));
+      tr.push(regla(0, 90, [ta + 0.02, ta + 0.08], c, 'Sección ' + (k + 1) + ' · vertical', ext));
+    });
+    tr.push(rotulo('Secciones verticales · el cabello se eleva en vertical', TINTA, 0.04), rotulo('Se corta a dos dedos de la raíz', ROJ, 0.12));
+    L.push({ tipo: 'pixc_vertical', vista: v, t: 'Pixie corto · elevado en vertical', texto: 'Desde la guía, el cabello se toma en secciones verticales y se eleva en vertical, a noventa grados de la cabeza. Cada mechón se corta a dos dedos de la raíz, igual que la guía.', a: { v: v, tr: tr, banda: true } });
+    /* 4 · el resultado de cada capa */
+    [['lateral', 'de lado'], ['nuca', 'atrás']].forEach(function (q) {
+      var v2 = q[0], tr2 = [];
+      secs.forEach(function (ph0, k) {
+        var c = COL[k % 7], ta = 0.05 + k * 0.17, pts = [];
+        var phs = v2 === 'nuca' ? [NUCA - 1.1 + k * 0.55] : [ph0];
+        phs.forEach(function (ph) {
+          for (var j = 0; j <= 9; j++) {
+            var th = 0.35 + j * 0.18; if (v2 === 'nuca') th = Math.min(th, thF(lin, (ph - NUCA) / 1.25)); if (!seVe(v2, ph, th)) continue;
+            var a = P(ph, th), n = N(ph, th), dd = n.clone().multiplyScalar(0.35).add(V3(0, -1, 0)).normalize(), b = a.clone().add(dd.multiplyScalar(DOS));
+            tr2.push(linea(plano([pr(v2, a), pr(v2, b)]), [ta, ta + 0.1], c, 3)); pts.push(pr(v2, b));
+          }
+        });
+        if (pts.length > 1) tr2.push(linea(plano(pts), [ta + 0.1, ta + 0.15], c, 2.4, { d: 1 }), chapa(pts[pts.length - 1], (k + 1) + ' · 2 dedos', c, ta + 0.12));
+      });
+      tr2.push(rotulo('Cómo quedó cada capa · ' + q[1] + ' · todo a dos dedos', TINTA, 0.05));
+      L.push({ tipo: 'pixc_queda_' + v2, vista: v2, t: 'Pixie corto · cómo queda ' + q[1], texto: 'Así queda cada capa: todo el cabello a dos dedos de la raíz, con la forma de atrás marcada.', a: { v: v2, tr: tr2, banda: true } });
+    });
+    return L;
+  }
   function escenas(id) {
     var R = typeof id === 'object' ? id : receta(id); if (!R) return null;
     var A = ALTURAS[R.altura], pila = R.capas.pila;
@@ -944,6 +1015,8 @@
       try { var aL = AY.escCierre(KIT, true, 'Antes de cortar · lavar y mojar'); L.unshift({ tipo: 'lavado', vista: aL.v || 'lateral', t: 'Antes de cortar · lavar el cabello', texto: 'Antes de cortar, el cabello se lava. El cabello debe estar mojado para cortarlo.', a: aL }); } catch (e) { }
     }
     if (/pixie/i.test(R.n || '')) { try { var LP = escPixieRef(R), iq = L.map(function (e) { return e.tipo; }).indexOf('particion') + 1; L.splice.apply(L, [iq, 0].concat(LP)); } catch (e) { } }
+    /* 19-10-2026 (Fátima): el pixie corto a dos dedos, después de las escenas de referencia del pixie */
+    if (/pixie/i.test(R.n || '')) { try { var LC = escPixieCorto(R), ip = L.map(function (e) { return e.tipo; }).lastIndexOf('pix_arriba') + 1 || L.map(function (e) { return e.tipo; }).indexOf('particion') + 1; L.splice.apply(L, [ip, 0].concat(LC)); } catch (e) { } }
     /* geometría calculada: ángulos y largos (calculadora capilar) y coronilla en triángulo oblicuo */
     var CC = window.EU_CALCULO_CAPILAR, calc = null;
     try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias && R.guias.length ? R.guias : cero ? ['f'] : R.guias, ref: R.ref }, R.medidas) : null; } catch (e) { calc = null; }
