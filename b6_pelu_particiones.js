@@ -873,6 +873,65 @@
   }
 
   /* ── Pixie: perfil (abanico de elevaciones y sobredirección atrás), frente (verticales y flequillo en triángulo), arriba (nuca radial y espiga) ── */
+  /* 19-10-2026 (Fátima: «el maniquí dibuja el cabello en líneas, para cortos y largos»): ayudantes reutilizables.
+     tramosY: línea del corte como puntos [z o x, y] unidos en curva suave.
+     peloLado / peloFrente: líneas finas desde la raíz hasta la línea del corte y contorno de la forma (sin tijera ni rótulos) */
+  function tramosY(P2) { return function (z) { for (var q = 0; q < P2.length - 1; q++) { var a = P2[q], b = P2[q + 1], lo = Math.min(a[0], b[0]), hi = Math.max(a[0], b[0]); if (z >= lo && z <= hi) { var u = (z - a[0]) / (b[0] - a[0]), s2 = (1 - Math.cos(Math.PI * u)) / 2; return a[1] + (b[1] - a[1]) * s2; } } var e = (z - P2[0][0]) * (P2[0][0] - P2[P2.length - 1][0]) >= 0 ? P2[0] : P2[P2.length - 1]; return e[1]; }; }
+  function peloLado(K, v, o) {
+    var tr = [], tips = [], roots = [], n = o.n || 34, z0 = o.z0 == null ? 0.98 : o.z0, z1 = o.z1 == null ? -1.08 : o.z1, t = o.t || [0.05, 0.55], c = o.c || '#4A4A55', i;
+    for (i = 0; i <= n; i++) {
+      var z = z0 + (z1 - z0) * i / n, yr = 1.22 * Math.sqrt(Math.max(0, 1 - z * z / 1.32)) * 0.99, yc = o.corte(z), ab = o.abre || 1, zc = z + (z < -0.3 ? -0.08 : 0.04) * ab, pts = [];
+      if (yc > yr - 0.04) continue;
+      for (var k = 0; k <= 10; k++) { var u = k / 10; pts.push(W(K, v, 0, yr + (yc - yr) * u, z + (zc - z) * u + (z < 0 ? -0.06 : 0.05) * ab * Math.sin(Math.PI * u))); }
+      var t0 = t[0] + (t[1] - t[0]) * 0.75 * i / n;
+      tr.push(K.linea(K.plano(pts), [t0, t0 + (t[1] - t[0]) * 0.25], c, o.w || 1.6, o.textura && i % 2 ? { d: 1 } : undefined));
+      tips.push(pts[pts.length - 1]); roots.push(W(K, v, 0, yr * 1.025 + 0.02, z * 1.02));
+    }
+    if (o.contorno !== false && tips.length > 1) tr.push(K.linea(K.plano(roots.concat(tips.slice().reverse())), [t[1] - 0.05, t[1] + 0.08], o.cc || '#2B2620', 2.2));
+    return { tr: tr, tips: tips };
+  }
+  function peloFrente(K, v, o) {
+    var tr = [], tips = [], roots = [], n = o.n || 30, ax = o.ancho || 0.92, t = o.t || [0.05, 0.55], c = o.c || '#4A4A55', i;
+    for (i = 0; i <= n; i++) {
+      var x = -ax + 2 * ax * i / n, yr = 1.22 * Math.sqrt(Math.max(0, 1 - x * x / 1.25)) * 0.97, zr = 0.3 + 0.35 * (1 - Math.abs(x)), yc = o.corte(x), zc = (o.cara && Math.abs(x) < 0.6) ? 1.0 - 0.45 * Math.abs(x) : 0.55 - 0.3 * Math.abs(x), xc = Math.abs(x) > 0.6 ? (x < 0 ? -1 : 1) * (0.88 + (Math.abs(x) - 0.6) * 0.5) * (o.abre || 1) : x, pts = [];
+      var sg = o.raya != null ? (x < o.raya ? -1 : 1) : (x < 0 ? -1 : 1);
+      for (var k = 0; k <= 10; k++) { var u = k / 10; pts.push(W(K, v, x + (xc - x) * u + sg * 0.05 * Math.sin(Math.PI * u), yr + (yc - yr) * u, zr + (zc - zr) * Math.sqrt(u) + 0.1 * Math.sin(Math.PI * u))); }
+      var t0 = t[0] + (t[1] - t[0]) * 0.75 * i / n;
+      tr.push(K.linea(K.plano(pts), [t0, t0 + (t[1] - t[0]) * 0.25], o.gris && (o.raya != null ? x < o.raya : x < 0) ? '#9A958F' : c, o.w || 1.6, o.textura && i % 2 ? { d: 1 } : undefined));
+      tips.push(pts[pts.length - 1]); roots.push(W(K, v, x * 1.02, yr * 1.02 + 0.02, zr));
+    }
+    if (o.contorno !== false && tips.length > 1) tr.push(K.linea(K.plano(roots.concat(tips.slice().reverse())), [t[1] - 0.05, t[1] + 0.08], o.cc || '#2B2620', 2.2));
+    if (o.raya != null) tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [K.CARA + (o.raya > 0 ? 0.3 : -0.3), 0.04 + u * 0.9]; }, 30), [t[0], t[0] + 0.1], '#1F1B18', 3));
+    return { tr: tr, tips: tips };
+  }
+
+  /* 19-10-2026 (Fátima, «para dibujar en el maniquí» 1-3): tres formas dibujadas en líneas, de frente y de lado, con la raya de lado
+     y el contorno: melena larga en capas, bob redondeado con la nuca graduada y bob a una sola línea. Largos a validar por Fátima */
+  function formasLineas(K) {
+    var esc = [], F = [
+      ['larga', 'Melena larga en capas', tramosY([[-0.92, -1.85], [-0.6, -1.5], [0.6, -1.5], [0.92, -1.85]]), tramosY([[1.0, -1.3], [0.4, -1.6], [-0.4, -1.75], [-1.1, -1.85]]), true, 1.15, 'El cabello largo cae en capas desde la raya de lado: más corto alrededor de la cara y más largo atrás. De lado se ven las líneas sueltas, con textura, hasta los hombros.'],
+      ['redondo', 'Bob redondeado con la nuca graduada', tramosY([[-0.92, -0.62], [-0.6, -0.55], [0.6, -0.55], [0.92, -0.62]]), tramosY([[1.0, -0.62], [0.4, -0.66], [-0.4, -0.66], [-0.8, -0.55], [-1.1, -0.35]]), false, 1.05, 'El bob redondeado cae desde la raya de lado hasta la mandíbula. De lado la línea es redonda y en la nuca el cabello se gradúa: más corto abajo y con volumen arriba.'],
+      ['linea', 'Bob a una sola línea', tramosY([[-0.92, -0.8], [0.92, -0.8]]), tramosY([[1.0, -0.8], [-1.1, -0.8]]), false, 1, 'El bob a una sola línea cae recto desde la raya de lado. De lado todas las líneas terminan a la misma altura: una línea recta, horizontal, a la altura de la mandíbula.']
+    ];
+    F.forEach(function (f) {
+      var fr = peloFrente(K, 'frente', { corte: function (x) { return Math.abs(x) < 0.6 ? 0.82 : f[2](x); }, raya: 0.25, gris: true, abre: f[5], textura: f[4], t: [0.05, 0.6] });
+      var tr1 = fr.tr.concat([K.rotulo(f[1] + ' · de frente', '#1F1B18', 0.04), K.rotulo('Raya de lado: el cabello cae desde la raya', '#4A4A55', 0.2), K.rotulo('Largos: a validar por Fátima', '#8A6D3B', 0.7)]);
+      esc.push({ tipo: 'fl_' + f[0] + '_frente', vista: 'frente', t: f[1] + ' · de frente', texto: f[6], a: { v: 'frente', tr: tr1 } });
+      var la = peloLado(K, 'lateral', { corte: f[3], textura: f[4], abre: f[5], t: [0.05, 0.6] });
+      var tr2 = la.tr.concat([K.linea(K.plano(la.tips.slice().reverse()), [0.62, 0.8], C_ROJO, 2.4, { d: 1 }), K.tijera(K.plano(la.tips.slice().reverse()), [0.62, 0.8], C_ROJO, false), K.rotulo(f[1] + ' · de lado', '#1F1B18', 0.04), K.rotulo('Las líneas caen hasta la línea del corte', '#4A4A55', 0.2), K.rotulo('Línea del corte', C_ROJO, 0.62), K.rotulo('Largos: a validar por Fátima', '#8A6D3B', 0.82)]);
+      esc.push({ tipo: 'fl_' + f[0] + '_lado', vista: 'lateral', t: f[1] + ' · de lado', texto: f[6], a: { v: 'lateral', tr: tr2 } });
+    });
+    return {
+      R: { id: 'p_formas_lineas', n: 'Formas del cabello en líneas · larga, bob redondeado y bob a una línea' },
+      escenas: esc,
+      preguntas: [
+        { e: 'En el bob a una sola línea, ¿cómo termina el cabello de lado?', o: ['En una línea recta, a la misma altura', 'En punta hacia la cara', 'En escalones'], c: 0, x: 'Todas las líneas terminan a la misma altura.' },
+        { e: 'En el bob redondeado, ¿qué pasa en la nuca?', o: ['El cabello se gradúa: más corto abajo', 'Queda más largo que delante', 'No se corta'], c: 0, x: 'La nuca se gradúa y da volumen arriba.' },
+        { e: '¿Desde dónde cae el cabello en estas formas?', o: ['Desde la raya de lado', 'Desde la nuca', 'Desde la oreja'], c: 0, x: 'La raya de lado reparte el cabello a los dos lados.' }
+      ]
+    };
+  }
+
   function pixie(K) {
     var esc = [];
     (function () {
@@ -919,15 +978,11 @@
       esc.push({ tipo: 'px_frente_pelo', vista: v, t: 'Pixie de frente · el cabello en líneas', texto: 'De frente, con la raya de lado, el cabello cae en líneas desde la raya. El flequillo se corta en diagonal, como un triángulo: más corto sobre una ceja y largo hacia el otro lado, hasta la mandíbula.', a: { v: v, tr: tr } });
     })();
     (function () {
-      var v = 'lateral', tr = [], n = 22, i, tips = [];
-      /* línea del corte de lado (z: + cara, − nuca): delante largo, por encima de la oreja, nuca corta y en punta */
-      function corte(z) { var P2 = [[1.0, -0.55], [0.6, -0.35], [0.32, 0.02], [0.05, 0.1], [-0.22, 0.02], [-0.5, -0.32], [-0.85, -0.7], [-1.1, -0.82]]; for (var q = 0; q < P2.length - 1; q++) if (z <= P2[q][0] && z >= P2[q + 1][0]) { var u = (P2[q][0] - z) / (P2[q][0] - P2[q + 1][0]), s2 = (1 - Math.cos(Math.PI * u)) / 2; return P2[q][1] + (P2[q + 1][1] - P2[q][1]) * s2; } return z > 0 ? -0.55 : -0.82; }
-      for (i = 0; i <= n; i++) {
-        var z = 0.98 - 2.06 * i / n, yr = 1.22 * Math.sqrt(Math.max(0, 1 - z * z / 1.32)) * 0.99, yc = corte(z), zc = z + (z < -0.3 ? -0.08 : 0.04), pts = [];
-        for (var k = 0; k <= 10; k++) { var u = k / 10; pts.push(W(K, v, 0, yr + (yc - yr) * u, z + (zc - z) * u + (z < 0 ? -0.06 : 0.05) * Math.sin(Math.PI * u))); }
-        tr.push(K.linea(K.plano(pts), [0.05 + i * 0.016, 0.2 + i * 0.016], '#4A4A55', 1.7));
-        tips.push(pts[pts.length - 1]);
-      }
+      var v = 'lateral', tr = [];
+      /* línea del corte de lado (z: + cara, − nuca): delante largo, por encima de la oreja y detrás de la oreja baja hasta la nuca
+         (19-10-2026, Fátima: «de lado falta más pelo» detrás de la oreja) */
+      var L = peloLado(K, v, { corte: tramosY([[1.0, -0.55], [0.6, -0.35], [0.32, 0.02], [0.05, 0.1], [-0.22, 0.02], [-0.42, -0.5], [-0.75, -0.78], [-1.1, -0.9]]), n: 36, t: [0.05, 0.6] }), tips = L.tips;
+      tr = tr.concat(L.tr);
       tr.push(K.linea(K.plano(tips.slice().reverse()), [0.62, 0.82], C_ROJO, 2.6, { d: 1 }));
       tr.push(K.tijera(K.plano(tips.slice().reverse()), [0.62, 0.82], C_ROJO, false));
       tr.push(K.rotulo('De lado: el cabello cae en líneas verticales', '#4A4A55', 0.05), K.rotulo('Línea del corte', C_ROJO, 0.45), K.rotulo('Nuca corta · por encima de la oreja · delante largo', C_ROJO, 0.62), K.rotulo('Largos: a validar por Fátima', '#8A6D3B', 0.85));
@@ -1006,6 +1061,7 @@
     { id: 'p_sobreproy', n: 'Particiones horizontales, pivote y sobreproyección', unidad: 'pe_u_base', uso: ['corte', 'color'], fn: sobreproy, fuente: 'Diseño de Fátima · con efecto colores' },
     { id: 'p_long_layers', n: 'Long Layers · proyección a un punto', unidad: 'pe_u_base', uso: ['corte'], fn: longLayers, fuente: 'Diseño de Fátima · forma de frente (Long Layers)' },
     { id: 'p_pixie', n: 'Pixie · abanico, flequillo en triángulo y espiga', unidad: 'pe_u_c_cortos', uso: ['corte'], fn: pixie, fuente: 'Diseño de Fátima · pixie corte diagrama' },
+    { id: 'p_formas_lineas', n: 'Formas del cabello en líneas · larga, bob redondeado y bob a una línea', unidad: 'pe_u_base', uso: ['corte'], fn: formasLineas, fuente: 'Referencias de Fátima · para dibujar en el maniquí' },
     { id: 'p_seg_quimica', n: 'Seguridad en los químicos · antes y después', unidad: 'pe_u_fund', uso: ['color', 'queratina'], fn: segQuimica, fuente: 'Reglas de Fátima · seguridad y errores comunes (9-10-2026)' }
   ];
   /* técnicas que otros módulos registran (cerebro de colorimetría…): van después de las del Cerebro de su unidad */
