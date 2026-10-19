@@ -768,6 +768,8 @@
      línea por línea, el cabello de cada sección como muchas líneas finas peinadas desde la raíz hasta donde se corta, con el
      mechón que se lleva a su elevación resaltado, su transportador y la tijera; lo cortado se queda dibujado y se ve el resultado.
      Sirve para cualquier corte porque todo sale de la receta: elevaciones, guía, línea de atrás y altura del frente. */
+  /* corte recto (sin desgrafilar): la tijera recorre una línea seguida, sin saltos entre una punta y otra */
+  function seguida(q) { return q.map(function (p, i) { var a = q.slice(Math.max(0, i - 3), i + 4); return [p[0], a.reduce(function (s2, o) { return s2 + o[1]; }, 0) / a.length]; }); }
   function escPeinado(R, v, calc) {
     var tr = [], frente = v === 'frente', lin = lineaDe(R), FY = FORMA_Y[lin], cero = !!R.cero, PELO = '#6B4A36';
     var pila = (frente && R.frente.pila.length ? R.frente.pila : R.capas.pila) || [0], n = Math.max(1, Math.min(7, pila.length));
@@ -811,7 +813,7 @@
       if (fuerte) { tr.push(mechon(fuerte, [ta, ta + dt * 0.45], '#FFFFFF', 7, ext), mechon(fuerte, [ta, ta + dt * 0.45], c, 3.6, ext)); var qf = fuerte[fuerte.length - 1]; tr.push(Object.assign({ k: 'n', x: qf[2], y: qf[3], s: cero ? (z ? '=' : '1') : String(g), c: c, t: [ta + dt * 0.45, 1] }, { x: tb })); }
       tips.sort(function (p, q) { return p[0] - q[0]; });
       var tramo = [];
-      tips.concat([null]).forEach(function (q) { if (q && (!tramo.length || q[0] - tramo[tramo.length - 1][0] < 50)) { tramo.push(q); return; } if (tramo.length > 1) tr.push(tijera(plano(tramo), [ta + dt * 0.5, ta + dt * 0.8], CORTE, R.desg, ext)); tramo = q ? [q] : []; });
+      tips.concat([null]).forEach(function (q) { if (q && (!tramo.length || q[0] - tramo[tramo.length - 1][0] < 50)) { tramo.push(q); return; } if (tramo.length > 1) tr.push(tijera(plano(R.desg ? tramo : seguida(tramo)), [ta + dt * 0.5, ta + dt * 0.8], CORTE, R.desg, ext)); tramo = q ? [q] : []; });
       /* Fátima, 19-10-2026: en el resultado cada capa queda resaltada en su color, con su número y su elevación */
       if (cortes.length > 1) {
         cortes.sort(function (p, q) { return p[0] - q[0]; });
@@ -829,6 +831,15 @@
       if (qc) { puestas.push(qc); tr.push({ k: 'n', x: qc[0], y: qc[1], s: (z + 1) + ' · ' + g + '°', c: c, t: [ta + dt * 0.85, 1] }); }
       tr.push(regla(z && !cero ? (pila[z - 1] || 0) : 0, g, [ta, ta + dt * 0.45], c, 'Línea ' + (z + 1), ext));
       tr.push(rotulo('Línea ' + (z + 1) + ' · ' + g + '°' + (cero ? (z ? ' · se baja a la guía y se corta en la misma línea' : ' · guía a un dedo') : (z ? '' : ' · guía')), c, ta, ext));
+    }
+    /* Fátima, 19-10-2026: «las divisiones de oreja a oreja y las particiones de atrás y de adelante nunca pueden desaparecer»:
+       se dibujan encima de los mechones durante toda la escena, entre las dos líneas de oreja a oreja */
+    var DIV = '#2C6FD1', t0 = [0, 0.03];
+    tr = tr.concat(lineas(tramos(v, function (u) { var t = -1.62 + u * 3.24; return t < 0 ? [IZQ - 0.12, -t] : [DER + 0.12, t]; }, 90), t0, DIV, 3.6));
+    tr = tr.concat(lineas(tramos(v, frente ? function (u) { return [CARA, u * 1.3]; } : function (u) { return [NUCA, 0.12 + u * 1.86]; }, 40), t0, TINTA, 3));
+    for (var zp = 0; zp < n - 1; zp++) {
+      var thp = frente ? 0.16 + (zp + 0.5) * (0.7 / n) : (thCapa(zp, n) + thCapa(zp + 1, n)) / 2;
+      tr = tr.concat(lineas(tramos(v, frente ? function (u) { return [IZQ - 0.12 + u * (Math.PI + 0.24), thp]; } : function (u) { return [NUCA - 1.45 + u * 2.9, thp]; }, 50), t0, DIV, 2.2, { d: 1 }));
     }
     tr.push(rotulo((v === 'nuca' ? 'Atrás' : v === 'lateral' ? 'De lado' : 'De frente') + ' · línea por línea', TINTA, 0.97));
     return { v: v, tr: tr, banda: true };
@@ -1093,6 +1104,8 @@
       var T = o[0], u = o[1], q = T.p; if (q.length < 4) return;
       x.strokeStyle = T.c; x.lineWidth = 3.4 * Math.max(0.6, s * 1.4); x.setLineDash([10, 6]); var n = parcial(q, u); camino(q, Math.min(n, q.length)); x.stroke(); x.setLineDash([]);
       var j = Math.min(q.length - 4, Math.max(0, n - 4)), ax = ox + q[j] * s, ay = oy + q[j + 1] * s, cx = ox + q[j + 2] * s, cy = oy + q[j + 3] * s, an = Math.atan2(cy - ay, cx - ax);
+      /* sin desgrafilar, la tijera va derecha a lo largo del corte (no gira con cada punta) */
+      if (!T.g) { var j0 = Math.max(0, j - 8), j1 = Math.min(q.length - 2, j + 10); if (j1 > j0) an = Math.atan2(q[j1 + 1] - q[j0 + 1], q[j1] - q[j0]); }
       if (T.g) { x.lineWidth = 2; for (var i = 0; i + 3 < Math.min(n, q.length); i += 2) { var mx = ox + (q[i] + q[i + 2]) / 2 * s, my = oy + (q[i + 1] + q[i + 3]) / 2 * s, pa = Math.atan2(q[i + 3] - q[i + 1], q[i + 2] - q[i]) + Math.PI / 2; x.beginPath(); x.moveTo(mx - Math.cos(pa) * 7, my - Math.sin(pa) * 7); x.lineTo(mx + Math.cos(pa) * 7, my + Math.sin(pa) * 7); x.stroke(); } }
       if (u <= 0 || u >= 1) return;
       var ab = 0.16 + 0.22 * (Math.sin(u * 90) + 1) / 2; x.save(); x.translate(cx, cy); x.rotate(an); x.strokeStyle = '#1F1B18'; x.fillStyle = '#1F1B18'; x.lineWidth = 3;

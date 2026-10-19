@@ -166,9 +166,9 @@
     var latC = fila('Capas (lateral)', ent('una cifra por línea · vacío = igual que el frente', 300));
     var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
     var alt = fila('Guía del frente', sel(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; })));
-    var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Redondeada (U)'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
+    var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Redondeada'], ['u', 'En U'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
     alt.value = 'nariz';
-    var aca = fila('Acabado', sel([['recto', 'Recto'], ['desgrafilado', 'Desgrafilado']]));
+    var aca = fila('Acabado', sel([['recto', 'Recto (cuadrado)'], ['v', 'En V'], ['u', 'En U'], ['desgrafilado', 'Desgrafilado']]));
     var lfr = fila('Puntas de delante', sel([['', 'Redondeadas'], ['recta', 'Rectas']]));
     var emp = fila('Emparejar', sel([['delante', 'Delante (atrás → delante)'], ['atras', 'Atrás (delante → atrás) · corte redondo'], ['no', 'No']]));
     var gui = fila('Guía por capa', ent('m = móvil, f = fija · ej.: m, m, f (vacío = todas móviles)', 300));
@@ -185,7 +185,7 @@
     var nota = document.createElement('div'); nota.style.cssText = 'margin:6px 0;color:#fbbf24;min-height:14px'; d.appendChild(nota);
     function nums(t) { return String(t || '').split(/[^0-9.]+/).filter(Boolean).map(Number).filter(function (n) { return !isNaN(n); }); }
     function leer() {
-      var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), lateral: nums(latC.value), part: par.value, altura: alt.value, linea: lin.value, acabado: aca.value,
+      var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), lateral: nums(latC.value), part: par.value, altura: alt.value, linea: /^[uv]$/.test(aca.value) ? aca.value : lin.value, acabado: /^[uv]$/.test(aca.value) ? 'recto' : aca.value,
         medidas: { guia: +mg.value || med0.guia, contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
         lineaFrente: lfr.value, emparejar: emp.value, guias: String(gui.value || '').split(/[^a-zA-Z]+/).filter(Boolean).map(function (x) { return /^f/i.test(x) ? 'f' : 'm'; }), ref: ref.value };
       if (cor.checked) { o.coronilla = true; var cg = nums(corG.value)[0]; if (cg != null) o.coronillaG = cg; }
