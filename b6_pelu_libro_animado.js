@@ -108,6 +108,7 @@
     }, function (er) { ESPERA = 0; console.warn('Técnicas animadas del libro', er); });
   }
   function repartir(res, cfg) {
+    if (res && res.C && res.C.cfg && res.C.cfg.materia === 'pelu') cfg = res.C.cfg;   /* 19-10-2026: el cfg con el nivel ya aplicado (b6_pelu_premium.js) */
     var PA = window.EU_PARTICIONES;
     if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || !PA || !window.EU_DIAGRAMA || (((cfg.acab || {}).animadas) === 'no')) return res;
     if (!window.EU_DIAGRAMA.fondosYa()) { prepararMotor(); return res; }

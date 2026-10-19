@@ -62,6 +62,7 @@
         /* el relleno se midió con la ficha de antes: la hoja de escena ya va llena con su explicación */
         var tocaF2 = cambio || pg.tipo === 'pe_foto';
         if (tocaF2) { pg.fill2 = { nada: 1 }; delete pg.llena; }
+        else if (f2 && f2.fig && pg.u) { var n3 = observaEst(pg, C, f2); if (n3) { pg.fill2 = n3; tocaF2 = 1; } }
         else if (f2 && !f2.fig && f2.its && f2.its.length && pg.u) { var n2 = rellenoVisual(pg, C, f2); if (n2) { pg.fill2 = n2; tocaF2 = 1; } }
         return function () { CUR = antes; if (cambio) pg.tipo = 'pe_corte'; if (tocaF2) { pg.fill2 = f2; if (ll !== undefined) pg.llena = ll; } };
       },
@@ -96,6 +97,18 @@
       '<img src="' + r.src + '" alt="' + es(r.e.t) + '" style="flex:1 1 auto;min-height:0;max-width:100%;object-fit:contain;display:block;border-radius:' + Math.min(T.r || 4, 6) + 'px">' +
       '<div style="flex:none;max-width:170mm;font-size:.85em;line-height:1.35;margin-top:1.5mm"><b style="color:' + T.acc + '">' + es(r.e.t) + '.</b> ' + es(r.e.texto || '') + '</div></div>';
     return Object.assign({}, f2, { its: its, fig: fig, figH: Math.min(h, 120), figT: /^cb_lam_/.test(r.e.tipo || '') ? 'Lámina en el maniquí' : 'En el maniquí' });
+  }
+  /* (19-10-2026, Fátima: «esa tarjeta no debe salir más») El bloque «Observa» del relleno (b6_relleno_total) guarda su figura
+     ya dibujada al armar el libro, fuera del pintado: ahí la tarjeta plana de Estudios se colaba con su «Por qué funciona».
+     Se cambia por la escena del maniquí de esa misma técnica, con su título y su explicación. */
+  function observaEst(pg, C, f2) {
+    var m = /data-modelo="(pe_est_(?!mio)[^"]+)"/.exec(String(f2.fig)); if (!m || /data-escena=/.test(f2.fig)) return null;
+    var r = escena(pg, C, m[1]); if (!r) return null;
+    var T = C.T, fig = '<div data-escena="' + es(r.e.tipo) + '" style="height:100%;width:100%;display:flex;flex-direction:column;align-items:center">' +
+      '<img src="' + r.src + '" alt="' + es(r.e.t) + '" style="flex:1 1 auto;min-height:0;max-width:100%;object-fit:contain;display:block;border-radius:' + Math.min(T.r || 4, 6) + 'px">' +
+      '<div style="flex:none;max-width:170mm;font-size:.85em;line-height:1.35;margin-top:1.5mm"><b style="color:' + T.acc + '">' + es(r.e.t) + '.</b> ' + es(r.e.texto || '') + '</div></div>';
+    var its = (f2.its || []).filter(function (x) { return !GENERICO.test(String(x && x.e || '').replace(/<[^>]+>/g, '')); });
+    return Object.assign({}, f2, { its: its, fig: fig, figT: /^cb_lam_/.test(r.e.tipo || '') ? 'Lámina en el maniquí' : 'En el maniquí' });
   }
   /* sin escena libre o con poco sitio: puntos de las clases de colorimetría de Fátima de esa unidad (su texto tal cual,
      de b6_color_cerebro_1-3), cada punto una sola vez en el libro */
@@ -151,6 +164,81 @@
     return true;
   }
   (function espera(n) { var a = enganchar(), b = a && fotoPagina(); if (!(a && b) && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
+
+  /* (19-10-2026, Fátima: «en el libro se tiene que ver el maniquí haciendo el procedimiento, sincronizado con el tema»)
+     En las unidades de corte (pe_u_c_*) y de técnica (cb_*), las páginas de texto genérico del motor general («Cerca de ti»:
+     «Fulano vive en… busca un ejemplo en tu barrio»; lecturas con «Encuesta de la clase» de votos inventados, «Investiga»,
+     «Un ejemplo cercano») pasan a ser «En el salón»: un corte de la unidad (o la técnica) en el maniquí, con su descripción,
+     sus elevaciones de la ficha técnica, la escena con su título y su explicación, y una pregunta del repaso de la unidad.
+     No añade hojas; las soluciones de las páginas sustituidas salen del solucionario. */
+  var GEN_PG = /^(ejemplo|lec_concepto|lec_lectura|lec_caso|lec_amplia|lec_proyecto)$/;
+  var PREF_CORTE = ['angulos', 'coronilla', 'emparejar', 'particion', 'seccion', 'guia', 'pulir', 'queda_frente', 'queda_lateral', 'queda_nuca', 'capas', 'lateral', 'frente'];
+  var ZN = ['nuca', 'nuca alta', 'occipital', 'parietal', 'lateral', 'coronilla', 'flequillo'];
+  function salonCambiar(res, cfg) {
+    if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || ((cfg.acab || {}).laminasLibro === 'no')) return res;
+    var quit = {}, k = {};
+    res.pages.forEach(function (p, i) {
+      if (!p.u || !GEN_PG.test(p.tipo) || !(/^(pe_u_c_|cb_)/.test(p.u.id) || (p.tipo === 'ejemplo' && /^pe_u_/.test(p.u.id)))) return;   /* 19-10-2026: «Cerca de ti» inventado («Daniela vive en…») también fuera de cortes y técnicas */
+      k[p.u.id] = (k[p.u.id] || 0);
+      res.pages[i] = { tipo: 'pe_salon', u: p.u, n: p.n, num: p.num, ks: k[p.u.id]++, fill2: { nada: 1 }, indice: p.indice };
+      quit[p.num] = 1;
+    });
+    res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return !quit[e.p]; }); });
+    return res;
+  }
+  /* escena de un corte de la unidad que aún no haya salido en estas páginas */
+  function escCorte(pg, C) {
+    var CO = window.EU_CORTES, DGL = window.EU_PELU_LIBRO_DG, DG = window.EU_DIAGRAMA; if (!CO || !DGL || !DG || !DGL.datos) return null;
+    var R = REG.get(C); if (!R) { R = { pg: new WeakMap(), usadas: {} }; REG.set(C, R); }
+    var porPg = R.pg.get(pg) || {}; if (porPg.salon !== undefined) return porPg.salon;
+    var L = CO.lista(pg.u.id.slice(7)), r = null;
+    for (var v = 0; v < L.length && !r; v++) {
+      var c = L[(pg.ks + v) % L.length], dg = { k: 'corte', corte: c.id }, d = DGL.datos(dg); if (!d || !d.E) continue;
+      var vis = {}; (d.vis || []).forEach(function (e) { vis[e.tipo] = 1; });
+      for (var j = 0; j < PREF_CORTE.length && !r; j++) {
+        var e = d.E.escenas.filter(function (x) { return x.tipo === PREF_CORTE[j]; })[0];
+        if (!e || vis[e.tipo] || R.usadas['dg|' + c.id + '|' + e.tipo]) continue;
+        var src = ''; try { src = DG.foto(e, 640, 0.8); } catch (er) { src = ''; }
+        if (src) { R.usadas['dg|' + c.id + '|' + e.tipo] = 1; r = { c: c, e: e, src: src }; }
+      }
+    }
+    porPg.salon = r; R.pg.set(pg, porPg); return r;
+  }
+  function salon(pg, C) {
+    var H = window.EU_EDITORIAL.H, T = C.T, u = pg.u, corte = /^pe_u_c_/.test(u.id), r = null, t = '', intro = '', ficha = '';
+    if (corte) {
+      r = escCorte(pg, C);
+      if (r) {
+        var Tc = (window.EU_CORTES.tecnica(r.c.id) || {}), ev = Tc.elev || [];
+        t = r.c.n; intro = r.c.d || '';
+        if (ev.length) ficha = ev.map(function (g, z) { return '<span style="display:inline-block;margin:0 1mm 1mm 0;padding:.4mm 2mm;border-radius:99px;background:' + T.soft + ';white-space:nowrap"><b style="color:' + T.acc + '">' + (z + 1) + ' · ' + ZN[z] + '</b> ' + g + '°</span>'; }).join('') +
+          '<div style="font-size:.88em;margin-top:.5mm">' + es([Tc.part ? 'Partición ' + String(Tc.part).toLowerCase() : '', Tc.her ? Tc.her : '', Tc.tipo ? 'corte ' + String(Tc.tipo).toLowerCase() : '', Tc.acabado ? 'acabado ' + String(Tc.acabado).toLowerCase() : ''].filter(Boolean).join(' · ')) + '</div>';
+        r = { e: r.e, src: r.src };
+      }
+    } else {
+      var x = escenaDe(pg, C, 'salon', tecsDe(u), pg.ks || 0, 1);
+      if (x) { r = x; t = u.t; intro = (u.i || [])[(pg.ks || 0) % Math.max(1, (u.i || []).length)] || ''; }
+    }
+    var rep = u.rep || [], q = null;
+    if (rep.length) { q = (corte && t ? rep.filter(function (y) { return String(y.p).indexOf(t) >= 0; })[0] : null) || rep[(pg.ks || 0) % rep.length]; }
+    var cab = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 2mm">' + (r ? 'En el salón · el maniquí paso a paso' : 'En el salón') + '</div>';
+    var cuerpo = H.h1(C, H.esc(t || u.t)) + (intro ? '<p style="margin:0 0 2mm">' + es(intro) + '</p>' : '') + (ficha ? '<div style="margin:0 0 2.5mm">' + ficha + '</div>' : '');
+    if (r) cuerpo += '<div style="height:' + (ficha ? 112 : 122) + 'mm;display:flex;justify-content:center;align-items:center"><img src="' + r.src + '" alt="' + es(r.e.t) + '" style="height:100%;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + Math.min(T.r || 4, 6) + 'px"></div>' +
+      '<div style="font-family:' + T.tit + ';font-weight:700;color:' + T.acc + ';margin:2.5mm 0 1mm">' + es(r.e.t) + '</div><p style="max-width:170mm;margin:0">' + es(r.e.texto || '') + '</p>';
+    else cuerpo += (u.i || []).map(function (s) { return '<p style="margin:0 0 2mm">' + es(s) + '</p>'; }).join('');
+    if (q) cuerpo += '<div style="margin:3mm 0 0;font-size:.92em"><b style="color:' + T.acc + '">Compruébalo.</b> ' + es(q.p) +
+      '<div style="margin-top:1mm">' + (q.o || []).map(function (o, i) { return '<span style="display:inline-block;margin:0 2mm 1mm 0;padding:.4mm 2.5mm;border:0.3mm solid ' + T.soft + ';border-radius:4px">' + 'abc'.charAt(i) + ') ' + es(o) + '</span>'; }).join('') + '</div>' +
+      '<div style="font-size:.85em;opacity:.75;margin-top:1mm">Respuesta: ' + es((q.o || [])[q.c] || '') + (q.x ? ' · ' + es(q.x) : '') + '</div></div>';
+    return H.cabecera(C, pg) + cab + cuerpo + H.folio(C, pg);
+  }
+  (function engancharSalon(n) {
+    var ED = window.EU_EDITORIAL;
+    if (!ED || !ED.registrar || !(ED.__enc || n > 80)) return setTimeout(function () { engancharSalon(n + 1); }, 300);
+    if (ED.__peluSalon) return; ED.__peluSalon = 1;
+    ED.registrar({ paginas: { pe_salon: salon } });
+    var ens = ED.ensamblar;
+    ED.ensamblar = function (cfg) { var r = ens.apply(this, arguments); try { salonCambiar(r, cfg); } catch (e) { console.warn('pelu · en el salón', e); } return r; };
+  })(0);
 
   /* escenas de una técnica que ya usó este libro (la página pe_tecnica no las repite) */
   function usadas(C, tec) { var R = REG.get(C), o = {}; if (R) Object.keys(R.usadas).forEach(function (k) { var a = k.split('|'); if (a[0] === tec) o[a[1]] = 1; }); return o; }

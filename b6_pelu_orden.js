@@ -276,18 +276,21 @@
     pages.forEach(function (p, i) {
       if (p.tipo !== 'pro_diagrama' || !p.u || p.u.m !== 'pelu' || !sobran.length) return;
       var w = pal(p.u.t + ' ' + (p.u.k || []).join(' ')), best = 0, bp = -1;
-      sobran.forEach(function (m, j) { var x = pal(m.n + ' ' + m.intro), s = 0; w.forEach(function (y) { if (x.indexOf(y) >= 0) s++; }); if (s > bp) { bp = s; best = j; } });
+      sobran.forEach(function (m, j) { if (p.u.mods && p.u.mods.indexOf(m.id) < 0) return;   /* solo dibujos de la propia unidad */
+        var x = pal(m.n + ' ' + m.intro), s = 0; w.forEach(function (y) { if (x.indexOf(y) >= 0) s++; }); if (s > bp) { bp = s; best = j; } });
+      if (bp < 0) return;
       var m = sobran.splice(best, 1)[0]; usados[m.id] = 1;
       pages[i] = { tipo: 'pe_corte', u: p.u, n: p.n, num: p.num, mod: m.id };
     });
     /* portadillas: un dibujo que no salga en ninguna otra página */
     pages.forEach(function (p) {
       if (p.tipo !== 'pro_capitulo' && p.tipo !== 'apertura' || !p.u || p.u.m !== 'pelu') return;
-      var w = pal(p.u.t + ' ' + (p.u.k || []).join(' ')), best = -1, bp = 0;
-      sobran.forEach(function (m, j) { var x = pal(m.n + ' ' + m.intro), s = 0; w.forEach(function (y) { if (x.indexOf(y) >= 0) s++; }); if (s > bp) { bp = s; best = j; } });
+      var w = pal(p.u.t + ' ' + (p.u.k || []).join(' ')), best = -1, bp = 0, mios = p.u.mods || [];
+      sobran.forEach(function (m, j) { if (mios.indexOf(m.id) < 0) return;   /* Fátima, 19-10-2026: solo dibujos de la propia unidad */
+        var x = pal(m.n + ' ' + m.intro), s = 0; w.forEach(function (y) { if (x.indexOf(y) >= 0) s++; }); if (s > bp) { bp = s; best = j; } });
       if (best >= 0) { p.portMod = sobran.splice(best, 1)[0].id; return; }
       if (p.u.id.indexOf('pe_u_c_') === 0) { var c0 = CO.lista(p.u.id.slice(7))[0]; if (c0) { var otro = CABS.filter(function (x) { return c0.mejor.indexOf(x) < 0; })[0]; if (otro) { p.portMod = [c0.id, otro]; return; } } }
-      if (sobran.length) p.portMod = sobran.shift().id;
+      for (var q = 0; q < sobran.length; q++) if (mios.indexOf(sobran[q].id) >= 0) { p.portMod = sobran.splice(q, 1)[0].id; return; }
     });
     return res;
   }

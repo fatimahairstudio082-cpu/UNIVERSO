@@ -106,8 +106,9 @@
       /* primero las láminas de la unidad (cada variante sale una sola vez), luego dibujos sin usar, luego apuntes */
       /* (una lámina idéntica a otra del libro —dos unidades con las mismas palabras— no cuenta) */
       if (u) { var j = lamU[u.id] || 0; while (j < VARIANTES.length && (!nodosDe(u, C, VARIANTES[j].de) || lamF[firma(u, C, j)])) j++; if (j < VARIANTES.length) { nu = { tipo: 'esc_lamina', u: u, n: pg.n, num: pg.num, lam: j }; lamU[u.id] = j + 1; lamF[firma(u, C, j)] = 1; } }
-      while (!nu && libres.length) {
-        var md = libres.shift(), V = MO.vis(md.id, C);
+      var lu = u && u.mods ? libres.filter(function (x) { return u.mods.indexOf(x.id) >= 0; }) : libres;   /* solo dibujos de la propia unidad */
+      while (!nu && lu.length) {
+        var md = lu.shift(); libres.splice(libres.indexOf(md), 1); var V = MO.vis(md.id, C);
         if (V) nu = { tipo: 'vis', u: u, n: pg.n, v: V, items: V.items, relleno: false, modeloLib: 1, gen: md.id, sem: ED.H.hash((u ? u.id : '') + ':esc:' + md.id + ':' + pg.num) + (C.semilla || 1) * 7919, num: pg.num };
       }
       if (!nu && m[2]) return;
@@ -123,7 +124,8 @@
     pages.forEach(function (p) {
       if (!libres.length || !p.u || p.portMod || !/^(apertura|ejemplo)$/.test(p.tipo)) return;
       var cl = pal(sub(p.u.t, C) + ' ' + (p.u.k || []).join(' ')), mejor = -1, pm = 0;
-      libres.forEach(function (m, j) { var w = pal(m.n + ' ' + (m.intro || '')), q = 0; cl.forEach(function (x) { if (w.indexOf(x) >= 0) q++; }); if (q > pm) { pm = q; mejor = j; } });
+      libres.forEach(function (m, j) { if (p.u.mods && p.u.mods.indexOf(m.id) < 0) return;   /* Fátima, 19-10-2026: solo dibujos de la propia unidad (antes la plancha salía en un corte) */
+        var w = pal(m.n + ' ' + (m.intro || '')), q = 0; cl.forEach(function (x) { if (w.indexOf(x) >= 0) q++; }); if (q > pm) { pm = q; mejor = j; } });
       if (mejor >= 0) { p.portMod = libres[mejor].id; libres.splice(mejor, 1); }
     });
     apuntarModelos(pages, C);

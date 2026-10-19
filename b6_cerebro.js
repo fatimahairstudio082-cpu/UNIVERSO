@@ -173,23 +173,23 @@
         proporciones: '1 : 2',
         productos: ['Decolorante en polvo sin amoníaco', 'Oxidante 20 vol', 'Protector de enlaces', 'Matizador violeta'],
         cantidades: '40 g + 80 ml',
-        tiempos: '25 a 45 min a ojo, comprobando cada 10',
-        temperaturas: 'Aire libre, sin papel ni calor.',
-        herramientas: ['Tabla de balayage', 'Pincel de lengua', 'Peine de cerda', 'Pinzas'],
-        seguridad: ['Mascarilla al mezclar el polvo decolorante', 'Plex dentro de la mezcla', 'Nada de calor: al aire, como pide la técnica'],
-        errores: ['Empezar el barrido demasiado alto y perder la raíz natural', 'Cargar producto en el borde y marcar una línea dura', 'Tapar con papel: se pierde el efecto barrido'],
-        recomendaciones: ['Menos producto en el arranque, más en la punta', 'Comprobar el levantamiento cada diez minutos', 'Matizar siempre después']
+        tiempos: 'Revisar a los 15, 25 y 30 min según la pigmentación y la degradación (tono y fondo de aclaración)',
+        temperaturas: 'Cada mechón en papel de aluminio: sin aluminio se mancha todo el cabello.',
+        herramientas: ['Paleta', 'Papel de aluminio', 'Pincel de lengua', 'Peine de cerda', 'Pinzas'],
+        seguridad: ['Mascarilla al mezclar el polvo decolorante', 'Plex dentro de la mezcla', 'Paleta y después papel de aluminio en cada mechón: sin aluminio se mancha todo el cabello'],
+        errores: ['Empezar el barrido demasiado alto y perder la raíz natural', 'Cargar producto en el borde y marcar una línea dura', 'Dejar el mechón sin papel de aluminio: se mancha todo el cabello'],
+        recomendaciones: ['Menos producto en el arranque, más en la punta', 'Un dedo de separación entre mechón y mechón, dejando cabello que corre entre las divisiones', 'Revisar a los 15, 25 y 30 minutos el tono y el fondo de aclaración que va tomando', 'Matizar siempre después']
       }),
       pasos: [
         { t: 'Oreja a oreja', n: 'Separa el casquete de la nuca con la línea de oreja a oreja.', e: 'Dejar la línea torcida y desnivelar el barrido.', d: 4, fase: 'divisiones' },
         { t: 'Altura de arranque', n: 'Decide desde qué punto arranca el barrido. Cuanto más bajo, más natural.', e: 'Arrancar por encima del cuarenta por ciento sin querer.', d: 5, fase: 'divisiones' },
-        { t: 'Mechón sobre tabla', n: 'Coloca el mechón en la tabla y barre con la punta del pincel.', e: 'Aplastar el pincel y cargar el borde.', d: 7, fase: 'aplicacion' },
+        { t: 'Mechón en la paleta y papel de aluminio', n: 'Coloca el mechón en la paleta y barre con la punta del pincel. Después cubre el mechón con papel de aluminio. Entre mechón y mechón deja un dedo de separación, con cabello que corre entre las divisiones.', e: 'Dejar el mechón sin papel de aluminio: se mancha todo el cabello.', d: 7, fase: 'aplicacion' },
         { t: 'Degradado', n: 'Poco producto arriba, saturado en la punta. Sin bordes duros.', e: 'Línea dura en el arranque.', d: 6, fase: 'aplicacion' },
-        { t: 'Al aire', n: 'Deja actuar al aire y comprueba el levantamiento cada diez minutos.', e: 'Envolver en papel y sobreprocesar.', d: 5, fase: 'tiempo' },
+        { t: 'Revisar a los 15, 25 y 30 minutos', n: 'Revisa a los 15, 25 y 30 minutos, según la pigmentación y la degradación del cabello, el tono y el fondo de aclaración que va tomando. El polvo decolorante pierde consistencia después de preparado: a los 25 minutos se mira el contraste.', e: 'No revisar el tono ni el fondo de aclaración que va tomando.', d: 5, fase: 'tiempo' },
         { t: 'Matiz', n: 'Aclara y matiza en función del fondo de decoloración.', e: 'Saltarse el matizado y quedarse en naranja.', d: 4, fase: 'cierre' }
       ],
       repaso: [
-        { p: '¿Por qué el balayage se deja al aire?', o: ['Para ahorrar papel', 'Para que el degradado quede suave y sin línea', 'Para que procese más rápido'], c: 1, x: 'El papel concentra calor y marca el borde. Al aire, el aclarado se difumina solo.' },
+        { p: '¿Por qué cada mechón del balayage va en papel de aluminio?', o: ['Para que procese más rápido', 'Porque sin aluminio se mancha todo el cabello', 'Para ahorrar producto'], c: 1, x: 'Primero la paleta y después el papel de aluminio en cada mechón, con un dedo de separación: sin aluminio se mancha todo el cabello.' },
         { p: 'Un arranque al 30 % da un resultado…', o: ['Más natural y bajo', 'Más contrastado y alto', 'Igual que al 70 %'], c: 0, x: 'Cuanto más bajo el porcentaje, más lejos de la raíz empieza el aclarado y más discreto se ve.' }
       ]
     },
@@ -258,7 +258,7 @@
         proporciones: '1 : 1,5',
         productos: ['Decolorante en polvo', 'Oxidante 20 vol', 'Aluminio', 'Protector de enlaces'],
         cantidades: '60 g + 90 ml',
-        tiempos: '35 a 45 min bajo papel. El papel guarda calor y acelera: se mira, no se cronometra.',
+        tiempos: 'Revisar a los 15, 25 y 30 min según la pigmentación y la degradación (tono y fondo de aclaración). El polvo pierde consistencia: a los 25 min se mira el contraste.',
         temperaturas: 'Ambiente. Nunca secador sobre el papel.',
         herramientas: ['Peine de cola', 'Aluminio precortado', 'Pincel de 3 cm', 'Pinzas'],
         seguridad: ['El polvo decolorante se respira: mascarilla al mezclar y bol fuera de la cara', 'Nunca decolorar sobre henna o tintes con sales metálicas: reacciona y puede hervir', 'Plex en la mezcla, no después: protege durante el proceso'],
@@ -268,10 +268,10 @@
       pasos: [
         { t: 'Cuatro secciones', n: 'Cuartea la cabeza con la media y la oreja a oreja.', e: 'Cuartos desiguales.', d: 4, fase: 'divisiones' },
         { t: 'Tejido', n: 'Toma la sección y teje con la cola del peine, grosor parejo.', e: 'Mezclar grosores y ver el resultado a rayas.', d: 6, fase: 'divisiones' },
-        { t: 'Colocar el papel', n: 'Papel pegado a la raíz, mecha encima, aplica sin desbordar.', e: 'Producto fuera y manchas en la sección vecina.', d: 7, fase: 'aplicacion' },
+        { t: 'Colocar el papel', n: 'El mechón en la paleta, se aplica sin desbordar y después se cubre con el papel de aluminio. Entre mechón y mechón, un dedo de separación, dejando cabello que corre entre las divisiones.', e: 'Producto fuera y manchas en la sección vecina.', d: 7, fase: 'aplicacion' },
         { t: 'Doblar', n: 'Dobla el borde inferior y los laterales. El papel tiene que aguantar solo.', e: 'Doblez flojo que se abre al peinar.', d: 5, fase: 'aplicacion' },
         { t: 'Ladrillo', n: 'La fila siguiente va desplazada media mecha.', e: 'Alinear filas y crear columnas.', d: 5, fase: 'aplicacion' },
-        { t: 'Control', n: 'Comprueba el primer papel a los treinta minutos.', e: 'Abrir el último en vez del primero.', d: 5, fase: 'tiempo' },
+        { t: 'Control', n: 'Revisa a los 15, 25 y 30 minutos, según la pigmentación y la degradación del cabello, el tono y el fondo de aclaración que va tomando. El polvo decolorante pierde consistencia después de preparado: a los 25 minutos se mira el contraste. Se empieza por el primer papel que se puso.', e: 'Abrir el último en vez del primero.', d: 5, fase: 'tiempo' },
         { t: 'Aclarado y matiz', n: 'Retira, aclara, lava y matiza según el fondo.', e: 'Matizar sin secar la toalla.', d: 4, fase: 'cierre' }
       ],
       repaso: [

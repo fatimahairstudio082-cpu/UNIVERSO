@@ -499,7 +499,8 @@
     });
     (u.q || []).forEach(function (q) { pool.push(it('abierta', sub(q, C), '', { lin: C.peque ? 2 : 3 })); });
     (u.err || []).forEach(function (e) { pool.push(it('abierta', 'Error frecuente: «' + e + '». ¿Qué harías para evitarlo?', '', { lin: 2 })); });
-    (u.k || []).forEach(function (k0) {
+    /* Peluquería (Fátima, 19-10-2026): sin plantillas genéricas («busca un ejemplo…», «escribe una oración…»); solo su contenido */
+    if (u.m !== 'pelu') (u.k || []).forEach(function (k0) {
       var k = sub(k0, C);
       MARCOS.forEach(function (f) {
         var e = sub(f(k, C), C);
@@ -513,7 +514,8 @@
     var g = GEN[u.g], out = [], gen = generico(u, C, r), gi = 0;
     for (var i = 0; i < n; i++) {
       if (g && (r() < 0.72 || !gen.length)) { var gx = g(u, C, r); gx.e = sub(gx.e, C); out.push(gx); }
-      else if (gen.length) out.push(gen[gi++ % gen.length]);
+      else if (gen.length && !(u.m === 'pelu' && gi >= gen.length)) out.push(gen[gi++ % gen.length]);
+      else if (u.m === 'pelu') break;   /* sin repetir la misma pregunta */
       else out.push(it('abierta', 'Escribe lo más importante que has aprendido en «' + sub(u.t, C) + '».', '', { lin: 3 }));
     }
     return out;
