@@ -38,7 +38,10 @@
   if (window.EU_MODELOS) window.EU_MODELOS.lista('pelu', 'div').forEach(function (m) { M.base.push(m.id); });
   /* familia del cerebro → grupo de modelos y bloque del libro */
   var CEREBRO = { 'Colorimetría': ['color', 1], 'Mechas': ['mechas', 2], 'Hidratación': ['quim', 3], 'Queratina y alisado': ['quim', 3],
-    'Químicos': ['quim', 3], 'Técnicas de cabello': ['pei', 4], 'Cejas': ['est', 9], 'Pestañas': ['est', 9], 'Maquillaje': ['est', 9] };
+    'Químicos': ['quim', 3], 'Técnicas de cabello': ['pei', 4], 'Cejas': ['reg', 8], 'Pestañas': ['reg', 8], 'Maquillaje': ['est', 9] };
+  /* 22-10-2026 (Fátima): cejas (con su depilación) y pestañas van de regalo en un bloque aparte al final, sin dibujos de
+     la biblioteca de cabello; maquillaje y uñas no */
+  M.reg = [];
 
   function R(p, o, c, x) { return { p: p, o: o, c: c, x: x }; }
   function mezcla(r, k) { var n = r.o.length, s = k % n; r.o = r.o.slice(s).concat(r.o.slice(0, s)); r.c = (r.c - s + n) % n; return r; }
@@ -142,7 +145,8 @@
        técnicas; siguen en EU_CORTES y en Guías 3D. Para volver a mostrarlos: window.EU_PELU_CABALLERO = true. */
     if (window.EU_CORTES) window.EU_CORTES.familias().forEach(function (fa) { if (/^cab_/.test(fa.id) && !window.EU_PELU_CABALLERO) return; try { out.push(unidadCorte(fa)); } catch (e) { } });
     [1, 2, 3, 4].forEach(function (b) { out = out.concat(bloques[b]); });
-    out.push(F.neg);
+    /* 22-10-2026 (Fátima): sin la unidad «El salón como negocio» (F.neg sigue definida, no se muestra) */
+    bloques[8].forEach(function (u) { if (!/^Regalo · /.test(u.t || '')) u.t = 'Regalo · ' + u.t; u.regalo = true; out.push(u); });
     if (EST) { var e = bloques[9]; if (e.length) e[0].mods = M.est; out = out.concat(e); }
     return out;
   }

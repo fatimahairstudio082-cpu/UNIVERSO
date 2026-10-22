@@ -13,7 +13,11 @@
     /* 19-10-2026 (Fátima): sin caballero (fade con máquina) y sin la agenda con «Corte caballero» y tiempos que no son suyos */
     'pe_fade_niveles', 'pe_tiempo_servicio',
     /* 19-10-2026 (Fátima, auditoría): sin barbería (arreglo de barba) ni cera capilar (productos de fijación) */
-    'pe_barba', 'pe_productos_fijar'];
+    'pe_barba', 'pe_productos_fijar',
+    /* 22-10-2026 (Fátima): el curso es de peluquería y colorimetría — sin recogidos ni peinados de evento (secado, brushing
+       y ondas con plancha se quedan), sin negocio, y extensiones ocultas hasta que grabe su vídeo (para volver: quitar de aquí) */
+    'pe_trenza', 'pe_mono', 'pe_coleta', 'pe_ondas', 'pe_novia', 'pe_cardado', 'pe_semirrecogido', 'pe_extensiones',
+    'pe_precio', 'pe_agenda', 'pe_redes_salon', 'pe_venta_productos'];
   var NO = {}; FUERA.forEach(function (id) { NO[id] = 1; });
 
   var lista0 = MO.lista, modelo0 = MO.modelo;
