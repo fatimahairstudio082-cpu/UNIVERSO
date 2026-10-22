@@ -29,7 +29,30 @@
     ['mechas_gorro_2.jpg', 'foto_mechas_gorro_2', [/^cb_mechas_gorro$/], 1],
     ['balayage_90.jpg', 'foto_balayage_90', [/^cb_color_balayage$/], 1],
     ['balayage_guia.jpg', 'foto_balayage_guia', [/^cb_color_balayage$/], 1],
-    ['balayage_antes_despues.jpg', 'foto_balayage_antes_despues', [/^cb_color_balayage$/], 1]
+    ['balayage_antes_despues.jpg', 'foto_balayage_antes_despues', [/^cb_color_balayage$/], 1],
+    /* 22-10-2026, Fátima (su Drive, también las imágenes hechas con ChatGPT): cada una en su módulo */
+    ['capa_herramientas.jpg', 'foto_capa_herramientas', [/^pe_u_fund$/], 1],
+    ['peine_tijera.jpg', 'foto_peine_tijera', [/^pe_u_fund$/], 1],
+    ['lavado.jpg', 'foto_lavado', [/^pe_u_cab$/]],
+    ['elevacion_45.jpg', 'foto_elevacion_45', [/^pe_u_base$/]],
+    ['diagrama_0_225.jpg', 'foto_diagrama_0_225', [/^pe_u_base$/], 1],
+    ['infografia_seccionado.jpg', 'foto_infografia_seccionado', [/^pe_u_base$/], 1],
+    ['alumnas_vertical.jpg', 'foto_alumnas_vertical', [/^pe_u_base$/], 1],
+    ['con_maniqui.jpg', 'foto_con_maniqui', [/^pe_u_base$/], 1],
+    ['corte_horizontal.jpg', 'foto_corte_horizontal', [/^pe_u_c_basicos$/]],
+    ['tipos_de_cortes.jpg', 'foto_tipos_de_cortes', [/^pe_u_c_basicos$/], 1],
+    ['cuatro_cortes.jpg', 'foto_cuatro_cortes', [/^pe_u_c_melenas$/]],
+    ['corte_vertical.jpg', 'foto_corte_vertical', [/^pe_u_c_capas$/], 1],
+    ['guia_cortes_vertical_horizontal.jpg', 'foto_guia_cortes', [/^pe_u_c_capas$/], 1],
+    ['tres_cortes_v_picado.jpg', 'foto_tres_cortes', [/^pe_u_c_moda$/], 1],
+    ['yo_explicando_colorimetria.jpg', 'foto_explicando_color', [/^cb_color_global$/], 1],
+    ['cuenta_color_ejemplo.jpg', 'foto_cuenta_color', [/^cb_color_global$/], 1],
+    ['neutralizacion.jpg', 'foto_neutralizacion', [/^cb_quim_decoloracion$/], 1],
+    ['matizacion_papel.jpg', 'foto_matizacion', [/^cb_quim_decoloracion$/], 1],
+    ['revisando_mechas.jpg', 'foto_revisando_mechas', [/^cb_mechas_aluminio$/], 1],
+    ['mechas_cabello_corto.jpg', 'foto_mechas_corto', [/^cb_mechas_aluminio$/], 1],
+    ['guia_mechas_cuadricula.jpg', 'foto_guia_mechas', [/^cb_mechas_aluminio$/], 1],
+    ['guia_balayage_zigzag.jpg', 'foto_guia_balayage', [/^cb_color_balayage$/], 1]
   ];
   var DATA = {};
   FOTOS.forEach(function (f) {
