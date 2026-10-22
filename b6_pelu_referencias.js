@@ -114,36 +114,82 @@
     CU.unidades._peRef = 1;
   }
 
-  /* ─────────── libro: página «Cómo queda · referencias visuales» ───────────
-     Hasta 6 imágenes por hoja (2 columnas) con su nombre. Solo ocupa huecos que quedan libres en su unidad cuando ya se
-     colocaron las técnicas animadas y los diagramas (página llegada sin contenido, actividad o figura de relleno,
-     lecturas a partir de la 2.ª); nunca añade hojas. `cfg.acab.referencias = 'no'` lo apaga. */
+  /* ─────────── libro: una hoja por referencia (Fátima, 22-10-2026: «por hojas: el contenido escrito, el maniquí con la
+     forma del corte, la imagen de referencia y el texto explicativo; sencillo, no cargado») ───────────
+     Página `pe_ref_corte`: la imagen de referencia, el maniquí con el corte de base (una escena «cómo queda» o del
+     paso a paso, distinta en cada hoja del mismo corte) y el texto de la ficha de ese corte en EU_CORTES (descripción,
+     elevación por zonas, sección, herramienta, acabado, resultado y pasos). Si la imagen se parece a un corte del sistema
+     (columna 4 de REF) ese es su corte; si no, el corte de base propuesto en BASE, marcado «a validar por Fátima».
+     Primero ocupa huecos de su unidad (página sin contenido, relleno, lecturas a partir de la 2.ª) que dejan libres las
+     técnicas animadas y los diagramas; las demás van en hojas nuevas detrás del diagrama de su corte de base (o al final
+     de la unidad, antes del tutor). `cfg.acab.referencias = 'huecos'` solo huecos; `'no'` lo apaga. */
+  var BASE = {
+    39: 'basico_cuadrado',
+    1: 'bob_recto', 3: 'carre_a', 5: 'bob_recto', 8: 'carre_a', 9: 'bob_recto', 10: 'lob', 17: 'lob', 19: 'lob', 56: 'bob_recto',
+    14: 'desfilado_punta', 22: 'capas_90', 23: 'capas_90', 24: 'capas_largas', 25: 'capas_largas', 31: 'desfilado_punta', 32: 'capas_largas',
+    33: 'capas_largas', 34: 'desfilado_punta', 36: 'capas_largas', 38: 'capas_largas', 40: 'capas_largas', 66: 'capas_90',
+    42: 'pixie', 43: 'pixie', 51: 'pixie_desfilado',
+    11: 'media_45', 12: 'media_45', 28: 'shag',
+    18: 'fleq_recto', 64: 'fleq_desfilado', 65: 'fleq_cortina',
+    37: 'rizo_seco', 83: 'rizo_seco',
+    30: 'wolf', 68: 'butterfly', 69: 'blunt', 74: 'shag', 75: 'french_bob', 76: 'capas_largas', 77: 'shag', 78: 'shag',
+    81: 'blunt', 82: 'capas_90', 84: 'basico_cuadrado', 89: 'lob', 91: 'bob_recto', 92: 'capas_cara', 93: 'bob_recto', 94: 'bob_recto',
+    95: 'lob', 96: 'bob_recto', 97: 'capas_90', 98: 'capas_largas', 99: 'lob',
+    85: 'capas_cara', 87: 'capas_cara', 88: 'capas_cara'
+  };
+  var ZN = ['Nuca', 'Nuca alta', 'Occipital', 'Parietal', 'Lateral', 'Coronilla', 'Flequillo'];
+  var VISTAS_REF = ['queda_lateral', 'queda_nuca', 'queda_frente', 'queda_corto_lateral', 'queda_corto_nuca', 'lateral', 'frente', 'capas', 'angulos', 'peinado_lado', 'peinado_atras'];
   var ED = window.EU_EDITORIAL;
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function porId(id) { var n = +String(id).slice(7); for (var i = 0; i < REF.length; i++) if (REF[i][0] === n) return REF[i]; return null; }
-  function nombreCorte(r) { var CO = window.EU_CORTES, c = r && r[3] && CO && CO.get ? CO.get(r[3]) : null; return c ? c.n : ''; }
-  function filasDe(C) { var h = (C.papel && C.papel.h) || 297; return h >= 250 ? 3 : h >= 200 ? 2 : 1; }
+  function baseDe(r) { return r[3] || BASE[r[0]] || ''; }
+  function corteDe(id) { var CO = window.EU_CORTES; return id && CO && CO.get ? CO.get(id) : null; }
+  /* escenas del maniquí del corte de base: la vista k-ésima libre (cada hoja del mismo corte enseña otra) */
+  function escenaDe(corte, k) {
+    var LD = window.EU_PELU_LIBRO_DG; if (!LD || !LD.datos || !corte) return null;
+    var dg = { k: 'corte', corte: corte }, d = null; try { d = LD.datos(dg); } catch (e) { d = null; }
+    if (!d || !d.E) return null;
+    var hay = VISTAS_REF.filter(function (t) { return d.E.escenas.some(function (e) { return e.tipo === t; }); });
+    if (!hay.length) return null;
+    var t = hay[k % hay.length], e = d.E.escenas.filter(function (x) { return x.tipo === t; })[0], f = '';
+    try { f = LD.fotoEscena(dg, t); } catch (er) { f = ''; }
+    return f ? { t: e.t, texto: e.texto, foto: f } : null;
+  }
   if (ED && ED.registrar) {
     ED.registrar({
       paginas: {
-        pe_ref_galeria: function (pg, C) {
-          var H = ED.H, w = ((C.papel && C.papel.w) || 210) - 40, col = (w - 6) / 2, T = C.T || {}, acc = T.acc || '#B08D57';
-          var cel = (pg.refs || []).map(function (id) {
-            var r = porId(id); if (!r) return '';
-            var cn = nombreCorte(r);
-            return '<div style="width:' + col.toFixed(1) + 'mm;break-inside:avoid">' +
-              '<div style="position:relative;border-radius:2mm;overflow:hidden;background:#EEF0F3;border:0.3mm solid ' + (T.soft || '#d9dde3') + '">' +
-              '<img src="' + src(r[0]) + '" alt="' + esc(r[1]) + '" style="display:block;width:100%;height:' + (col * 0.6).toFixed(1) + 'mm;object-fit:contain">' +
-              '<span style="position:absolute;right:1.5mm;bottom:1.5mm;font:600 6.5pt Archivo,Helvetica,Arial,sans-serif;color:#fff;background:rgba(22,34,58,.72);padding:.4mm 1.6mm;border-radius:1mm">Referencia · IA</span></div>' +
-              '<div style="margin:1.4mm 0 3.2mm;font-weight:700;font-size:.95em">' + esc(r[1]) + '</div>' +
-              (cn ? '<div style="margin:-2.4mm 0 3.2mm;font-size:.8em;opacity:.8">Se parece al «' + esc(cn) + '» del curso</div>' : '') + '</div>';
-          }).join('');
-          return H.cabecera(C, pg) + H.h1(C, 'Cómo queda · referencias visuales') +
-            '<p style="margin:0 0 4mm;max-width:' + w.toFixed(0) + 'mm;border-left:1.2mm solid ' + acc + ';padding-left:3mm">Imágenes de referencia (IA): el corte terminado de frente, de lado y de atrás. La técnica, las secciones y las elevaciones son las del maniquí y su ficha.</p>' +
-            '<div style="display:flex;flex-wrap:wrap;gap:0 6mm;width:' + w.toFixed(1) + 'mm">' + cel + '</div>' + H.folio(C, pg);
+        pe_ref_corte: function (pg, C) {
+          var H = ED.H, T = C.T || {}, acc = T.acc || '#B08D57', soft = T.soft || '#EEF0F3', r = porId(pg.ref); if (!r) return '';
+          var w = ((C.papel && C.papel.w) || 210) - 40, alto = ((C.papel && C.papel.h) || 297) >= 250, b = baseDe(r), c = corteDe(b);
+          var TE = c && window.EU_CORTES.tecnica ? (window.EU_CORTES.tecnica(c.id) || {}) : {}, ev = TE.elev || [];
+          var esc1 = escenaDe(b, pg.vista || 0);
+          var img = '<figure style="margin:0 0 3mm;position:relative;border-radius:2mm;overflow:hidden;background:' + soft + '">' +
+            '<img src="' + src(r[0]) + '" alt="' + esc(r[1]) + '" style="display:block;width:100%;height:' + (alto ? 66 : 48) + 'mm;object-fit:contain">' +
+            '<span style="position:absolute;right:1.5mm;bottom:1.5mm;font:600 6.5pt Archivo,Helvetica,Arial,sans-serif;color:#fff;background:rgba(22,34,58,.72);padding:.4mm 1.6mm;border-radius:1mm">Referencia · IA · frente, lado y atrás</span></figure>';
+          var man = esc1 ? '<figure style="margin:0;background:' + soft + ';border-radius:2mm;padding:1.5mm"><img src="' + esc1.foto + '" alt="' + esc(esc1.t) + '" style="display:block;width:100%;height:auto;border-radius:1.5mm">' +
+            '<figcaption style="font-size:.66em;line-height:1.3;margin-top:1.2mm"><b style="color:' + acc + '">Maniquí · ' + esc(esc1.t) + '</b><br>' + esc(esc1.texto || '') + '</figcaption></figure>' : '';
+          var chips = ev.length ? ev.map(function (g, z) { return '<span style="display:inline-block;margin:0 1mm 1mm 0;padding:.3mm 1.8mm;border-radius:99px;background:' + soft + ';white-space:nowrap"><b style="color:' + acc + '">' + ZN[z] + '</b> ' + g + '°</span>'; }).join('') : '';
+          var pasos = (TE.notas || []).slice(0, alto ? 8 : 3);
+          var txt = '<div style="font-size:.78em;line-height:1.42">' +
+            (c ? '<div style="margin:0 0 1.6mm"><b>' + (r[3] ? 'Corte del curso:' : 'Corte de base propuesto:') + '</b> «' + esc(c.n) + '». ' + esc(c.d || '') + '</div>' : '') +
+            (!r[3] && c ? '<div style="margin:0 0 1.6mm;color:#A0522D;font-weight:700">Relación imagen–corte propuesta por el sistema, a validar por Fátima.</div>' : '') +
+            (chips ? '<div style="margin:0 0 1.2mm"><b>Elevación por zonas:</b><div style="margin-top:1mm">' + chips + '</div></div>' : '') +
+            (TE.part ? '<div><b>Sección:</b> ' + esc(TE.part) + (TE.her ? ' · <b>Herramienta:</b> ' + esc(TE.her) : '') + (TE.acabado ? ' · <b>Acabado:</b> ' + esc(TE.acabado) : '') + '</div>' : '') +
+            (TE.resultado ? '<div style="margin-top:1mm"><b>Resultado:</b> ' + esc(TE.resultado) + '</div>' : '') +
+            (pasos.length ? '<ol style="margin:1.6mm 0 0;padding-left:4.5mm">' + pasos.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ol>' : '') + '</div>';
+          var cuerpo = man ? '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:4mm;align-items:start">' + man + txt + '</div>' : txt;
+          return H.cabecera(C, pg) +
+            '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + acc + ';margin:0 0 1.5mm">Cómo queda · referencia visual y maniquí</div>' +
+            H.h1(C, esc(r[1])) + img + cuerpo +
+            (alto ? '<div style="margin-top:4mm;padding:2.5mm 3.5mm;border-left:1.2mm solid ' + acc + ';background:' + soft + ';border-radius:1.5mm;font-size:.78em;line-height:1.45"><b>Repaso</b>' + preguntas(r).slice(0, 2).map(function (q, i) { return '<div style="margin-top:1.4mm">' + (i + 1) + '. ' + esc(q[0]) + '<br><span style="opacity:.75">Respuesta: ' + esc(q[1]) + '</span></div>'; }).join('') + '</div>' : '') +
+            '<p style="font-size:.7em;opacity:.75;margin:3mm 0 0">La imagen enseña el resultado; el maniquí y la ficha, cómo se llega a él.</p>' + H.folio(C, pg);
         }
       },
-      voz: { pe_ref_galeria: function (pg) { return 'Cómo queda. Referencias visuales: ' + (pg.refs || []).map(function (id) { var r = porId(id); return r ? r[1] : ''; }).filter(Boolean).join(', ') + '.'; } }
+      voz: { pe_ref_corte: function (pg) {
+        var r = porId(pg.ref); if (!r) return '';
+        var c = corteDe(baseDe(r)), TE = c && window.EU_CORTES.tecnica ? (window.EU_CORTES.tecnica(c.id) || {}) : {};
+        return r[1] + '. Así queda de frente, de lado y de atrás. ' + (c ? (r[3] ? 'Es el corte «' : 'Corte de base propuesto: «') + c.n + '». ' + (c.d || '') + ' ' : '') + (TE.resultado ? 'Resultado: ' + TE.resultado : '');
+      } }
     });
   }
   function huecos(res, uid) {
@@ -160,41 +206,37 @@
   function repartir(res) {
     var C = res && res.C, cfg = C && C.cfg;
     if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || ((cfg.acab || {}).referencias) === 'no') return res;
-    var ya = {}, porU = {}, orden = [], quitadas = {}, n = 0, fil = filasDe(C) * 2;
-    res.pages.forEach(function (p) { (p.refs || []).forEach(function (id) { ya[id] = 1; }); });
+    var ya = {}, porU = {}, orden = [], quitadas = {}, n = 0, vistas = {};
+    res.pages.forEach(function (p) { if (p.tipo === 'pe_ref_corte') ya[p.ref] = 1; });
     res.pages.forEach(function (p) {
       if (!p.u || porU[p.u.id]) return;
-      var L = REF.filter(function (r) { return uniDe(r[2]) === p.u.id && !ya[idDe(r[0])]; }).map(function (r) { return idDe(r[0]); });
+      var L = REF.filter(function (r) { return uniDe(r[2]) === p.u.id && !ya[idDe(r[0])]; });
       if (L.length) { porU[p.u.id] = L; orden.push(p.u.id); }
     });
+    function hoja(r, p) { var b = baseDe(r), k = vistas[b] = (vistas[b] == null ? 0 : vistas[b] + 1); return { tipo: 'pe_ref_corte', u: p.u, n: p.n, num: p.num, ref: idDe(r[0]), base: b, vista: k, fill2: { nada: 1 } }; }
     orden.forEach(function (uid) {
-      var L = porU[uid], hojas = Math.ceil(L.length / fil), idx = huecos(res, uid).slice(0, hojas).map(function (h) { return h[1]; }).sort(function (a, b) { return a - b; });
-      idx.forEach(function (i, j) {
-        var p = res.pages[i], refs = L.slice(j * fil, (j + 1) * fil); if (!refs.length) return;
-        res.pages[i] = { tipo: 'pe_ref_galeria', u: p.u, n: p.n, num: p.num, refs: refs, fill2: { nada: 1 } };
-        quitadas[p.num] = 1; n += refs.length;
-      });
-      porU[uid] = L.slice(idx.length * fil);
+      var L = porU[uid], idx = huecos(res, uid).slice(0, L.length).map(function (h) { return h[1]; }).sort(function (a, b) { return a - b; });
+      idx.forEach(function (i, j) { var p = res.pages[i]; res.pages[i] = hoja(L[j], p); quitadas[p.num] = 1; n++; });
+      porU[uid] = L.slice(idx.length);
     });
     res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return !quitadas[e.p]; }); });
-    /* sin hueco: hojas nuevas al final de su unidad, antes del repaso con el tutor (como el box y sus formas,
-       Fátima 19-10-2026). El libro crece en esas hojas. `cfg.acab.referencias = 'huecos'` = solo en huecos. */
+    /* las que no caben en huecos: hojas nuevas detrás del diagrama de su corte de base, o al final del tramo de su unidad
+       (el anexo de técnicas, al final del libro, también lleva su `u`: no cuenta) */
+    var nuevas = [];
     if (((cfg.acab || {}).referencias) !== 'huecos') {
-      var nuevas = [];
       orden.forEach(function (uid) {
-        var L = porU[uid]; if (!L.length) return;
-        /* solo el tramo seguido de la unidad (el anexo de técnicas, al final del libro, también lleva su `u`) */
-        var ult = -1, f = -1;
-        res.pages.forEach(function (p, i) { if (f < 0 && p.u && p.u.id === uid && !p.anexo) f = i; });
-        for (var i2 = f; f >= 0 && i2 < res.pages.length; i2++) {
-          var q2 = res.pages[i2]; if (!q2.u || q2.u.id !== uid || q2.anexo) break;
-          if (q2.tipo !== 'tutor' && q2.tipo !== 'repaso') ult = i2;
-        }
-        if (ult < 0) return;
-        var ref = res.pages[ult], hs = [];
-        for (var j = 0; j < L.length; j += fil) hs.push({ tipo: 'pe_ref_galeria', u: ref.u, n: ref.n, refs: L.slice(j, j + fil), fill2: { nada: 1 } });
-        res.pages.splice.apply(res.pages, [ult + 1, 0].concat(hs));
-        nuevas = nuevas.concat(hs); n += L.length;
+        porU[uid].forEach(function (r) {
+          var b = baseDe(r), f = -1, ult = -1, trasDg = -1;
+          res.pages.forEach(function (p, i) { if (f < 0 && p.u && p.u.id === uid && !p.anexo) f = i; });
+          for (var i2 = f; f >= 0 && i2 < res.pages.length; i2++) {
+            var q2 = res.pages[i2]; if (!q2.u || q2.u.id !== uid || q2.anexo) break;
+            if (q2.tipo !== 'tutor' && q2.tipo !== 'repaso') ult = i2;
+            if (((q2.tipo === 'pe_diagrama' && q2.dg && q2.dg.corte === b) || (q2.tipo === 'pe_ref_corte' && q2.base === b))) trasDg = i2;
+          }
+          var pos = trasDg >= 0 ? trasDg : ult; if (pos < 0) return;
+          var hj = hoja(r, res.pages[pos]); delete hj.num;
+          res.pages.splice(pos + 1, 0, hj); nuevas.push(hj); n++;
+        });
       });
       if (nuevas.length) {
         var nueva = {};
@@ -202,9 +244,8 @@
         res.pages.forEach(function (p, i) { if (p.num != null || nuevas.indexOf(p) >= 0) p.num = i + 1; });
         res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas.forEach(function (e) { if (nueva[e.p]) e.p = nueva[e.p]; }); });
       }
-      res.referenciasHojasNuevas = nuevas.length;
     }
-    res.referencias = n;
+    res.referencias = { hojas: n, nuevas: nuevas.length };
     return res;
   }
   /* después de las técnicas animadas y los diagramas de corte, que tienen prioridad en los huecos */
@@ -228,8 +269,8 @@
       var L = REF.filter(function (r) { return uniDe(r[2]) === M.id && DATA[idDe(r[0])]; });
       if (!L.length || !M.lecciones || !M.lecciones.length) return;
       var esc2 = L.map(function (r) {
-        var id = idDe(r[0]), cn = nombreCorte(r); D.img[id] = DATA[id];
-        return { tipo: 'idea', id: id, t: r[1], texto: r[1] + (cn ? ': se parece al «' + cn + '» del curso.' : '.') + ' Así queda de frente, de lado y de atrás.', rot: [] };
+        var id = idDe(r[0]), c = corteDe(baseDe(r)); D.img[id] = DATA[id];
+        return { tipo: 'idea', id: id, t: r[1], texto: r[1] + '. Así queda de frente, de lado y de atrás.' + (c ? (r[3] ? ' Es el corte «' : ' Corte de base propuesto, a validar: «') + c.n + '». ' + (c.d || '') : ''), rot: [] };
       });
       var k = 1; while (k < M.lecciones.length && /__(video|bienvenida)$/.test(M.lecciones[k - 1].id) ) k++;
       M.lecciones.splice(Math.min(k, M.lecciones.length), 0, { id: M.id + '__referencias', t: 'Cómo queda · referencias visuales', pag: M.pag, escenas: esc2 });
