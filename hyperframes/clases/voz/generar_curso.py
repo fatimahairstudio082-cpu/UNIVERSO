@@ -31,7 +31,8 @@ log("modelos cargados", round(time.time() - t0), "s")
 for clave, texto in G.items():
     if solo and clave not in solo:
         continue
-    frases = [f.strip() for f in re.split(r"(?<=[.!?:])\s+", texto) if f.strip()]
+    # 23-10-2026: no se corta en «:» (las frases muy cortas, como «Técnica dos:», salían con ruidos)
+    frases = [f.strip() for f in re.split(r"(?<=[.!?])\s+", texto) if f.strip()]
     trozos, tiempos, pos = [torch.zeros(1, int(sr * 0.25))], [], 0.25
     for f in frases:
         mejor, nota = None, -1
