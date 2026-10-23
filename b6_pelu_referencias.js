@@ -12,6 +12,10 @@
 (function () {
   'use strict';
   if (window.EU_PELU_REF) return;
+  /* 23-10-2026, Fátima: «desconecta las de ChatGPT de ayer y conecta la galería de hoy» (b6_pelu_galeria.js).
+     Apagadas por defecto: ni biblioteca, ni libro, ni curso. Las imágenes y los datos se quedan; window.EU_PELU_REF_ON = true
+     (antes de cargar este archivo) las vuelve a encender. */
+  var ON = window.EU_PELU_REF_ON === true;
   var DIR = './referencias/cortes/';
   /* [número, nombre, unidad (familia de EU_CORTES o 'cab' / 'base'), corte del sistema que se le parece] */
   var REF = [
@@ -48,6 +52,7 @@
   /* cada imagen se lee una vez y queda como data URL: así va dentro del libro, el PDF y el curso descargados */
   var DATA = {};
   REF.forEach(function (r) {
+    if (!ON) return;
     try {
       fetch(archivo(r[0])).then(function (x) { return x.ok ? x.blob() : null; }).then(function (b) {
         if (!b) return; var fr = new FileReader(); fr.onload = function () { DATA[idDe(r[0])] = fr.result; }; fr.readAsDataURL(b);
@@ -94,11 +99,11 @@
     MO.agregar('pelu', REF.map(modelo), { familias: { ref: 'Referencias visuales · cómo queda' } });
     return true;
   }
-  if (!registrar()) (function espera(k) { if (!registrar() && k < 100) setTimeout(function () { espera(k + 1); }, 300); })(0);
+  if (ON && !registrar()) (function espera(k) { if (!registrar() && k < 100) setTimeout(function () { espera(k + 1); }, 300); })(0);
 
   /* cada referencia, solo en su unidad (b6_pelu_orden reparte los dibujos con u.mods) */
   var CU = window.EU_CURRICULO;
-  if (CU && CU.unidades && !CU.unidades._peRef) {
+  if (ON && CU && CU.unidades && !CU.unidades._peRef) {
     var uni0 = CU.unidades;
     CU.unidades = function (materia) {
       var o = uni0.apply(this, arguments);
@@ -205,7 +210,7 @@
   }
   function repartir(res) {
     var C = res && res.C, cfg = C && C.cfg;
-    if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || ((cfg.acab || {}).referencias) === 'no') return res;
+    if (!ON || !res || !res.pages || !cfg || cfg.materia !== 'pelu' || ((cfg.acab || {}).referencias) === 'no') return res;
     var ya = {}, porU = {}, orden = [], quitadas = {}, n = 0, vistas = {};
     res.pages.forEach(function (p) { if (p.tipo === 'pe_ref_corte') ya[p.ref] = 1; });
     res.pages.forEach(function (p) {
@@ -263,7 +268,7 @@
      Una escena por imagen (narración: nombre y, si lo hay, el corte del curso al que se parece), justo después de la
      primera lección del módulo (o de su presentación en vídeo). Solo materia `pelu`. */
   function ponerCurso(D) {
-    if (!D || !D.modulos || D._refPelu) return D;
+    if (!ON || !D || !D.modulos || D._refPelu) return D;
     D.img = D.img || {};
     D.modulos.forEach(function (M) {
       var L = REF.filter(function (r) { return uniDe(r[2]) === M.id && DATA[idDe(r[0])]; });
@@ -294,5 +299,5 @@
   }
   (function espera(k) { if (!engancharCurso() && k < 2000) setTimeout(function () { espera(k + 1); }, 300); })(0);
 
-  window.EU_PELU_REF = { REF: REF, id: idDe, archivo: archivo, repartir: repartir, ponerCurso: ponerCurso, listas: function () { return Object.keys(DATA); } };
+  window.EU_PELU_REF = { REF: REF, id: idDe, archivo: archivo, repartir: repartir, ponerCurso: ponerCurso, listas: function () { return Object.keys(DATA); }, activo: ON };
 })();
