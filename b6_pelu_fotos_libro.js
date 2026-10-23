@@ -15,7 +15,17 @@
     ['planchado.jpg', 'pe_foto_planchado', 'cb_cab_planchado', 'apertura'],
     ['mechas_aluminio.jpg', 'pe_foto_mechas_aluminio', 'cb_mechas_aluminio', 'apertura'],
     ['mechas_gorro.jpg', 'pe_foto_mechas_gorro', 'cb_mechas_gorro', 'apertura'],
-    ['balayage_90.jpg', 'pe_foto_balayage', 'cb_color_balayage', 'apertura']
+    ['balayage_90.jpg', 'pe_foto_balayage', 'cb_color_balayage', 'apertura'],
+    /* 22-10-2026, Fátima (su Drive, también las imágenes hechas con ChatGPT): portada de las unidades de base y de corte */
+    ['capa_herramientas.jpg', 'pe_foto_capa_herramientas', 'pe_u_fund', 'apertura'],
+    ['lavado.jpg', 'pe_foto_lavado', 'pe_u_cab', 'apertura'],
+    ['elevacion_45.jpg', 'pe_foto_elevacion_45', 'pe_u_base', 'apertura'],
+    ['corte_horizontal.jpg', 'pe_foto_corte_horizontal', 'pe_u_c_basicos', 'apertura'],
+    ['cuatro_cortes.jpg', 'pe_foto_cuatro_cortes', 'pe_u_c_melenas', 'apertura'],
+    ['corte_vertical.jpg', 'pe_foto_corte_vertical', 'pe_u_c_capas', 'apertura'],
+    ['tres_cortes_v_picado.jpg', 'pe_foto_tres_cortes', 'pe_u_c_moda', 'apertura'],
+    ['yo_explicando_colorimetria.jpg', 'pe_foto_explicando_color', 'cb_color_global', 'apertura'],
+    ['neutralizacion.jpg', 'pe_foto_neutralizacion', 'cb_quim_decoloracion', 'apertura']
   ];
   /* (18-10-2026, Fátima: «todas las técnicas») las páginas «Diagrama» con el fotograma del maniquí de Estudios
      (pe_corte con dibujo pe_est_*) pasan a ser su foto de esa técnica, a página completa. Cada foto una vez por unidad,
@@ -38,7 +48,16 @@
     ['balayage_guia.jpg', 'pe_foto_balayage_guia', /^cb_color_balayage$/],
     ['balayage_antes_despues.jpg', 'pe_foto_balayage_antes_despues', /^cb_color_balayage$/],
     ['color_balayage.jpg', 'pe_foto_color_balayage', /^cb_color_balayage$|^cb_color_babylights$|^cb_mechas_/],
-    ['quimicos.jpg', 'pe_foto_quimicos', /^cb_quim_|^cb_quera_/]
+    ['quimicos.jpg', 'pe_foto_quimicos', /^cb_quim_|^cb_quera_/],
+    /* 22-10-2026, Fátima (su Drive): más fotos e infografías por técnica */
+    ['yo_explicando_colorimetria.jpg', 'pe_foto_explicando_color', /^cb_color_global$/],
+    ['cuenta_color_ejemplo.jpg', 'pe_foto_cuenta_color', /^cb_color_global$/],
+    ['neutralizacion.jpg', 'pe_foto_neutralizacion', /^cb_quim_decoloracion$/],
+    ['matizacion_papel.jpg', 'pe_foto_matizacion', /^cb_quim_decoloracion$|^cb_color_balayage$/],
+    ['revisando_mechas.jpg', 'pe_foto_revisando_mechas', /^cb_mechas_aluminio$/],
+    ['mechas_cabello_corto.jpg', 'pe_foto_mechas_corto', /^cb_mechas_aluminio$/],
+    ['guia_mechas_cuadricula.jpg', 'pe_foto_guia_mechas', /^cb_mechas_aluminio$/],
+    ['guia_balayage_zigzag.jpg', 'pe_foto_guia_balayage', /^cb_color_balayage$/]
   ];
   var DATA = {};
   FOTOS.concat(FICHAS.filter(function (f) { return !FOTOS.some(function (x) { return x[1] === f[1]; }); })).forEach(function (f) {

@@ -16,7 +16,18 @@
   try {
     fetch('./referencias/curso/modulos/lista.json').then(function (r) { return r.ok ? r.json() : []; })
       .then(function (l) { (l || []).forEach(function (n) { VIDEOS[n] = 1; }); }).catch(function () { });
+    /* 23-10-2026 (Fátima: «quítale los subtítulos y ponle el audio mío»): clases en vídeo con su voz clonada, sin subtítulos */
+    fetch('./referencias/curso/clases/lista.json').then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (l) { (l || []).forEach(function (n) { VIDEOS[n] = 1; }); }).catch(function () { });
   } catch (e) { }
+  /* [vídeo, título de la lección, narración] por unidad; los textos son los de sus fichas (b6_cortes.js, b6_pelu_geometria.js) */
+  var CLASES = {
+    pe_u_c_basicos: [
+      ['clases/seccionados_nivel1.mp4', 'Cinco técnicas de seccionado', 'Cinco técnicas de seccionado para empezar: en V invertida, curvo, en punta, horizontal en capas y vertical con graduación. En todas, el cabello cae hacia abajo, a 0°.'],
+      ['clases/corte_cuadrado.mp4', 'Clase en vídeo · Corte cuadrado', 'Corte básico cuadrado, sin elevación: todo a 0° y la misma medida en cada mechón. Delante se empareja con el de atrás.'],
+      ['clases/maniqui_linea_guia.mp4', 'Clase en vídeo · Línea guía en el maniquí', 'La línea guía va en la nuca, a 0°. Cada mechón se baja a esa misma línea y se corta con la tijera en horizontal.']
+    ]
+  };
 
   function limpio(t) { return String(t || '').replace(/^Cortes · /, ''); }
   /* imagen de portada: la primera escena del módulo que ya tenga dibujo o foto */
@@ -35,6 +46,13 @@
       var t = limpio(M.t), k = M.lecciones.length && /__bienvenida$/.test(M.lecciones[0].id) ? 1 : 0;
       M.lecciones.splice(k, 0, { id: M.id + '__video', t: 'Presentación · ' + t, pag: M.pag, video: 1, mp4: n,
         escenas: [{ tipo: 'idea', id: imgDe(D, M), t: t, texto: t + '.', rot: [] }] });
+    });
+    D.modulos.forEach(function (M) {
+      var L = (CLASES[M.id] || []).filter(function (c) { return VIDEOS[c[0]]; }); if (!L.length) return;
+      var k = 0; while (k < M.lecciones.length && /__(video|bienvenida)$/.test(M.lecciones[k].id)) k++;
+      M.lecciones.splice.apply(M.lecciones, [k, 0].concat(L.map(function (c, j) {
+        return { id: M.id + '__clase' + j, t: c[1], pag: M.pag, video: 1, mp4: c[0], escenas: [{ tipo: 'idea', id: imgDe(D, M), t: c[1], texto: c[2], rot: [] }] };
+      })));
     });
     /* b6_pelu_premium.js arma pri/sec/bach con el temario profesional y deja el nivel en op.nivel (1·2·3) */
     var nk = { 1: 'pri', 2: 'sec', 3: 'bach' }[String((cfg.op || {}).nivel)] || cfg.nivel;
