@@ -209,6 +209,9 @@
       } else {
         var bx = 48, by = 118, bw = e.rot.length ? 840 : 1184, bh = 440;
         x.fillStyle = '#FFFFFF'; x.fillRect(bx, by, bw, bh);
+        /* (25-10-2026) lección «receta»: la foto del paso a la izquierda y el maniquí a la derecha, en la misma pantalla */
+        var fo = e.foto ? img(e.foto) : null;
+        if (fo && fo !== im && fo.complete && fo.naturalWidth) { var fw = Math.round(bw * 0.42), rf = Math.min(fw / fo.naturalWidth, bh / fo.naturalHeight); x.fillStyle = T.soft; x.fillRect(bx, by, fw, bh); x.drawImage(fo, bx + (fw - fo.naturalWidth * rf) / 2, by + (bh - fo.naturalHeight * rf) / 2, fo.naturalWidth * rf, fo.naturalHeight * rf); bx += fw + 12; bw -= fw + 12; }
         if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, e.fin ? 1 : cur.ad ? pAnim() : cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
         else if (im && im.complete && im.naturalWidth) { var r = Math.min(bw / im.naturalWidth, bh / im.naturalHeight); var w = im.naturalWidth * r, h = im.naturalHeight * r; x.drawImage(im, bx + (bw - w) / 2, by + (bh - h) / 2, w, h); }
         var low = e.texto.toLowerCase(), ry = by + 10;
@@ -237,7 +240,9 @@
       var e = m.e, g = m.g, im = img(e.id); g.fillStyle = T.bg; g.fillRect(0, 0, 320, 180);
       if (e.tipo === 'pregunta') { g.fillStyle = T.acc; g.font = '600 96px ' + T.tit; g.textAlign = 'center'; g.fillText('?', 160, 124); g.textAlign = 'start'; return; }
       var p = e.fin ? 1 : i === cur.k && cur.play ? (cur.ad ? pAnim() : cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
-      if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(g, D.anim[e.anim], im, 0, 0, 320, 180, p);
+      var fo = e.foto ? img(e.foto) : null, mx = 0;
+      if (fo && fo !== im && fo.complete && fo.naturalWidth) { var rf = Math.min(130 / fo.naturalWidth, 180 / fo.naturalHeight); g.fillStyle = T.soft; g.fillRect(0, 0, 130, 180); g.drawImage(fo, (130 - fo.naturalWidth * rf) / 2, (180 - fo.naturalHeight * rf) / 2, fo.naturalWidth * rf, fo.naturalHeight * rf); mx = 134; }
+      if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(g, D.anim[e.anim], im, mx, 0, 320 - mx, 180, p);
       else if (im && im.complete && im.naturalWidth) { var r = Math.min(320 / im.naturalWidth, 180 / im.naturalHeight); g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 180); g.drawImage(im, (320 - im.naturalWidth * r) / 2, (180 - im.naturalHeight * r) / 2, im.naturalWidth * r, im.naturalHeight * r); }
       else { g.fillStyle = T.txt; g.font = '600 22px ' + T.tit; ajustaEn(g, e.t, 290).slice(0, 4).forEach(function (l, j) { g.fillText(l, 16, 44 + j * 30); }); }
     }
@@ -283,7 +288,7 @@
     }
     function para() { cur.play = false; clearTimeout(cur.h); if (window.EU_BIL) EU_BIL.parar(); if (window.speechSynthesis) speechSynthesis.cancel(); $('#play').textContent = '▶ Reproducir'; }
     function reproduce(desde, alTerminar) {
-      para(); cur.play = true; $('#play').textContent = '❚❚ Pausa';
+      quitaVid(); para(); cur.play = true; $('#play').textContent = '❚❚ Pausa';
       var k = desde || 0, L = cur.L;
       var paso = function () {
         if (!cur.play) return;
@@ -301,6 +306,7 @@
         box.appendChild(b);
       });
     }
+    function quitaVid() { var v = $('#vidLec'); if (v) { try { v.pause(); } catch (er) { } if (v.parentNode) v.parentNode.removeChild(v); } cv.style.display = ''; }
     function textoBajo(e) { $('#bajo').textContent = e.tipo === 'pregunta' && cur.rev ? e.sol : e.texto; }
     function abre(L) {
       para(); cur.L = L; cur.k = 0; cur.pos = 0; cur.fin = false; cur.ad = 0;
@@ -308,8 +314,13 @@
       $('#ant').disabled = ix <= 0; $('#sig').disabled = ix >= LEC.length - 1; document.body.classList.remove('verMenu'); $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
       $('#reproductor').style.display = ''; $('#zonaTest').style.display = 'none'; textoBajo(L.escenas[0]); pintaPregunta(L.escenas[0]);
       /* (12-10-2026) vídeo propio de la lección (p. ej. presentacion.mp4 junto a index.html): si no está, no se ve nada */
-      var vv = $('#vidLec'); if (vv) vv.parentNode.removeChild(vv);
-      if (L.mp4) { var vd = document.createElement('video'); vd.id = 'vidLec'; vd.src = (window.CURSO_MP4_BASE || '') + L.mp4; vd.controls = true; vd.playsInline = true; vd.style.cssText = 'width:100%;max-height:70vh;background:#000;border-radius:6px'; vd.onerror = function () { if (vd.parentNode) vd.parentNode.removeChild(vd); }; cv.parentNode.insertBefore(vd, cv); }
+      /* (25-10-2026, Fátima: «una sola pantalla») el vídeo se ve EN el sitio de la animación, no encima: al terminar,
+         la lección sigue sola con su animación (L.siguen) o queda vista; sin el archivo, se ve la animación */
+      quitaVid();
+      if (L.mp4) { var vd = document.createElement('video'); vd.id = 'vidLec'; vd.src = (window.CURSO_MP4_BASE || '') + L.mp4; vd.controls = true; vd.playsInline = true; vd.style.cssText = 'width:100%;aspect-ratio:16/9;max-height:70vh;background:#000;border-radius:6px;display:block'; vd.onerror = quitaVid;
+        vd.onplay = function () { $('#play').textContent = '❚❚ Pausa'; }; vd.onpause = function () { if (!vd.ended) $('#play').textContent = '▶ Reproducir'; };
+        vd.onended = function () { quitaVid(); if (L.siguen && L.escenas.length) reproduce(0); else { ST.vistas[L.id] = 1; guarda(); menu(); $('#play').textContent = '▶ Reproducir'; } };
+        cv.style.display = 'none'; cv.parentNode.insertBefore(vd, cv); }
       $('#escenas').innerHTML = ''; MINI = []; kMini = -1;
       /* (19-10-2026) títulos repetidos en la misma lección («Repaso», «Paso 1»…) se numeran: Repaso 1, Repaso 2 */
       var nT = {}, vT = {}; L.escenas.forEach(function (e) { if (!e._n) nT[e.t] = (nT[e.t] || 0) + 1; });
@@ -321,7 +332,7 @@
       });
       window.scrollTo(0, 0);
     }
-    $('#play').onclick = function () { if (!cur.L) return abre(LEC[0]); if (cur.play) para(); else reproduce(cur.fin || cur.k >= cur.L.escenas.length - 1 ? 0 : cur.k); };
+    $('#play').onclick = function () { if (!cur.L) return abre(LEC[0]); var vd = $('#vidLec'); if (vd) { if (vd.paused) vd.play(); else vd.pause(); return; } if (cur.play) para(); else reproduce(cur.fin || cur.k >= cur.L.escenas.length - 1 ? 0 : cur.k); };
     $('#vel').onchange = function () { cur.vel = +this.value; };
     var mueve = function (d) { var L = LEC[LEC.indexOf(cur.L) + d]; if (L) { abre(L); menu(); } };
     $('#ant').onclick = function () { mueve(-1); }; $('#sig').onclick = function () { if (!cur.L) { abre(LEC[0]); menu(); } else mueve(1); };
