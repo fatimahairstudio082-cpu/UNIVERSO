@@ -1,0 +1,80 @@
+[
+ {
+  "f": "Cinco técnicas de seccionado para empezar.",
+  "s": 0.25,
+  "e": 4.69,
+  "nota": 1.0
+ },
+ {
+  "f": "En todas, el cabello cae hacia abajo, a cero grados.",
+  "s": 5.09,
+  "e": 10.17,
+  "nota": 1.0
+ },
+ {
+  "f": "Técnica uno: seccionado en uve invertida.",
+  "s": 10.57,
+  "e": 15.25,
+  "nota": 0.83
+ },
+ {
+  "f": "Secciones en uve invertida desde la raya central, y atrás la línea queda en uve.",
+  "s": 15.65,
+  "e": 22.37,
+  "nota": 1.0
+ },
+ {
+  "f": "Técnica dos: seccionado curvo.",
+  "s": 22.77,
+  "e": 26.61,
+  "nota": 1.0
+ },
+ {
+  "f": "Secciones curvas que siguen la forma de la cabeza, y atrás la línea queda en forma de u.",
+  "s": 27.01,
+  "e": 32.69,
+  "nota": 1.0
+ },
+ {
+  "f": "Técnica tres: seccionado en punta.",
+  "s": 33.09,
+  "e": 38.01,
+  "nota": 1.0
+ },
+ {
+  "f": "Secciones diagonales que bajan hacia el centro, y atrás el corte termina en punta.",
+  "s": 38.41,
+  "e": 45.29,
+  "nota": 1.0
+ },
+ {
+  "f": "Técnica cuatro: seccionado horizontal en capas.",
+  "s": 45.69,
+  "e": 49.29,
+  "nota": 1.0
+ },
+ {
+  "f": "Secciones horizontales de la nuca a la coronilla, y la línea queda recta: cuadrado.",
+  "s": 49.69,
+  "e": 56.97,
+  "nota": 1.0
+ },
+ {
+  "f": "Técnica cinco: seccionado vertical con graduación.",
+  "s": 57.37,
+  "e": 62.77,
+  "nota": 1.0
+ },
+ {
+  "f": "Secciones verticales desde la raya central hacia los lados, y la línea queda suave alrededor del cuello.",
+  "s": 63.17,
+  "e": 71.25,
+  "nota": 1.0
+ },
+ {
+  "f": "Tu futuro en la peluquería comienza aquí.",
+  "s": 71.65,
+  "e": 76.57,
+  "nota": 1.0
+ }
+]

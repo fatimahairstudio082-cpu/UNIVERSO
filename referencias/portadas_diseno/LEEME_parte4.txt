@@ -1,0 +1,17 @@
+ESTUDIO UNIVERSAL PRO — SISTEMA ÚNICO
+
+Un solo paquete incluye:
+- Biblioteca de 10 diseños de portada.
+- Vista de contraportada coordinada para cada diseño.
+- 10 diseños de certificados de peluquería y colorimetría.
+- HTML, CSS y JavaScript; no necesita instalación ni conexión a internet.
+- Selector de miniaturas, campos editables, descarga del JPG seleccionado e impresión/guardar PDF.
+
+INICIO:
+1. Descomprime TODO el ZIP conservando la carpeta assets.
+2. Abre index.html en Chrome o Edge.
+3. Usa las pestañas superiores para alternar entre Portadas, Contraportadas y Certificados.
+4. Elige un diseño y edita los campos de la izquierda.
+5. Pulsa Imprimir / Guardar PDF o Descargar diseño seleccionado.
+
+Nota: las contraportadas son composiciones coordinadas generadas por CSS a partir de cada diseño de portada. Las ilustraciones originales se incluyen como imágenes. Parte del texto que aparece impreso en las imágenes originales no se puede editar como una capa separada.
