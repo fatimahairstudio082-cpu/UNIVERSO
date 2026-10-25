@@ -19,7 +19,7 @@
       k: 'corte', n: 'Corte cuadrado recto', lec: '__basico_cuadrado', mp4: 'clases/lavado.mp4',
       receta: function (DG) { return DG.receta('basico_cuadrado'); },
       d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda cuadrado.',
-      fotos: { clase: 64, lavado: 469, queda_nuca: 64, queda_lateral: 64, queda_frente: 71 }
+      fotos: { clase: 71, lavado: 469, queda_nuca: 71, queda_frente: 71 }   /* Fátima: la n.º 64 es en semi-U, no cuadrada: va con el corte redondo */
     },
     /* Fátima: «la próxima clase, corte cuadrado en capas: el corte en capa larga, pero con forma cuadrada»; «en un corte recto no
        se saca la guía desde arriba de la ceja: se nivela con el de atrás» (R.nivelar). Va en su módulo de capas. */
@@ -34,7 +34,7 @@
       k: 'corte', n: 'Corte redondo', lec: '__basico_redondeado', tras: '__basico_cuadrado',
       receta: function (DG) { return Object.assign({}, DG.receta('basico_redondeado'), { n: 'Corte redondo', emparejar: 'atras' }); },
       d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón; atrás queda redondeado. Para cortar todo redondo se divide la parte de adelante y la parte de atrás, para no confundirse: cuando se corta de frente se empareja con el de atrás.',
-      fotos: { lavado: 469 }
+      fotos: { clase: 64, lavado: 469, queda_nuca: 64, queda_lateral: 64 }
     },
     /* su foto n.º 50: «flequillo de lado; se saca debajo del ojo, colocándolo en triángulo, cortando en triángulo, y se peina de
        lado; no se le dejan huecos al maniquí» */
