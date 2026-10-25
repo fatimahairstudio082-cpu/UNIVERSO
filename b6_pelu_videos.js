@@ -23,9 +23,25 @@
   /* [vídeo, título de la lección, narración] por unidad; los textos son los de sus fichas (b6_cortes.js, b6_pelu_geometria.js) */
   var CLASES = {
     pe_u_c_basicos: [
+      /* 25-10-2026 (Fátima, vídeos de Pexels con su voz): lavado antes de cortar y corte en la línea guía */
+      ['clases/lavado.mp4', 'Clase en vídeo · Lavado del cabello', 'Antes de cortar, el cabello se lava. El cabello debe estar mojado para cortarlo.'],
       ['clases/seccionados_nivel1.mp4', 'Cinco técnicas de seccionado', 'Cinco técnicas de seccionado para empezar: en V invertida, curvo, en punta, horizontal en capas y vertical con graduación. En todas, el cabello cae hacia abajo, a 0°.'],
       ['clases/corte_cuadrado.mp4', 'Clase en vídeo · Corte cuadrado', 'Corte básico cuadrado, sin elevación: todo a 0° y la misma medida en cada mechón. Delante se empareja con el de atrás.'],
-      ['clases/maniqui_linea_guia.mp4', 'Clase en vídeo · Línea guía en el maniquí', 'La línea guía va en la nuca, a 0°. Cada mechón se baja a esa misma línea y se corta con la tijera en horizontal.']
+      ['clases/maniqui_linea_guia.mp4', 'Clase en vídeo · Línea guía en el maniquí', 'La línea guía va en la nuca, a 0°. Cada mechón se baja a esa misma línea y se corta con la tijera en horizontal.'],
+      ['clases/guia_corte.mp4', 'Clase en vídeo · Corte en la línea guía', 'La línea guía va en la nuca, a 0°. Cada mechón que se agarra se corta a 0° y de esa misma medida, para que el corte quede parejo.']
+    ],
+    /* 25-10-2026: textos de b6_color_fatima.js (fat_i03) y b6_cerebro.js (mechas, secado, planchado) */
+    cb_quim_decoloracion: [
+      ['clases/matizacion.mp4', 'Clase en vídeo · Matizar después de decolorar', 'Una decoloración no significa que el cabello va a quedar así. Después de una decoloración siempre se matiza, a menos que llegue al tono que la persona anda buscando.']
+    ],
+    cb_mechas_aluminio: [
+      ['clases/mechas_papel.mp4', 'Clase en vídeo · Mechas con papel de aluminio', 'Coloca el mechón en la paleta y barre con la punta del pincel. Después cubre el mechón con papel de aluminio. Entre mechón y mechón deja un dedo de separación.']
+    ],
+    cb_cab_secado: [
+      ['clases/secado.mp4', 'Clase en vídeo · Secado con cepillo', 'Se seca con el cepillo y aire caliente, a temperatura alta. Mechas del ancho del cepillo: se estira bien el cabello, sin pegarlo al cráneo.']
+    ],
+    cb_cab_planchado: [
+      ['clases/planchado.mp4', 'Clase en vídeo · Planchado', 'Se pasa la plancha lentamente, dos o tres veces. No hasta que quede liso: eso quema el pelo y las cutículas.']
     ]
   };
 
