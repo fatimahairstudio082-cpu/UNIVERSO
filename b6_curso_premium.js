@@ -211,7 +211,7 @@
         x.fillStyle = '#FFFFFF'; x.fillRect(bx, by, bw, bh);
         /* (25-10-2026) lección «receta»: la foto del paso a la izquierda y el maniquí a la derecha, en la misma pantalla */
         var fo = e.foto ? img(e.foto) : null;
-        if (fo && fo !== im && fo.complete && fo.naturalWidth) { var fw = Math.round(bw * 0.42), rf = Math.min(fw / fo.naturalWidth, bh / fo.naturalHeight); x.fillStyle = T.soft; x.fillRect(bx, by, fw, bh); x.drawImage(fo, bx + (fw - fo.naturalWidth * rf) / 2, by + (bh - fo.naturalHeight * rf) / 2, fo.naturalWidth * rf, fo.naturalHeight * rf); bx += fw + 12; bw -= fw + 12; }
+        if (fo && fo !== im && fo.complete && fo.naturalWidth) { var sy = Math.round((e.fotoRec || 0) * fo.naturalHeight), sh = fo.naturalHeight - sy, fw = Math.round(bw * 0.42), rf = Math.min(fw / fo.naturalWidth, bh / sh); x.fillStyle = T.soft; x.fillRect(bx, by, fw, bh); x.drawImage(fo, 0, sy, fo.naturalWidth, sh, bx + (fw - fo.naturalWidth * rf) / 2, by + (bh - sh * rf) / 2, fo.naturalWidth * rf, sh * rf); bx += fw + 12; bw -= fw + 12; }   /* fotoRec: parte de arriba que no se ve (un rótulo que no es de esta clase) */
         if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(x, D.anim[e.anim], im, bx, by, bw, bh, e.fin ? 1 : cur.ad ? pAnim() : cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length)));
         else if (im && im.complete && im.naturalWidth) { var r = Math.min(bw / im.naturalWidth, bh / im.naturalHeight); var w = im.naturalWidth * r, h = im.naturalHeight * r; x.drawImage(im, bx + (bw - w) / 2, by + (bh - h) / 2, w, h); }
         var low = e.texto.toLowerCase(), ry = by + 10;
@@ -241,7 +241,7 @@
       if (e.tipo === 'pregunta') { g.fillStyle = T.acc; g.font = '600 96px ' + T.tit; g.textAlign = 'center'; g.fillText('?', 160, 124); g.textAlign = 'start'; return; }
       var p = e.fin ? 1 : i === cur.k && cur.play ? (cur.ad ? pAnim() : cur.fin ? 1 : Math.min(1, cur.pos / Math.max(1, e.texto.length))) : Math.min(1, ((t / 1000 + i * 0.8) % 6) / 5);
       var fo = e.foto ? img(e.foto) : null, mx = 0;
-      if (fo && fo !== im && fo.complete && fo.naturalWidth) { var rf = Math.min(130 / fo.naturalWidth, 180 / fo.naturalHeight); g.fillStyle = T.soft; g.fillRect(0, 0, 130, 180); g.drawImage(fo, (130 - fo.naturalWidth * rf) / 2, (180 - fo.naturalHeight * rf) / 2, fo.naturalWidth * rf, fo.naturalHeight * rf); mx = 134; }
+      if (fo && fo !== im && fo.complete && fo.naturalWidth) { var sy = Math.round((e.fotoRec || 0) * fo.naturalHeight), sh = fo.naturalHeight - sy, rf = Math.min(130 / fo.naturalWidth, 180 / sh); g.fillStyle = T.soft; g.fillRect(0, 0, 130, 180); g.drawImage(fo, 0, sy, fo.naturalWidth, sh, (130 - fo.naturalWidth * rf) / 2, (180 - sh * rf) / 2, fo.naturalWidth * rf, sh * rf); mx = 134; }
       if (e.anim && window.CURSO_ANIM && D.anim && D.anim[e.anim]) CURSO_ANIM.pinta(g, D.anim[e.anim], im, mx, 0, 320 - mx, 180, p);
       else if (im && im.complete && im.naturalWidth) { var r = Math.min(320 / im.naturalWidth, 180 / im.naturalHeight); g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 180); g.drawImage(im, (320 - im.naturalWidth * r) / 2, (180 - im.naturalHeight * r) / 2, im.naturalWidth * r, im.naturalHeight * r); }
       else { g.fillStyle = T.txt; g.font = '600 22px ' + T.tit; ajustaEn(g, e.t, 290).slice(0, 4).forEach(function (l, j) { g.fillText(l, 16, 44 + j * 30); }); }
