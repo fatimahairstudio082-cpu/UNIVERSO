@@ -362,7 +362,7 @@
       return Math.max(1, Math.ceil(seg / 3600));
     }
     function pdfJPEG(url, W, H) {
-      var bin = atob(url.split(',')[1]), pw = 841.89, ph = 595.28, out = '%PDF-1.4\n', off = [];
+      var bin = atob(url.split(',')[1]), pw = W > H ? 841.89 : 595.28, ph = W > H ? 595.28 : 841.89, out = '%PDF-1.4\n', off = [];   /* 25-10-2026: A4 vertical para los certificados de diseño */
       var obj = function (n, cuerpo) { off[n] = out.length; out += n + ' 0 obj\n' + cuerpo + '\nendobj\n'; };
       var cont = 'q ' + pw + ' 0 0 ' + ph + ' 0 0 cm /Im0 Do Q';
       obj(1, '<</Type/Catalog/Pages 2 0 R>>');
@@ -399,6 +399,28 @@
       cerrar.onclick = quita; ov.onclick = function (ev) { if (ev.target === ov) quita(); };
       if (window.speechSynthesis && VOZ && !$('#mudo').checked) { speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance('¡Felicitaciones, ' + nom + '! ' + msg); u.voice = VOZ; u.lang = 'es-ES'; speechSynthesis.speak(u); }
     }
+    /* 25-10-2026 (Fátima, «Parte 4»): certificado sobre el diseño elegido (D.certDis, de b6_portadas_plantillas.js): A4 vertical,
+       el diseño entero en el centro y a los lados su propio fondo; nombre sobre su línea, fecha sobre «Fecha», firma sobre «Firma» */
+    function certDiseno(nom, num, horas, listo) {
+      var X = D.certDis, W = 1654, H = 2339, c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d');
+      var im = new Image(); im.onload = function () {
+        var k = H / X.h, iw = X.w * k, ox = (W - iw) / 2;
+        g.filter = 'blur(28px)'; g.drawImage(im, -60, -60, W + 120, H + 120); g.filter = 'none';
+        g.fillStyle = X.osc ? 'rgba(14,13,12,.45)' : 'rgba(255,250,246,.45)'; g.fillRect(0, 0, W, H);
+        g.drawImage(im, ox, 0, iw, H);
+        var px = function (x) { return ox + x * k; }, py = function (y) { return y * k; }, col = X.osc ? '#F3E3C3' : '#1F1B18', acc = X.osc ? '#D4AF6A' : '#8A6A3A';
+        g.textAlign = 'center'; g.fillStyle = col;
+        var fn = 76, ancho = (X.x1 - X.x0) * k * 0.95; g.font = '600 ' + fn + 'px ' + T.tit; while (g.measureText(nom).width > ancho && fn > 34) { fn -= 3; g.font = '600 ' + fn + 'px ' + T.tit; }
+        g.fillText(nom, px((X.x0 + X.x1) / 2), py(X.y) - 14);
+        g.font = '30px ' + T.tit; g.fillText(new Date().toLocaleDateString('es-ES'), px(X.dx), py(X.fy) - 12);
+        g.font = '22px ' + T.tit; g.fillStyle = acc;
+        g.fillText('Certificado n.º ' + num + (D.horasOficiales ? ' · aprox. ' + horas + ' h de formación técnica y práctica' : ''), W / 2, H - 46);
+        var fin = function () { var url = c.toDataURL('image/jpeg', 0.9); listo(pdfJPEG(url, W, H)); };
+        if (D.firma) { var f = new Image(); f.onload = function () { var r = Math.min(300 / f.width, 120 / f.height); if (X.osc) { g.save(); g.filter = 'invert(1)'; } g.drawImage(f, px(X.fx) - f.width * r / 2, py(X.fy) - f.height * r - 4, f.width * r, f.height * r); if (X.osc) g.restore(); fin(); }; f.onerror = fin; f.src = D.firma; } else fin();
+      };
+      im.onerror = function () { listo(null); };
+      im.src = X.img;
+    }
     function certificado() {
       var nom = (prompt('Nombre completo para el certificado:', ST.nombre || '') || '').trim(); if (!nom) return; ST.nombre = nom; guarda();
       celebra(nom);
@@ -406,6 +428,11 @@
       var ORO = '#B08D57', AUTORA = 'Fátima Caldea', SELLO = 'FÁTIMA CALDEA', horas = horasCurso();
       var h = 0; (nom + '|' + D.titulo).split('').forEach(function (ch) { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
       var num = 'FC-' + new Date().getFullYear() + '-' + String(h % 1000000).padStart(6, '0') + (D.derechos && D.derechos.codigo ? ' · ' + D.derechos.codigo : '');
+      if (D.certDis && D.certDis.img) return certDiseno(nom, num, horas, function (b) {
+        if (!b) return;
+        var u = URL.createObjectURL(b), a = document.createElement('a');
+        a.href = u; a.download = 'certificado-' + nom.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-') + '.pdf'; a.click(); setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+      });
       var centro = function (t, y, f, col) { g.font = f; g.fillStyle = col; g.textAlign = 'center'; g.fillText(t, W / 2, y); g.textAlign = 'start'; };
       var ajustaT = function (t, w, f) { g.font = f; var pal = String(t).split(' '), l = [], a = ''; pal.forEach(function (p) { var b = a ? a + ' ' + p : p; if (g.measureText(b).width > w && a) { l.push(a); a = p; } else a = b; }); if (a) l.push(a); return l; };
       g.fillStyle = '#FFFDF8'; g.fillRect(0, 0, W, H);
