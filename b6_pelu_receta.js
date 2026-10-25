@@ -21,20 +21,27 @@
       d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda cuadrado.',
       fotos: { clase: 64, lavado: 469, queda_nuca: 64, queda_lateral: 64, queda_frente: 71 }
     },
-    /* Fátima: «la próxima clase, corte cuadrado en capas: el corte en capa larga, pero con forma cuadrada» */
+    /* Fátima: «la próxima clase, corte cuadrado en capas: el corte en capa larga, pero con forma cuadrada»; «en un corte recto no
+       se saca la guía desde arriba de la ceja: se nivela con el de atrás» (R.nivelar). Va en su módulo de capas. */
     cuadrado_capas: {
-      k: 'corte', n: 'Corte cuadrado en capas', lec: '__receta_cuadrado_capas', tras: '__basico_cuadrado',
-      receta: function (DG) { return Object.assign({}, DG.receta('capas_largas'), { n: 'Corte cuadrado en capas', linea: 'recta' }); },
-      d: 'El corte en capas largas, pero con forma cuadrada atrás. Capas largas: melena larga con movimiento repartido y el largo intacto.',
+      k: 'corte', n: 'Corte cuadrado en capas', lec: '__receta_cuadrado_capas', modulo: 'pe_u_c_capas',
+      receta: function (DG) { return Object.assign({}, DG.receta('capas_largas'), { n: 'Corte cuadrado en capas', linea: 'recta', nivelar: true }); },
+      d: 'El corte en capas largas, pero con forma cuadrada atrás. De frente se nivela con el de atrás. Capas largas: melena larga con movimiento repartido y el largo intacto.',
       fotos: { lavado: 469 }
     },
-    /* Fátima: su foto n.º 50 es un corte redondo con flequillo de lado (no pollina): «se saca debajo del ojo, colocándolo en
-       triángulo, cortando en triángulo»; «si vas a cortar todo redondo, divide la parte de adelante y la de atrás» */
-    redondo_fleco: {
-      k: 'corte', n: 'Corte redondo con flequillo de lado', lec: '__receta_redondo_fleco', tras: '__receta_cuadrado_capas',
-      receta: function (DG) { return Object.assign({}, DG.receta('basico_redondeado'), { n: 'Corte redondo con flequillo de lado', fleco: 'lado', emparejar: 'atras' }); },
-      d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón; atrás queda redondeado. Para cortar todo redondo se divide la parte de adelante y la parte de atrás, para no confundirse: cuando se corta de frente se empareja con el de atrás. El flequillo de lado se saca en triángulo y se corta en triángulo, debajo del ojo.',
-      fotos: { clase: [50, 0.13], lavado: 469, queda_frente: [50, 0.13] }
+    /* Fátima: «una clase, una técnica»: el corte redondo en su clase y el flequillo de lado en la suya */
+    redondo: {
+      k: 'corte', n: 'Corte redondo', lec: '__basico_redondeado', tras: '__basico_cuadrado',
+      receta: function (DG) { return Object.assign({}, DG.receta('basico_redondeado'), { n: 'Corte redondo', emparejar: 'atras' }); },
+      d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón; atrás queda redondeado. Para cortar todo redondo se divide la parte de adelante y la parte de atrás, para no confundirse: cuando se corta de frente se empareja con el de atrás.',
+      fotos: { lavado: 469 }
+    },
+    /* su foto n.º 50: «flequillo de lado; se saca debajo del ojo, colocándolo en triángulo, cortando en triángulo, y se peina de
+       lado; no se le dejan huecos al maniquí» */
+    fleco_lado: {
+      k: 'fleco', n: 'Flequillo de lado', lec: '__receta_fleco_lado', modulo: 'pe_u_c_flequillos', pre: 'rc_fleco_',
+      d: 'Flequillo de lado. Se saca más abajo de los ojos, colocándolo en triángulo, cortando en triángulo. Y se peina de lado, sin dejar huecos.',
+      fotos: { clase: [50, 0.13], peinado: [50, 0.13] }
     },
     /* Fátima: «en el tinte no expliques la decoloración»; las canas van en su propia clase, después */
     color_global: {
@@ -120,7 +127,68 @@
       K.rotulo(ej === 1 ? 'Antes: base 6 · después: 7,5' : 'Se agarran los tres primeros números', '#18906A', 0.66));
     return { v: v, tr: tr, banda: 1 };
   }
+  /* flequillo de lado: el triángulo (vértice en la raya de lado, base en el nacimiento de la frente) y el corte en triángulo,
+     más abajo de los ojos: corto junto a la raya y largo hacia el otro lado */
+  var C_TRI = '#C0392B';
+  function escFleco(K, fase) {
+    var v = 'frente', tr = [], R0 = K.CARA + 0.3, ap = K.P(R0, 0.32, 1.06), b1 = K.P(K.CARA + 0.62, 1.0, 1.06), b2 = K.P(K.CARA - 0.6, 1.0, 1.06);
+    var yOjo = -0.23, yNar = -0.4, yLab = -0.72;
+    function yCorte(ph) { var u = Math.max(0, Math.min(1, (R0 + 0.3 - ph) / 1.2)); return yOjo + (yNar - yOjo) * u; }
+    var tri = [K.pr(v, ap), K.pr(v, b1), K.pr(v, b2), K.pr(v, ap)];
+    tr.push(K.linea(K.plano(tri), [0.04, 0.3], C_TRI, 3));
+    for (var ph = K.CARA - 0.58; ph <= K.CARA + 0.6; ph += 0.04) {
+      function hasta(yT) { var o = []; for (var th = 0.36; th < 2.2; th += 0.04) { var q = K.P(ph, th, 1.07); if (q.y < yT) break; if (K.seVe(v, ph, th)) o.push(K.pr(v, q)); } return o; }
+      var largo = hasta(yLab), corto = hasta(yCorte(ph));
+      if (largo.length > 1) tr.push(K.linea(K.plano(largo), fase ? [0, 0.02] : [0.32, 0.6], '#5A3A26', 1.4, fase ? { x: 0.62 } : {}));
+      if (fase && corto.length > 1) tr.push(K.linea(K.plano(corto), [0.62, 0.8], '#5A3A26', 1.4));
+    }
+    if (fase === 2) return escFlecoPeinado(K, R0, yCorte);
+    if (fase) {
+      var cut = []; for (var p2 = K.CARA + 0.6; p2 >= K.CARA - 0.58; p2 -= 0.06) { var yc = yCorte(p2); for (var th2 = 0.36; th2 < 2.2; th2 += 0.04) { var q2 = K.P(p2, th2, 1.07); if (q2.y < yc) { if (K.seVe(v, p2, th2)) cut.push(K.pr(v, q2)); break; } } }
+      if (cut.length > 1) { tr.push(K.tijera(K.plano(cut), [0.3, 0.6], C_TRI, false)); tr.push(K.linea(K.plano(cut), [0.62, 0.8], C_TRI, 3)); }
+      tr.push(K.rotulo('Se corta en triángulo, más abajo de los ojos', C_TRI, 0.3));
+    } else tr.push(K.rotulo('El flequillo se saca en triángulo', C_TRI, 0.04), K.rotulo('Se peina hacia delante, sobre la cara', '#5A3A26', 0.32));
+    return { v: v, tr: tr, banda: 1 };
+  }
+  /* «se peina de lado, sin dejar huecos»: raya de lado; el flequillo cruza la frente desde la raya y acaba en la línea del corte; el
+     resto del cabello cae a los lados del rostro, en líneas, como el resultado de los cortes */
+  function escFlecoPeinado(K, R0, yCorte) {
+    var v = 'frente', tr = [], PELO = '#5A3A26', yLargo = -1.62, fin = [];
+    tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [R0, u * 0.3]; }, 12), [0, 0.03], '#1F1B18', 2.4));
+    /* el cabello de los lados: desde arriba, peinado hacia su lado, hasta el largo del corte */
+    for (var ph = K.CARA - 1.3; ph <= K.CARA + 1.3; ph += 0.045) {
+      var dC = Math.atan2(Math.sin(ph - K.CARA), Math.cos(ph - K.CARA)); if (dC > -0.95 && dC < 0.62) continue;
+      var lado = dC >= 0 ? 1 : -1, o = [], ult = null;
+      for (var t = 0.06; t <= 1.28; t += 0.07) { var p2 = Math.abs(dC) < 0.62 ? K.CARA + lado * Math.min(0.62, Math.abs(dC) + t * 0.5) : ph; if (!K.seVe(v, p2, t)) continue; ult = K.P(p2, t, 1.06); o.push(K.pr(v, ult)); }
+      if (ult && ult.y > yLargo) o.push(K.pr(v, K.V3(ult.x * 1.03, yLargo, ult.z * 1.03)));
+      if (o.length > 1) tr.push(K.linea(K.plano(o), [0.05, 0.45], PELO, 1.3));
+    }
+    /* el flequillo: de la raya hacia el otro lado, en diagonal, hasta la línea del corte */
+    var lejos = K.CARA - 0.95;
+    var cerca = K.CARA + 0.6;
+    for (var pe = cerca; pe >= lejos; pe -= 0.022) {
+      /* del lado de la raya, un poco más abajo del ojo; hacia el otro lado, más largo (en triángulo) */
+      var u = (cerca - pe) / (cerca - lejos), yE = -0.22 + (-0.62 + 0.22) * u * u, thE = 0.08; for (; thE < 2.2; thE += 0.02) if (K.P(pe, thE, 1.07).y < yE) break;
+      var f = []; for (var w = 0; w <= 1.0001; w += 0.04) { var pw = R0 + (pe - R0) * Math.sqrt(w), tw = 0.06 + (thE - 0.06) * Math.pow(w, 1.6); if (K.seVe(v, pw, tw)) f.push(K.pr(v, K.P(pw, tw, 1.08 + 0.04 * Math.sin(Math.PI * w)))); }
+      if (f.length > 1) { tr.push(K.linea(K.plano(f), [0.45, 0.75], PELO, 1.3)); fin.push(f[f.length - 1]); }
+    }
+    fin.sort(function (p, q) { return p[0] - q[0]; });
+    if (fin.length > 1) tr.push(K.linea(K.plano(fin), [0.75, 0.9], C_TRI, 3), K.chapa(fin[Math.floor(fin.length / 2)], 'Flequillo · más abajo de los ojos', C_TRI, 0.8));
+    tr.push(K.rotulo('Raya de lado: el flequillo se peina de lado, sin huecos', '#1F1B18', 0.02));
+    return { v: v, tr: tr, banda: 1 };
+  }
   var CACHE_E = {};
+  function flecoE() {
+    if (CACHE_E.fleco) return CACHE_E.fleco;
+    var DG = window.EU_DIAGRAMA; if (!DG || !DG.construirYa) return null;
+    var EN = null;
+    try { EN = DG.construirConYa(function (K) { return { R: { id: 'rc_fleco', n: 'Flequillo de lado' }, escenas: [
+      { tipo: 'triangulo', vista: 'frente', t: 'Se saca en triángulo', texto: 'El flequillo se saca en triángulo, desde la raya de lado.', a: escFleco(K, 0) },
+      { tipo: 'corte', vista: 'frente', t: 'Se corta en triángulo, más abajo de los ojos', texto: 'Se corta en triángulo, más abajo de los ojos.', a: escFleco(K, 1) },
+      { tipo: 'peinado', vista: 'frente', t: 'Se peina de lado', texto: 'Y se peina de lado, sin dejar huecos.', a: escFleco(K, 2) }] }; }); } catch (e) { EN = null; }
+    if (!EN) return null;
+    return (CACHE_E.fleco = { R: { n: 'Flequillo de lado' }, escenas: EN.escenas, fondos: EN.fondos, preguntas: [] });
+  }
   function ejemplosE() {
     if (CACHE_E.ej) return CACHE_E.ej;
     var DG = window.EU_DIAGRAMA, c = clase('fat_p02'); if (!DG || !window.EU_PARTICIONES || !c) return null;
@@ -172,6 +240,11 @@
       E.escenas.filter(function (e) { return !esQueda(e); }).forEach(function (e) { P.push({ etapa: 'vis', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
       (E.preguntas || []).forEach(function (q) { P.push({ etapa: 'practica', tipo: 'pregunta', t: 'Pregunta', texto: q.e, q: q }); });
       fin.forEach(function (e) { P.push({ etapa: 'queda', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
+    } else if (r.k === 'fleco') {
+      E = flecoE(); if (!E) return [];
+      var ult = E.escenas[E.escenas.length - 1];
+      P.push({ etapa: 'clase', tipo: 'clase', t: r.n, texto: r.d, e: ult, foto: foto(r.fotos.clase) });
+      E.escenas.forEach(function (e, i) { P.push({ etapa: i === E.escenas.length - 1 ? 'queda' : 'vis', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
     } else if (r.k === 'canas') {
       E = canasE(); if (!E) return [];
       E.escenas.forEach(function (e, i) { P.push({ etapa: esQueda(e) ? 'queda' : i === 0 ? 'clase' : 'vis', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
@@ -206,6 +279,7 @@
       var M0 = null, iL = -1, L = null;
       D.modulos.some(function (M) { return M.lecciones.some(function (l, i) { if (l.id === M.id + r.lec) { M0 = M; iL = i; L = l; return true; } return false; }); });
       if (!L && r.tras) D.modulos.some(function (M) { return M.lecciones.some(function (l, i) { if (l.id === M.id + r.tras) { M0 = M; iL = i; return true; } return false; }); });
+      if (!L && !M0 && r.modulo) D.modulos.some(function (M) { if (M.id !== r.modulo) return false; M0 = M; iL = -1; M.lecciones.forEach(function (l, i) { if (/__(video|bienvenida|clase\d+)$/.test(l.id) && i === iL + 1) iL = i; }); return true; });
       if (!M0) return;
       Object.keys(P.E.fondos || {}).forEach(function (v) { D.img['dg_' + v] = D.img['dg_' + v] || P.E.fondos[v]; });
       if (P.some(function (p) { return p.e && p.e.tipo && /^cuenta/.test(p.e.tipo); })) { var EJ = ejemplosE(); Object.keys(EJ.fondos || {}).forEach(function (v) { D.img['dg_' + v] = D.img['dg_' + v] || EJ.fondos[v]; }); }
