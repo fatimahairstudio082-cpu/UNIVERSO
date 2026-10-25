@@ -260,7 +260,7 @@
     function escena(k, alAcabar) {
       var L = cur.L, e = L.escenas[k]; cur.k = k; cur.pos = 0; cur.fin = false; cur.rev = false; cur.b = false; cur.t0 = performance.now();
       /* Fátima, 18-10-2026: la animación va más lenta que la voz (×1,4, mínimo 8 s) y la escena siguiente espera a que termine */
-      cur.ta0 = performance.now(); cur.ad = e.anim && !e.fin && e.tipo !== 'pregunta' ? Math.max(8000, e.texto.length / 14.5 * 1000 * 1.4) / (cur.vel || 1) : 0;
+      cur.ta0 = performance.now(); cur.ad = e.anim && !e.fin && e.tipo !== 'pregunta' ? Math.max(12000, e.texto.length / 14.5 * 1000 * 2) / (cur.vel || 1) : 0;   /* 25-10-2026, Fátima: «más lenta»: mínimo 12 s y el doble de lo que dura la voz */
       pintaPregunta(e); textoBajo(e);
       var sigue = function () {
         if (e.tipo === 'pregunta' && !cur.rev) { setTimeout(function () { if (!cur.play) return; cur.rev = true; textoBajo(e); habla(e.sol, function () { setTimeout(alAcabar, 900); }); }, 3500); return; }

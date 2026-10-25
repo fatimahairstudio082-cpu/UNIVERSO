@@ -13,50 +13,122 @@
   if (window.EU_PELU_RECETA) return;
 
   /* técnica → { lección del curso (final del id), prefijo de las animaciones, fotos por paso (tipo de escena → n.º de la
-     galería), escenas que no van, pasos que se añaden, vídeo inicial } */
+     galería), escenas que no van, pasos que se añaden, vídeo inicial }.
+     Fátima, 25-10-2026: cada foto tiene que enseñar LO MISMO que el maniquí (forma y elevación). El básico cuadrado es un
+     corte recto a 0°: solo lleva fotos de corte recto (n.º 64 «Corte recto» y 71 «Corte largo recto»); la n.º 50 es un
+     corte redondo con pollina y no va aquí. Las fotos de divisiones 81–90 no van en los pasos (todas iguales). */
   var R = {
     basico_cuadrado: {
       k: 'corte', n: 'Básico cuadrado', lec: '__basico_cuadrado', pre: 'basico_cuadrado_',
       quita: /^(Paso \d|Cortes · )/,
       mp4: 'clases/lavado.mp4',
-      fotos: { lavado: 469, seccion: 402, particion: 327, guia: 397, queda_nuca: 50, queda_lateral: 50, queda_frente: 50 }
+      fotos: { lavado: 469, queda_nuca: 64, queda_lateral: 64, queda_frente: 71 }
     },
+    /* Fátima: «en el tinte no expliques la decoloración»; las canas van en su propia clase, después */
     color_global: {
-      k: 'tec', id: 'cb_color_global', cer: 'color_global', n: 'Color global', lec: '__color_global', pre: 'cb_color_global_',
-      fotos: { cb_receta: 478, cb0_divisiones: 379, cb_lam_plantaCuatro: 330, cb1_aplicacion: 479, cb2_aplicacion: 313, cb3_aplicacion: 254, cb4_aplicacion: 301, cb_queda_color: 96 },
-      /* su clase del peróxido (b6_color_fatima.js · fat_p01), con la foto del oxidante, después de la preparación */
-      insertar: [{ tras: 'cb_receta', tipo: 'oxidante', t: 'El oxidante (peróxido)', foto: 495, clase: 'fat_p01' }]
+      k: 'tec', id: 'cb_color_global', cer: 'color_global', n: 'Tinte · color global', lec: '__color_global', pre: 'cb_color_global_',
+      quitaT: /cubrir las canas/i,
+      fotos: { cb_receta: 478, cb0_divisiones: 379, cb_lam_plantaCuatro: 330, cb1_aplicacion: 479, cb2_aplicacion: 301, cb_queda_color: 96 },
+      /* su clase del peróxido (fat_p01) solo con lo que es del tinte, y su recomendación de 20/30 vol de la ficha */
+      insertar: [{ tras: 'cb_receta', tipo: 'oxidante', t: 'El oxidante (peróxido) en el tinte', foto: 495, clase: 'fat_p01', solo: [0, 1, 2, 3, 7], rec: [1], tools: [0, 1, 2, 4, 5] }]
+    },
+    /* clase nueva, detrás del color global: las dos fórmulas del mismo tinte (sus textos: Cerebro y fat_i02) */
+    tinte_canas: {
+      k: 'canas', n: 'Tinte para cubrir canas', lec: '__receta_canas', pre: 'rc_canas_', tras: '__color_global',
+      fotos: { formulas: 314, cb0_divisiones: 379, raiz: 254, puntas: 313, cb_queda_color: 97 }
     }
   };
 
   function G() { return window.EU_PELU_GALERIA; }
   function foto(n) { var g = G(); if (!g || !n) return null; var id = g.id(n), d = g.dato(id); return d ? { id: id, src: d, t: g.titulo(n) } : null; }
-  /* puntos de una clase de su cerebro de colorimetría, tal cual (sin el icono del principio) */
-  function puntosClase(id) {
-    var B = window.EU_COLOR_CEREBRO, c = null; (B && B.clases || []).some(function (x) { if (x.id === id) { c = x; return true; } return false; });
-    return c ? c.b.map(function (b) { return [b[0], String(b[1]).replace(/^[^\wÁÉÍÓÚÑáéíóúñ¿¡]+/, '')]; }) : [];
+  function clase(id) { var B = window.EU_COLOR_CEREBRO, c = null; (B && B.clases || []).some(function (x) { if (x.id === id) { c = x; return true; } return false; }); return c; }
+  function limpio(t) { return String(t).replace(/^[^\wÁÉÍÓÚÑáéíóúñ¿¡]+/, ''); }
+  /* puntos de una clase de su cerebro de colorimetría, tal cual (sin el icono del principio); `a.solo` = cuáles */
+  function puntosDe(a) {
+    var c = clase(a.clase); if (!c) return [];
+    var b = c.b.filter(function (x, i) { return !a.solo || a.solo.indexOf(i) >= 0; }).map(function (x) { return [x[0], limpio(x[1])]; });
+    var F = a.rec && window.EU_CEREBRO && EU_CEREBRO.ficha && EU_CEREBRO.ficha(R.color_global.cer);
+    (a.rec || []).forEach(function (k) { if (F && F.recomendaciones && F.recomendaciones[k]) b.push(['importante', F.recomendaciones[k]]); });
+    return b;
   }
-  function toolsClase(id) { var B = window.EU_COLOR_CEREBRO, c = null; (B && B.clases || []).some(function (x) { if (x.id === id) { c = x; return true; } return false; }); return c && c.tools || []; }
-  function textoClase(id) { return puntosClase(id).map(function (b) { return b[1]; }).join(' '); }
+  function textoDe(a) { return puntosDe(a).map(function (b) { return b[1]; }).join(' '); }
+  function toolsClase(id) { var c = clase(id); return c && c.tools || []; }
   function activo(cfg) { return cfg && cfg.materia === 'pelu' && ((cfg.acab || {}).receta) !== 'no'; }
 
+  /* ─────────── la clase de canas: el producto se ve en el cabello ───────────
+     Mismo tinte, dos fórmulas: la fuerte (más tinte, menos peróxido) en la raíz, tres dedos; la diluida desde ahí hasta
+     las puntas. En el maniquí: las canas en la raíz, la raíz que se cubre con el color fuerte y el resto con el diluido. */
+  var C_FUERTE = '#8A5A33', C_DILUIDO = 'rgba(168,116,67,0.55)', C_CANA = '#E9E9E9', C_LINEA = '#1F1B18', RAIZ = 0.25;
+  function escCanas(K, fase) {
+    var A = window.EU_PARTICIONES.ayudas, v = 'nuca', tr = [], filas = [1.85, 1.6, 1.35, 1.1], cols = [-0.75, -0.45, -0.15, 0.15, 0.45, 0.75], nf = filas.length;
+    filas.forEach(function (th, f) {
+      var ta = 0.06 + f * 0.86 / nf, tb = ta + 0.86 / nf;
+      tr = tr.concat(K.lineas(K.tramos(v, function (u) { return [K.NUCA - 0.85 + u * 1.7, th]; }, 30), fase ? [ta, ta + 0.04] : [0, 0.02], C_LINEA, 2));
+      cols.forEach(function (d, j) {
+        var ph = K.NUCA + d, t0 = ta + 0.04 + j * 0.01;
+        var raiz = A.mecha(K, v, ph, th, 0, RAIZ), resto = A.mecha(K, v, ph, th, RAIZ, 1);
+        if (fase === 0) { if (raiz) tr.push(K.linea(raiz, [0.05 + f * 0.04, 0.08 + f * 0.04], C_CANA, 4)); return; }
+        if (fase === 1) { if (raiz) { tr.push(K.linea(raiz, [0, 0.01], C_CANA, 4)); tr.push(K.linea(raiz, [t0, tb], C_FUERTE, 8)); } return; }
+        if (raiz) tr.push(K.linea(raiz, [0, 0.01], C_FUERTE, 8));
+        if (resto) tr.push(K.linea(resto, [t0, tb], C_DILUIDO, 7));
+      });
+    });
+    if (fase === 0) tr.push(K.rotulo('Las canas, en la raíz: tres o cuatro dedos', '#7A7A7A', 0.04), K.rotulo('Fórmula 1 · raíz: más tinte, menos peróxido · 20 vol', C_FUERTE, 0.3), K.rotulo('Fórmula 2 · resto: el mismo tinte, bien diluido · 20 + 30 vol', '#A87443', 0.55));
+    if (fase === 1) tr.push(K.rotulo('Fórmula fuerte · solo en la raíz, tres dedos', C_FUERTE, 0.04), K.rotulo('De la nuca hacia arriba, capa por capa', C_LINEA, 0.04));
+    if (fase === 2) tr.push(K.rotulo('Fórmula diluida · de los tres dedos a las puntas', '#A87443', 0.04), K.rotulo('La raíz ya cubierta con la fórmula fuerte', C_FUERTE, 0.04));
+    return { v: v, tr: tr };
+  }
+  var CANAS = null;
+  function canasE() {
+    if (CANAS) return CANAS;
+    var DG = window.EU_DIAGRAMA, PA = window.EU_PARTICIONES, CB = window.EU_CEREBRO; if (!DG || !PA || !PA.ayudas || !CB) return null;
+    var EB = null; try { EB = PA.construirYa('cb_color_global'); } catch (e) { EB = null; }
+    var EN = null; try { EN = DG.construirConYa(function (K) { return { R: { id: 'rc_canas', n: R.tinte_canas.n }, escenas: [
+      { tipo: 'formulas', vista: 'nuca', t: 'Dos fórmulas del mismo tinte', a: escCanas(K, 0) },
+      { tipo: 'raiz', vista: 'nuca', t: 'Raíz · la fórmula fuerte', a: escCanas(K, 1) },
+      { tipo: 'puntas', vista: 'nuca', t: 'De los tres dedos a las puntas · la fórmula diluida', a: escCanas(K, 2) }] }; }); } catch (e) { EN = null; }
+    if (!EB || !EN) return null;
+    var paso = function (re) { var x = (CB.pasos('color_global') || []).filter(function (p) { return re.test(p.t); })[0]; return x ? x.n : ''; };
+    var F = CB.ficha('color_global') || {}, rec = F.recomendaciones || [], c = clase('fat_i02'), b = c ? c.b.map(function (x) { return limpio(x[1]); }) : [];
+    var de = function (re) { return EB.escenas.filter(function (e) { return re.test(e.tipo); })[0]; };
+    var copia = function (e, t, tx) { return e ? Object.assign({}, e, { t: t || e.t, texto: tx || e.texto }) : null; };
+    var nv = {}; EN.escenas.forEach(function (e) { nv[e.tipo] = e; });
+    nv.formulas.texto = [b[0], rec[2]].filter(Boolean).join(' ');
+    nv.raiz.texto = [paso(/canas · raíz/), b[2]].filter(Boolean).join(' ');
+    nv.puntas.texto = paso(/canas · hasta las puntas/);
+    var esc = [nv.formulas, copia(de(/divisiones$/)), nv.raiz, nv.puntas,
+      copia(de(/_tiempo$/), 'Exposición', b[4]), copia(de(/_cierre$/), 'Retirar, lavar y terminar', b[5]), copia(de(/^cb_queda_color$/))].filter(function (e) { return e && e.texto; });
+    return (CANAS = { R: EN.R, escenas: esc, fondos: EN.fondos });
+  }
+
   /* ─────────── curso ─────────── */
+  function anclaE(D, e, pre) { var k = pre + e.tipo; D.anim[k] = e.anim; D.img['dg_' + e.vista] = D.img['dg_' + e.vista] || (CANAS && CANAS.fondos[e.vista]); return k; }
   function curso(D) {
     if (!D || !D.modulos || D._receta) return D;
     var V = (window.EU_PELU_VIDEOS && window.EU_PELU_VIDEOS.VIDEOS) || {};
+    D.img = D.img || {}; D.anim = D.anim || {};
     Object.keys(R).forEach(function (k) {
-      var r = R[k], L = null;
-      D.modulos.some(function (M) { return M.lecciones.some(function (l) { if (l.id === M.id + r.lec) { L = l; return true; } return false; }); });
-      if (!L) return;
-      if (r.quita) L.escenas = L.escenas.filter(function (e) { return !r.quita.test(e.t || ''); });
-      D.img = D.img || {};
+      var r = R[k], L = null, M0 = null, iL = -1;
+      if (r.k === 'canas') {
+        D.modulos.some(function (M) { return M.lecciones.some(function (l, i) { if (l.id === M.id + r.tras) { M0 = M; iL = i; return true; } return false; }); });
+        var E = M0 && canasE(); if (!E) return;
+        Object.keys(E.fondos).forEach(function (v) { D.img['dg_' + v] = D.img['dg_' + v] || E.fondos[v]; });
+        L = { id: M0.id + r.lec, t: r.n, pag: M0.pag, escenas: E.escenas.map(function (e) { return { tipo: 'paso', id: 'dg_' + e.vista, t: e.t, texto: e.texto, rot: [], anim: anclaE(D, e, r.pre) }; }) };
+        M0.lecciones.splice(iL + 1, 0, L);
+      } else {
+        D.modulos.some(function (M) { return M.lecciones.some(function (l) { if (l.id === M.id + r.lec) { L = l; return true; } return false; }); });
+        if (!L) return;
+        if (r.quita) L.escenas = L.escenas.filter(function (e) { return !r.quita.test(e.t || ''); });
+        if (r.quitaT) L.escenas = L.escenas.filter(function (e) { return !r.quitaT.test(e.t || ''); });
+        if (r.k === 'tec') L.t = r.n;
+      }
       L.escenas.forEach(function (e) {
         var s = e.anim && e.anim.indexOf(r.pre) === 0 ? e.anim.slice(r.pre.length) : '', f = foto(r.fotos[s]);
         if (f) { D.img[f.id] = f.src; e.foto = f.id; }
       });
       (r.insertar || []).forEach(function (a) {
         var i = -1; L.escenas.forEach(function (e, j) { if (e.anim === r.pre + a.tras) i = j; });
-        var f = foto(a.foto), tx = textoClase(a.clase); if (!tx) return;
+        var f = foto(a.foto), tx = textoDe(a); if (!tx) return;
         if (f) D.img[f.id] = f.src;
         L.escenas.splice(i + 1, 0, { tipo: 'paso', id: f ? f.id : (L.escenas[0] || {}).id, foto: f ? f.id : undefined, t: a.t, texto: tx, rot: [] });
       });
@@ -86,10 +158,12 @@
   /* ─────────── libro: una hoja por paso ─────────── */
   function escenas(k) {
     var r = R[k]; if (!r) return [];
-    var E = null, fotoDe = null;
+    var E = null, fotoDe = null, d = null;
     if (r.k === 'corte') {
-      var LD = window.EU_PELU_LIBRO_DG, d = null; try { d = LD && LD.datos({ k: 'corte', corte: k }); } catch (e) { d = null; }
+      var LD = window.EU_PELU_LIBRO_DG; try { d = LD && LD.datos({ k: 'corte', corte: k }); } catch (e) { d = null; }
       E = d && d.E; fotoDe = function (e) { try { return window.EU_DIAGRAMA.foto(e, 760, 0.82); } catch (er) { return ''; } };
+    } else if (r.k === 'canas') {
+      E = canasE(); fotoDe = function (e) { try { return window.EU_DIAGRAMA.foto(e, 760, 0.82); } catch (er) { return ''; } };
     } else {
       var LA = window.EU_PELU_LIBRO_ANIM, d2 = null; try { d2 = LA && LA.datos(r.id || k); } catch (e) { d2 = null; }
       E = d2 && d2.E; fotoDe = function (e, i) { try { return LA.foto(r.id || k, i, 760); } catch (er) { return ''; } };
@@ -98,8 +172,9 @@
     var P = []; P.R = d && d.R;
     E.escenas.forEach(function (e, i) {
       if (r.quita && r.quita.test(e.t || '')) return;
+      if (r.quitaT && r.quitaT.test(e.t || '')) return;
       P.push({ tipo: e.tipo, t: e.t, texto: e.texto, foto: foto(r.fotos[e.tipo]), mani: fotoDe(e, i) });
-      (r.insertar || []).forEach(function (a) { if (a.tras === e.tipo) { var b = puntosClase(a.clase); if (b.length) P.push({ tipo: a.tipo, t: a.t, texto: textoClase(a.clase), puntos: b, tools: toolsClase(a.clase), foto: foto(a.foto), mani: '' }); } });
+      (r.insertar || []).forEach(function (a) { if (a.tras === e.tipo) { var b = puntosDe(a); if (b.length) P.push({ tipo: a.tipo, t: a.t, texto: textoDe(a), puntos: b, tools: toolsClase(a.clase).filter(function (x, i) { return !a.tools || a.tools.indexOf(i) >= 0; }), foto: foto(a.foto), mani: '' }); } });
     });
     return P;
   }
@@ -130,7 +205,7 @@
   }
   function recomTinte(id, T) {
     var F = window.EU_CEREBRO && EU_CEREBRO.ficha && EU_CEREBRO.ficha(id); if (!F || !(F.recomendaciones || []).length) return '';
-    return caja(T, 'Recomendaciones', '<ul style="margin:0;padding-left:5mm">' + F.recomendaciones.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+    return caja(T, 'Recomendaciones', '<ul style="margin:0;padding-left:5mm">' + F.recomendaciones.filter(function (x) { return !/canas/i.test(x); }).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
   }
 
   var ED = window.EU_EDITORIAL;
@@ -144,8 +219,8 @@
           var alto = ((C.papel && C.papel.h) || 297) >= 250, ult = pg.paso === P.length - 1;
           var extra = '';
           if (r.k === 'corte') { if (pg.paso === 0 || ult || CORTE_ELEV.test(p.tipo)) extra = fichaCorte(P.R, T); }
-          else if (pg.paso === 0) extra = fichaTinte(r.cer, T);
-          else if (ult) extra = recomTinte(r.cer, T);
+          else if (r.cer && pg.paso === 0) extra = fichaTinte(r.cer, T);
+          else if (r.cer && ult) extra = recomTinte(r.cer, T);
           /* la foto arriba y el maniquí debajo, cada uno a todo lo ancho que quepa (como un libro de recetas);
              se achican si la hoja lleva ficha o el texto es largo */
           var menos = (extra ? 16 : 0) + ((p.texto || '').length > 300 ? 10 : 0);
