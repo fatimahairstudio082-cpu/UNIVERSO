@@ -718,7 +718,7 @@
     for (var z = 0; z < n; z++) {
       var g = pila[z] || 0, c = COL[z % 7], ta = 0.04 + dt0 * z, tb = ta + dt0, tm = ta + dt0 * 0.5, th = frente ? 0.16 + z * (0.7 / n) : thCapa(z, n), cortes = [], fuerte = null, mejor = 1e9;
       /* el mechón resaltado se elige en el borde de la cabeza (de perfil para la vista), donde su elevación se ve entera */
-      var objetivo = frente ? CARA + (z % 2 ? 1.1 : -1.1) : v === 'nuca' ? NUCA + (z % 2 ? 1.15 : -1.15) : NUCA;
+      var objetivo = frente ? CARA - 1.1 : v === 'nuca' ? NUCA - 1.15 : NUCA;   /* del lado contrario al reloj, para que no se pisen */
       for (var ph = -Math.PI; ph < Math.PI; ph += frente ? 0.05 : 0.045) {
         if (!dentro(ph) || !seVe(v, ph, th)) continue;
         var a = P(ph, th, 1.04 + 0.004 * z), yf = Math.min(a.y - 0.06, y0(ph) + ((dif[z] && dif[z].t) || 0)), pts = [pr(v, a)], ult = a;
