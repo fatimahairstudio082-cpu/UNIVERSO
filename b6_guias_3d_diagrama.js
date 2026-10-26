@@ -63,10 +63,15 @@
     if (st._chE !== o.E && el._dgSincro) { st._chE = o.E; el._dgSincro(); }
     var L = o.E.escenas, ahora = performance.now(), t0 = st.t0 || (st.t0 = ahora), dt = ahora - t0;
     var modo = st.modo || 'todo', e, prog, k;
-    if (modo === 'todo') { k = Math.floor(dt / DUR) % L.length; e = L[k]; prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
+    /* 26-10-2026 (Fátima: «las animaciones se ven demasiado rápidas»): cada escena dura lo que pide (anim.dur, p. ej. una capa
+       mechón por mechón) y nunca menos de DUR; antes todas 20 s */
+    function durDe(z) { return Math.max(DUR, (z && z.anim && z.anim.dur) || 0); }
+    function elige(Lx) { var tot = 0; Lx.forEach(function (z) { tot += durDe(z); }); var r = dt % tot, i = 0; while (i < Lx.length - 1 && r >= durDe(Lx[i])) { r -= durDe(Lx[i]); i++; } return { k: i, e: Lx[i], prog: Math.min(1, r / (durDe(Lx[i]) * 0.85)) }; }
+    var sel;
+    if (modo === 'todo') { sel = elige(L); k = sel.k; e = sel.e; prog = sel.prog; }
     else if (modo === 'dos') { prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
-    else if (/\*$/.test(modo)) { var Lp = L.filter(function (z) { return z.tipo.indexOf(modo.slice(0, -1)) === 0; }); if (!Lp.length) Lp = [L[0]]; k = Math.floor(dt / DUR) % Lp.length; e = Lp[k]; prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
-    else { e = L.filter(function (z) { return z.tipo === modo; })[0] || L[0]; prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
+    else if (/\*$/.test(modo)) { var Lp = L.filter(function (z) { return z.tipo.indexOf(modo.slice(0, -1)) === 0; }); if (!Lp.length) Lp = [L[0]]; sel = elige(Lp); k = sel.k; e = sel.e; prog = sel.prog; }
+    else { e = L.filter(function (z) { return z.tipo === modo; })[0] || L[0]; prog = Math.min(1, (dt % durDe(e)) / (durDe(e) * 0.85)); }
     x.fillStyle = '#B5476B'; x.font = '600 18px Georgia,serif'; x.fillText(('Diagramación · ' + o.R.n + (o.R.liso ? ' · liso extremo' : '')).toUpperCase(), 40, 38);
     x.fillStyle = '#1F1B18'; x.font = '600 32px Georgia,serif';
     if (modo === 'dos') {

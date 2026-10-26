@@ -206,6 +206,49 @@
           'Cada línea queda más larga que la de abajo: así sale un escalonado con capas, sin elevación.'
         ] }
     },
+    /* 26-10-2026 (Fátima: «deja en Guías 3D los cortes que van más abajo del hombro, que serían cortes rectos»; «si el corte es
+       recto sin pollina, el cabello debe estar largo tanto de lateral como de la parte de atrás»; «si vas a hacer un corte recto con
+       pollina, tienes que decir corte recto con pollina»; «corte recto cuadrado con flequillo de lado»). Todo a 0°: delante se
+       empareja con la línea de atrás. `largo: 'hombro'` = más abajo del hombro; `fleco` = 'pollina' | 'lado'. */
+    {
+      id: 'recto_largo', fam: 'basicos', n: 'Corte recto cuadrado largo', largo: 'hombro',
+      d: 'Corte recto sin pollina, más abajo del hombro: todo a 0°, sin elevación. El cabello queda largo tanto de lateral como de la parte de atrás.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'horizontal', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Recto y parejo, largo atrás y en los laterales.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Se divide el cabello de oreja a oreja.',
+          'Línea guía en la nuca a 0°. Se empieza a cortar a 0°: los únicos cortes que se hacen horizontales son los que no llevan ninguna elevación.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida, para que el corte quede parejo. Atrás queda cuadrado.',
+          'Luego se cortan los laterales y se emparejan con el corte cómo quedó en la parte de atrás. Sin pollina: no se saca otra guía delante.'
+        ] }
+    },
+    {
+      id: 'recto_largo_pollina', fam: 'basicos', n: 'Corte recto cuadrado largo con pollina', largo: 'hombro', fleco: 'pollina',
+      d: 'Corte recto con pollina, más abajo del hombro: todo a 0°, sin elevación. Largo atrás y en los laterales, y la pollina al ras de la ceja.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'horizontal', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Recto y parejo, largo atrás y en los laterales, con pollina.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Se divide el cabello de oreja a oreja y la pollina se separa delante.',
+          'Línea guía en la nuca a 0°. Se empieza a cortar a 0°: los únicos cortes que se hacen horizontales son los que no llevan ninguna elevación.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida. Los laterales se emparejan con el corte cómo quedó en la parte de atrás.',
+          'Pollina: la pollina va siempre al ras de la ceja o un poquito más abajo, nunca más arriba.'
+        ] }
+    },
+    {
+      id: 'recto_largo_fleco_lado', fam: 'basicos', n: 'Corte recto cuadrado largo con flequillo de lado', largo: 'hombro', fleco: 'lado',
+      d: 'Corte recto con flequillo de lado, más abajo del hombro: todo a 0°, sin elevación. Largo atrás y en los laterales, y el flequillo de lado.',
+      mejor: ['liso', 'ondulado', 'liso_extremo'],
+      g: { part: 'horizontal', tipo: 'Recto', elev: plana(0), guiaElev: 0, dir: 'Caída natural', acabado: 'Recto',
+        resultado: 'Recto y parejo, largo atrás y en los laterales, con flequillo de lado.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Se divide el cabello de oreja a oreja; raya de lado.',
+          'Línea guía en la nuca a 0°. Se empieza a cortar a 0°: los únicos cortes que se hacen horizontales son los que no llevan ninguna elevación.',
+          'Cada mechón que se agarra se corta a 0° y de esa misma medida. Los laterales se emparejan con el corte cómo quedó en la parte de atrás.',
+          'Flequillo de lado: se saca más abajo de los ojos, colocándolo en triángulo, cortando en triángulo, y se peina de lado, sin dejar huecos.'
+        ] }
+    },
     /* ── Melenas y bob ── */
     {
       id: 'bob_recto', fam: 'melenas', n: 'Bob recto clásico',
@@ -840,7 +883,10 @@
     get: function (id) {
       var c = PORID[id];
       if (!c) return null;
-      return { id: c.id, n: c.n, fam: c.fam, d: c.d, mejor: c.mejor.slice() };
+      /* 26-10-2026: `largo` y `fleco` solo si el corte los trae (cortes rectos largos) */
+      var o = { id: c.id, n: c.n, fam: c.fam, d: c.d, mejor: c.mejor.slice() };
+      if (c.largo) o.largo = c.largo; if (c.fleco) o.fleco = c.fleco;
+      return o;
     },
 
     /* ¿Le va este corte a este cabello? Para avisar sin prohibir. */

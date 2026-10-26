@@ -194,6 +194,10 @@
       if (mat === 'pelu' && L && L.slice) {
         var iD = -1, iC = -1; L.forEach(function (u, i) { if (u.id === 'cb_quim_decoloracion') iD = i; else if (iC < 0 && /^cb_color_/.test(u.id)) iC = i; });
         if (iD > iC && iC >= 0) { L = L.slice(); var uD = L.splice(iD, 1)[0]; L.splice(iC, 0, uD); }
+        /* 26-10-2026 (Fátima: «primero el tinte en cabello virgen; el cabello procesado es otra lección»): el retoque de raíz (tinte
+           en cabello ya procesado) va justo después del color global (tinte en cabello virgen) */
+        var iR = -1, iG = -1; L.forEach(function (u, i) { if (u.id === 'cb_color_raiz') iR = i; else if (u.id === 'cb_color_global') iG = i; });
+        if (iR >= 0 && iG > iR) { L = L.slice(); var uR = L.splice(iR, 1)[0]; L.splice(iG, 0, uR); }
       }
       if (mat === 'pelu' && NIVEL && POR_NIVEL[NIVEL] && L && L.filter) L = L.filter(function (u) { return POR_NIVEL[NIVEL].some(function (r) { return r.test(u.id); }); });
       if (mat !== 'pelu' || !TEMA || !TEMAS[TEMA] || !L || !L.slice) return L;
