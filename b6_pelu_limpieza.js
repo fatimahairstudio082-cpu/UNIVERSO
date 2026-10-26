@@ -12,6 +12,8 @@
     'pe_pinzas_depilar', 'pe_elevacion', 'pe_caspa', 'pe_degradado',
     /* 19-10-2026 (Fátima): sin caballero (fade con máquina) y sin la agenda con «Corte caballero» y tiempos que no son suyos */
     'pe_fade_niveles', 'pe_tiempo_servicio',
+    /* 26-10-2026 (Fátima: «la máquina de cortar cabello, ¿qué hace ahí?»): su curso no enseña a cortar con máquina */
+    'pe_maquina',
     /* 19-10-2026 (Fátima, auditoría): sin barbería (arreglo de barba) ni cera capilar (productos de fijación) */
     'pe_barba', 'pe_productos_fijar',
     /* 22-10-2026 (Fátima): el curso es de peluquería y colorimetría — sin recogidos ni peinados de evento (secado, brushing
