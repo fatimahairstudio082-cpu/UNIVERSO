@@ -84,6 +84,25 @@
     ['cab_planchado', 'Planchado'], ['cab_derriz', 'Derriz']].forEach(function (x) {
     if (!R[x[0]]) R[x[0]] = { k: 'tec', id: 'cb_' + x[0], cer: x[0], n: x[1], lec: '__' + x[0], fotos: {} };
   });
+  /* 26-10-2026 (Fátima: «hay muchos cortes rectos, pero los demás cortes en capas como los tiene Guías 3D no están: agrégalo,
+     organiza, con su animación y su imagen de resultados»): cada corte de la Biblioteca de Guías 3D (EU_CORTES) va también como
+     receta, en el mismo sitio de su lección: Clase (su ficha y su foto) → Visualización (sus escenas del maniquí) → Práctica →
+     Cómo queda (el maniquí y la foto del resultado). Fotos: solo las de su Galería web que son ese corte (exactas), cada una en un
+     solo sitio; la descripción es la de su ficha. */
+  function cortesAuto() {
+    var CO = window.EU_CORTES, GW = window.EU_PELU_GALERIA; if (cortesAuto.ok || !CO || !CO.lista) return; cortesAuto.ok = 1;
+    var fotosDe = {};
+    if (GW && GW.G && GW.destino) GW.G.forEach(function (g) { var ds = GW.destino(g); if (ds && ds.k === 'corte' && ds.ok) (fotosDe[ds.id] = fotosDe[ds.id] || []).push(g[0]); });
+    var yaF = {}; Object.keys(R).forEach(function (k) { Object.keys(R[k].fotos || {}).forEach(function (x) { var n = R[k].fotos[x]; yaF[Array.isArray(n) ? n[0] : n] = 1; }); });
+    CO.lista().forEach(function (c) {
+      var ya = Object.keys(R).some(function (k) { return R[k].lec === '__' + c.id; }); if (ya) return;
+      var fs = (fotosDe[c.id] || []).filter(function (n) { return !yaF[n]; }), fo = {};
+      if (fs[0]) { fo.clase = fs[0]; yaF[fs[0]] = 1; }
+      if (fs[1]) { fo.queda_frente = fs[1]; yaF[fs[1]] = 1; }
+      if (fs[2]) { fo.queda_nuca = fs[2]; yaF[fs[2]] = 1; }
+      R['corte_' + c.id] = { k: 'corte', n: c.n, lec: '__' + c.id, receta: function (DG) { return DG.receta(c.id); }, d: c.d || '', fotos: fo };
+    });
+  }
   var ETAPAS = { clase: 'Clase', vis: 'Visualización', practica: 'Práctica', queda: 'Cómo queda' };
 
   function G() { return window.EU_PELU_GALERIA; }
@@ -304,6 +323,8 @@
     if (!D || !D.modulos || D._receta) return D;
     var V = (window.EU_PELU_VIDEOS && window.EU_PELU_VIDEOS.VIDEOS) || {};
     D.img = D.img || {}; D.anim = D.anim || {};
+    cortesAuto();
+    var fotosUsadas = {};
     Object.keys(R).forEach(function (k) {
       var r = R[k], P = pasos(k); if (!P.length) return;
       var M0 = null, iL = -1, L = null;
@@ -321,7 +342,7 @@
         if (p.q) x = { tipo: 'pregunta', id: 'dg_lateral', t: 'Pregunta', texto: 'Antes de seguir, piensa: ' + p.q.e, rot: [], q: { e: p.q.e, o: p.q.o, c: p.q.c }, sol: 'La respuesta es: ' + p.q.o[p.q.c] + '.' + (p.q.x ? ' ' + p.q.x : '') };
         else if (p.e) { var key = 'rc_' + k + '_' + p.tipo; D.anim[key] = p.e.anim; x = { tipo: 'paso', id: 'dg_' + p.e.vista, t: p.t, texto: p.texto, rot: [], anim: key }; }
         else x = { tipo: 'paso', id: p.foto ? p.foto.id : 'dg_frente', t: p.t, texto: p.texto, rot: [] };
-        if (p.foto) { D.img[p.foto.id] = p.foto.src; if (p.e || p.q) { x.foto = p.foto.id; if (p.foto.rec) x.fotoRec = p.foto.rec; } }
+        if (p.foto) { D.img[p.foto.id] = p.foto.src; fotosUsadas[p.foto.id] = 1; if (p.e || p.q) { x.foto = p.foto.id; if (p.foto.rec) x.fotoRec = p.foto.rec; } }
         /* la etapa se dice en el título del primer paso de cada una */
         if (!visto[p.etapa]) { visto[p.etapa] = 1; if (p.etapa !== 'queda') x.t = ETAPAS[p.etapa] + ' · ' + x.t; }
         return x;
@@ -330,6 +351,27 @@
       else { L = { id: M0.id + r.lec, t: r.n, pag: M0.pag, escenas: esc }; M0.lecciones.splice(iL + 1, 0, L); }
       if (r.mp4 && V[r.mp4]) { L.mp4 = r.mp4; L.siguen = 1; }
       L.receta = 1;
+    });
+    /* «que no hayan repeticiones de imágenes»: la foto que ya enseña una receta no se vuelve a poner en las lecciones «Galería» */
+    D.modulos.forEach(function (M) {
+      var gal = M.lecciones.filter(function (l) { return /__galeria\d+$/.test(l.id); });
+      if (!gal.length) return;
+      gal.forEach(function (l) { l.escenas = l.escenas.filter(function (e) { return !fotosUsadas[e.id]; }); });
+      var vivas = gal.filter(function (l) { return l.escenas.length; }), base = gal[0].t.replace(/ \d+\/\d+$/, '');
+      M.lecciones = M.lecciones.filter(function (l) { return !/__galeria\d+$/.test(l.id) || l.escenas.length; });
+      vivas.forEach(function (l, i) { l.t = base + (vivas.length > 1 ? ' ' + (i + 1) + '/' + vivas.length : ''); });
+    });
+    /* 26-10-2026 (Fátima: «organiza: cada técnica es una clase»; antes el tinte salía al final del módulo, detrás de 14 galerías y
+       20 clases de teoría): en cada módulo, las recetas de color van justo detrás de sus clases de base (peróxido, cuenta,
+       nomenclatura: fat_p*) y las galerías pasan al final del módulo, antes del tutor. No se quita ninguna lección. */
+    D.modulos.forEach(function (M) {
+      var L0 = M.lecciones, rec = L0.filter(function (l) { return l.receta && !/^pe_u_c_/.test(M.id); });
+      var gal = L0.filter(function (l) { return /__galeria\d+$/.test(l.id); });
+      if (!rec.length && !gal.length) return;
+      var resto = L0.filter(function (l) { return rec.indexOf(l) < 0 && gal.indexOf(l) < 0; });
+      if (rec.length) { var ib = -1; resto.forEach(function (l, i) { if (/__(video|bienvenida|clase\d+|cc_fat_p\d+)$/.test(l.id)) ib = i; }); resto.splice.apply(resto, [ib + 1, 0].concat(rec)); }
+      if (gal.length) { var it = -1; resto.forEach(function (l, i) { if (it < 0 && /__tutor_/.test(l.id)) it = i; }); if (it < 0) it = resto.length; resto.splice.apply(resto, [it, 0].concat(gal)); }
+      M.lecciones = resto;
     });
     D._receta = 1;
     return D;
@@ -366,6 +408,10 @@
     CA.enriquecer = function (D, res) {
       return Promise.resolve(enr.apply(this, arguments)).then(function (D2) {
         var X = D2 || D, cfg = res && res.C && res.C.cfg;
+        /* 26-10-2026: la Galería web se pone antes (su función ya no repite: D._galPelu), así la receta quita de la galería las
+           fotos que ya enseña y la lámina «A continuación» nombra la lección que de verdad viene después */
+        var GW = window.EU_PELU_GALERIA;
+        if (activo(cfg) && GW && GW.ponerCurso && ((cfg.acab || {}).galeria) !== 'no') { try { GW.ponerCurso(X); } catch (e) { console.warn('Receta · galería', e); } }
         return activo(cfg) ? transiciones(curso(X)) : X;
       });
     };
