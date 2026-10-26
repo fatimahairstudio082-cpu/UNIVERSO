@@ -66,7 +66,7 @@
       var grupos = {}, orden = [];
       (u.mods || []).forEach(function (id) {
         var m = /^pe_(?:g3d|est)_(.+)_(\d+)$/.exec(id); if (!m || !MO.modelo(id)) return;
-        if (!grupos[m[1]]) { grupos[m[1]] = []; orden.push(m[1]); } grupos[m[1]].push(id);
+        if (!grupos[m[1]]) { grupos[m[1]] = []; orden.push(m[1]); } if (grupos[m[1]].indexOf(id) < 0) grupos[m[1]].push(id);   /* 26-10-2026: cada paso una vez (salían repetidos) */
       });
       orden.forEach(function (cid) {
         var ids = grupos[cid].sort(function (a, b) { return MO.modelo(a).paso - MO.modelo(b).paso; }), mg = MO.modelo(ids[0]);
@@ -260,7 +260,7 @@
     function escena(k, alAcabar) {
       var L = cur.L, e = L.escenas[k]; cur.k = k; cur.pos = 0; cur.fin = false; cur.rev = false; cur.b = false; cur.t0 = performance.now();
       /* Fátima, 18-10-2026: la animación va más lenta que la voz (×1,4, mínimo 8 s) y la escena siguiente espera a que termine */
-      cur.ta0 = performance.now(); cur.ad = e.anim && !e.fin && e.tipo !== 'pregunta' ? Math.max(12000, e.texto.length / 14.5 * 1000 * 2) / (cur.vel || 1) : 0;   /* 25-10-2026, Fátima: «más lenta»: mínimo 12 s y el doble de lo que dura la voz */
+      cur.ta0 = performance.now(); cur.ad = e.anim && !e.fin && e.tipo !== 'pregunta' ? Math.max(12000, e.texto.length / 14.5 * 1000 * 2, (D.anim && D.anim[e.anim] && D.anim[e.anim].dur) || 0) / (cur.vel || 1) : 0;   /* 26-10-2026: o lo que pida la escena (mechón por mechón) */   /* 25-10-2026, Fátima: «más lenta»: mínimo 12 s y el doble de lo que dura la voz */
       pintaPregunta(e); textoBajo(e);
       var sigue = function () {
         if (e.tipo === 'pregunta' && !cur.rev) { setTimeout(function () { if (!cur.play) return; cur.rev = true; textoBajo(e); habla(e.sol, function () { setTimeout(alAcabar, 900); }); }, 3500); return; }

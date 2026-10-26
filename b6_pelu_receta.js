@@ -283,7 +283,10 @@
       if (!M0) return;
       Object.keys(P.E.fondos || {}).forEach(function (v) { D.img['dg_' + v] = D.img['dg_' + v] || P.E.fondos[v]; });
       if (P.some(function (p) { return p.e && p.e.tipo && /^cuenta/.test(p.e.tipo); })) { var EJ = ejemplosE(); Object.keys(EJ.fondos || {}).forEach(function (v) { D.img['dg_' + v] = D.img['dg_' + v] || EJ.fondos[v]; }); }
-      var visto = {}, esc = P.map(function (p) {
+      /* 26-10-2026 (Fátima: «se lava el cabello, coloca el vídeo, pero vuelves otra vez a visualizar»): si la lección abre con el
+         vídeo del lavado, la escena animada del lavado no se repite (en el libro, sin vídeo, se queda) */
+      var conVid = !!(r.mp4 && V[r.mp4]), Pc = P.filter(function (p) { return !(conVid && /lavado/.test(r.mp4) && p.tipo === 'lavado'); });
+      var visto = {}, esc = Pc.map(function (p) {
         var x;
         if (p.q) x = { tipo: 'pregunta', id: 'dg_lateral', t: 'Pregunta', texto: 'Antes de seguir, piensa: ' + p.q.e, rot: [], q: { e: p.q.e, o: p.q.o, c: p.q.c }, sol: 'La respuesta es: ' + p.q.o[p.q.c] + '.' + (p.q.x ? ' ' + p.q.x : '') };
         else if (p.e) { var key = 'rc_' + k + '_' + p.tipo; D.anim[key] = p.e.anim; x = { tipo: 'paso', id: 'dg_' + p.e.vista, t: p.t, texto: p.texto, rot: [], anim: key }; }
@@ -301,6 +304,29 @@
     D._receta = 1;
     return D;
   }
+  /* 26-10-2026 (Fátima: «cada clase, cuando termina, tiene que ir a la siguiente clase con una lámina interactiva del motor de
+     láminas que refleje: vamos a continuación con…»): al final de cada lección con animación, una escena «A continuación · <la
+     siguiente lección>» con el motor de láminas que ya está en el curso (LAMINAS_MOTOR, la misma que «Mapa de la unidad»): el
+     nombre de la clase que viene y sus primeros pasos. Solo títulos que ya existen; no se inventa texto. */
+  function transiciones(D) {
+    var LM = window.LAMINAS_MOTOR; if (!D || !D.modulos || D._transic || !LM || !LM.pintar) return D;
+    var est = (LM.porFamilia && LM.porFamilia('mapa') || []).map(function (e) { return e.id; }), pals = (LM.paletas && LM.paletas() || []).filter(function (p) { return p.claro; });
+    var pal = pals.filter(function (p) { return p.id === 'cuadricula'; })[0] || pals[0], todas = [];
+    D.anim = D.anim || {};
+    D.modulos.forEach(function (M) { M.lecciones.forEach(function (L) { todas.push({ M: M, L: L }); }); });
+    var animada = function (L) { return (L.escenas || []).some(function (e) { return e.anim && D.anim[e.anim] && !D.anim[e.anim].lam; }); };
+    todas.forEach(function (x, i) {
+      var L = x.L, sig = todas[i + 1]; if (!sig || !animada(L) || !(L.escenas || []).length) return;
+      var vistos = {}, pasos = (sig.L.escenas || []).filter(function (e) { return e.tipo !== 'pregunta' && e.t && !vistos[e.t] && (vistos[e.t] = 1); })
+        .map(function (e) { var t = String(e.t).replace(/^(Clase|Visualización|Práctica) · /, ''); return t.length > 42 ? t.slice(0, 40) + '…' : t; }).slice(0, 4);
+      var k = 'lam_sig_' + L.id;
+      D.anim[k] = { lam: { titulo: 'A continuación', subtitulo: sig.M.t, estructura: est.length ? est[i % est.length] : 'radial', paleta: pal && pal.id,
+        nodos: [{ t: sig.L.t, d: '', nivel: 0 }].concat(pasos.map(function (t) { return { t: t, d: '', nivel: 1 }; })) }, modo: 'dibujar' };
+      L.escenas.push({ tipo: 'paso', id: L.escenas[L.escenas.length - 1].id, t: 'A continuación · ' + sig.L.t, texto: 'Vamos a pasar a continuación con la clase: ' + sig.L.t + '.', rot: [], anim: k });
+    });
+    D._transic = 1;
+    return D;
+  }
   var CA;
   function enganchar() {
     CA = window.EU_CURSO_ANIM;
@@ -310,7 +336,7 @@
     CA.enriquecer = function (D, res) {
       return Promise.resolve(enr.apply(this, arguments)).then(function (D2) {
         var X = D2 || D, cfg = res && res.C && res.C.cfg;
-        return activo(cfg) ? curso(X) : X;
+        return activo(cfg) ? transiciones(curso(X)) : X;
       });
     };
     CA.enriquecer._receta = 1;
@@ -403,5 +429,5 @@
     return out;
   }
 
-  window.EU_PELU_RECETA = { R: R, curso: curso, pasos: pasos, hojas: hojas };
+  window.EU_PELU_RECETA = { R: R, curso: curso, pasos: pasos, hojas: hojas, transiciones: transiciones };
 })();
