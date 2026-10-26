@@ -121,11 +121,11 @@
     var c = 0; if (Array.isArray(n)) { c = n[1] || 0; n = n[0]; }
     var g = G(); if (!g || !n) return null; var id = g.id(n), d = g.dato(id); return d ? { id: id, src: d, t: g.titulo(n), rec: c } : null;
   }
-  /* las fichas de herramientas y productos (carpetas 27 y 28 de su galería) solo se usan si la clase no tiene otra foto */
+  /* las fichas de herramientas y productos (carpetas 27 y 28 de su galería) no son la foto de una clase */
   function esHerr(id) { var g = G(), n = +String(id || '').slice(6), row = g && g.G ? g.G.filter(function (x) { return x[0] === n; })[0] : null; return !!(row && /^2[78]$/.test(String(row[2]))); }
   function fotoDe(P, usadas) {
     var c = P.filter(function (p) { return p.foto && !usadas[p.foto.id]; });
-    return (c.filter(function (p) { return !esHerr(p.foto.id); })[0] || c[0] || {}).foto || null;
+    return (c.filter(function (p) { return !esHerr(p.foto.id); })[0] || {}).foto || null;   /* sin foto antes que una ficha de herramienta (Fátima: «la gente no paga por un cepillo») */
   }
   function clase(id) { var B = window.EU_COLOR_CEREBRO, c = null; (B && B.clases || []).some(function (x) { if (x.id === id) { c = x; return true; } return false; }); return c; }
   function limpio(t) { return String(t).replace(/^[^\wÁÉÍÓÚÑáéíóúñ¿¡]+/, ''); }
