@@ -787,6 +787,23 @@
       var w = dt0 / M;
       grupos.forEach(function (lst, j) {
         var s0 = ta + w * j, tSube = [s0, s0 + w * 0.35], tCorta = [s0 + w * 0.35, s0 + w * 0.6], tCae = [s0 + w * 0.6, s0 + w], cortes = [], puntas = [];
+        /* 26-10-2026 (Fátima, «paracludes»: «saca cada mechón vertical, se visualiza horizontal; corta en vertical, no en horizontal;
+           no confundas al alumno»): salvo liso extremo, el mechón que se agarra es una sección VERTICAL (raíces una debajo de otra
+           en la línea de sección del centro del grupo), sube a su elevación y la tijera corta en una línea vertical. */
+        var vert = !R.liso, phC = lst[Math.floor(lst.length / 2)], colTh = [];
+        if (vert) { var hc = (frente ? 1 : -1) * 0.5; for (var ci = 0; ci <= 9; ci++) { var tc = th + hc * ci / 9; if (tc > 0.08 && tc < 2.0 && seVe(v, phC, tc)) colTh.push(tc); } if (colTh.length < 2) vert = false; }
+        function subeMechon(ph, thR, a, yf) {
+          var Llar = Math.max(0.6, a.y - (YB - 0.7)), Lcor = Math.max(0.12, Math.min(Llar - 0.1, a.y - yf)), sube = [];
+          Llar = Math.min(Llar, Lcor + 0.35);   /* el mechón agarrado, un poco más largo que donde se corta (no cruza la cara) */
+          for (var m = 0; m <= 5; m++) { var dm = dirElev(ph, thR, g * m / 5); sube.push([].concat(pr(v, a), pr(v, a.clone().add(dm.multiplyScalar(Llar))))); }
+          var dg = dirElev(ph, thR, g), corte1 = [].concat(pr(v, a), pr(v, a.clone().add(dg.clone().multiplyScalar(Lcor))));
+          tr.push(mechon(sube, tSube, c, 1.6, { x: tCorta[1] }));
+          tr.push(mechon([corte1, corte1], [tCorta[1], tCorta[1] + 0.001], c, 1.8, { x: tCae[0] + w * 0.15 }));
+          puntas.push(corte1.slice(2));
+        }
+        /* la línea de la sección vertical, marcada en el cráneo con el color de la capa mientras se agarra y se corta */
+        if (vert) tr.push(linea(plano(colTh.map(function (tc) { return pr(v, P(phC, tc, 1.05)); })), [s0, tCorta[1]], c, 4, { x: tCae[1] }));
+        if (vert) colTh.forEach(function (tc) { var aC = P(phC, tc, 1.04 + 0.004 * z); subeMechon(phC, tc, aC, Math.min(aC.y - 0.06, y0(phC) + ((dif[z] && dif[z].t) || 0))); });
         lst.forEach(function (ph) {
           var a = P(ph, th, 1.04 + 0.004 * z), yf = Math.min(a.y - 0.06, y0(ph) + ((dif[z] && dif[z].t) || 0)), pts = [pr(v, a)], ult = a;
           /* baja peinado por el cráneo hasta el borde y de ahí cae; de frente, el cabello de encima de la cara se abre desde la raya
@@ -800,18 +817,14 @@
           if (ult.y > yf) pts.push(pr(v, cae));
           tr.push(linea(plano(pts), tCae, PELO, 1.3));
           cortes.push(pts[pts.length - 1]);
-          /* el mechón, largo, se agarra y sube a su elevación; la tijera lo corta al largo de la capa y después cae */
-          var Llar = Math.max(0.6, a.y - (YB - 0.7)), Lcor = Math.max(0.12, Math.min(Llar - 0.1, a.y - yf)), sube = [];
-          Llar = Math.min(Llar, Lcor + 0.35);   /* el mechón agarrado, un poco más largo que donde se corta (no cruza la cara) */
-          for (var m = 0; m <= 5; m++) { var dm = dirElev(ph, th, g * m / 5); sube.push([].concat(pr(v, a), pr(v, a.clone().add(dm.multiplyScalar(Llar))))); }
-          var dg = dirElev(ph, th, g), corte1 = [].concat(pr(v, a), pr(v, a.clone().add(dg.clone().multiplyScalar(Lcor))));
-          tr.push(mechon(sube, tSube, c, 1.6, { x: tCorta[1] }));
-          tr.push(mechon([corte1, corte1], [tCorta[1], tCorta[1] + 0.001], c, 1.8, { x: tCae[0] + w * 0.15 }));
-          puntas.push(corte1.slice(2));
+          /* el mechón, largo, se agarra y sube a su elevación; la tijera lo corta al largo de la capa y después cae
+             (liso extremo: fila horizontal; las demás, la columna vertical de arriba) */
+          if (!vert) subeMechon(ph, th, a, yf);
         });
         /* el reloj de ESTE mechón (su elevación) y su número en la franja de arriba, nunca encima del cabello */
         tr.push(regla(0, g, tSube, c, 'Capa ' + (z + 1) + ' · mechón ' + (j + 1) + ' de ' + M + ' · ' + g + '°', { x: tCae[1] }));
-        tramosDe(puntas, 60).forEach(function (q) { tr.push(tijera(plano(q), tCorta, CORTE, R.desg, { x: tCae[0] + w * 0.1 })); });
+        if (vert) { puntas.sort(function (p, q) { return p[1] - q[1]; }); tr.push(tijera(plano(puntas), tCorta, CORTE, R.desg, { x: tCae[0] + w * 0.1 }), linea(plano(puntas), [tCorta[0], tCorta[1]], CORTE, 3.2, { x: tCae[0] + w * 0.15 })); }   /* el corte, en una línea vertical */
+        else tramosDe(puntas, 60).forEach(function (q) { tr.push(tijera(plano(q), tCorta, CORTE, R.desg, { x: tCae[0] + w * 0.1 })); });
         /* donde termina el mechón queda su línea, del color de la capa */
         tramosDe(cortes, 50).forEach(function (q) { tr.push(linea(plano(q), [tCae[1] - w * 0.1, Math.min(0.99, tCae[1] + 0.01)], c, 3)); });
       });
@@ -820,7 +833,11 @@
     tr = tr.concat(lineas(tramos(v, frente ? function (u) { return [CARA, u * 0.16]; } : function (u) { return [NUCA, 0.12 + u * 1.86]; }, 30), [0, 0.03], TINTA, 2.4));
     /* 26-10-2026 (Fátima: «resalta la línea que divide, desde la nariz corrida hasta el cuello, más en negro»): de frente, la raya
        sigue por el centro de la cara hasta el cuello, en negro y más gruesa, encima de todo */
-    if (frente) { var rC = []; for (var tR = 0; tR <= 1.62; tR += 0.04) { if (seVe(v, CARA, tR)) rC.push(pr(v, P(CARA, tR, 1.06))); } var fR = P(CARA, 1.62, 1.06); rC.push(pr(v, V3(fR.x, ALTURAS.cuello.y, fR.z)));
+    /* 26-10-2026 (Fátima, «paracludes»: «bájala hasta donde termina el cuello, ahí también hay cabello; en la parte de atrás»):
+       de frente y atrás, la línea negra del centro llega hasta el final del cuello (Y_FIN_CUELLO) */
+    var Y_FIN_CUELLO = -1.9;
+    if (frente || v === 'nuca') { var phR = frente ? CARA : NUCA, rC = []; for (var tR = 0; tR <= (frente ? 1.62 : 1.98); tR += 0.04) { if (seVe(v, phR, tR)) rC.push(pr(v, P(phR, tR, 1.06))); }
+      var fR = P(phR, frente ? 1.62 : 1.98, 1.06); rC.push(pr(v, V3(fR.x, Y_FIN_CUELLO, fR.z)));
       tr.push(linea(plano(rC), [0, 0.03], '#000000', 3.4)); }
     if (R.liso) for (var zp = 0; zp < n - 1; zp++) {
       var thp = frente ? 0.16 + (zp + 0.5) * (0.7 / n) : (thCapa(zp, n) + thCapa(zp + 1, n)) / 2;
