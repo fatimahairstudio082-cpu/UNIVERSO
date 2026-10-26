@@ -44,21 +44,46 @@
       fotos: { clase: [50, 0.13], peinado: [50, 0.13] }
     },
     /* Fátima: «en el tinte no expliques la decoloración»; las canas van en su propia clase, después */
+    /* 26-10-2026 (Fátima, su primer documento: «en cada clase se tiene que identificar: tinte, aplicación, cabello virgen»; «cómo se
+       aplica paso a paso en la parte de la raíz, luego en las puntas»; «cabello virgen, cabello procesado y canas son lecciones
+       distintas»): esta clase es solo el tinte en cabello virgen. Fuera las canas (van en su clase) y los pasos «Medios y puntas»
+       y «Raíz» del archivo del 3-9-2026, que dicen lo contrario de su orden (raíz y luego hacia las puntas). */
     color_global: {
-      k: 'tec', id: 'cb_color_global', cer: 'color_global', n: 'Tinte · color global', lec: '__color_global', pre: 'cb_color_global_',
-      quitaT: /cubrir las canas/i,
+      k: 'tec', id: 'cb_color_global', cer: 'color_global', n: 'Tinte en cabello virgen', lec: '__color_global', pre: 'cb_color_global_',
+      quitaT: /cubrir las canas|^Medios y puntas$|^Raíz$/i, quitaQ: /melena virgen/i, limpia: [[/ para cubrir canas(?=[,.])/g, '']], quitaRec: /canas|virgen, raíz al final/i,
       fotos: { cb_receta: 478, cb0_divisiones: 379, cb_lam_plantaCuatro: 330, cb1_aplicacion: 479, cb2_aplicacion: 301, cb_queda_color: 96 },
       /* su clase del peróxido (fat_p01) solo con lo que es del tinte, y su recomendación de 20/30 vol de la ficha;
          después, el ejemplo de cómo se saca la cuenta (fat_p02) */
       insertar: [{ tras: 'cb_receta', tipo: 'oxidante', t: 'El oxidante (peróxido) en el tinte', foto: 495, clase: 'fat_p01', solo: [0, 1, 2, 3, 7], rec: [1], tools: [0, 1, 2, 4, 5] }],
       ejemplos: 'cb_receta'
     },
+    /* 26-10-2026 (Fátima: «muy distinto es aplicar un tinte a un cabello que no tiene canas pero está procesado, que también está la
+       técnica: esa es otra lección»): la técnica del sistema para el cabello ya teñido (Retoque de raíz: solo el crecimiento, sin
+       pisar el color anterior) con su clase «Aplicación de Retoque de Raíz» (tin_i04), el tiempo del cabello ya procesado (tin_i05)
+       y su recomendación de 30 vol en rubios. Va en su módulo; en los niveles sin ese módulo, detrás del tinte en cabello virgen. */
+    tinte_procesado: {
+      k: 'tec', id: 'cb_color_raiz', cer: 'color_raiz', n: 'Tinte en cabello procesado (sin canas)', lec: '__color_raiz', tras: ['__color_global'], pre: 'rc_proc_',
+      limpia: [[/ para cubrir canas(?=[,.])/g, '']], quitaRec: /canas/i,
+      insertar: [{ tras: 'cb_receta', tipo: 'procesado', t: 'El tinte en el cabello ya procesado', clase: 'tin_i04', solo: [0, 2, 3] },
+        { tras: 'cb_receta', tipo: 'procesado_t', t: 'El tiempo en el cabello procesado', clase: 'tin_i05', solo: [1], rec: [1] }],
+      fotos: {}
+    },
     /* clase siguiente: las dos fórmulas del mismo tinte (sus textos: Cerebro y fat_i02) */
     tinte_canas: {
-      k: 'canas', n: 'Tinte para cubrir canas', lec: '__receta_canas', pre: 'rc_canas_', tras: '__color_global',
+      k: 'canas', n: 'Tinte para cubrir canas', lec: '__receta_canas', pre: 'rc_canas_', tras: ['__color_raiz', '__color_global'],
       fotos: { formulas: 314, cb0_divisiones: 379, raiz: 254, puntas: 313, cb_queda_color: 97 }
     }
   };
+  /* 26-10-2026 (Fátima, su primer documento: «vamos con técnica de mecha, mecha con gorro: se hace como una receta y se dan los
+     pasos, la explicación, la animación de cómo queda después el resultado; así aplicarlo en todas»): cada técnica del Cerebro de
+     color, mechas, decoloración, queratina, hidratación, permanente, secado y planchado va como receta, en su mismo sitio: Clase →
+     Visualización → Práctica → Cómo queda, con sus mismas escenas y textos (no se añade ni se quita nada). */
+  [['color_balayage', 'Balayage'], ['color_babylights', 'Babylights'], ['color_sombre', 'Sombré'], ['mechas_aluminio', 'Mechas con papel de aluminio'],
+    ['mechas_gorro', 'Mechas con gorro'], ['quim_decoloracion', 'Decoloración global'], ['quim_permanente', 'Permanente'], ['quera_alisado', 'Alisado de queratina'],
+    ['quera_botox', 'Botox capilar'], ['hidra_profunda', 'Hidratación profunda'], ['hidra_nutricion', 'Nutrición con aceites'], ['cab_secado', 'Secado con cepillo'],
+    ['cab_planchado', 'Planchado'], ['cab_derriz', 'Derriz']].forEach(function (x) {
+    if (!R[x[0]]) R[x[0]] = { k: 'tec', id: 'cb_' + x[0], cer: x[0], n: x[1], lec: '__' + x[0], fotos: {} };
+  });
   var ETAPAS = { clase: 'Clase', vis: 'Visualización', practica: 'Práctica', queda: 'Cómo queda' };
 
   function G() { return window.EU_PELU_GALERIA; }
@@ -99,9 +124,9 @@
         if (resto) tr.push(K.linea(resto, [t0, tb], C_DILUIDO, 7));
       });
     });
-    if (fase === 0) tr.push(K.rotulo('Las canas, en la raíz: tres o cuatro dedos', '#7A7A7A', 0.04), K.rotulo('Fórmula 1 · raíz: más tinte, menos peróxido · 20 vol', C_FUERTE, 0.3), K.rotulo('Fórmula 2 · resto: el mismo tinte, bien diluido · 20 + 30 vol', '#A87443', 0.55));
+    if (fase === 0) tr.push(K.rotulo('Las canas, en la raíz: tres o cuatro dedos', '#7A7A7A', 0.04), K.rotulo('Fórmula 1 · raíz: más tinte, menos peróxido · 20 vol', C_FUERTE, 0.3), K.rotulo('Fórmula 2 · resto, sin canas: el mismo tinte, más suave · 30 vol', '#A87443', 0.55));
     if (fase === 1) tr.push(K.rotulo('Fórmula fuerte · solo en la raíz, tres dedos', C_FUERTE, 0.04), K.rotulo('De la nuca hacia arriba, capa por capa', C_LINEA, 0.04));
-    if (fase === 2) tr.push(K.rotulo('Fórmula diluida · de los tres dedos a las puntas', '#A87443', 0.04), K.rotulo('La raíz ya cubierta con la fórmula fuerte', C_FUERTE, 0.04));
+    if (fase === 2) tr.push(K.rotulo('A los 15 minutos · la fórmula suave (30 vol), mechón por mechón', '#A87443', 0.04), K.rotulo('La raíz ya cubierta con la fórmula fuerte', C_FUERTE, 0.04));
     return { v: v, tr: tr, banda: 1 };
   }
   /* el ejemplo de la cuenta (su clase fat_p02): el cabello con el tono de la clienta, la cuenta en tarjetas al lado y el resultado */
@@ -205,7 +230,7 @@
     var EN = null; try { EN = DG.construirConYa(function (K) { return { R: { id: 'rc_canas', n: R.tinte_canas.n }, escenas: [
       { tipo: 'formulas', vista: 'nuca', t: 'Dos fórmulas del mismo tinte', a: escCanas(K, 0) },
       { tipo: 'raiz', vista: 'nuca', t: 'Raíz · la fórmula fuerte', a: escCanas(K, 1) },
-      { tipo: 'puntas', vista: 'nuca', t: 'De los tres dedos a las puntas · la fórmula diluida', a: escCanas(K, 2) }] }; }); } catch (e) { EN = null; }
+      { tipo: 'puntas', vista: 'nuca', t: 'A los 15 minutos · la fórmula suave, hasta las puntas', a: escCanas(K, 2) }] }; }); } catch (e) { EN = null; }
     if (!EB || !EN) return null;
     var paso = function (re) { var x = (CB.pasos('color_global') || []).filter(function (p) { return re.test(p.t); })[0]; return x ? x.n : ''; };
     var F = CB.ficha('color_global') || {}, rec = F.recomendaciones || [], c = clase('fat_i02'), b = c ? c.b.map(function (x) { return limpio(x[1]); }) : [];
@@ -213,9 +238,13 @@
     var copia = function (e, t, tx) { return e ? Object.assign({}, e, { t: t || e.t, texto: tx || e.texto }) : null; };
     var nv = {}; EN.escenas.forEach(function (e) { nv[e.tipo] = e; });
     /* el ejemplo de cantidades es suyo (fat_i02): la mitad del tinte, 50 gramos, con peróxido de 20, solo en la raíz */
-    nv.formulas.texto = [b[0], rec[2], b[1]].filter(Boolean).join(' ');
-    nv.raiz.texto = [paso(/canas · raíz/), b[2]].filter(Boolean).join(' ');
-    nv.puntas.texto = paso(/canas · hasta las puntas/);
+    /* 26-10-2026 (Fátima, sus palabras: «el mismo producto en dos pasos: uno con agua de 20, para la raíz, para cubrir las canas, y
+       el otro con agua de 30, porque en la parte de abajo no tiene canas»; «el más fuerte, con peróxido de 20, se aplica en la
+       raíz para que profundice; a los 15 minutos se comienza a aplicar el otro, haciendo la división mechón por mechón»;
+       «se está aplicando un tinte color negro: 30 ml de peróxido de 20») */
+    nv.formulas.texto = [b[0], 'Se realiza el mismo procedimiento en dos pasos, con el mismo producto: uno más fuerte y otro más suave. Uno con agua de 20, que es para la raíz, para cubrir las canas; y el otro con agua de 30, porque en la parte de abajo no tiene canas.', b[1]].filter(Boolean).join(' ');
+    nv.raiz.texto = ['El más fuerte, con peróxido de 20, se aplica en la raíz para que profundice el color.', b[2], 'Por ejemplo, si se está aplicando un tinte color negro: 30 ml de peróxido de 20.'].filter(Boolean).join(' ');
+    nv.puntas.texto = 'A los 15 minutos se comienza a aplicar el otro producto, el más suave, con agua de 30, haciendo la división mechón por mechón, desde donde se dejó la raíz hasta las puntas.';
     var esc = [nv.formulas, copia(de(/divisiones$/)), nv.raiz, nv.puntas,
       copia(de(/_tiempo$/), 'Exposición', b[4]), copia(de(/_cierre$/), 'Retirar, lavar y terminar', b[5]), copia(de(/^cb_queda_color$/))].filter(function (e) { return e && e.texto; });
     return (CACHE_E.canas = { R: EN.R, escenas: esc, fondos: EN.fondos, preguntas: [] });
@@ -256,12 +285,13 @@
         if (r.quitaT && r.quitaT.test(e.t || '')) return;
         if (esQueda(e)) return;
         if (enClase && e.tipo !== 'cb_receta') enClase = false;
-        P.push({ etapa: enClase ? 'clase' : 'vis', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]), ficha: e.tipo === 'cb_receta' ? 1 : 0 });
+        var tx = e.texto; (r.limpia || []).forEach(function (L2) { tx = String(tx).replace(L2[0], L2[1]); });
+        P.push({ etapa: enClase ? 'clase' : 'vis', tipo: e.tipo, t: e.t, texto: tx, e: e, foto: foto((r.fotos || {})[e.tipo]), ficha: e.tipo === 'cb_receta' ? 1 : 0 });
         (r.insertar || []).forEach(function (a) { if (a.tras === e.tipo) { var b = puntosDe(a); if (b.length) P.push({ etapa: 'clase', tipo: a.tipo, t: a.t, texto: textoDe(a), puntos: b, tools: toolsDe(a), foto: foto(a.foto) }); } });
         if (ej && r.ejemplos === e.tipo) ej.escenas.forEach(function (x) { P.push({ etapa: 'clase', tipo: x.tipo, t: x.t, texto: x.texto, e: x }); });
       });
-      (E.preguntas || []).forEach(function (q) { P.push({ etapa: 'practica', tipo: 'pregunta', t: 'Pregunta', texto: q.e, q: q }); });
-      E.escenas.filter(esQueda).forEach(function (e) { P.push({ etapa: 'queda', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]), recom: 1 }); });
+      (E.preguntas || []).forEach(function (q) { if (r.quitaQ && r.quitaQ.test(q.e)) return; P.push({ etapa: 'practica', tipo: 'pregunta', t: 'Pregunta', texto: q.e, q: q }); });
+      E.escenas.filter(esQueda).forEach(function (e) { P.push({ etapa: 'queda', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto((r.fotos || {})[e.tipo]), recom: 1 }); });
     }
     P.E = E;
     return P;
@@ -278,7 +308,7 @@
       var r = R[k], P = pasos(k); if (!P.length) return;
       var M0 = null, iL = -1, L = null;
       D.modulos.some(function (M) { return M.lecciones.some(function (l, i) { if (l.id === M.id + r.lec) { M0 = M; iL = i; L = l; return true; } return false; }); });
-      if (!L && r.tras) D.modulos.some(function (M) { return M.lecciones.some(function (l, i) { if (l.id === M.id + r.tras) { M0 = M; iL = i; return true; } return false; }); });
+      if (!L && r.tras) [].concat(r.tras).some(function (tr) { return D.modulos.some(function (M) { return M.lecciones.some(function (l, i) { if (l.id === M.id + tr) { M0 = M; iL = i; return true; } return false; }); }); });
       if (!L && !M0 && r.modulo) D.modulos.some(function (M) { if (M.id !== r.modulo) return false; M0 = M; iL = -1; M.lecciones.forEach(function (l, i) { if (/__(video|bienvenida|clase\d+)$/.test(l.id) && i === iL + 1) iL = i; }); return true; });
       if (!M0) return;
       Object.keys(P.E.fondos || {}).forEach(function (v) { D.img['dg_' + v] = D.img['dg_' + v] || P.E.fondos[v]; });
@@ -368,9 +398,9 @@
     var fila = function (k, v) { return v && (v.length || v) ? '<div><b>' + k + ':</b> ' + esc([].concat(v).join(' · ')) + '</div>' : ''; };
     return caja(T, 'Ficha de la técnica', fila('Fórmula', F.formula) + fila('Proporción', F.proporciones) + fila('Cantidad', F.cantidades) + fila('Tiempo', F.tiempos) + fila('Herramientas', F.herramientas) + fila('Seguridad', F.seguridad));
   }
-  function recomTinte(id, T) {
+  function recomTinte(id, T, quita) {
     var F = window.EU_CEREBRO && EU_CEREBRO.ficha && EU_CEREBRO.ficha(id); if (!F || !(F.recomendaciones || []).length) return '';
-    return caja(T, 'Recomendaciones', '<ul style="margin:0;padding-left:5mm">' + F.recomendaciones.filter(function (x) { return !/canas/i.test(x); }).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+    return caja(T, 'Recomendaciones', '<ul style="margin:0;padding-left:5mm">' + F.recomendaciones.filter(function (x) { return !(quita || /canas/i).test(x); }).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
   }
   var MANI = {};
   function maniquí(p, rec) { if (!p.e) return ''; var k = rec + '|' + p.e.tipo + '|' + (p.e.t || ''); if (MANI[k] == null) { try { MANI[k] = window.EU_DIAGRAMA.foto(p.e, 760, 0.82) || ''; } catch (er) { MANI[k] = ''; } } return MANI[k]; }
@@ -395,7 +425,7 @@
           var extra = '';
           if (r.k === 'corte') { if (p.ficha || CORTE_ELEV.test(p.tipo)) extra = fichaCorte(P.E && P.E.R, T); }
           else if (r.cer && p.ficha) extra = fichaTinte(r.cer, T);
-          else if (r.cer && p.recom) extra = recomTinte(r.cer, T);
+          else if (r.cer && p.recom) extra = recomTinte(r.cer, T, r.quitaRec);
           if (p.tools && p.tools.length) extra += caja(T, 'Lo que necesitas', p.tools.map(function (x) { return chip(T, '', esc(x)); }).join(''));
           /* la foto arriba y el maniquí debajo, cada uno a todo lo ancho que quepa (como un libro de recetas);
              se achican si la hoja lleva ficha o el texto es largo */
