@@ -21,14 +21,12 @@
       d: 'Corte básico sin elevación: todo a 0°, la misma medida en cada mechón. Atrás queda cuadrado.',
       fotos: { clase: 71, lavado: 469, queda_nuca: 71, queda_frente: 71 }   /* Fátima: la n.º 64 es en semi-U, no cuadrada: va con el corte redondo */
     },
-    /* Fátima: «la próxima clase, corte cuadrado en capas: el corte en capa larga, pero con forma cuadrada». Va en su módulo de capas.
-       26-10-2026 (Fátima, su documento: «cuando el corte es en capa, tú tienes que dividir de oreja a oreja los laterales y echar todo
-       ese cabello hacia la cara… saques cada mechón vertical»): es un corte en capas, así que delante NO se nivela con atrás (eso es
-       del corte recto sin elevación); el frente es el de las capas largas. */
+    /* Fátima: «la próxima clase, corte cuadrado en capas: el corte en capa larga, pero con forma cuadrada»; «en un corte recto no
+       se saca la guía desde arriba de la ceja: se nivela con el de atrás» (R.nivelar). Va en su módulo de capas. */
     cuadrado_capas: {
       k: 'corte', n: 'Corte cuadrado en capas', lec: '__receta_cuadrado_capas', modulo: 'pe_u_c_capas',
-      receta: function (DG) { return Object.assign({}, DG.receta('capas_largas'), { n: 'Corte cuadrado en capas', linea: 'recta' }); },
-      d: 'El corte en capas largas, pero con forma cuadrada atrás. Delante se divide de oreja a oreja, el cabello se lleva hacia la cara y se saca cada mechón vertical a su elevación. Capas largas: melena larga con movimiento repartido y el largo intacto.',
+      receta: function (DG) { return Object.assign({}, DG.receta('capas_largas'), { n: 'Corte cuadrado en capas', linea: 'recta', nivelar: true }); },
+      d: 'El corte en capas largas, pero con forma cuadrada atrás. De frente se nivela con el de atrás. Capas largas: melena larga con movimiento repartido y el largo intacto.',
       fotos: { lavado: 469 }
     },
     /* Fátima: «una clase, una técnica»: el corte redondo en su clase y el flequillo de lado en la suya */
