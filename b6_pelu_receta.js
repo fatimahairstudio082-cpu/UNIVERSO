@@ -642,7 +642,8 @@
     /* hoja 2: la receta paso a paso, la práctica y lo que viene después */
     vis = clase.slice(1).concat(vis);   /* lo demás de la clase (el oxidante, la cuenta…) abre la receta */
     var largo = vis.length > 12, de = pg.de || 0, ult = pg.ult !== false;
-    if (pg.a != null) vis = vis.slice(de, pg.a); corta = function (t) { t = String(t || ''); if (!largo) return t; var m = /^(.{40,220}?[.!?])(\s|$)/.exec(t); return m ? m[1] : t.slice(0, 220); };
+    if (pg.a != null) vis = vis.slice(de, pg.a);
+    var corta = function (t) { t = String(t || ''); if (!largo) return t; var m = /^(.{40,220}?[.!?])(\s|$)/.exec(t); return m ? m[1] : t.slice(0, 220); };
     var lista = '<ol start="' + (de + 1) + '" style="margin:0;padding-left:6mm;font-size:' + (largo ? '.82em' : '.9em') + ';line-height:1.42">' + vis.map(function (p) {
       var tx = p.puntos ? p.puntos.map(function (b) { return b[1]; }).join(' ') : p.texto;
       return '<li style="margin:0 0 1.6mm"><b>' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + '.</b> ' + esc(corta(tx)) + '</li>';
