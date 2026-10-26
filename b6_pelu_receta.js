@@ -71,7 +71,7 @@
     /* clase siguiente: las dos fórmulas del mismo tinte (sus textos: Cerebro y fat_i02) */
     tinte_canas: {
       k: 'canas', n: 'Tinte para cubrir canas', lec: '__receta_canas', pre: 'rc_canas_', tras: ['__color_raiz', '__color_global'],
-      fotos: { formulas: 314, cb0_divisiones: 379, raiz: 254, puntas: 313, cb_queda_color: 97 }
+      fotos: { formulas: 314, raiz: 254, puntas: 313, cb_queda_color: 97 }   /* 26-10-2026: la 379 ya va en el tinte en cabello virgen (sin repetir) */
     }
   };
   /* 26-10-2026 (Fátima, su primer documento: «vamos con técnica de mecha, mecha con gorro: se hace como una receta y se dan los
@@ -101,6 +101,17 @@
       if (fs[1]) { fo.queda_frente = fs[1]; yaF[fs[1]] = 1; }
       if (fs[2]) { fo.queda_nuca = fs[2]; yaF[fs[2]] = 1; }
       R['corte_' + c.id] = { k: 'corte', n: c.n, lec: '__' + c.id, receta: function (DG) { return DG.receta(c.id); }, d: c.d || '', fotos: fo };
+    });
+    /* «cada imagen en su bloque, con su maniquí y su explicación»: cada técnica de color, química y cabello lleva UNA foto de su
+       Galería web que es esa técnica (exacta), en su clase; sin las fichas de herramientas y productos sueltos (carpetas 27 y
+       28), sin repetir ninguna foto en el curso */
+    var porTec = {};
+    if (GW && GW.G && GW.destino) GW.G.forEach(function (g) { if (/^2[78]$/.test(String(g[2]))) return; var ds = GW.destino(g); if (ds && ds.k === 'tec' && ds.ok) (porTec[ds.id] = porTec[ds.id] || []).push(g[0]); });
+    Object.keys(R).forEach(function (k) {
+      var r = R[k]; if (r.k !== 'tec' || !r.id) return; r.fotos = r.fotos || {};
+      if (r.fotos.cb_receta || r.fotos.clase) return;
+      var n = (porTec[r.id] || []).filter(function (x) { return !yaF[x]; })[0]; if (!n) return;
+      yaF[n] = 1; r.fotos.cb_receta = n;
     });
   }
   var ETAPAS = { clase: 'Clase', vis: 'Visualización', practica: 'Práctica', queda: 'Cómo queda' };
@@ -337,12 +348,14 @@
       /* 26-10-2026 (Fátima: «se lava el cabello, coloca el vídeo, pero vuelves otra vez a visualizar»): si la lección abre con el
          vídeo del lavado, la escena animada del lavado no se repite (en el libro, sin vídeo, se queda) */
       var conVid = !!(r.mp4 && V[r.mp4]), Pc = P.filter(function (p) { return !(conVid && /lavado/.test(r.mp4) && p.tipo === 'lavado'); });
-      var visto = {}, esc = Pc.map(function (p) {
+      var visto = {}, conFoto = 0, esc = Pc.map(function (p) {
         var x;
         if (p.q) x = { tipo: 'pregunta', id: 'dg_lateral', t: 'Pregunta', texto: 'Antes de seguir, piensa: ' + p.q.e, rot: [], q: { e: p.q.e, o: p.q.o, c: p.q.c }, sol: 'La respuesta es: ' + p.q.o[p.q.c] + '.' + (p.q.x ? ' ' + p.q.x : '') };
         else if (p.e) { var key = 'rc_' + k + '_' + p.tipo; D.anim[key] = p.e.anim; x = { tipo: 'paso', id: 'dg_' + p.e.vista, t: p.t, texto: p.texto, rot: [], anim: key }; }
-        else x = { tipo: 'paso', id: p.foto ? p.foto.id : 'dg_frente', t: p.t, texto: p.texto, rot: [] };
-        if (p.foto) { D.img[p.foto.id] = p.foto.src; fotosUsadas[p.foto.id] = 1; if (p.e || p.q) { x.foto = p.foto.id; if (p.foto.rec) x.fotoRec = p.foto.rec; } }
+        else x = { tipo: 'paso', id: p.foto && !conFoto && !fotosUsadas[p.foto.id] ? p.foto.id : 'dg_frente', t: p.t, texto: p.texto, rot: [] };
+        /* 26-10-2026 (Fátima: «mi contenido real y UNA imagen por lección»): cada lección lleva una sola foto (la primera de su
+           clase) y ninguna foto se repite en otra lección */
+        if (p.foto && !conFoto && !fotosUsadas[p.foto.id]) { conFoto = 1; D.img[p.foto.id] = p.foto.src; fotosUsadas[p.foto.id] = 1; if (p.e || p.q) { x.foto = p.foto.id; if (p.foto.rec) x.fotoRec = p.foto.rec; } }
         /* la etapa se dice en el título del primer paso de cada una */
         if (!visto[p.etapa]) { visto[p.etapa] = 1; if (p.etapa !== 'queda') x.t = ETAPAS[p.etapa] + ' · ' + x.t; }
         return x;
@@ -373,6 +386,19 @@
       if (gal.length) { var it = -1; resto.forEach(function (l, i) { if (it < 0 && /__tutor_/.test(l.id)) it = i; }); if (it < 0) it = resto.length; resto.splice.apply(resto, [it, 0].concat(gal)); }
       M.lecciones = resto;
     });
+    /* «una imagen por lección»: en las demás lecciones (ideas clave, regalos…) las fotos de la biblioteca se quedan en una sola por
+       lección; las demás escenas de esa lección muestran esa misma foto (sin abrir otra), y ninguna se repite en otra lección */
+    D.modulos.forEach(function (M) { M.lecciones.forEach(function (L) {
+      if (L.receta) return; var una = null;
+      (L.escenas || []).forEach(function (e) {
+        [['id'], ['foto']].forEach(function (c) {
+          var v = e[c[0]]; if (!/^pe_gw_/.test(v || '')) return;
+          if (!una && !fotosUsadas[v]) { una = v; fotosUsadas[v] = 1; return; }
+          if (v === una) return;
+          if (c[0] === 'foto') delete e.foto; else e.id = una || 'dg_frente';
+        });
+      });
+    }); });
     D._receta = 1;
     return D;
   }
@@ -411,7 +437,7 @@
         /* 26-10-2026: la Galería web se pone antes (su función ya no repite: D._galPelu), así la receta quita de la galería las
            fotos que ya enseña y la lámina «A continuación» nombra la lección que de verdad viene después */
         var GW = window.EU_PELU_GALERIA;
-        if (activo(cfg) && GW && GW.ponerCurso && ((cfg.acab || {}).galeria) !== 'no') { try { GW.ponerCurso(X); } catch (e) { console.warn('Receta · galería', e); } }
+        if (activo(cfg) && GW && GW.ponerCurso && /^(si|huecos)$/.test(String((cfg.acab || {}).galeria || ''))) { try { GW.ponerCurso(X); } catch (e) { console.warn('Receta · galería', e); } }
         return activo(cfg) ? transiciones(curso(X)) : X;
       });
     };
