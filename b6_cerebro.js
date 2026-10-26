@@ -160,7 +160,9 @@
         { t: 'Cierre', n: 'Emulsiona, aclara y sella con acidificante.', e: 'Saltarse el acidificante y perder brillo.', d: 4, fase: 'cierre' }
       ],
       repaso: [
-        { p: 'En una melena virgen, ¿qué se aplica primero?', o: ['La raíz', 'Los medios y puntas', 'Todo a la vez'], c: 1, x: 'La raíz procesa más rápido por el calor del cuero cabelludo. Va la última para que todo termine parejo.' }
+        /* 26-10-2026 (Fátima, su primer documento: en el tinte «se aplica paso a paso en la parte de la raíz, luego en las puntas»):
+           fuera la pregunta del archivo del 3-9-2026 «En una melena virgen, ¿qué se aplica primero? → Los medios y puntas», que decía
+           lo contrario de su orden */
       ]
     },
     {
