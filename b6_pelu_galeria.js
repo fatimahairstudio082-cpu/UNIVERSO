@@ -700,7 +700,10 @@
   }
   function repartir(res) {
     var C = res && res.C, cfg = C && C.cfg;
-    if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || ((cfg.acab || {}).galeria) === 'no') return res;
+    /* 26-10-2026 (Fátima: «las imágenes de la biblioteca son para que se integre una por clase, no una galería de fotos
+       ordinarias»): las hojas de galería del libro y las lecciones «Galería · …» del curso quedan APAGADAS por defecto; cada foto
+       va dentro de su clase (b6_pelu_receta.js). Se vuelven a encender con cfg.acab.galeria = 'si' (o 'huecos'). */
+    if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || !/^(si|huecos)$/.test(String((cfg.acab || {}).galeria || ''))) return res;
     var ya = {}, hay = {}, porU = {}, orden = [], quitadas = {}, n = 0, vistas = {};
     res.pages.forEach(function (p) { if (p.tipo === 'pe_galeria') ya[p.gw] = 1; if (p.u && !p.anexo) hay[p.u.id] = 1; });
     G.forEach(function (g) {
@@ -774,7 +777,7 @@
     CA.enriquecer = function (D, res) {
       return Promise.resolve(enr.apply(this, arguments)).then(function (D2) {
         var R = D2 || D, cfg = res && res.C && res.C.cfg;
-        return cfg && cfg.materia === 'pelu' && ((cfg.acab || {}).galeria) !== 'no' ? ponerCurso(R) : R;
+        return cfg && cfg.materia === 'pelu' && /^(si|huecos)$/.test(String((cfg.acab || {}).galeria || '')) ? ponerCurso(R) : R;   /* apagado por defecto (26-10-2026) */
       });
     };
     CA.enriquecer._galPelu = 1;

@@ -29,7 +29,7 @@
       n1('Elevación', '0° a 180°'), n2('0°: peso en la línea'), n2('90°: peso repartido'),
       n1('Partición', 'Horizontal o vertical'), n2('Liso: horizontal'), n2('Rizado: vertical'),
       n1('Textura', 'Manda sobre el filo'), n2('Rizo y afro en seco'),
-      n1('Herramienta', 'Tijera, navaja, máquina'), n2('Entresacar por dentro'),
+      n1('Herramienta', 'Tijera y navaja'), n2('Entresacar por dentro'),
       n1('Contorno', 'Nuca, orejas y patillas'),
       n1('Comprobación', 'Siempre en seco')
     ],
