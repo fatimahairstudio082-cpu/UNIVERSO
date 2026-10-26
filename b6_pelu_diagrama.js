@@ -792,11 +792,20 @@
            en la línea de sección del centro del grupo), sube a su elevación y la tijera corta en una línea vertical. */
         var vert = !R.liso, phC = lst[Math.floor(lst.length / 2)], colTh = [];
         if (vert) { var hc = (frente ? 1 : -1) * 0.5; for (var ci = 0; ci <= 9; ci++) { var tc = th + hc * ci / 9; if (tc > 0.08 && tc < 2.0 && seVe(v, phC, tc)) colTh.push(tc); } if (colTh.length < 2) vert = false; }
+        /* 26-10-2026 (Fátima: «divide de oreja a oreja y echa ese cabello hacia la cara; saca cada mechón vertical, no en abanico;
+           atrás, todo en partes verticales»): en secciones verticales el mechón se eleva en el plano vertical que mira a la vista
+           (de frente, hacia la cara; atrás, hacia atrás), todos sus cabellos paralelos: así se ve vertical y no en abanico. */
+        function dirV(a, gg) {
+          var f = CAM[v].pos.clone().sub(a); f.y = 0; if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize();
+          var n0 = N(phC, th); n0.y = 0; if (n0.lengthSq() > 1e-6) f.add(n0.normalize().multiplyScalar(0.25)).normalize();
+          var an = gg * Math.PI / 180; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(f.multiplyScalar(Math.sin(an))).normalize();
+        }
         function subeMechon(ph, thR, a, yf) {
           var Llar = Math.max(0.6, a.y - (YB - 0.7)), Lcor = Math.max(0.12, Math.min(Llar - 0.1, a.y - yf)), sube = [];
           Llar = Math.min(Llar, Lcor + 0.35);   /* el mechón agarrado, un poco más largo que donde se corta (no cruza la cara) */
-          for (var m = 0; m <= 5; m++) { var dm = dirElev(ph, thR, g * m / 5); sube.push([].concat(pr(v, a), pr(v, a.clone().add(dm.multiplyScalar(Llar))))); }
-          var dg = dirElev(ph, thR, g), corte1 = [].concat(pr(v, a), pr(v, a.clone().add(dg.clone().multiplyScalar(Lcor))));
+          var D = vert ? function (gg) { return dirV(a, gg); } : function (gg) { return dirElev(ph, thR, gg); };
+          for (var m = 0; m <= 5; m++) { var dm = D(g * m / 5); sube.push([].concat(pr(v, a), pr(v, a.clone().add(dm.multiplyScalar(Llar))))); }
+          var dg = D(g), corte1 = [].concat(pr(v, a), pr(v, a.clone().add(dg.clone().multiplyScalar(Lcor))));
           tr.push(mechon(sube, tSube, c, 1.6, { x: tCorta[1] }));
           tr.push(mechon([corte1, corte1], [tCorta[1], tCorta[1] + 0.001], c, 1.8, { x: tCae[0] + w * 0.15 }));
           puntas.push(corte1.slice(2));
