@@ -746,6 +746,15 @@
       if (frente && !R.nivelar) { var ad = Math.min(1, Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) / 1.2); y = Math.max(y, A.y - (R.forma === 'recto' ? 0 : 0.95 * Math.pow(ad, 1.35))); }
       return y;
     }
+    /* 26-10-2026 (Fátima: «ese corte es redondo, no cuadrado»): en línea recta, atrás y de lado, donde termina cada capa se ve una
+       línea recta y horizontal (como yPlano de escQueda); antes la misma altura sobre la cabeza redonda se veía en arco, redonda */
+    var Pc1 = P(NUCA, 1.35, 1.05);
+    function yRecta(ph, y) {
+      if (lin !== 'recta' || frente) return y;
+      var b = P(ph, 1.35, 1.05), obj = pr(v, V3(Pc1.x * 1.03, y, Pc1.z * 1.03))[1], lo = y - 2, hi = Math.max(y, b.y);
+      for (var it = 0; it < 22; it++) { var m = (lo + hi) / 2; if (pr(v, V3(b.x * 1.03, m, b.z * 1.03))[1] > obj) lo = m; else hi = m; }
+      return (lo + hi) / 2;
+    }
     function dentro(ph) {
       var dc = Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))), dn = Math.abs(Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA)));
       return frente ? dc < 1.25 && dc > 0.05 : v === 'nuca' ? dn < 1.15 : dc > 0.5;
@@ -812,9 +821,9 @@
         }
         /* la línea de la sección vertical, marcada en el cráneo con el color de la capa mientras se agarra y se corta */
         if (vert) tr.push(linea(plano(colTh.map(function (tc) { return pr(v, P(phC, tc, 1.05)); })), [s0, tCorta[1]], c, 4, { x: tCae[1] }));
-        if (vert) colTh.forEach(function (tc) { var aC = P(phC, tc, 1.04 + 0.004 * z); subeMechon(phC, tc, aC, Math.min(aC.y - 0.06, y0(phC) + ((dif[z] && dif[z].t) || 0))); });
+        if (vert) colTh.forEach(function (tc) { var aC = P(phC, tc, 1.04 + 0.004 * z); subeMechon(phC, tc, aC, Math.min(aC.y - 0.06, yRecta(phC, y0(phC) + ((dif[z] && dif[z].t) || 0)))); });
         lst.forEach(function (ph) {
-          var a = P(ph, th, 1.04 + 0.004 * z), yf = Math.min(a.y - 0.06, y0(ph) + ((dif[z] && dif[z].t) || 0)), pts = [pr(v, a)], ult = a;
+          var a = P(ph, th, 1.04 + 0.004 * z), yf = Math.min(a.y - 0.06, yRecta(ph, y0(ph) + ((dif[z] && dif[z].t) || 0))), pts = [pr(v, a)], ult = a;
           /* baja peinado por el cráneo hasta el borde y de ahí cae; de frente, el cabello de encima de la cara se abre desde la raya
              hacia los lados y cae por fuera del rostro (no tapa la cara) */
           var dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), lado = dC >= 0 ? 1 : -1;
