@@ -1115,8 +1115,21 @@
         if (ult.y > yE) pts.push(pr(v, V3(ult.x * 1.03, yE, ult.z * 1.03)));
         return pts;
       }
+      /* 30-10-2026 (Fátima: «rellena más pelo hasta la línea azul; atrás, que el maniquí no quede pelón»): todo el cráneo de la vista lleva
+         cabello fino de fondo; las líneas de color son solo el mechón que se sujeta. De lado, detrás de la línea azul, lo de atrás ya
+         cortado (se queda quieto); el relleno de cada sección cae largo y, al cortarla, queda a su largo */
+      var thR = Math.max(0.08, Math.min.apply(null, ths) - 0.05), PASO = 0.018;
+      function relleno(p0, p1, tt, yE, col, ex) {
+        if (frente) return;   /* de frente el relleno caería recto sobre la cara: se queda como estaba */
+        for (var pf = Math.min(p0, p1); pf <= Math.max(p0, p1); pf += PASO) { if (!seVe(v, pf, thR + 0.3) && !seVe(v, pf, 1)) continue; var pts = peina(pf, thR, yE(pf), 1.035); if (pts.length > 1) trV.push(linea(plano(pts), tt, col, 2, ex)); }
+      }
+      function yCorte(pf) { return Math.min(P(pf, thR, 1).y - 0.06, yFin(0, pf)); }
+      if (v === 'lateral') relleno(oreja - sC * 0.12, oreja - sC * 1.6, [0, 0.001], yCorte, '#6E5240');
       for (var k = 0; k < K; k++) {
         var ph = Z[0] + (Z[1] - Z[0]) * (k + 0.5) / K, ta = 0.04 + dS * k, tb = ta + dS, ck = COL[k % 7], ext = k < K - 1 ? { x: tb } : {};
+        var pA = k === 0 && v === 'lateral' ? oreja - sC * 0.12 : Z[0] + (Z[1] - Z[0]) * k / K, pB = Z[0] + (Z[1] - Z[0]) * (k + 1) / K;
+        relleno(pA, pB, [0, 0.001], function () { return yLargo; }, '#8C6B55', { x: ta + dS * 0.8 });
+        relleno(pA, pB, [ta + dS * 0.8, tb], yCorte, '#6E5240');
         var vis = ths.map(function (th, z) { return seVe(v, ph, th) ? z : -1; }).filter(function (z) { return z >= 0; });
         if (vis.length < 2) continue;
         /* antes de cortar: el cabello largo de la sección, peinado hacia abajo */
