@@ -19,7 +19,20 @@
     /* 22-10-2026 (Fátima): el curso es de peluquería y colorimetría — sin recogidos ni peinados de evento (secado, brushing
        y ondas con plancha se quedan), sin negocio, y extensiones ocultas hasta que grabe su vídeo (para volver: quitar de aquí) */
     'pe_trenza', 'pe_mono', 'pe_coleta', 'pe_ondas', 'pe_novia', 'pe_cardado', 'pe_semirrecogido', 'pe_extensiones',
-    'pe_precio', 'pe_agenda', 'pe_redes_salon', 'pe_venta_productos'];
+    'pe_precio', 'pe_agenda', 'pe_redes_salon', 'pe_venta_productos',
+    /* 30-10-2026 (Fátima: «se quitan todos los dibujos genéricos que no corresponden a mi metodología»): los demás dibujos de
+       b6_lib_peluqueria*.js; los sustituyen las imágenes de su biblioteca actualizada (b6_pelu_galeria.js) en cada unidad.
+       Los archivos no se borran; para volver a ver uno, quitarlo de aquí */
+    'pe_tijera', 'pe_entresacar', 'pe_navaja', 'pe_peines', 'pe_cepillos', 'pe_pinzas', 'pe_bol_paletina', 'pe_rulos',
+    'pe_capa', 'pe_pulverizador', 'pe_espejo', 'pe_brocha', 'pe_secador', 'pe_plancha', 'pe_tenacilla', 'pe_difusor',
+    'pe_vaporizador', 'pe_lavacabezas', 'pe_sillon', 'pe_esterilizador', 'pe_carrito', 'pe_estructura_pelo', 'pe_foliculo',
+    'pe_ciclo', 'pe_tipos_pelo', 'pe_grosor', 'pe_porosidad', 'pe_cuero', 'pe_melanina', 'pe_secciones', 'pe_mecha_guia',
+    'pe_bob', 'pe_capas', 'pe_flequillo', 'pe_puntas', 'pe_formas_cara', 'pe_lavado', 'pe_rueda_color', 'pe_niveles',
+    'pe_reflejos', 'pe_oxidante', 'pe_como_tine', 'pe_decoloracion', 'pe_prueba_alergia', 'pe_ph', 'pe_mechas',
+    'pe_permanente', 'pe_alisado', 'pe_canas', 'pe_temporal', 'pe_tiempo_exposicion', 'pe_raiz_medios', 'pe_brushing',
+    'pe_masaje_capilar', 'pe_mascarilla', 'pe_desinfeccion', 'pe_epis', 'pe_postura', 'pe_quimicos', 'pe_ficha_cliente',
+    'pe_diagnostico', 'pe_consulta', 'pe_residuos', 'pe_pixie', 'pe_corte_rizado', 'pe_balayage', 'pe_matizar',
+    'pe_proporcion_mezcla', 'pe_ondas_plancha', 'pe_caida', 'pe_densidad', 'pe_electricidad'];
   var NO = {}; FUERA.forEach(function (id) { NO[id] = 1; });
 
   var lista0 = MO.lista, modelo0 = MO.modelo;

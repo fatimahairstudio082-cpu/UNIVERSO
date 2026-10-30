@@ -51,10 +51,10 @@
     color_global: {
       k: 'tec', id: 'cb_color_global', cer: 'color_global', n: 'Tinte en cabello virgen', lec: '__color_global', pre: 'cb_color_global_',
       quitaT: /cubrir las canas|^Medios y puntas$|^Raíz$/i, quitaQ: /melena virgen/i, limpia: [[/ para cubrir canas(?=[,.])/g, '']], quitaRec: /canas|virgen, raíz al final|color ya hecho/i,
-      fotos: { cb_receta: 478, cb0_divisiones: 379, cb_lam_plantaCuatro: 330, cb1_aplicacion: 479, cb2_aplicacion: 301, cb_queda_color: 96 },
+      fotos: { cb_receta: 917, cb0_divisiones: 888, cb_lam_plantaCuatro: 790, cb1_aplicacion: 895, cb2_aplicacion: 301, cb_queda_color: 96 },   /* 30-10-2026: fotos de su biblioteca actualizada (mezcla en bowl, división en cuadros para tinte, cuadrantes, tinte en raíz en cabello natural) */
       /* su clase del peróxido (fat_p01) solo con lo que es del tinte, y su recomendación de 20/30 vol de la ficha;
          después, el ejemplo de cómo se saca la cuenta (fat_p02) */
-      insertar: [{ tras: 'cb_receta', tipo: 'oxidante', t: 'El oxidante (peróxido) en el tinte', foto: 495, clase: 'fat_p01', solo: [0, 1, 2, 3, 7], rec: [1], tools: [0, 1, 2, 4, 5] }],
+      insertar: [{ tras: 'cb_receta', tipo: 'oxidante', t: 'El oxidante (peróxido) en el tinte', foto: 922, clase: 'fat_p01', solo: [0, 1, 2, 3, 7], rec: [1], tools: [0, 1, 2, 4, 5] }],
       ejemplos: 'cb_receta'
     },
     /* 26-10-2026 (Fátima: «muy distinto es aplicar un tinte a un cabello que no tiene canas pero está procesado, que también está la
@@ -71,7 +71,7 @@
     /* clase siguiente: las dos fórmulas del mismo tinte (sus textos: Cerebro y fat_i02) */
     tinte_canas: {
       k: 'canas', n: 'Tinte para cubrir canas', lec: '__receta_canas', pre: 'rc_canas_', tras: ['__color_raiz', '__color_global'],
-      fotos: { formulas: 314, raiz: 254, puntas: 313, cb_queda_color: 97 }   /* 26-10-2026: la 379 ya va en el tinte en cabello virgen (sin repetir) */
+      fotos: { formulas: 314, raiz: 896, puntas: 313, cb_queda_color: 894 }   /* 26-10-2026: la 379 ya va en el tinte en cabello virgen (sin repetir) */
     }
   };
   /* 26-10-2026 (Fátima, su primer documento: «vamos con técnica de mecha, mecha con gorro: se hace como una receta y se dan los
@@ -299,10 +299,13 @@
     var r = R[k], E = null, P = [];
     if (r.k === 'corte') {
       E = corteE(k); if (!E) return [];
+      /* 30-10-2026 (Fátima: «así no se empieza; un peluquero siempre empieza por lavar y dividir de oreja a oreja»): la Clase abre
+         con la primera escena del corte (lavado o seccionado), no con el resultado; «Cómo queda» va al final */
       var fin = E.escenas.filter(esQueda), fr = fin.filter(function (e) { return e.tipo === 'queda_frente'; })[0] || fin[0];
       var pila = (E.R.capas && E.R.capas.pila) || [];
-      P.push({ etapa: 'clase', tipo: 'clase', t: r.n, texto: r.d + ' Capas de abajo arriba: ' + pila.map(function (g) { return g + '°'; }).join(', ') + '.', e: fr, foto: foto(r.fotos.clase), ficha: 1 });
-      E.escenas.filter(function (e) { return !esQueda(e); }).forEach(function (e) { P.push({ etapa: 'vis', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
+      var e0 = E.escenas.filter(function (e) { return !esQueda(e); })[0];   /* la escena de la Clase no se repite en Visualización */
+      P.push({ etapa: 'clase', tipo: 'clase', t: r.n, texto: r.d + ' Capas de abajo arriba: ' + pila.map(function (g) { return g + '°'; }).join(', ') + '.' + (e0 && e0.texto ? ' ' + e0.texto : ''), e: e0 || fr, foto: foto(r.fotos.clase), ficha: 1, lav: e0 && e0.tipo === 'lavado' ? ' ' + e0.texto : 0 });
+      E.escenas.filter(function (e) { return !esQueda(e) && e !== e0; }).forEach(function (e) { P.push({ etapa: 'vis', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
       (E.preguntas || []).forEach(function (q) { P.push({ etapa: 'practica', tipo: 'pregunta', t: 'Pregunta', texto: q.e, q: q }); });
       fin.forEach(function (e) { P.push({ etapa: 'queda', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
     } else if (r.k === 'fleco') {
@@ -354,6 +357,8 @@
       /* 26-10-2026 (Fátima: «se lava el cabello, coloca el vídeo, pero vuelves otra vez a visualizar»): si la lección abre con el
          vídeo del lavado, la escena animada del lavado no se repite (en el libro, sin vídeo, se queda) */
       var conVid = !!(r.mp4 && V[r.mp4]), Pc = P.filter(function (p) { return !(conVid && /lavado/.test(r.mp4) && p.tipo === 'lavado'); });
+      /* 30-10-2026: la Clase abre con el lavado; si ya lo enseña el vídeo, la Clase va sin esa escena ni su texto */
+      if (conVid && /lavado/.test(r.mp4)) Pc = Pc.map(function (p) { return p.lav ? Object.assign({}, p, { texto: String(p.texto).replace(p.lav, ''), e: null }) : p; });
       var elegida = fotoDe(Pc, fotosUsadas), visto = {}, conFoto = 0, esc = Pc.map(function (p) {
         var x;
         if (p.q) x = { tipo: 'pregunta', id: 'dg_lateral', t: 'Pregunta', texto: 'Antes de seguir, piensa: ' + p.q.e, rot: [], q: { e: p.q.e, o: p.q.o, c: p.q.c }, sol: 'La respuesta es: ' + p.q.o[p.q.c] + '.' + (p.q.x ? ' ' + p.q.x : '') };
