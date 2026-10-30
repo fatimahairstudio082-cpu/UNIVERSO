@@ -175,7 +175,7 @@
     alt.value = 'nariz';
     var aca = fila('Acabado', sel([['recto', 'Recto (cuadrado)'], ['v', 'En V'], ['u', 'En U'], ['desgrafilado', 'Desgrafilado']]));
     var lfr = fila('Puntas de delante', sel([['', 'Redondeadas'], ['recta', 'Rectas']]));
-    var emp = fila('Emparejar', sel([['delante', 'Delante (atrás → delante)'], ['atras', 'Atrás (delante → atrás) · corte redondo'], ['no', 'No']]));
+    var emp = fila('Emparejar', sel([['delante', 'Delante con atrás (solo la punta de delante)'], ['atras', 'Atrás (delante → atrás) · corte redondo'], ['no', 'No']]));
     var gui = fila('Guía por capa', ent('m = móvil, f = fija · ej.: m, m, f (vacío = todas móviles)', 300));
     var ref = fila('Ángulo medido', sel([['craneo', 'Desde el cráneo (90° = perpendicular a la curva)'], ['suelo', 'Desde el suelo (90° = horizontal)']]));
     var cor = document.createElement('input'); cor.type = 'checkbox'; var corG = ent('grados (vacío = la capa más alta)', 200);

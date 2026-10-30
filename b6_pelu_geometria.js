@@ -119,11 +119,11 @@
     pilas.forEach(function (pl) { ['recta', 'redondeada', 'v'].forEach(function (lin) { [false, true].forEach(function (liso) { (liso ? ['no'] : ['atras', 'delante']).forEach(function (emp) {
       var niv = pl.capas.some(function (g) { return g > 0; }) ? 2 : 1;
       (niv === 1 ? n1 : n2).push({ id: 'vf_' + lin + '__' + pl.id + (liso ? '__liso' : '__' + emp), variante: true, forma: true, nivel: niv,
-        n: 'Forma ' + FORMA_N[lin] + ' · ' + (niv === 1 ? 'sin elevación' : 'mechones ' + pl.capas.join('·') + '°') + (liso ? ' · liso extremo' : '') + (emp === 'atras' ? ' · emparejado hacia atrás' : emp === 'delante' ? ' · emparejado hacia delante' : ''),
+        n: 'Forma ' + FORMA_N[lin] + ' · ' + (niv === 1 ? 'sin elevación' : 'mechones ' + pl.capas.join('·') + '°') + (liso ? ' · liso extremo' : '') + (emp === 'atras' ? ' · emparejado hacia atrás' : emp === 'delante' ? ' · delante emparejado con atrás' : ''),
         capas: pl.capas.slice(), part: liso ? 'horizontal' : 'vertical', altura: 'nariz', linea: lin, acabado: 'recto', emparejar: emp,
         texto: 'Atrás queda ' + FORMA_N[lin] + '. ' + (niv === 1 ? 'Todos los mechones a 0°, cayendo hacia el suelo.' : 'Mechones de abajo arriba a ' + pl.capas.join(', ') + ' grados.') +
           (liso ? ' Cabello liso extremo: todas las secciones en horizontal.' : ' Cabello normal u ondulado: secciones en vertical.') + ' Guía del frente desde la nariz. ' +
-          (emp === 'atras' ? 'Al final se empareja el de delante hacia atrás: queda redondo.' : emp === 'delante' ? 'Al final se empareja el de atrás hacia delante.' : '') });
+          (emp === 'atras' ? 'Al final se empareja el de delante hacia atrás: queda redondo.' : emp === 'delante' ? 'Al final, delante se empareja con lo que quedó atrás (lo de atrás no se vuelve a cortar).' : '') });
     }); }); }); });
     /* Fátima, 19-10-2026: box corto con distintas formas de atrás en el mismo maniquí (elevaciones del box del sistema, a validar por Fátima) */
     var bx = tecnica('box'), BXN = { recta: 'cuadrado', redondeada: 'redondeado', u: 'en U', v: 'en V' };

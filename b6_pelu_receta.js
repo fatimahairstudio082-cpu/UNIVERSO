@@ -299,10 +299,13 @@
     var r = R[k], E = null, P = [];
     if (r.k === 'corte') {
       E = corteE(k); if (!E) return [];
+      /* 30-10-2026 (Fátima: «así no se empieza; un peluquero siempre empieza por lavar y dividir de oreja a oreja»): la Clase abre
+         con la primera escena del corte (lavado o seccionado), no con el resultado; «Cómo queda» va al final */
       var fin = E.escenas.filter(esQueda), fr = fin.filter(function (e) { return e.tipo === 'queda_frente'; })[0] || fin[0];
       var pila = (E.R.capas && E.R.capas.pila) || [];
-      P.push({ etapa: 'clase', tipo: 'clase', t: r.n, texto: r.d + ' Capas de abajo arriba: ' + pila.map(function (g) { return g + '°'; }).join(', ') + '.', e: fr, foto: foto(r.fotos.clase), ficha: 1 });
-      E.escenas.filter(function (e) { return !esQueda(e); }).forEach(function (e) { P.push({ etapa: 'vis', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
+      var e0 = E.escenas.filter(function (e) { return !esQueda(e); })[0];   /* la escena de la Clase no se repite en Visualización */
+      P.push({ etapa: 'clase', tipo: 'clase', t: r.n, texto: r.d + ' Capas de abajo arriba: ' + pila.map(function (g) { return g + '°'; }).join(', ') + '.' + (e0 && e0.texto ? ' ' + e0.texto : ''), e: e0 || fr, foto: foto(r.fotos.clase), ficha: 1, lav: e0 && e0.tipo === 'lavado' ? ' ' + e0.texto : 0 });
+      E.escenas.filter(function (e) { return !esQueda(e) && e !== e0; }).forEach(function (e) { P.push({ etapa: 'vis', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
       (E.preguntas || []).forEach(function (q) { P.push({ etapa: 'practica', tipo: 'pregunta', t: 'Pregunta', texto: q.e, q: q }); });
       fin.forEach(function (e) { P.push({ etapa: 'queda', tipo: e.tipo, t: e.t, texto: e.texto, e: e, foto: foto(r.fotos[e.tipo]) }); });
     } else if (r.k === 'fleco') {
@@ -354,6 +357,8 @@
       /* 26-10-2026 (Fátima: «se lava el cabello, coloca el vídeo, pero vuelves otra vez a visualizar»): si la lección abre con el
          vídeo del lavado, la escena animada del lavado no se repite (en el libro, sin vídeo, se queda) */
       var conVid = !!(r.mp4 && V[r.mp4]), Pc = P.filter(function (p) { return !(conVid && /lavado/.test(r.mp4) && p.tipo === 'lavado'); });
+      /* 30-10-2026: la Clase abre con el lavado; si ya lo enseña el vídeo, la Clase va sin esa escena ni su texto */
+      if (conVid && /lavado/.test(r.mp4)) Pc = Pc.map(function (p) { return p.lav ? Object.assign({}, p, { texto: String(p.texto).replace(p.lav, ''), e: null }) : p; });
       var elegida = fotoDe(Pc, fotosUsadas), visto = {}, conFoto = 0, esc = Pc.map(function (p) {
         var x;
         if (p.q) x = { tipo: 'pregunta', id: 'dg_lateral', t: 'Pregunta', texto: 'Antes de seguir, piensa: ' + p.q.e, rot: [], q: { e: p.q.e, o: p.q.o, c: p.q.c }, sol: 'La respuesta es: ' + p.q.o[p.q.c] + '.' + (p.q.x ? ' ' + p.q.x : '') };

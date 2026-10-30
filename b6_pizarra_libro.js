@@ -109,6 +109,8 @@
         var fid = base + '_rf'; try { D.img[fid] = PZ.foto(R, Q.length, 720, 420, '#39d9ff'); } catch (e) { }
         var f = Q[Q.length - 1]; if (f) esc.push({ tipo: 'idea', id: fid, t: '🎉 Resultado', texto: f.d, rot: [] });
       }
+      /* 30-10-2026: en la voz del curso el hueco «____» se leía «barra baja»: se dice como pausa */
+      esc.forEach(function (e) { if (e.texto) e.texto = String(e.texto).replace(/_{2,}/g, '…'); });
       if (esc.length < 3) return;
       M.lecciones.push({ id: M.id + '__pizarra', t: 'Pizarra · ' + PZ.limpio(sub(u.t, C)), pag: pg.num, video: 1, escenas: esc }); n++;
     });
