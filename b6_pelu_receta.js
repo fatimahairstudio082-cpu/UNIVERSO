@@ -51,10 +51,10 @@
     color_global: {
       k: 'tec', id: 'cb_color_global', cer: 'color_global', n: 'Tinte en cabello virgen', lec: '__color_global', pre: 'cb_color_global_',
       quitaT: /cubrir las canas|^Medios y puntas$|^Raíz$/i, quitaQ: /melena virgen/i, limpia: [[/ para cubrir canas(?=[,.])/g, '']], quitaRec: /canas|virgen, raíz al final|color ya hecho/i,
-      fotos: { cb_receta: 478, cb0_divisiones: 379, cb_lam_plantaCuatro: 330, cb1_aplicacion: 479, cb2_aplicacion: 301, cb_queda_color: 96 },
+      fotos: { cb_receta: 917, cb0_divisiones: 888, cb_lam_plantaCuatro: 790, cb1_aplicacion: 895, cb2_aplicacion: 301, cb_queda_color: 96 },   /* 30-10-2026: fotos de su biblioteca actualizada (mezcla en bowl, división en cuadros para tinte, cuadrantes, tinte en raíz en cabello natural) */
       /* su clase del peróxido (fat_p01) solo con lo que es del tinte, y su recomendación de 20/30 vol de la ficha;
          después, el ejemplo de cómo se saca la cuenta (fat_p02) */
-      insertar: [{ tras: 'cb_receta', tipo: 'oxidante', t: 'El oxidante (peróxido) en el tinte', foto: 495, clase: 'fat_p01', solo: [0, 1, 2, 3, 7], rec: [1], tools: [0, 1, 2, 4, 5] }],
+      insertar: [{ tras: 'cb_receta', tipo: 'oxidante', t: 'El oxidante (peróxido) en el tinte', foto: 922, clase: 'fat_p01', solo: [0, 1, 2, 3, 7], rec: [1], tools: [0, 1, 2, 4, 5] }],
       ejemplos: 'cb_receta'
     },
     /* 26-10-2026 (Fátima: «muy distinto es aplicar un tinte a un cabello que no tiene canas pero está procesado, que también está la
@@ -71,7 +71,7 @@
     /* clase siguiente: las dos fórmulas del mismo tinte (sus textos: Cerebro y fat_i02) */
     tinte_canas: {
       k: 'canas', n: 'Tinte para cubrir canas', lec: '__receta_canas', pre: 'rc_canas_', tras: ['__color_raiz', '__color_global'],
-      fotos: { formulas: 314, raiz: 254, puntas: 313, cb_queda_color: 97 }   /* 26-10-2026: la 379 ya va en el tinte en cabello virgen (sin repetir) */
+      fotos: { formulas: 314, raiz: 896, puntas: 313, cb_queda_color: 894 }   /* 26-10-2026: la 379 ya va en el tinte en cabello virgen (sin repetir) */
     }
   };
   /* 26-10-2026 (Fátima, su primer documento: «vamos con técnica de mecha, mecha con gorro: se hace como una receta y se dan los
