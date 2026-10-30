@@ -1093,15 +1093,20 @@
        entre capas. Atrás: detrás de la línea de oreja a oreja; de lado: solo delante de ella; de frente: la parte de delante. */
     function peinadoVertical() {
       var K = 6, oreja = seVe(v, IZQ, 1.3) ? IZQ : DER, sC = Math.atan2(Math.sin(CARA - oreja), Math.cos(CARA - oreja)) > 0 ? 1 : -1;
-      var Z = v === 'nuca' ? [NUCA - 1.3, NUCA + 1.3] : v === 'lateral' ? [oreja + sC * 0.12, oreja + sC * 0.95] : [CARA - 1.15, CARA + 1.15];
-      var ths = []; for (var zz = 0; zz < n; zz++) ths.push(frente ? 0.16 + zz * (0.7 / n) : thCapa(zz, n));
+      var Z = v === 'nuca' ? [NUCA - 1.3, NUCA + 1.3] : v === 'lateral' ? [oreja - sC * 0.09, oreja + sC * 0.7] : [CARA - 1.15, CARA + 1.15];
+      /* 30-10-2026 (Fátima, su dibujo): de lado las secciones nacen en la línea azul y avanzan hacia la cara; de frente se agarran
+         desde la línea azul de cada lado hacia delante (3 secciones por lado, de la línea azul hacia la raya) */
+      function phK(k) { return frente ? (k < K / 2 ? IZQ + 0.22 + 0.2 * k : DER - 0.22 - 0.2 * (k - K / 2)) : Z[0] + (Z[1] - Z[0]) * (k + 0.5) / K; }
+      var ths = []; for (var zz = 0; zz < n; zz++) ths.push(v === 'lateral' || frente ? 1.7 - zz * (1.3 / Math.max(1, n - 1)) : thCapa(zz, n));   /* de lado, las raíces repartidas por la línea azul de la oreja hasta arriba */
       var dS = 0.92 / K, yLargo = YB - 0.9, trV = [];
       /* 30-10-2026 (Fátima: «de lado, desde la división azul se sacan las líneas rectas hacia la cara, según la elevación del mechón»):
          de lado el mechón se eleva en el plano del dibujo, hacia la cara (0° cae; 90° queda recto hacia la cara); atrás y de frente,
          hacia quien mira */
       var vista = CAM[v].pos.clone().normalize(), haciaCara = P(CARA, Math.PI / 2).normalize(); haciaCara.y = 0;
       haciaCara.sub(vista.clone().multiplyScalar(haciaCara.dot(vista))); if (haciaCara.lengthSq() > 1e-6) haciaCara.normalize();
+      var ladoX = P(IZQ, Math.PI / 2).normalize(); ladoX.y = 0; ladoX.sub(vista.clone().multiplyScalar(ladoX.dot(vista))); if (ladoX.lengthSq() > 1e-6) ladoX.normalize();   /* de frente: hacia el centro de la cara */
       function dirM(a, ph0, th0, gg) {
+        if (frente && ladoX.lengthSq() > 1e-6) { var an0 = gg * Math.PI / 180, sx = (pr(v, a)[0] < pr(v, a.clone().add(ladoX))[0]) === (pr(v, a)[0] < 640) ? 1 : -1; return V3(0, -1, 0).multiplyScalar(Math.cos(an0)).add(ladoX.clone().multiplyScalar(sx * Math.sin(an0))).normalize(); }
         if (v !== 'lateral' || haciaCara.lengthSq() < 1e-6) return dirVP(a, ph0, th0, gg);
         var an = gg * Math.PI / 180; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(haciaCara.clone().multiplyScalar(Math.sin(an))).normalize();
       }
@@ -1126,7 +1131,7 @@
       function yCorte(pf) { return Math.min(P(pf, thR, 1).y - 0.06, yFin(0, pf)); }
       if (v === 'lateral') relleno(oreja - sC * 0.12, oreja - sC * 1.6, [0, 0.001], yCorte, '#6E5240');
       for (var k = 0; k < K; k++) {
-        var ph = Z[0] + (Z[1] - Z[0]) * (k + 0.5) / K, ta = 0.04 + dS * k, tb = ta + dS, ck = COL[k % 7], ext = k < K - 1 ? { x: tb } : {};
+        var ph = phK(k), ta = 0.04 + dS * k, tb = ta + dS, ck = COL[k % 7], ext = k < K - 1 ? { x: tb } : {};
         var pA = k === 0 && v === 'lateral' ? oreja - sC * 0.12 : Z[0] + (Z[1] - Z[0]) * k / K, pB = Z[0] + (Z[1] - Z[0]) * (k + 1) / K;
         relleno(pA, pB, [0, 0.001], function () { return yLargo; }, '#8C6B55', { x: ta + dS * 0.8 });
         relleno(pA, pB, [ta + dS * 0.8, tb], yCorte, '#6E5240');
@@ -1158,7 +1163,7 @@
       var DIVv = '#2C6FD1', t0v = [0, 0.03];
       trV = trV.concat(lineas(tramos(v, function (u) { var t = -1.62 + u * 3.24; return t < 0 ? [IZQ - 0.12, -t] : [DER + 0.12, t]; }, 90), t0v, DIVv, 3.6));
       trV = trV.concat(lineas(tramos(v, frente ? function (u) { return [CARA, u * 1.3]; } : function (u) { return [NUCA, 0.12 + u * 1.86]; }, 40), t0v, TINTA, 3));
-      for (var kp = 1; kp < K; kp++) { var phP = Z[0] + (Z[1] - Z[0]) * kp / K, t1 = ths[ths.length - 1], t2b = ths[0]; trV = trV.concat(lineas(tramos(v, function (u) { return [phP, t1 + u * (t2b - t1)]; }, 30), t0v, DIVv, 2, { d: 1 })); }
+      for (var kp = 1; kp < K; kp++) { if (frente && kp === K / 2) continue; var phP = frente ? (phK(kp - 1) + phK(kp)) / 2 : Z[0] + (Z[1] - Z[0]) * kp / K, t1 = ths[ths.length - 1], t2b = ths[0]; trV = trV.concat(lineas(tramos(v, function (u) { return [phP, t1 + u * (t2b - t1)]; }, 30), t0v, DIVv, 2, { d: 1 })); }
       trV.push(rotulo((v === 'nuca' ? 'Atrás' : v === 'lateral' ? 'De lado · delante de la línea de oreja a oreja' : 'De frente') + ' · secciones verticales', TINTA, 0.97));
       return { v: v, tr: trV, banda: true };
     }
