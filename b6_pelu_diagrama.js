@@ -1108,7 +1108,9 @@
       function dirM(a, ph0, th0, gg) {
         if (frente && ladoX.lengthSq() > 1e-6) { var an0 = gg * Math.PI / 180, sx = (pr(v, a)[0] < pr(v, a.clone().add(ladoX))[0]) === (pr(v, a)[0] < 640) ? 1 : -1; return V3(0, -1, 0).multiplyScalar(Math.cos(an0)).add(ladoX.clone().multiplyScalar(sx * Math.sin(an0))).normalize(); }
         if (v !== 'lateral' || haciaCara.lengthSq() < 1e-6) return dirVP(a, ph0, th0, gg);
-        var an = gg * Math.PI / 180; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(haciaCara.clone().multiplyScalar(Math.sin(an))).normalize();
+        /* 30-10-2026 (Fátima, sus líneas rojas): de lado el mechón elevado sale horizontal de la línea azul hacia la cara, uno encima de
+           otro; su chapa sigue diciendo los grados de su número */
+        var an = gg > 0 ? Math.PI / 2 : 0; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(haciaCara.clone().multiplyScalar(Math.sin(an))).normalize();
       }
       var GRUESO = [-0.035, 0, 0.035];   /* cada mechón con varios cabellos, para que se vea como cabello y no como una línea */
       function peina(ph, th, yE, r) {   /* el cabello peinado por el cráneo hacia abajo y de ahí cae hasta yE */
@@ -1123,27 +1125,38 @@
       /* 30-10-2026 (Fátima: «rellena más pelo hasta la línea azul; atrás, que el maniquí no quede pelón»): todo el cráneo de la vista lleva
          cabello fino de fondo; las líneas de color son solo el mechón que se sujeta. De lado, detrás de la línea azul, lo de atrás ya
          cortado (se queda quieto); el relleno de cada sección cae largo y, al cortarla, queda a su largo */
-      var thR = Math.max(0.08, Math.min.apply(null, ths) - 0.05), PASO = 0.018;
+      var thR = Math.max(0.08, Math.min.apply(null, ths) - 0.05), PASO = 0.013;
       function relleno(p0, p1, tt, yE, col, ex) {
-        if (frente) return;   /* de frente el relleno caería recto sobre la cara: se queda como estaba */
-        for (var pf = Math.min(p0, p1); pf <= Math.max(p0, p1); pf += PASO) { if (!seVe(v, pf, thR + 0.3) && !seVe(v, pf, 1)) continue; var pts = peina(pf, thR, yE(pf), 1.035); if (pts.length > 1) trV.push(linea(plano(pts), tt, col, 2, ex)); }
+        for (var pf = Math.min(p0, p1); pf <= Math.max(p0, p1); pf += PASO) { if (!seVe(v, pf, thR + 0.3) && !seVe(v, pf, 1)) continue; var pts = peina(pf, thR, yE(pf), 1.035); if (pts.length > 1) trV.push(linea(plano(pts), tt, col, 2.2, ex)); }
       }
+      /* de frente (Fátima: «más pelo en la frente»): cabello de fondo que se abre desde la raya y cae a los lados de la cara */
+      if (frente) [-1, 1].forEach(function (lado) {
+        for (var d = 0.05; d <= 1.5; d += PASO) {   /* sin pasar por la cara: baja por la frente hasta el nacimiento, va hacia la sien y de ahí cae */
+          var pts = [], ult = null;
+          var nace = function (dl) { return Math.min(1.36, 0.95 + 0.41 * Math.max(0, (dl - 0.6) / 0.45)); }, ruta = [];   /* nacimiento del pelo en la frente */
+          for (var t3 = thR; t3 < nace(d); t3 += 0.05) ruta.push([d, t3]);   /* baja recto por la frente */
+          for (var dd = d; dd <= 1.05; dd += 0.05) ruta.push([dd, nace(dd)]);   /* sigue el nacimiento hacia la sien */
+          ruta.push([Math.max(d, 1.05), 1.36]);
+          for (var q3 = 0; q3 < ruta.length; q3++) { var pf = CARA + lado * ruta[q3][0]; if (!seVe(v, pf, ruta[q3][1])) break; ult = P(pf, ruta[q3][1], 1.035); pts.push(pr(v, ult)); }
+          if (ult && pts.length > 1) { pts.push(pr(v, V3(ult.x * 1.03, yLargo, ult.z * 1.03))); trV.push(linea(plano(pts), [0, 0.001], '#8C6B55', 2.2)); }
+        }
+      });
       function yCorte(pf) { return Math.min(P(pf, thR, 1).y - 0.06, yFin(0, pf)); }
       if (v === 'lateral') relleno(oreja - sC * 0.12, oreja - sC * 1.6, [0, 0.001], yCorte, '#6E5240');
       for (var k = 0; k < K; k++) {
         var ph = phK(k), ta = 0.04 + dS * k, tb = ta + dS, ck = COL[k % 7], ext = k < K - 1 ? { x: tb } : {};
         var pA = k === 0 && v === 'lateral' ? oreja - sC * 0.12 : Z[0] + (Z[1] - Z[0]) * k / K, pB = Z[0] + (Z[1] - Z[0]) * (k + 1) / K;
-        relleno(pA, pB, [0, 0.001], function () { return yLargo; }, '#8C6B55', { x: ta + dS * 0.8 });
-        relleno(pA, pB, [ta + dS * 0.8, tb], yCorte, '#6E5240');
+        if (!frente) { relleno(pA, pB, [0, 0.001], function () { return yLargo; }, '#8C6B55', { x: ta + dS * 0.8 }); relleno(pA, pB, [ta + dS * 0.8, tb], yCorte, '#6E5240'); }
         var vis = ths.map(function (th, z) { return seVe(v, ph, th) ? z : -1; }).filter(function (z) { return z >= 0; });
         if (vis.length < 2) continue;
         /* antes de cortar: el cabello largo de la sección, peinado hacia abajo */
         vis.forEach(function (z) { GRUESO.forEach(function (o) { trV.push(linea(plano(peina(ph + o, ths[z], yLargo, 1.04)), [0, 0.001], '#8C6B55', 1.4, { x: ta })); }); });
         /* la sección vertical marcada en el cráneo, de abajo arriba */
         trV.push(linea(plano(vis.map(function (z) { return pr(v, P(ph, ths[z], 1.05)); })), [ta, ta + dS * 0.15], ck, 4));
+        if (v === 'lateral') { var abj = P(ph, ths[vis[0]], 1.05); trV.push(linea(plano([pr(v, abj), pr(v, V3(abj.x, yLargo, abj.z))]), [ta, ta + dS * 0.15], ck, 3, { d: 1 })); }   /* de lado la sección vertical sigue hasta el final del cabello */
         var puntas = [];
         vis.forEach(function (z) {
-          var th = ths[z], g = cero ? 0 : (pila[z] || 0), a = P(ph, th, 1.05), yf = Math.min(a.y - 0.06, yFin(z, ph)), Lcor = Math.max(0.12, a.y - yf), Llar = Lcor + 0.3, sube = [], baja = [];
+          var th = ths[z], g = cero ? 0 : (pila[z] || 0), a = P(ph, th, 1.05), yf = Math.min(a.y - 0.06, yFin(z, ph)), Lcor = v === 'lateral' && g > 0 ? 0.55 : Math.max(0.12, a.y - yf), Llar = Lcor + 0.3, sube = [], baja = [];
           GRUESO.forEach(function (o) {
             var aa = P(ph + o, th, 1.05), su = [];
             for (var m = 0; m <= 5; m++) { var dm = dirM(aa, ph, th, g * m / 5); su.push([].concat(pr(v, aa), pr(v, aa.clone().add(dm.multiplyScalar(Llar))))); }
