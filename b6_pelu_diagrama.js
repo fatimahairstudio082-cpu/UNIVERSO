@@ -1096,6 +1096,16 @@
       var Z = v === 'nuca' ? [NUCA - 1.3, NUCA + 1.3] : v === 'lateral' ? [oreja + sC * 0.12, oreja + sC * 0.95] : [CARA - 1.15, CARA + 1.15];
       var ths = []; for (var zz = 0; zz < n; zz++) ths.push(frente ? 0.16 + zz * (0.7 / n) : thCapa(zz, n));
       var dS = 0.92 / K, yLargo = YB - 0.9, trV = [];
+      /* 30-10-2026 (Fátima: «de lado, desde la división azul se sacan las líneas rectas hacia la cara, según la elevación del mechón»):
+         de lado el mechón se eleva en el plano del dibujo, hacia la cara (0° cae; 90° queda recto hacia la cara); atrás y de frente,
+         hacia quien mira */
+      var vista = CAM[v].pos.clone().normalize(), haciaCara = P(CARA, Math.PI / 2).normalize(); haciaCara.y = 0;
+      haciaCara.sub(vista.clone().multiplyScalar(haciaCara.dot(vista))); if (haciaCara.lengthSq() > 1e-6) haciaCara.normalize();
+      function dirM(a, ph0, th0, gg) {
+        if (v !== 'lateral' || haciaCara.lengthSq() < 1e-6) return dirVP(a, ph0, th0, gg);
+        var an = gg * Math.PI / 180; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(haciaCara.clone().multiplyScalar(Math.sin(an))).normalize();
+      }
+      var GRUESO = [-0.035, 0, 0.035];   /* cada mechón con varios cabellos, para que se vea como cabello y no como una línea */
       function peina(ph, th, yE, r) {   /* el cabello peinado por el cráneo hacia abajo y de ahí cae hasta yE */
         var a = P(ph, th, r), pts = [pr(v, a)], ult = a, dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), lado = dC >= 0 ? 1 : -1;
         for (var t2 = th + 0.08; t2 <= 1.36; t2 += 0.08) {
@@ -1110,18 +1120,22 @@
         var vis = ths.map(function (th, z) { return seVe(v, ph, th) ? z : -1; }).filter(function (z) { return z >= 0; });
         if (vis.length < 2) continue;
         /* antes de cortar: el cabello largo de la sección, peinado hacia abajo */
-        vis.forEach(function (z) { trV.push(linea(plano(peina(ph, ths[z], yLargo, 1.04)), [0, 0.001], '#8C6B55', 1, { x: ta })); });
+        vis.forEach(function (z) { GRUESO.forEach(function (o) { trV.push(linea(plano(peina(ph + o, ths[z], yLargo, 1.04)), [0, 0.001], '#8C6B55', 1.4, { x: ta })); }); });
         /* la sección vertical marcada en el cráneo, de abajo arriba */
         trV.push(linea(plano(vis.map(function (z) { return pr(v, P(ph, ths[z], 1.05)); })), [ta, ta + dS * 0.15], ck, 4));
         var puntas = [];
         vis.forEach(function (z) {
           var th = ths[z], g = cero ? 0 : (pila[z] || 0), a = P(ph, th, 1.05), yf = Math.min(a.y - 0.06, yFin(z, ph)), Lcor = Math.max(0.12, a.y - yf), Llar = Lcor + 0.3, sube = [], baja = [];
-          for (var m = 0; m <= 5; m++) { var dm = dirVP(a, ph, th, g * m / 5); sube.push([].concat(pr(v, a), pr(v, a.clone().add(dm.multiplyScalar(Llar))))); }
-          trV.push(mechon(sube, [ta + dS * 0.15, ta + dS * 0.45], '#FFFFFF', 5, ext), mechon(sube, [ta + dS * 0.15, ta + dS * 0.45], COL[z % 7], 2.6, ext));
-          var punta = pr(v, a.clone().add(dirVP(a, ph, th, g).multiplyScalar(Lcor))); puntas.push(punta);
+          GRUESO.forEach(function (o) {
+            var aa = P(ph + o, th, 1.05), su = [];
+            for (var m = 0; m <= 5; m++) { var dm = dirM(aa, ph, th, g * m / 5); su.push([].concat(pr(v, aa), pr(v, aa.clone().add(dm.multiplyScalar(Llar))))); }
+            if (!o) sube = su;
+            trV.push(mechon(su, [ta + dS * 0.15, ta + dS * 0.45], '#FFFFFF', 7, ext), mechon(su, [ta + dS * 0.15, ta + dS * 0.45], COL[z % 7], 4, ext));
+          });
+          var punta = pr(v, a.clone().add(dirM(a, ph, th, g).multiplyScalar(Lcor))); puntas.push(punta);
           trV.push({ k: 'n', x: punta[0], y: punta[1], s: (z + 1) + ' · ' + g + '°', c: COL[z % 7], t: [ta + dS * 0.45, 1], x2: k < K - 1 ? ta + dS * 0.8 : 0 });
           /* cortado: cae a su largo y se queda en el maniquí */
-          trV.push(linea(plano(peina(ph, th, yf, 1.04 + 0.004 * z)), [ta + dS * 0.8, tb], COL[z % 7], 1.6));
+          GRUESO.forEach(function (o) { trV.push(linea(plano(peina(ph + o, th, yf, 1.04 + 0.004 * z)), [ta + dS * 0.8, tb], COL[z % 7], 2.2)); });
         });
         trV.push(tijera(plano(puntas), [ta + dS * 0.5, ta + dS * 0.8], CORTE, R.desg, ext));   /* la tijera pasa por las puntas, de abajo arriba */
         trV.push(regla(0, cero ? 0 : (pila[vis[vis.length - 1]] || 0), [ta + dS * 0.15, ta + dS * 0.45], ck, 'Sección ' + (k + 1) + ' · vertical', ext));
