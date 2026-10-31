@@ -777,10 +777,14 @@
     /* 1 · los cabellos de cada capa, repartidos en mechones por las líneas de sección; un mechón nunca cruza la raya
        (hasta PORLADO mechones a cada lado). Las capas que no se ven desde esta vista no ocupan tiempo. */
     var CAPAS = [];
+    /* 31-10-2026 (Fátima: «si ya cortaste atrás, ¿por qué vuelves a cortar con lo de adelante junto descontroladamente? en una
+       peluquería eso no se hace así»): la línea azul de oreja a oreja (IZQ = 0, DER = π) separa las zonas. Primero se cortan
+       TODAS las capas de atrás (sen ph < 0), de la nuca hacia arriba; después las de delante. Un mechón es de una sola zona. */
+    ['atras', 'delante'].forEach(function (zona) {
     for (var z0 = 0; z0 < n; z0++) {
       var th0 = frente ? 0.16 + z0 * (0.7 / n) : thCapa(z0, n), bins = {}, grupos = [];
       for (var ph0 = -Math.PI; ph0 < Math.PI; ph0 += frente ? 0.025 : 0.045) {   /* 26-10-2026 (Fátima: «agrega más cabello, se ve pelona en el frente»): de frente, el doble de cabellos */
-        if (!dentro(ph0) || !seVe(v, ph0, th0)) continue;
+        if (!dentro(ph0) || !seVe(v, ph0, th0) || (Math.sin(ph0) < 0 ? 'atras' : 'delante') !== zona) continue;
         var bk = Math.floor(rel(ph0) / ANCHO); (bins[bk] = bins[bk] || []).push(ph0);
       }
       [function (k) { return k < 0; }, function (k) { return k >= 0; }].forEach(function (deLado, ld) {
@@ -789,9 +793,10 @@
         ks.forEach(function (bk, i) { var gi = Math.floor(i / porG); gs[gi] = (gs[gi] || []).concat(bins[bk]); });
         grupos = grupos.concat(gs);
       });
-      if (grupos.length) CAPAS.push({ z: z0, th: th0, grupos: grupos });
+      if (grupos.length) CAPAS.push({ z: z0, th: th0, grupos: grupos, zona: zona });
     }
-    var dt0 = 0.88 / Math.max(1, CAPAS.length), puestasQ = [];
+    });
+    var dt0 = 0.88 / Math.max(1, CAPAS.length), puestasQ = [], chapaZ = {}, colBase = null, COLX = RECORTE[0] + 58;   /* columna de chapas a la izquierda del maniquí (a la derecha va el reloj de la elevación) */
     /* las líneas se cortan donde hay un salto (no se unen por encima de la cara) */
     function tramosDe(q, gap) { q.sort(function (p, r) { return p[0] - r[0]; }); var o = [], t = []; q.forEach(function (x) { if (t.length && x[0] - t[t.length - 1][0] > gap) { o.push(t); t = []; } t.push(x); }); if (t.length) o.push(t); return o.filter(function (x) { return x.length > 1; }); }
     CAPAS.forEach(function (CP, ic) {
@@ -848,7 +853,7 @@
           if (!vert) subeMechon(ph, th, a, yf);
         });
         /* el reloj de ESTE mechón (su elevación) y su número en la franja de arriba, nunca encima del cabello */
-        tr.push(regla(0, g, tSube, c, 'Capa ' + (z + 1) + ' · mechón ' + (j + 1) + ' de ' + M + ' · ' + g + '°', { x: tCae[1] }));
+        tr.push(regla(0, g, tSube, c, (CP.zona === 'atras' ? 'Atrás' : 'Delante') + ' · capa ' + (z + 1) + ' · mechón ' + (j + 1) + ' de ' + M + ' · ' + g + '°', { x: tCae[1] }));
         if (vert) { puntas.sort(function (p, q) { return p[1] - q[1]; }); tr.push(tijera(plano(puntas), tCorta, CORTE, R.desg, { x: tCae[0] + w * 0.1 }), linea(plano(puntas), [tCorta[0], tCorta[1]], CORTE, 3.2, { x: tCae[0] + w * 0.15 })); }   /* el corte, en una línea vertical */
         else tramosDe(puntas, 60).forEach(function (q) { tr.push(tijera(plano(q), tCorta, CORTE, R.desg, { x: tCae[0] + w * 0.1 })); });
         /* donde termina el mechón queda su línea, del color de la capa */
@@ -856,18 +861,22 @@
         /* 30-10-2026 (Fátima: «que quede la línea en la elevación, en la numeración de ese mechón»): al terminar la capa, su número y
            sus grados se quedan junto a su línea de corte hasta el final */
         cortCapa = cortCapa.concat(cortes);
-        if (j === M - 1 && cortCapa.length) {   /* sin pisar las chapas de otras capas (como en «Línea por línea») */
-          var cand = cortCapa.slice().sort(function (p, q) { return p[0] - q[0]; }), qc = null;
-          for (var fila = 0; fila < 6 && !qc; fila++) for (var ci = 0; ci < 13 && !qc; ci++) {
-            var q0 = cand[Math.min(cand.length - 1, Math.floor(cand.length * (((z + 1) / (pila.length + 1) + (ci % 2 ? 1 : -1) * Math.ceil(ci / 2) * 0.07 + 1) % 1)))], qy = q0[1] + [16, -40, 66, -90, 116, -140][fila];
-            if (!puestasQ.some(function (o) { return Math.abs(o[0] - q0[0]) < 160 && Math.abs(o[1] - qy) < 52; })) qc = [q0[0], qy];
-          }
-          if (qc) { puestasQ.push(qc); tr.push(chapa(qc, (z + 1) + ' · ' + g + '°', c, Math.min(0.99, tCae[1]))); }
+        /* 31-10-2026 (Fátima: «esos botones, capa 3 · 90°, capa 4 · 90°, tapan la visualización de cada capa; la elevación va al
+           lado»): la chapa «capa · grados» va en una columna AL LADO del maniquí, a la altura media de su línea de corte, sin pisar
+           otras chapas; sobre el cabello solo queda la línea de corte de la capa en su color. Una chapa por capa (la primera zona). */
+        if (j === M - 1 && cortCapa.length && !chapaZ[z]) {
+          /* en orden, como la cabeza: la capa 1 (nuca) a la altura de su línea y cada capa siguiente 56 px más arriba
+             (en la hoja del libro, a menor escala, tampoco se pisan) */
+          var yM = cortCapa.reduce(function (s, q) { return s + q[1]; }, 0) / cortCapa.length, ESP = 56;
+          if (colBase == null) colBase = Math.max(70 + ESP * (n - 1), Math.min(690, yM));
+          var qc = [COLX, Math.max(70, colBase - z * ESP)]; chapaZ[z] = 1; puestasQ.push(qc); tr.push(chapa(qc, (z + 1) + ' · ' + g + '°', c, Math.min(0.99, tCae[1])));
         }
       });
     });
     /* la raya y las secciones: en vertical (en liso extremo, en horizontal entre capas) */
     tr = tr.concat(lineas(tramos(v, frente ? function (u) { return [CARA, u * 0.16]; } : function (u) { return [NUCA, 0.12 + u * 1.86]; }, 30), [0, 0.03], TINTA, 2.4));
+    /* 31-10-2026 (Fátima): la línea azul de oreja a oreja que separa atrás y delante se ve toda la escena, encima del cabello */
+    [DER, IZQ].forEach(function (phO) { tr = tr.concat(lineas(tramos(v, function (u) { return [phO, u * 1.62]; }, 30), [0, 0.03], '#2C6FD1', 3.4)); });
     /* 26-10-2026 (Fátima: «resalta la línea que divide, desde la nariz corrida hasta el cuello, más en negro»): de frente, la raya
        sigue por el centro de la cara hasta el cuello, en negro y más gruesa, encima de todo */
     /* 26-10-2026 (Fátima, «paracludes»: «bájala hasta donde termina el cuello, ahí también hay cabello; en la parte de atrás»):
