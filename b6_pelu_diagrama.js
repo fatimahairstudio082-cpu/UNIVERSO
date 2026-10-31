@@ -677,6 +677,13 @@
     if (/pixie/.test(n)) return CORTOS.pixie; if (/garz[oó]n/.test(n)) return CORTOS.garzon; if (/mixie/.test(n)) return CORTOS.mixie; if (/\bbox\b/.test(n)) return CORTOS.box;
     return R.fam === 'cortos' ? CORTOS.pixie : null;
   }
+  /* 31-10-2026 (Fátima: «no todos los cortes son de 20 cm; el maniquí hace cortes largos y cortos»): sin medidas de la clienta, el largo
+     de la guía sale del propio corte: de la nuca hasta donde termina el cabello de atrás (yBase), en cm con el radio del maniquí */
+  function medDe(R) {
+    var CC = window.EU_CALCULO_CAPILAR, m = CC && CC.medidas ? Object.assign({}, CC.medidas(), R.medidas || {}) : null; if (!m) return R.medidas || null;
+    if (m.estandar && !(R.medidas && +R.medidas.guia)) { try { m.guia = Math.max(1, Math.round((P(NUCA, 1.92).y - yBase(R)) * m.contorno / (2 * Math.PI) * 10) / 10); } catch (e) { } }
+    return m;
+  }
   /* hasta dónde llega el cabello de atrás en el resultado */
   function yBase(R) {
     var C = cortoDe(R); if (C) return ALTURAS.labio.y - C.nuca;   /* el nacimiento de la nuca del maniquí queda a la altura del labio */
@@ -739,7 +746,7 @@
      radio de la cabeza como unidad. null si todo va a 0° o no hay calculadora. */
   function difCapas(pl, R) {
     var CC = window.EU_CALCULO_CAPILAR; if (!CC || !CC.calcular || !(pl || []).some(function (g) { return +g > 0; })) return null;
-    var med = CC.medidas ? Object.assign({}, CC.medidas(), R.medidas || {}) : null, cq = null;
+    var med = CC.medidas ? medDe(R) : null, cq = null;
     try { cq = CC.calcular({ capas: pl, guias: R.guias, ref: R.ref }, med); } catch (e) { cq = null; }
     var cs = cq && cq.capas || []; if (cs.length < 2) return null;
     var Rc = med ? med.contorno / (2 * Math.PI) : 8.9, b0 = cs[0].b;
@@ -1487,7 +1494,7 @@
     /* 30-10-2026 (Fátima: «a 0 grados se nivela y de esa misma forma se corta»): todo a 0° → guía fija aunque el corte vaya al punto
        (Lob, Bob asimétrico, Flequillo desfilado, Blunt salían con guía móvil y cada línea 1 o 2 dedos más larga: parecían en capas) */
     var todo0 = pila.concat(R.frente.pila || [], (R.lateral && R.lateral.pila) || []).every(function (g) { return !g; });
-    try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias && R.guias.length ? R.guias : cero || todo0 ? ['f'] : R.guias, ref: R.ref }, R.medidas) : null; } catch (e) { calc = null; }
+    try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias && R.guias.length ? R.guias : cero || todo0 ? ['f'] : R.guias, ref: R.ref }, medDe(R)) : null; } catch (e) { calc = null; }
     var ic = L.map(function (e) { return e.tipo; }).indexOf('capas') + 1;
     if (R.coronilla) {
       L.splice(ic++, 0, { tipo: 'coronilla', vista: 'cenit', t: 'Coronilla · triángulo', texto: 'La coronilla se corta en un triángulo pequeño: la base hacia delante, sin tocar los laterales de la frente, y el vértice en la coronilla, con secciones oblicuas. Cada mechón se eleva a ' + R.coronilla.g + ' grados.', a: escCoronilla(R) });
@@ -1723,7 +1730,7 @@
     ALTURAS: ALTURAS, RECETAS: RECETAS, VISTAS: VISTAS,
     construirCon: function (fn) { return fondos().then(function (F) { return armar(fn, F); }); },
     construirConYa: function (fn) { return armar(fn, fondosYa()); },
-    receta: receta, desdeGuia: desdeGuia, libre: libre, construir: construir, fondos: fondos, pinta: pinta,
+    receta: receta, desdeGuia: desdeGuia, libre: libre, medidasDe: function (o) { return medDe(o && o.capas && o.capas.pila ? o : libre(o)); }, construir: construir, fondos: fondos, pinta: pinta,
     construirYa: construirYa, fondosYa: fondosYa, foto: foto, divSrc: divSrc,
     /* código del reproductor para el curso descargado (sin dependencias) */
     js: function () { return 'window.CURSO_ANIM={pinta:(' + pinta.toString() + ')};'; }

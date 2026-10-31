@@ -181,7 +181,7 @@
     var cor = document.createElement('input'); cor.type = 'checkbox'; var corG = ent('grados (vacío = la capa más alta)', 200);
     var fc = document.createElement('span'); fc.style.cssText = 'display:inline-flex;gap:8px;align-items:center'; fc.appendChild(cor); fc.appendChild(corG); fila('Coronilla △ oblicua', fc);
     var CA = window.EU_CALCULO_CAPILAR, med0 = CA ? CA.medidas() : { guia: 20, contorno: 56, nucaCoronilla: 17, estandar: true };
-    var mg = ent('cm', 70), mc = ent('cm', 70), mn = ent('cm', 70); mg.value = med0.guia; mc.value = med0.contorno; mn.value = med0.nucaCoronilla;
+    var mg = ent('cm', 70), mc = ent('cm', 70), mn = ent('cm', 70); mg.value = med0.estandar ? '' : med0.guia; mg.placeholder = 'según el corte'; mc.value = med0.contorno; mn.value = med0.nucaCoronilla;
     var fm = document.createElement('span'); fm.style.cssText = 'display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap';
     [['Largo de la guía', mg], ['Contorno', mc], ['Nuca–coronilla', mn]].forEach(function (q) { var l = document.createElement('span'); l.textContent = q[0]; l.style.color = '#a5a5c8'; fm.appendChild(l); fm.appendChild(q[1]); });
     var gm = document.createElement('button'); gm.textContent = '💾 Medidas de la clienta'; gm.style.cssText = CHIP_OFF + ';padding:3px 8px';
@@ -191,7 +191,7 @@
     function nums(t) { return String(t || '').split(/[^0-9.]+/).filter(Boolean).map(Number).filter(function (n) { return !isNaN(n); }); }
     function leer() {
       var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), lateral: nums(latC.value), part: par.value, altura: alt.value, linea: /^[uv]$/.test(aca.value) ? aca.value : lin.value, acabado: /^[uv]$/.test(aca.value) ? 'recto' : aca.value,
-        medidas: { guia: +mg.value || med0.guia, contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
+        medidas: { guia: +mg.value || (med0.estandar ? undefined : med0.guia), contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
         lineaFrente: lfr.value, emparejar: emp.value, guias: String(gui.value || '').split(/[^a-zA-Z]+/).filter(Boolean).map(function (x) { return /^f/i.test(x) ? 'f' : 'm'; }), ref: ref.value };
       if (cor.checked) { o.coronilla = true; var cg = nums(corG.value)[0]; if (cg != null) o.coronillaG = cg; }
       return o;
@@ -205,7 +205,7 @@
       e.preventDefault(); var o = leer(); if (!o.capas.length) { nota.textContent = 'Escribe al menos una capa con su elevación (0–225°).'; return; }
       var t = tec.value.slice(0, 2) === 't:' ? GC.tecnica(tec.value.slice(2)) : null; if (t && t.texto && o.n === t.n) o.texto = t.texto;
       el._dg = { on: true, modo: (el._dg && el._dg.modo) || 'todo', t0: 0, libre: o }; nota.textContent = 'Armando «' + o.n + '» con ' + o.capas.length + ' capas…'; alAplicar();
-      if (CA) { try { nota.textContent = CA.calcular(o, o.medidas).texto; } catch (er) { } }
+      if (CA) { try { var mdc = window.EU_DIAGRAMA && EU_DIAGRAMA.medidasDe ? EU_DIAGRAMA.medidasDe(o) : o.medidas; nota.textContent = CA.calcular(o, mdc).texto; } catch (er) { } }   /* 31-10-2026: el largo de la guía, del propio corte */
     };
     var gua = document.createElement('button'); gua.textContent = '💾 Guardar como mi corte'; gua.style.cssText = CHIP_OFF;
     gua.onclick = function (e) { e.preventDefault(); var o = leer(); if (!o.capas.length) return; nota.textContent = GC.guardar(o) ? 'Guardado «' + o.n + '» en tus cortes.' : 'No se pudo guardar en este navegador.'; llenarTec(); };
