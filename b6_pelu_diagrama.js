@@ -146,7 +146,7 @@
     /* 26-10-2026 (Fátima): largo y flequillo del catálogo; en los cortes a 0° la pollina solo si el nombre la dice */
     if (R && c.largo) R.largo = c.largo;
     if (R && c.fleco) R.fleco = c.fleco;
-    else if (R && R.nivelar && (/pollina/i.test(c.n) || c.fam === 'flequillos')) R.fleco = 'pollina';   /* el flequillo recto a 0° es una pollina recta */
+    else if (R && R.nivel0 && (/pollina/i.test(c.n) || c.fam === 'flequillos')) R.fleco = 'pollina';   /* el flequillo recto a 0° es una pollina recta */
     if (R && R.fleco === 'lado') { R.altura = 'ojo'; R.fuenteAltura = 'Fátima'; }
     else if (R && R.fleco === 'pollina') { R.altura = 'cejas'; R.fuenteAltura = 'Fátima'; }
     return R;
@@ -183,10 +183,13 @@
        desde la nariz, porque ahí estás sacando otro tipo de corte con pollina»): en los cortes todo a 0° sin altura escrita (o con
        pollina/flequillo), delante no se saca otra guía: se empareja con la línea de atrás (R.nivelar). Antes salía «bajo la nariz». */
     var cero0 = [p1.elevB, p2.elevB, p3.elevB, p3.elevF].every(function (a) { return pila(a).every(function (v) { return !+v; }); });
-    var nivelar = cero0 && !fija.altura && !desg && (fuente === 'ejemplo' || /pollina|flequillo/i.test(todo));
+    var nivel0 = cero0 && !fija.altura && !desg && (fuente === 'ejemplo' || /pollina|flequillo/i.test(todo));
+    /* 31-10-2026 (Fátima, «Todos desde la elevación»): ningún corte del catálogo saca la guía del frente a una altura fija: delante
+       parte de la línea de atrás y cada línea se corta a su elevación (difCapas). nivel0 = el criterio de antes, solo para la pollina */
+    var nivelar = !fija.altura;
     if (nivelar && fuente === 'ejemplo') fuente = 'nivelar';
     return {
-      id: meta.id || 'guia', n: meta.n || String(g.nombre || 'Corte').split(' · ')[0], fam: meta.fam || '', cab: meta.cab || '', liso: liso, desg: desg, altura: alt, fuenteAltura: fuente, nivelar: nivelar,
+      id: meta.id || 'guia', n: meta.n || String(g.nombre || 'Corte').split(' · ')[0], fam: meta.fam || '', cab: meta.cab || '', liso: liso, desg: desg, altura: alt, fuenteAltura: fuente, nivelar: nivelar, nivel0: nivel0,
       punto: /desfil|desgraf|punta/i.test(todo) || fija.punto ? (fija.punto || [1.05, -2.15, -0.30]) : null,
       forma: p3.tipoCorte === 'Recto' ? 'recto' : 'arco',
       guia: { part: p1.particionB, g: pila(p1.elevB)[0] || 0, texto: p1.texto || '' },
@@ -401,10 +404,10 @@
     /* 26-10-2026 (Fátima): corte a 0° sin pollina → delante no hay guía: el cabello se peina desde la raya hacia los lados y se
        empareja con la línea que quedó atrás (yN). Con pollina (al ras de la ceja) o flequillo de lado (más abajo de los ojos, en
        triángulo), solo el centro va a su altura; los lados siguen emparejados con atrás. */
-    var niv = !!R.nivelar, yN = niv ? yBase(R) + (FORMA_Y[lineaDe(R)] || FORMA_Y.recta)(1) : 0;
+    var niv = !!R.nivelar, yN = niv ? yBase(R) + (FORMA_Y[lineaDe(R)] || FORMA_Y.recta)(1) : 0, dfF = niv && !R.cero ? difCapas(pf, R) || [] : [];   /* 31-10-2026: cada línea a su elevación */
     if (niv) {
       tr.push(linea(plano([pr(v, V3(-1.5, yN, 1.0)), pr(v, V3(1.5, yN, 1.0))]), [0.18, 0.26], VERDE, 2.5, { d: 1 }));
-      tr.push(rotulo('Línea de atrás: delante se empareja con ella', VERDE, 0.18), rotulo('Espiga diagonal arriba', TINTA, 0.04));
+      tr.push(rotulo(R.cero ? 'Línea de atrás: delante se empareja con ella' : 'Línea de atrás: la base; cada línea a su elevación', VERDE, 0.18), rotulo('Espiga diagonal arriba', TINTA, 0.04));
       if (R.fleco === 'pollina') tr.push(rotulo('Pollina al ras de la ceja', CORTE, 0.5));
       if (R.fleco === 'lado') tr.push(rotulo('Flequillo de lado: más abajo de los ojos, en triángulo', CORTE, 0.5));
     } else {
@@ -421,7 +424,12 @@
       if (niv) {
         fleco = !!R.fleco && Math.abs(d) < 0.5;
         if (fleco) tip = V3(a.x * 1.1, R.fleco === 'lado' ? ALTURAS.ojo.y - 0.06 + (ALTURAS.nariz.y - ALTURAS.ojo.y + 0.06) * (0.5 - d) : ALTURAS.cejas.y - 0.06, Math.max(a.z, 0.2) + 0.5);
-        else { var sg = d === 0 ? 1 : d > 0 ? 1 : -1; tip = V3(sg * Math.max(Math.abs(a.x) * 1.22, 1.22), yN, Math.max(a.z, 0.2) + 0.3); }
+        else {
+          /* 31-10-2026: el largo de cada línea sale de su elevación; si llega más abajo de la nariz rodea la cara (abierto un poco por
+             línea para que no se pisen los números); si queda corto, cae delante de la frente desde su raíz */
+          var sg = d === 0 ? 1 : d > 0 ? 1 : -1, kF = Math.abs(i - (m - 1)), yT = Math.min(a.y - 0.1, yN + ((dfF[kF] && dfF[kF].t) || 0));
+          tip = yT < ALTURAS.nariz.y || !dfF.length ? V3(sg * (Math.max(Math.abs(a.x) * 1.22, 1.22) + (dfF.length ? 0.07 * kF : 0)), yT, Math.max(a.z, 0.2) + 0.3) : V3(a.x * 1.12, yT, Math.max(a.z, 0.2) + 0.55);
+        }
         c = V3((a.x + tip.x) / 2 * 1.1, (a.y + tip.y) / 2 + 0.25, a.z + 0.5);
       }
       tr.push(linea(bezier(v, a, c, tip, 22), [0.32 + i * 0.03, 0.55 + i * 0.03], fleco ? CORTE : ROJO, 2.6, { fl: 1 }));
@@ -436,7 +444,7 @@
       var xc = pr(v, V3(0, yN, 1))[0], izq = tips.filter(function (q) { return q[0] < xc; }), der = tips.filter(function (q) { return q[0] >= xc; });
       if (izq.length > 1) tr.push(tijera(plano(izq), [0.72, 0.84], CORTE, R.desg));
       if (der.length > 1) tr.push(tijera(plano(der), [0.85, 0.97], CORTE, R.desg));
-      tr.push(rotulo((R.cero ? 'Corte recto a 0°: l' : 'L') + 'os lados se emparejan con la línea de atrás', CORTE, 0.72));
+      tr.push(rotulo(R.cero ? 'Corte recto a 0°: los lados se emparejan con la línea de atrás' : 'Desde la línea de atrás, cada línea a su elevación', CORTE, 0.72));
       return { v: v, tr: tr, banda: 1 };
     }
     tr.push(tijera(plano(tips), [0.72, 0.97], CORTE, R.desg), rotulo('Línea de corte ' + (R.forma === 'recto' ? 'recta' : 'en arco') + (R.desg ? ' · desgrafilado' : ''), CORTE, 0.72));
@@ -1460,14 +1468,16 @@
       (recto0 ? 'Es un corte recto: se corta en horizontal, en esa misma línea.' : 'Se corta siguiendo la línea ' + ({ redondeada: 'redondeada', u: 'en U', v: 'en V', a: 'en A' }[lineaDe(R)] || '') + ', en vertical.');
     else if (cero) fr = 'De frente, la guía se saca ' + A.n + ' y se corta a un dedo. Todo va a 0 grados: cada mechón se baja hasta la línea de la guía y se corta en esa misma línea. ' + (recto0 ? 'Es un corte recto: las secciones van en horizontal y el corte se hace recto.' : 'No es un corte recto: las secciones van en vertical y el corte sigue la línea ' + ({ redondeada: 'redondeada', u: 'en U', v: 'en V', a: 'en A' }[lineaDe(R)] || '') + '.') + ' ' + txt(R.frente.texto);
     /* 30-10-2026 (Fátima: «emparejas con el que quedó atrás»): con capas también se nivela delante con atrás; el título y la voz dicen lo mismo que el dibujo */
-    else if (R.nivelar) fr = 'De frente no se saca otra guía: el cabello se peina desde la raya hacia los lados y se empareja con la línea que quedó atrás.';
+    else if (R.nivelar) fr = 'De frente no se saca una guía a una altura fija: el cabello se peina desde la raya hacia los lados, la línea que quedó atrás es la base y cada línea se corta a su elevación: ' +
+      (R.frente.pila.length ? R.frente.pila : pila).slice(0, 6).map(function (g, k) { return (k ? 'línea ' + (k + 1) : 'la del centro') + ' a ' + g + ' grados'; }).join(', ') + '. ' +
+      (R.liso ? 'Secciones horizontales.' : 'Líneas verticales: de cada una baja su mechón' + (R.desg ? ' y se desgrafila.' : '.'));
     var L = [
       { tipo: 'seccion', vista: 'tres', t: 'Seccionado', texto: 'Primero se divide la cabeza: raya central de la frente a la nuca, de oreja a oreja por arriba y una línea horizontal en la nuca. El lateral siempre se separa de oreja a oreja: la parte de atrás se corta de una forma y la de delante de otra.', a: escSeccion(R) },
       { tipo: 'particion', vista: 'nuca', t: 'Particiones de atrás', texto: 'Atrás, la raya central de la coronilla a la nuca y las particiones horizontales que la cruzan: una sección por cada capa, de abajo arriba.', a: escParticion(R) },
       { tipo: 'guia', vista: 'nuca', t: 'Línea guía en la nuca', texto: (/^línea guía en la nuca/i.test(txt(R.guia.texto)) ? '' : 'Línea guía en la nuca a ' + R.guia.g + ' grados. ') + txt(R.guia.texto), a: escGuia(R) },   /* 26-10-2026: sin repetir la frase */
       { tipo: 'capas', vista: 'nuca', t: 'Capas de abajo arriba', texto: 'Ahora las capas, de abajo arriba: ' + capasTxt + '. ' + txt(R.capas.texto), a: escCapas(R) },
       { tipo: 'lateral', vista: 'lateral', t: 'El lateral', texto: lat, a: escLateral(R) },
-      { tipo: 'frente', vista: 'frente', t: R.nivelar ? 'El frente · se empareja con atrás' + (R.fleco === 'pollina' ? ' · pollina' : R.fleco === 'lado' ? ' · flequillo de lado' : '') : 'El frente · guía ' + A.n, texto: fr, a: escFrente(cero ? Object.assign({}, R, recto0 ? { forma: 'recto', liso: true, libre: true, cero: true } : { forma: 'arco', liso: false, cero: true }) : R) },
+      { tipo: 'frente', vista: 'frente', t: R.nivelar ? (cero ? 'El frente · se empareja con atrás' : 'El frente · desde la elevación') + (R.fleco === 'pollina' ? ' · pollina' : R.fleco === 'lado' ? ' · flequillo de lado' : '') : 'El frente · guía ' + A.n, texto: fr, a: escFrente(cero ? Object.assign({}, R, recto0 ? { forma: 'recto', liso: true, libre: true, cero: true } : { forma: 'arco', liso: false, cero: true }) : R) },
       { tipo: 'pulir', vista: 'lateral', t: 'Pulir puntas', texto: 'Para terminar se pulen las puntas: se agarra el cabello de atrás y el de delante, nada más en la punta, para nivelar el cabello.', a: escPulir(R) }
     ];
     if (R.liso) L.splice(L.map(function (e) { return e.tipo; }).indexOf('capas') + 1, 0, { tipo: 'error_liso', vista: 'nuca', t: 'Error común · cabello liso extremo', texto: 'Error común: en cabello liso extremo no se corta en vertical, porque deja trasquilado. En liso extremo todas las capas se cortan en horizontal, de abajo arriba. En cabello normal u ondulado, las secciones van en vertical.', a: escErrorLiso(R) });
