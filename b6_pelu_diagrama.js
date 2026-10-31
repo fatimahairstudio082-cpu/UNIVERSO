@@ -428,9 +428,12 @@
           /* 31-10-2026: el largo de cada línea sale de su elevación; si llega más abajo de la nariz rodea la cara (abierto un poco por
              línea para que no se pisen los números); si queda corto, cae delante de la frente desde su raíz */
           var sg = d === 0 ? 1 : d > 0 ? 1 : -1, kF = Math.abs(i - (m - 1)), yT = Math.min(a.y - 0.1, yN + ((dfF[kF] && dfF[kF].t) || 0));
-          tip = yT < ALTURAS.nariz.y || !dfF.length ? V3(sg * (Math.max(Math.abs(a.x) * 1.22, 1.22) + (dfF.length ? 0.07 * kF : 0)), yT, Math.max(a.z, 0.2) + 0.3) : V3(a.x * 1.12, yT, Math.max(a.z, 0.2) + 0.55);
+          /* 31-10-2026 (Fátima: «líneas disparejas y enrolladas»): con capas, cada línea baja recta desde su raíz como antes (sin arcos
+             hacia fuera); solo cambia hasta dónde llega, que sale de su elevación */
+          tip = dfF.length ? V3(a.x * 1.22, yT, Math.max(a.z, 0.2) + 0.55) : V3(sg * Math.max(Math.abs(a.x) * 1.22, 1.22), yT, Math.max(a.z, 0.2) + 0.3);
         }
-        c = V3((a.x + tip.x) / 2 * 1.1, (a.y + tip.y) / 2 + 0.25, a.z + 0.5);
+        if (fleco || !dfF.length) c = V3((a.x + tip.x) / 2 * 1.1, (a.y + tip.y) / 2 + 0.25, a.z + 0.5);
+        else c = V3(a.x * 1.1, (a.y + tip.y) / 2 + Math.min(0.25, Math.max(0, a.y - tip.y) * 0.2), a.z + 0.55);   /* corto: sin rizo */
       }
       tr.push(linea(bezier(v, a, c, tip, 22), [0.32 + i * 0.03, 0.55 + i * 0.03], fleco ? CORTE : ROJO, 2.6, { fl: 1 }));
       (fleco ? tipsF : tips).push(pr(v, tip));
@@ -439,7 +442,7 @@
     if (niv) tips.sort(function (p, q) { return p[0] - q[0]; });
     tr.push(rotulo((R.liso ? (R.libre ? 'Secciones horizontales' : 'Liso extremo: secciones horizontales') : n + ' líneas verticales: de cada una sale su mechón'), ROJO, 0.2));
     /* dibujo de Fátima («Ejemplo»): cada línea lleva su número (centro = guía) y aparece cuando la tijera la corta */
-    if (!R.cero) tips.forEach(function (q, i) { var k = Math.abs(i - (m - 1)), tc = 0.72 + 0.25 * i / Math.max(1, n - 1); tr.push({ k: 'n', x: q[0], y: q[1] + 18, s: String(pf[k] || 0), c: k ? CORTE : VERDE, t: [tc, 1] }); });
+    if (!R.cero) tips.forEach(function (q, i) { var k = Math.abs(i - (m - 1)), tc = 0.72 + 0.25 * i / Math.max(1, n - 1); tr.push({ k: 'n', x: q[0], y: q[1] + 30, s: String(pf[k] || 0), c: k ? CORTE : VERDE, t: [tc, 1] }); });
     if (niv) {   /* 26-10-2026: un lado y el otro, cada uno emparejado con atrás (sin cruzar la cara) */
       var xc = pr(v, V3(0, yN, 1))[0], izq = tips.filter(function (q) { return q[0] < xc; }), der = tips.filter(function (q) { return q[0] >= xc; });
       if (izq.length > 1) tr.push(tijera(plano(izq), [0.72, 0.84], CORTE, R.desg));
