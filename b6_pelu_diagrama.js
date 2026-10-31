@@ -1153,10 +1153,10 @@
         vis.forEach(function (z) { GRUESO.forEach(function (o) { trV.push(linea(plano(peina(ph + o, ths[z], yLargo, 1.04)), [0, 0.001], '#8C6B55', 1.4, { x: ta })); }); });
         /* la sección vertical marcada en el cráneo, de abajo arriba */
         trV.push(linea(plano(vis.map(function (z) { return pr(v, P(ph, ths[z], 1.05)); })), [ta, ta + dS * 0.15], ck, 4));
-        if (v === 'lateral') { var abj = P(ph, ths[vis[0]], 1.05); trV.push(linea(plano([pr(v, abj), pr(v, V3(abj.x, yLargo, abj.z))]), [ta, ta + dS * 0.15], ck, 3, { d: 1 })); }   /* de lado la sección vertical sigue hasta el final del cabello */
+        if (v === 'lateral') { var abj = P(ph, ths[vis[0]], 1.05); trV.push(linea(plano([pr(v, abj), pr(v, V3(abj.x, yLargo, abj.z))]), [ta, ta + dS * 0.15], ck, 2)); }   /* de lado la sección vertical sigue hasta el final del cabello */
         var puntas = [];
         vis.forEach(function (z) {
-          var th = ths[z], g = cero ? 0 : (pila[z] || 0), a = P(ph, th, 1.05), yf = Math.min(a.y - 0.06, yFin(z, ph)), Lcor = v === 'lateral' && g > 0 ? 0.55 : Math.max(0.12, a.y - yf), Llar = Lcor + 0.3, sube = [], baja = [];
+          var th = ths[z], g = cero ? 0 : (pila[z] || 0), a = P(ph, th, 1.05), yf = Math.min(a.y - 0.06, yFin(z, ph)), Lcor = v === 'lateral' && g > 0 ? 0.55 : frente ? Math.min(0.5, Math.max(0.12, a.y - yf)) : Math.max(0.12, a.y - yf), Llar = Lcor + (frente ? 0.12 : 0.3), sube = [], baja = [];
           GRUESO.forEach(function (o) {
             var aa = P(ph + o, th, 1.05), su = [];
             for (var m = 0; m <= 5; m++) { var dm = dirM(aa, ph, th, g * m / 5); su.push([].concat(pr(v, aa), pr(v, aa.clone().add(dm.multiplyScalar(Llar))))); }
@@ -1168,7 +1168,7 @@
           /* cortado: cae a su largo y se queda en el maniquí */
           GRUESO.forEach(function (o) { trV.push(linea(plano(peina(ph + o, th, yf, 1.04 + 0.004 * z)), [ta + dS * 0.8, tb], COL[z % 7], 2.2)); });
         });
-        trV.push(tijera(plano(puntas), [ta + dS * 0.5, ta + dS * 0.8], CORTE, R.desg, ext));   /* la tijera pasa por las puntas, de abajo arriba */
+        trV.push(tijera(plano(puntas), [ta + dS * 0.5, ta + dS * 0.8], CORTE, R.desg, Object.assign({ ll: 1 }, ext)));   /* línea de corte seguida y fina: sin punticos que tapen el cabello */   /* la tijera pasa por las puntas, de abajo arriba */
         trV.push(regla(0, cero ? 0 : (pila[vis[vis.length - 1]] || 0), [ta + dS * 0.15, ta + dS * 0.45], ck, 'Sección ' + (k + 1) + ' · vertical', ext));
         trV.push(rotulo('Sección vertical ' + (k + 1) + ' · cada mechón a su elevación: ' + vis.map(function (z) { return cero ? 0 : (pila[z] || 0); }).join(' · ') + '°', ck, ta, ext));
       }
@@ -1662,11 +1662,11 @@
     /* la tijera va encima de todo: recorre la línea de corte y, si se desgrafila, deja cortes en punta */
     cola.forEach(function (o) {
       var T = o[0], u = o[1], q = T.p; if (q.length < 4) return;
-      x.strokeStyle = T.c; x.lineWidth = 3.4 * Math.max(0.6, s * 1.4); x.setLineDash([10, 6]); var n = parcial(q, u); camino(q, Math.min(n, q.length)); x.stroke(); x.setLineDash([]);
+      x.strokeStyle = T.c; x.lineWidth = 3.4 * Math.max(0.6, s * 1.4); x.setLineDash(T.ll ? [] : [10, 6]); if (T.ll) x.lineWidth = 2.2 * Math.max(0.6, s * 1.4); var n = parcial(q, u); camino(q, Math.min(n, q.length)); x.stroke(); x.setLineDash([]);
       var j = Math.min(q.length - 4, Math.max(0, n - 4)), ax = ox + q[j] * s, ay = oy + q[j + 1] * s, cx = ox + q[j + 2] * s, cy = oy + q[j + 3] * s, an = Math.atan2(cy - ay, cx - ax);
       /* sin desgrafilar, la tijera va derecha a lo largo del corte (no gira con cada punta) */
       if (!T.g) { var j0 = Math.max(0, j - 8), j1 = Math.min(q.length - 2, j + 10); if (j1 > j0) an = Math.atan2(q[j1 + 1] - q[j0 + 1], q[j1] - q[j0]); }
-      if (T.g) { x.lineWidth = 2; for (var i = 0; i + 3 < Math.min(n, q.length); i += 2) { var mx = ox + (q[i] + q[i + 2]) / 2 * s, my = oy + (q[i + 1] + q[i + 3]) / 2 * s, pa = Math.atan2(q[i + 3] - q[i + 1], q[i + 2] - q[i]) + Math.PI / 2; x.beginPath(); x.moveTo(mx - Math.cos(pa) * 7, my - Math.sin(pa) * 7); x.lineTo(mx + Math.cos(pa) * 7, my + Math.sin(pa) * 7); x.stroke(); } }
+      if (T.g && !T.ll) { x.lineWidth = 2; for (var i = 0; i + 3 < Math.min(n, q.length); i += 2) { var mx = ox + (q[i] + q[i + 2]) / 2 * s, my = oy + (q[i + 1] + q[i + 3]) / 2 * s, pa = Math.atan2(q[i + 3] - q[i + 1], q[i + 2] - q[i]) + Math.PI / 2; x.beginPath(); x.moveTo(mx - Math.cos(pa) * 7, my - Math.sin(pa) * 7); x.lineTo(mx + Math.cos(pa) * 7, my + Math.sin(pa) * 7); x.stroke(); } }
       if (u <= 0 || u >= 1) return;
       var ab = 0.16 + 0.22 * (Math.sin(u * 90) + 1) / 2; x.save(); x.translate(cx, cy); x.rotate(an); x.strokeStyle = '#1F1B18'; x.fillStyle = '#1F1B18'; x.lineWidth = 3;
       [1, -1].forEach(function (sg) { x.save(); x.rotate(sg * ab); x.beginPath(); x.moveTo(-12, 0); x.lineTo(30, 0); x.stroke(); x.beginPath(); x.arc(-20, 0, 7, 0, 7); x.stroke(); x.restore(); });
