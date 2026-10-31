@@ -134,6 +134,17 @@
   function rotulo(txt, c, t0, extra) { return Object.assign({ k: 'e', s: txt, c: c, t: [t0, 1] }, extra || {}); }
   function regla(g0, g1, t, c, tit, extra) { return Object.assign({ k: 'r', g: [g0, g1], t: t, c: c, s: tit || 'Elevación' }, extra || {}); }
   function chapa(q, txt, c, t0) { return { k: 'n', x: q[0], y: q[1], s: String(txt), c: c, t: [t0, 1] }; }
+  /* 31-10-2026 (Fátima, su referencia del corte en vertical: «la sujeción del mechón cuando se corta en vertical»): los dos dedos
+     que sujetan el mechón, paralelos a la línea donde se corta y del lado de la raíz; la tijera corta por fuera de los dedos.
+     p0, p1: extremos de la línea de corte (pantalla); hr: dirección unitaria hacia la raíz. */
+  function dedos(p0, p1, hr, t, extra) {
+    var tr = [];
+    [12, 22].forEach(function (off, k) {
+      var p = [r1(p0[0] + hr[0] * off), r1(p0[1] + hr[1] * off), r1(p1[0] + hr[0] * off), r1(p1[1] + hr[1] * off)];
+      tr.push(linea(p, t, '#8A6650', 9, extra), linea(p, t, k ? '#E2B897' : '#D6A784', 6, extra));
+    });
+    return tr;
+  }
 
   /* ───────────── la receta de un corte, desde los datos del motor ───────────── */
   /* Receta de un corte del catálogo (cabello: el elegido o el que mejor le va) */
@@ -298,6 +309,17 @@
           var a = P(ph, th), nn = N(ph, th), ks = [];
           for (var k = 0; k <= 5; k++) { var gz = (pila[z] || 0) * k / 5 * Math.PI / 180, b = hY != null && !pila[z] ? V3(a.x * 1.02, Math.min(a.y - 0.1, hY + (FORMA_Y[R.linea] ? FORMA_Y[R.linea](Math.abs(d)) : 0)), a.z * 1.02) : a.clone().add(dirElev(ph, th, 0).multiplyScalar(Math.cos(gz) * 0.6).add(nn.clone().multiplyScalar(Math.sin(gz) * 0.6))); ks.push([].concat(pr(v, a), pr(v, b))); }
           tr.push(mechon(ks, [ta + (tb - ta) * 0.2, ta + (tb - ta) * 0.6], COL[z % 7], 2.2, ext)); tips.push(ks[5].slice(2));
+          /* 31-10-2026 (Fátima: «cada capa es un mechón que estás sujetando a ese número de elevación, no una sola línea»; «el mechón
+             cortado no debe desaparecer»): cabellos vecinos de la tajada vertical, paralelos, a la misma elevación (sábana); al terminar
+             su sección, el mechón cortado cae a 0° con su largo y se queda en el maniquí, en su color, hasta el final */
+          var vecinos = [[-0.03, 0], [0.03, 0], [0, -0.05], [0, 0.05], [-0.03, 0.05], [0.03, -0.05]];
+          vecinos.forEach(function (o) {
+            var pv = ph + o[0], tv = th + o[1]; if (!seVe(v, pv, tv)) return;
+            var av = P(pv, tv), nv = N(pv, tv), kv = [];
+            for (var k2 = 0; k2 <= 5; k2++) { var gv = (pila[z] || 0) * k2 / 5 * Math.PI / 180, bv = hY != null && !pila[z] ? V3(av.x * 1.02, Math.min(av.y - 0.1, hY + (FORMA_Y[R.linea] ? FORMA_Y[R.linea](Math.abs(d)) : 0)), av.z * 1.02) : av.clone().add(dirElev(pv, tv, 0).multiplyScalar(Math.cos(gv) * 0.6).add(nv.clone().multiplyScalar(Math.sin(gv) * 0.6))); kv.push([].concat(pr(v, av), pr(v, bv))); }
+            tr.push(mechon(kv, [ta + (tb - ta) * 0.2, ta + (tb - ta) * 0.6], COL[z % 7], 1.2, ext));
+          });
+          if (ext.x) { var cuelga = [].concat(pr(v, a), pr(v, hY != null && !pila[z] ? V3(a.x * 1.02, Math.min(a.y - 0.1, hY + (FORMA_Y[R.linea] ? FORMA_Y[R.linea](Math.abs(d)) : 0)), a.z * 1.02) : a.clone().add(dirElev(ph, th, 0).multiplyScalar(0.6)))); tr.push(mechon([cuelga, cuelga], [tb, tb + 0.001], COL[z % 7], 1.6)); }
         }
         tr.push(tijera(plano(tips), [ta + (tb - ta) * 0.6, tb], CORTE, R.desg, ext));
       });
@@ -818,13 +840,14 @@
           var n0 = N(phC, th); n0.y = 0; if (n0.lengthSq() > 1e-6) f.add(n0.normalize().multiplyScalar(0.25)).normalize();
           var an = gg * Math.PI / 180; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(f.multiplyScalar(Math.sin(an))).normalize();
         }
-        function subeMechon(ph, thR, a, yf) {
+        function subeMechon(ph, thR, a, yf, vecino) {
           var Llar = Math.max(0.6, a.y - (YB - 0.7)), Lcor = Math.max(0.12, Math.min(Llar - 0.1, a.y - yf)), sube = [];
           Llar = Math.min(Llar, Lcor + 0.35);   /* el mechón agarrado, un poco más largo que donde se corta (no cruza la cara) */
           var D = vert ? function (gg) { return dirV(a, gg); } : function (gg) { return dirElev(ph, thR, gg); };
           for (var m = 0; m <= 5; m++) { var dm = D(g * m / 5); sube.push([].concat(pr(v, a), pr(v, a.clone().add(dm.multiplyScalar(Llar))))); }
           var dg = D(g), corte1 = [].concat(pr(v, a), pr(v, a.clone().add(dg.clone().multiplyScalar(Lcor))));
-          tr.push(mechon(sube, tSube, c, 1.6, { x: tCorta[1] }));
+          tr.push(mechon(sube, tSube, c, vecino ? 1.1 : 1.6, { x: tCorta[1] }));
+          if (vecino) { var bajaV = []; for (var mv = 0; mv <= 5; mv++) { var dv = D(g * (1 - mv / 5)); bajaV.push([].concat(pr(v, a), pr(v, a.clone().add(dv.multiplyScalar(Lcor))))); } tr.push(mechon([corte1, corte1], [tCorta[1], tCorta[1] + 0.001], c, 1.1, { x: tCae[0] }), mechon(bajaV, tCae, c, 1.1, { x: tCae[1] })); return; }   /* cabello vecino de la sábana: sube, se corta y cae con el mechón */
           tr.push(mechon([corte1, corte1], [tCorta[1], tCorta[1] + 0.001], c, 1.8, { x: tCae[0] }));
           /* 30-10-2026 (Fátima: «los mechones comienzan a desaparecer; el mechón que cortaste tiene que caer hacia la cara»): el mechón
              ya cortado baja desde su elevación hasta caer (de frente, hacia la cara) y ahí lo sigue el cabello que queda */
@@ -834,7 +857,17 @@
         }
         /* la línea de la sección vertical, marcada en el cráneo con el color de la capa mientras se agarra y se corta */
         if (vert) tr.push(linea(plano(colTh.map(function (tc) { return pr(v, P(phC, tc, 1.05)); })), [s0, tCorta[1]], c, 4, { x: tCae[1] }));
-        if (vert) colTh.forEach(function (tc) { var aC = P(phC, tc, 1.04 + 0.004 * z); subeMechon(phC, tc, aC, Math.min(aC.y - 0.06, yRecta(phC, y0(phC) + ((dif[z] && dif[z].t) || 0)))); });
+        if (vert) colTh.forEach(function (tc) { var aC = P(phC, tc, 1.04 + 0.004 * z), yfC = Math.min(aC.y - 0.06, yRecta(phC, y0(phC) + ((dif[z] && dif[z].t) || 0))); subeMechon(phC, tc, aC, yfC);
+          /* 31-10-2026 (Fátima: «las líneas, como si fueran cabello»): el mechón es una sábana de cabellos paralelos peinados hacia
+             fuera, no un hilo: a cada raíz se suman los cabellos vecinos de la tajada, con el mismo largo */
+          [-0.035, 0.035].forEach(function (dp) { if (seVe(v, phC + dp, tc)) subeMechon(phC + dp, tc, P(phC + dp, tc, 1.04 + 0.004 * z), yfC, true); });
+        });
+        /* los dedos sujetan el mechón en la línea donde se corta (del lado de la raíz); la tijera corta por fuera de los dedos */
+        if (vert && puntas.length > 1) {
+          var pS = puntas.slice().sort(function (p, q) { return p[1] - q[1]; }), rM = pr(v, P(phC, colTh[Math.floor(colTh.length / 2)], 1.04)), tM = pS[Math.floor(pS.length / 2)];
+          var hx = rM[0] - tM[0], hy = rM[1] - tM[1], hl = Math.sqrt(hx * hx + hy * hy) || 1;
+          tr = tr.concat(dedos(pS[0], pS[pS.length - 1], [hx / hl, hy / hl], [tSube[0] + (tSube[1] - tSube[0]) * 0.6, tCorta[0]], { x: tCae[0] }));
+        }
         lst.forEach(function (ph) {
           var a = P(ph, th, 1.04 + 0.004 * z), yf = Math.min(a.y - 0.06, yRecta(ph, y0(ph) + ((dif[z] && dif[z].t) || 0))), pts = [pr(v, a)], ult = a;
           /* baja peinado por el cráneo hasta el borde y de ahí cae; de frente, el cabello de encima de la cara se abre desde la raya
