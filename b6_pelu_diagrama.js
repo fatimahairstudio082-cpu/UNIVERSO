@@ -868,6 +868,20 @@
           var hx = rM[0] - tM[0], hy = rM[1] - tM[1], hl = Math.sqrt(hx * hx + hy * hy) || 1;
           tr = tr.concat(dedos(pS[0], pS[pS.length - 1], [hx / hl, hy / hl], [tSube[0] + (tSube[1] - tSube[0]) * 0.6, tCorta[0]], { x: tCae[0] }));
         }
+        /* 31-10-2026 (Fátima: «se tiene que visualizar el cabello y sujetar el mechón que vas a agarrar en el maniquí; ahí sacas la
+           guía de ese mechón y vas cortando»): el maniquí empieza con su cabello largo; el cabello de este mechón se ve largo desde
+           el principio de la escena y deja de verse cuando se agarra (sube a su elevación en la mano); al caer, queda cortado a su
+           largo. Así la forma del corte se va construyendo sobre el cabello. */
+        var yLargo = YB - 0.7;
+        lst.forEach(function (ph) {
+          var a = P(ph, th, 1.04 + 0.004 * z), pts = [pr(v, a)], ult = a, dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), lado = dC >= 0 ? 1 : -1;
+          for (var t2 = th + 0.07; t2 <= (frente ? 1.28 : 1.36); t2 += 0.07) {
+            var ph2 = frente && Math.abs(dC) < 0.62 ? CARA + lado * Math.min(0.62, Math.abs(dC) + (t2 - th) * 0.9) : ph;
+            if (!seVe(v, ph2, t2)) break; var q2 = P(ph2, t2, 1.05 + 0.004 * z); if (q2.y < yLargo) break; pts.push(pr(v, q2)); ult = q2;
+          }
+          if (ult.y > yLargo) pts.push(pr(v, V3(ult.x * 1.03, yLargo, ult.z * 1.03)));
+          if (pts.length > 1) tr.push(linea(plano(pts), [0, 0.001], '#8A6A52', 1.1, { x: s0 }));
+        });
         lst.forEach(function (ph) {
           var a = P(ph, th, 1.04 + 0.004 * z), yf = Math.min(a.y - 0.06, yRecta(ph, y0(ph) + ((dif[z] && dif[z].t) || 0))), pts = [pr(v, a)], ult = a;
           /* baja peinado por el cráneo hasta el borde y de ahí cae; de frente, el cabello de encima de la cara se abre desde la raya
