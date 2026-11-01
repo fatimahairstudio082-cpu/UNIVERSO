@@ -41,6 +41,11 @@
   /* Cámaras: [azimut, elevación, distancia]; la cabeza es la misma en todos los cortes. */
   var VISTAS = { tres: [2.3, 0.45, 5.6], nuca: [Math.PI, 0.12, 5.4], lateral: [Math.PI / 2, 0.08, 5.6], frente: [0, 0.10, 5.6], arriba: [Math.PI, 1.0, 5.6], cenit: [Math.PI, 1.42, 5.6] };
   var MIRA = -0.45, RECORTE = [190, 0, 900, 720];
+  /* 31-10-2026 (Fátima: «alargar el maniquí»; corto = hasta la barbilla, medio = hasta media espalda, largo = desde media espalda):
+     vistas largas para los cortes cuyo cabello pasa del final del cuello. El modelo 3D es una cabeza sobre un pie: con la cámara más
+     lejos se le dibujan hombros y espalda hasta pasada media espalda, del color del maniquí, tapando el pie (busto()). Solo entran en
+     los fondos cuando se arma un corte que las necesita, así los libros y cursos sin cortes largos no pesan más. */
+  var VISTAS_L = { nuca: [Math.PI, 0.10, 15.5], lateral: [Math.PI / 2, 0.06, 15.5], frente: [0, 0.08, 15.5] }, MIRA_L = -2.75, FONDOS_L = null, Y_LARGO = -1.95;
 
   /* ───────────── el maniquí: ejemplar oculto de <guias-3d> ───────────── */
   /* el motor 3D se pide solo cuando hace falta (no al arrancar el Estudio) */
@@ -97,10 +102,53 @@
         var cl = document.createElement('canvas'); cl.width = 1280; cl.height = 720; cl.getContext('2d').drawImage(cv, 0, 0);
         cl.complete = true; cl.naturalWidth = 1280; LIENZO[k] = cl;
       });
+      FONDOS_L = {};
+      Object.keys(VISTAS_L).forEach(function (k) {
+        var v = VISTAS_L[k], kl = k + '_l';
+        G.cam = { a: v[0], e: v[1], r: v[2] }; G.mira = MIRA_L; G.destino = null; G.render3D();
+        CAM[kl] = { cam: G.camara.clone(), pos: G.camara.position.clone() };
+        x.fillStyle = FONDO; x.fillRect(0, 0, 1280, 720); x.drawImage(G.gl, 0, 0, 1280, 720);
+        try { busto(x, kl); } catch (e) { }
+        FONDOS_L[kl] = cv.toDataURL('image/jpeg', 0.86);
+        var cl = document.createElement('canvas'); cl.width = 1280; cl.height = 720; cl.getContext('2d').drawImage(cv, 0, 0);
+        cl.complete = true; cl.naturalWidth = 1280; LIENZO[kl] = cl;
+      });
       G.cam = cam0; G.mira = mira0;
       try { G.remove(); } catch (e) { }
       FONDOS = out; return out;
     }
+  }
+  /* hombros y espalda bajo el cuello del maniquí (vistas largas). Se mide el cuello en la imagen ya hecha (centro, ancho y color)
+     y desde ahí se dibuja el busto en 2D, con el mismo sombreado de lado a lado que el cuello. Medidas en radios de cabeza. */
+  function busto(x, kl) {
+    var u = Math.abs(pr(kl, V3(0, -2, 0))[1] - pr(kl, V3(0, -1, 0))[1]);           /* píxeles por radio de cabeza */
+    var y0 = pr(kl, V3(0, -1.62, 0))[1], fila = x.getImageData(0, Math.round(y0), 1280, 1).data, fr = [230, 234, 241], xs = [];
+    for (var i = 0; i < 1280; i++) { var d = Math.abs(fila[i * 4] - fr[0]) + Math.abs(fila[i * 4 + 1] - fr[1]) + Math.abs(fila[i * 4 + 2] - fr[2]); if (d > 24) xs.push(i); }
+    if (!xs.length) return;
+    var cx = (xs[0] + xs[xs.length - 1]) / 2, cw = (xs[xs.length - 1] - xs[0]) / 2, p = x.getImageData(Math.round(cx), Math.round(y0), 1, 1).data;
+    var piel = [p[0], p[1], p[2]];
+    function col(f) { return 'rgb(' + piel.map(function (c) { return Math.round(Math.min(255, c * f)); }).join(',') + ')'; }
+    /* de perfil: la cara queda del lado donde la cabeza sobresale más del cuello; el pecho sale un poco hacia ese lado */
+    var lado = /^lateral/.test(kl), cara = 1;
+    if (lado) { var fh = x.getImageData(0, Math.round(pr(kl, V3(0, -0.2, 0))[1]), 1280, 1).data, hs = []; for (var j = 0; j < 1280; j++) { var dd = Math.abs(fh[j * 4] - fr[0]) + Math.abs(fh[j * 4 + 1] - fr[1]) + Math.abs(fh[j * 4 + 2] - fr[2]); if (dd > 24) hs.push(j); } if (hs.length) cara = (cx - hs[0]) > (hs[hs.length - 1] - cx) ? -1 : 1; }
+    /* [y, ancho hacia un lado, ancho hacia el otro] (de perfil: hacia la cara, hacia la espalda) */
+    var PERFIL = lado ? [[-1.62, 1, 1], [-1.95, 1.1, 1.15], [-2.3, 2.3, 1.85], [-2.7, 2.95, 2.15], [-3.3, 3.15, 2.25], [-4.4, 2.9, 2.2], [-5.6, 2.7, 2.15], [-7.2, 2.7, 2.15]]
+      : [[-1.62, 1, 1], [-1.9, 1.15, 1.15], [-2.2, 2.6, 2.6], [-2.5, 4.6, 4.6], [-2.85, 5.4, 5.4], [-3.4, 5.25, 5.25], [-4.4, 4.75, 4.75], [-5.6, 4.5, 4.5], [-7.2, 4.6, 4.6]];
+    var a = [], b = [];
+    PERFIL.forEach(function (q) { var yy = pr(kl, V3(0, q[0], 0))[1], s = lado ? cara : -1;
+      a.push([cx + s * q[1] * cw, yy]); b.push([cx - s * q[2] * cw, yy]); });
+    /* fuera el pie del maniquí: fondo bajo el cuello y busto encima */
+    x.fillStyle = FONDO; x.fillRect(0, y0 + 2, 1280, 720 - y0);
+    var g = x.createLinearGradient(cx - 5.4 * cw, 0, cx + 5.4 * cw, 0);
+    g.addColorStop(0, col(0.80)); g.addColorStop(0.35, col(1.02)); g.addColorStop(0.6, col(1)); g.addColorStop(1, col(0.80));
+    x.fillStyle = g; x.beginPath(); x.moveTo(a[0][0], a[0][1] - 3);
+    for (var k = 1; k < a.length; k++) { var m = [(a[k - 1][0] + a[k][0]) / 2, (a[k - 1][1] + a[k][1]) / 2]; x.quadraticCurveTo(a[k - 1][0], a[k - 1][1], m[0], m[1]); }
+    x.lineTo(a[a.length - 1][0], 724); x.lineTo(b[b.length - 1][0], 724);
+    for (var t = b.length - 1; t > 0; t--) { var mm = [(b[t - 1][0] + b[t][0]) / 2, (b[t - 1][1] + b[t][1]) / 2]; x.quadraticCurveTo(b[t][0], b[t][1], mm[0], mm[1]); }
+    x.lineTo(b[0][0], b[0][1] - 3); x.closePath(); x.fill();
+    /* sombra suave del mentón/cráneo sobre el cuello y la línea de los hombros */
+    var sg = x.createLinearGradient(0, y0, 0, pr(kl, V3(0, -2.4, 0))[1]); sg.addColorStop(0, 'rgba(0,0,0,0.10)'); sg.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = sg; x.fill();
   }
 
   /* ───────────── geometría sobre el cráneo del motor ───────────── */
@@ -685,6 +733,8 @@
       emparejar: o.emparejar === 'atras' || o.emparejar === 'no' ? o.emparejar : 'delante',
       guias: (o.guias || []).slice(), ref: o.ref === 'suelo' ? 'suelo' : 'craneo', medidas: o.medidas || null,
       fleco: o.fleco === 'lado' || o.fleco === 'pollina' ? o.fleco : '',
+      /* 31-10-2026: el largo del resultado (antes no llegaba al maniquí): una altura de ALTURAS o la altura exacta en radios de cabeza */
+      largo: ALTURAS[o.largo] ? o.largo : '', largoY: o.largoY != null && o.largoY !== '' && isFinite(+o.largoY) ? +o.largoY : null,
       coronilla: o.coronilla ? { g: Math.max(0, Math.min(225, +o.coronillaG || Math.max.apply(null, capas))) } : null
     };
   }
@@ -722,6 +772,7 @@
   /* hasta dónde llega el cabello de atrás en el resultado */
   function yBase(R) {
     var C = cortoDe(R); if (C) return ALTURAS.labio.y - C.nuca;   /* el nacimiento de la nuca del maniquí queda a la altura del labio */
+    if (R.largoY != null && isFinite(R.largoY)) return R.largoY;   /* 31-10-2026: largo medido (escáner de la biblioteca) */
     if (R.largo && ALTURAS[R.largo]) return ALTURAS[R.largo].y;   /* 26-10-2026: cortes rectos largos (más abajo del hombro) */
     var todo0 = !((R.capas && R.capas.pila) || []).some(function (g) { return +g > 0; });
     return todo0 && /\(corto\)/i.test(R.n || '') ? ALTURAS.barbilla.y : todo0 ? ALTURAS.cuello.y : -1.45;
@@ -1444,7 +1495,32 @@
     L.push({ tipo: 'pixc_emparejar', vista: v3, t: 'Pixie corto · emparejar delante y atrás', texto: 'Al final se empareja todo: a cero grados, hacia el suelo, se une el largo de delante con los dos dedos de atrás y se le hace su forma, atrás y adelante.', a: { v: v3, tr: tr3, banda: true } });
     return L;
   }
+  /* 31-10-2026 · cortes medios y largos (el cabello pasa del final del cuello). Cada escena se arma con la cámara de siempre y con la
+     larga (maniquí con hombros y espalda); la larga solo se usa en las escenas cuyo dibujo no cabe en la de siempre (el cabello pasa del
+     borde de abajo), así los pasos de corte se siguen viendo de cerca. Fondos nuca_l, lateral_l, frente_l; las demás vistas no cambian. */
+  function bajoY(a) {
+    var m = 0;
+    function hoja(v) { if (!Array.isArray(v)) return; if (v.length && typeof v[0] === 'number') { for (var i = 1; i < v.length; i += 2) if (v[i] > m) m = v[i]; } else v.forEach(hoja); }
+    ((a && a.tr) || []).forEach(function (T) { hoja(T.p); hoja(T.f); if (typeof T.y === 'number' && T.y > m) m = T.y; });
+    return m;
+  }
   function escenas(id) {
+    var R = typeof id === 'object' ? id : receta(id); if (!R) return null;
+    var largo = false; try { largo = !!FONDOS_L && yBase(R) < Y_LARGO; } catch (e) { largo = false; }
+    var E = escenas0(R); if (!largo || !E) return E;
+    var K = Object.keys(VISTAS_L), guarda = {}, EL = null;
+    K.forEach(function (k) { guarda[k] = CAM[k]; CAM[k] = CAM[k + '_l']; });
+    try { EL = escenas0(R); } catch (e) { EL = null; } finally { K.forEach(function (k) { CAM[k] = guarda[k]; }); }
+    if (!EL || EL.escenas.length !== E.escenas.length) return E;
+    var usa = false;
+    E.escenas = E.escenas.map(function (e, i) {
+      var l = EL.escenas[i]; if (!VISTAS_L[e.vista] || l.vista !== e.vista || l.tipo !== e.tipo || bajoY(e.a) <= 712) return e;
+      usa = true; l.vista += '_l'; return l;
+    });
+    if (usa) K.forEach(function (k) { FONDOS[k + '_l'] = FONDOS_L[k + '_l']; });
+    return E;
+  }
+  function escenas0(id) {
     var R = typeof id === 'object' ? id : receta(id); if (!R) return null;
     var A = ALTURAS[R.altura], pila = R.capas.pila;
     /* Fátima, 19-10-2026: corte básico (todo a 0°): la primera línea es la guía y las demás se llevan a ella y se emparejan;
