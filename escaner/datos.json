@@ -30,12 +30,12 @@
    "n": "Corte en V",
    "capas": [
     0,
-    45,
-    45,
-    90,
-    90,
-    90,
-    90
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "linea": "v",
    "largoY": -4.75,
@@ -44,8 +44,8 @@
   },
   "L": 5.753,
   "cm": 51,
-  "minimo": false,
-  "grupo": "largo"
+  "grupo": "largo",
+  "minimo": false
  },
  {
   "n": 52,
@@ -78,12 +78,12 @@
    "n": "Corte redondo",
    "capas": [
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
    ],
    "linea": "redondeada",
    "largoY": -1.49,
@@ -92,8 +92,10 @@
   },
   "L": 2.495,
   "cm": 22,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 54,
@@ -106,9 +108,29 @@
    "unidad": ""
   },
   "vista": "frente",
-  "fuente": "catalogo",
-  "corte": "basico_escalonado",
-  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte escalonado",
+   "capas": [
+    0,
+    10,
+    20,
+    30,
+    45,
+    60,
+    75
+   ],
+   "linea": "recta",
+   "largoY": -5.33,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 6.328,
+  "cm": 56,
+  "grupo": "largo",
+  "minimo": false,
+  "aprox": "elevación del corte «desfilado_punta» del motor · largo de frente (aproximado)",
+  "corteTipo": "desfilado_punta"
  },
  {
   "n": 55,
@@ -125,13 +147,13 @@
   "R": {
    "n": "Corte hongo",
    "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
    ],
    "linea": "recta",
    "largoY": -1.38,
@@ -140,8 +162,10 @@
   },
   "L": 2.376,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 56,
@@ -159,12 +183,12 @@
    "n": "Corte picado",
    "capas": [
     0,
-    35,
+    10,
+    20,
+    30,
     45,
-    45,
-    90,
-    90,
-    90
+    60,
+    75
    ],
    "linea": "recta",
    "largoY": -1.62,
@@ -173,8 +197,10 @@
   },
   "L": 2.619,
   "cm": 23,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «desfilado_punta» del motor",
+  "corteTipo": "desfilado_punta"
  },
  {
   "n": 57,
@@ -187,27 +213,9 @@
    "unidad": ""
   },
   "vista": "atras",
-  "fuente": "escaner",
-  "R": {
-   "n": "Corte bob",
-   "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "linea": "recta",
-   "largoY": -2.03,
-   "fleco": "",
-   "part": "vertical"
-  },
-  "L": 3.029,
-  "cm": 27,
-  "minimo": false,
-  "grupo": "medio"
+  "fuente": "catalogo",
+  "corte": "bob_recto",
+  "motivo": "no está claro si lleva elevación: se usa el corte del catálogo"
  },
  {
   "n": 58,
@@ -220,27 +228,9 @@
    "unidad": ""
   },
   "vista": "atras",
-  "fuente": "escaner",
-  "R": {
-   "n": "Long bob (lob)",
-   "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "linea": "recta",
-   "largoY": -2.66,
-   "fleco": "",
-   "part": "vertical"
-  },
-  "L": 3.664,
-  "cm": 33,
-  "minimo": false,
-  "grupo": "medio"
+  "fuente": "catalogo",
+  "corte": "lob",
+  "motivo": "no está claro si lleva elevación: se usa el corte del catálogo"
  },
  {
   "n": 59,
@@ -253,9 +243,29 @@
    "unidad": ""
   },
   "vista": "atras",
-  "fuente": "catalogo",
-  "corte": "butterfly",
-  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte mariposa",
+   "capas": [
+    0,
+    0,
+    20,
+    50,
+    80,
+    100,
+    110
+   ],
+   "linea": "recta",
+   "largoY": -3.6,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.604,
+  "cm": 41,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «butterfly» del motor",
+  "corteTipo": "butterfly"
  },
  {
   "n": 60,
@@ -273,11 +283,11 @@
    "n": "Corte capas largas",
    "capas": [
     0,
-    45,
-    45,
-    90,
-    90,
-    90,
+    20,
+    35,
+    50,
+    65,
+    80,
     90
    ],
    "linea": "recta",
@@ -287,8 +297,10 @@
   },
   "L": 5.48,
   "cm": 49,
+  "grupo": "largo",
   "minimo": false,
-  "grupo": "largo"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 61,
@@ -305,10 +317,10 @@
   "R": {
    "n": "Corte degradado",
    "capas": [
-    0,
-    35,
     45,
-    45,
+    60,
+    75,
+    90,
     90,
     90,
     90
@@ -320,8 +332,10 @@
   },
   "L": 2.364,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 62,
@@ -339,12 +353,12 @@
    "n": "Corte B larga",
    "capas": [
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
    ],
    "linea": "recta",
    "largoY": -3.59,
@@ -353,8 +367,10 @@
   },
   "L": 4.591,
   "cm": 41,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 63,
@@ -372,12 +388,12 @@
    "n": "Corte semirredondo",
    "capas": [
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
    ],
    "linea": "redondeada",
    "largoY": -3,
@@ -386,8 +402,10 @@
   },
   "L": 4,
   "cm": 36,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 64,
@@ -419,8 +437,8 @@
   },
   "L": 5.578,
   "cm": 50,
-  "minimo": false,
-  "grupo": "largo"
+  "grupo": "largo",
+  "minimo": false
  },
  {
   "n": 65,
@@ -433,27 +451,9 @@
    "unidad": ""
   },
   "vista": "atras",
-  "fuente": "escaner",
-  "R": {
-   "n": "Corte asimétrico",
-   "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "linea": "a",
-   "largoY": -1.67,
-   "fleco": "",
-   "part": "vertical"
-  },
-  "L": 2.673,
-  "cm": 24,
-  "minimo": false,
-  "grupo": "medio"
+  "fuente": "catalogo",
+  "corte": "bob_asimetrico",
+  "motivo": "no está claro si lleva elevación: se usa el corte del catálogo"
  },
  {
   "n": 66,
@@ -471,12 +471,12 @@
    "n": "Corte desfilado",
    "capas": [
     0,
+    10,
+    20,
+    30,
     45,
-    45,
-    90,
-    90,
-    90,
-    90
+    60,
+    75
    ],
    "linea": "redondeada",
    "largoY": -1.98,
@@ -485,8 +485,10 @@
   },
   "L": 2.977,
   "cm": 26,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «desfilado_punta» del motor",
+  "corteTipo": "desfilado_punta"
  },
  {
   "n": 67,
@@ -518,13 +520,13 @@
   "R": {
    "n": "Corte shag",
    "capas": [
-    0,
+    20,
+    45,
+    70,
     90,
-    90,
-    90,
-    90,
-    90,
-    90
+    110,
+    120,
+    130
    ],
    "linea": "recta",
    "largoY": -3.18,
@@ -533,8 +535,10 @@
   },
   "L": 4.185,
   "cm": 37,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «shag» del motor",
+  "corteTipo": "shag"
  },
  {
   "n": 69,
@@ -552,12 +556,12 @@
    "n": "Corte mullet",
    "capas": [
     0,
-    45,
-    90,
-    90,
-    90,
-    90,
-    90
+    30,
+    60,
+    100,
+    130,
+    150,
+    170
    ],
    "linea": "redondeada",
    "largoY": -2.51,
@@ -566,8 +570,10 @@
   },
   "L": 3.507,
   "cm": 31,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «wolf» del motor",
+  "corteTipo": "wolf"
  },
  {
   "n": 70,
@@ -584,10 +590,10 @@
   "R": {
    "n": "Corte rizado",
    "capas": [
-    0,
-    35,
     45,
-    45,
+    60,
+    75,
+    90,
     90,
     90,
     90
@@ -599,8 +605,10 @@
   },
   "L": 2.329,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 71,
@@ -632,8 +640,8 @@
   },
   "L": 5.381,
   "cm": 48,
-  "minimo": false,
-  "grupo": "largo"
+  "grupo": "largo",
+  "minimo": false
  },
  {
   "n": 72,
@@ -646,27 +654,9 @@
    "unidad": ""
   },
   "vista": "atras",
-  "fuente": "escaner",
-  "R": {
-   "n": "Corte con flequillo",
-   "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "linea": "a",
-   "largoY": -2.56,
-   "fleco": "pollina",
-   "part": "vertical"
-  },
-  "L": 3.563,
-  "cm": 32,
-  "minimo": false,
-  "grupo": "medio"
+  "fuente": "catalogo",
+  "corte": "fleq_recto",
+  "motivo": "no está claro si lleva elevación: se usa el corte del catálogo"
  },
  {
   "n": 687,
@@ -698,8 +688,8 @@
   },
   "L": 2.541,
   "cm": 23,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 688,
@@ -731,8 +721,8 @@
   },
   "L": 2.697,
   "cm": 24,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 689,
@@ -764,8 +754,8 @@
   },
   "L": 2.599,
   "cm": 23,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 690,
@@ -797,8 +787,8 @@
   },
   "L": 2.712,
   "cm": 24,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 691,
@@ -830,8 +820,8 @@
   },
   "L": 2.453,
   "cm": 22,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 692,
@@ -863,8 +853,8 @@
   },
   "L": 2.601,
   "cm": 23,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 693,
@@ -896,8 +886,8 @@
   },
   "L": 2.726,
   "cm": 24,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 694,
@@ -929,8 +919,8 @@
   },
   "L": 2.904,
   "cm": 26,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 695,
@@ -962,8 +952,8 @@
   },
   "L": 2.74,
   "cm": 24,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 696,
@@ -995,8 +985,8 @@
   },
   "L": 2.5,
   "cm": 22,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 697,
@@ -1028,8 +1018,8 @@
   },
   "L": 3.118,
   "cm": 28,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 698,
@@ -1043,7 +1033,7 @@
   },
   "vista": "frente",
   "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "motivo": "no está claro si lleva elevación (a validar por Fátima)"
  },
  {
   "n": 699,
@@ -1061,12 +1051,12 @@
    "n": "Bob con raya lateral (perfil)",
    "capas": [
     0,
-    45,
-    45,
-    90,
-    90,
-    90,
-    90
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "linea": "recta",
    "largoY": -2.33,
@@ -1075,8 +1065,8 @@
   },
   "L": 3.33,
   "cm": 30,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 700,
@@ -1108,8 +1098,8 @@
   },
   "L": 2.5,
   "cm": 22,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 701,
@@ -1123,7 +1113,7 @@
   },
   "vista": "frente",
   "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "motivo": "no está claro si lleva elevación (a validar por Fátima)"
  },
  {
   "n": 702,
@@ -1141,12 +1131,12 @@
    "n": "Bob sin flequillo (perfil)",
    "capas": [
     0,
-    45,
-    45,
-    90,
-    90,
-    90,
-    90
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "linea": "redondeada",
    "largoY": -1.92,
@@ -1155,8 +1145,8 @@
   },
   "L": 2.923,
   "cm": 26,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 703,
@@ -1188,8 +1178,8 @@
   },
   "L": 3.365,
   "cm": 30,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 704,
@@ -1202,27 +1192,8 @@
    "unidad": "pe_u_c_melenas"
   },
   "vista": "atras",
-  "fuente": "escaner",
-  "R": {
-   "n": "Bob con flequillo (frente, hombros)",
-   "capas": [
-    0,
-    25,
-    45,
-    45,
-    90,
-    90,
-    90
-   ],
-   "linea": "a",
-   "largoY": -1.85,
-   "fleco": "pollina",
-   "part": "vertical"
-  },
-  "L": 2.855,
-  "cm": 25,
-  "minimo": false,
-  "grupo": "medio"
+  "fuente": "revision",
+  "motivo": "no está claro si lleva elevación (a validar por Fátima)"
  },
  {
   "n": 705,
@@ -1239,10 +1210,10 @@
   "R": {
    "n": "Bob con flequillo (perfil)",
    "capas": [
-    0,
-    35,
-    35,
     45,
+    60,
+    75,
+    90,
     90,
     90,
     90
@@ -1254,8 +1225,10 @@
   },
   "L": 2.334,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 706,
@@ -1273,12 +1246,12 @@
    "n": "Bob con flequillo (perfil izquierdo)",
    "capas": [
     0,
-    45,
-    45,
-    45,
-    90,
-    90,
-    90
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "linea": "redondeada",
    "largoY": -1.86,
@@ -1287,8 +1260,8 @@
   },
   "L": 2.864,
   "cm": 25,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 707,
@@ -1320,8 +1293,8 @@
   },
   "L": 3.639,
   "cm": 32,
-  "minimo": true,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": true
  },
  {
   "n": 708,
@@ -1339,12 +1312,12 @@
    "n": "Bob con flequillo (tres cuartos)",
    "capas": [
     0,
-    45,
-    45,
-    45,
-    90,
-    90,
-    90
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
    ],
    "linea": "redondeada",
    "largoY": -1.9,
@@ -1353,8 +1326,8 @@
   },
   "L": 2.902,
   "cm": 26,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 709,
@@ -1367,9 +1340,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "catalogo",
-  "corte": "capas_largas",
-  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Capas largas con cortina (frente)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -3.38,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.384,
+  "cm": 39,
+  "grupo": "medio",
+  "minimo": true,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 710,
@@ -1382,9 +1375,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "catalogo",
-  "corte": "capas_largas",
-  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Capas largas con mechas (perfil)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -3.04,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.042,
+  "cm": 36,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 711,
@@ -1402,11 +1415,11 @@
    "n": "Capas largas en U (vista posterior)",
    "capas": [
     0,
+    20,
     35,
-    45,
-    45,
-    90,
-    90,
+    50,
+    65,
+    80,
     90
    ],
    "linea": "u",
@@ -1416,8 +1429,10 @@
   },
   "L": 4.907,
   "cm": 44,
+  "grupo": "medio",
   "minimo": true,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 712,
@@ -1430,9 +1445,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "catalogo",
-  "corte": "capas_largas",
-  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Capas largas en V (vista posterior)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -4.01,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 5.011,
+  "cm": 45,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 713,
@@ -1445,9 +1480,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "catalogo",
-  "corte": "capas_largas",
-  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Capas largas (frente)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -2.68,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.685,
+  "cm": 33,
+  "grupo": "medio",
+  "minimo": true,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 714,
@@ -1460,9 +1515,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "catalogo",
-  "corte": "capas_largas",
-  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Capas largas (perfil)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -2.85,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.85,
+  "cm": 34,
+  "grupo": "medio",
+  "minimo": true,
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 715,
@@ -1475,9 +1550,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "catalogo",
-  "corte": "capas_largas",
-  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Capas largas (perfil izquierdo)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -3.53,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.532,
+  "cm": 40,
+  "grupo": "medio",
+  "minimo": true,
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 716,
@@ -1490,9 +1585,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "catalogo",
-  "corte": "capas_largas",
-  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Capas largas suaves (frente)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -3.55,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.549,
+  "cm": 40,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 717,
@@ -1524,8 +1639,8 @@
   },
   "L": 4.358,
   "cm": 39,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 718,
@@ -1539,7 +1654,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Largo recto (frente)",
    "capas": [
@@ -1558,7 +1672,9 @@
   },
   "L": 4.492,
   "cm": 40,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": true,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 719,
@@ -1590,8 +1706,8 @@
   },
   "L": 4.416,
   "cm": 39,
-  "minimo": true,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": true
  },
  {
   "n": 720,
@@ -1623,8 +1739,8 @@
   },
   "L": 4.525,
   "cm": 40,
-  "minimo": true,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": true
  },
  {
   "n": 721,
@@ -1656,8 +1772,8 @@
   },
   "L": 3.426,
   "cm": 30,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 725,
@@ -1775,27 +1891,9 @@
    "unidad": "pe_u_c_melenas"
   },
   "vista": "atras",
-  "fuente": "escaner",
-  "R": {
-   "n": "Corte bob clásico",
-   "capas": [
-    0,
-    45,
-    45,
-    45,
-    90,
-    90,
-    90
-   ],
-   "linea": "redondeada",
-   "largoY": -1.39,
-   "fleco": "",
-   "part": "vertical"
-  },
-  "L": 2.394,
-  "cm": 21,
-  "minimo": false,
-  "grupo": "medio"
+  "fuente": "catalogo",
+  "corte": "bob_recto",
+  "motivo": "corte corto: se usa la ficha del corte"
  },
  {
   "n": 938,
@@ -1807,10 +1905,10 @@
   "R": {
    "n": "Corte bob escalonado",
    "capas": [
-    0,
     45,
-    45,
-    45,
+    60,
+    75,
+    90,
     90,
     90,
     90
@@ -1822,8 +1920,10 @@
   },
   "L": 1.976,
   "cm": 18,
+  "grupo": "corto",
   "minimo": false,
-  "grupo": "corto"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 939,
@@ -1831,8 +1931,29 @@
   "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_degradado_S1_26.jpg",
   "destino": null,
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte degradado",
+   "capas": [
+    0,
+    10,
+    20,
+    30,
+    45,
+    60,
+    75
+   ],
+   "linea": "a",
+   "largoY": -1.84,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.836,
+  "cm": 25,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «desfilado_punta» del motor · largo de frente (aproximado)",
+  "corteTipo": "desfilado_punta"
  },
  {
   "n": 940,
@@ -1864,8 +1985,8 @@
   },
   "L": 5.037,
   "cm": 45,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 941,
@@ -1883,12 +2004,12 @@
    "n": "Corte en V",
    "capas": [
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
    ],
    "linea": "v",
    "largoY": -2.73,
@@ -1897,8 +2018,10 @@
   },
   "L": 3.734,
   "cm": 33,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 942,
@@ -1911,9 +2034,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "catalogo",
-  "corte": "capas_largas",
-  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte en capas largas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -3.33,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.33,
+  "cm": 39,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 943,
@@ -1921,8 +2064,29 @@
   "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_en_capas_rizadas_S1_29.jpg",
   "destino": null,
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte en capas rizadas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -3.24,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.24,
+  "cm": 38,
+  "grupo": "medio",
+  "minimo": true,
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 944,
@@ -1937,7 +2101,7 @@
   "vista": "frente",
   "fuente": "catalogo",
   "corte": "rizo_seco",
-  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+  "motivo": "no está claro si lleva elevación: se usa el corte del catálogo"
  },
  {
   "n": 945,
@@ -1984,8 +2148,8 @@
   },
   "L": 3.202,
   "cm": 28,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 947,
@@ -1998,9 +2162,29 @@
    "unidad": "pe_u_c_media"
   },
   "vista": "frente",
-  "fuente": "catalogo",
-  "corte": "shag",
-  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte shag",
+   "capas": [
+    20,
+    45,
+    70,
+    90,
+    110,
+    120,
+    130
+   ],
+   "linea": "recta",
+   "largoY": -3.15,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.148,
+  "cm": 37,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «shag» del motor · largo de frente (aproximado)",
+  "corteTipo": "shag"
  },
  {
   "n": 948,
@@ -2015,7 +2199,7 @@
   "vista": "frente",
   "fuente": "catalogo",
   "corte": "lob",
-  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+  "motivo": "no está claro si lleva elevación: se usa el corte del catálogo"
  },
  {
   "n": 949,
@@ -2023,8 +2207,29 @@
   "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Pixie_texturizado_S1_28.jpg",
   "destino": null,
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "medida fuera de lo normal"
+  "fuente": "escaner",
+  "R": {
+   "n": "Pixie texturizado",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.09,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.092,
+  "cm": 19,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 976,
@@ -2037,8 +2242,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 03 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -2.79,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.79,
+  "cm": 34,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 977,
@@ -2051,8 +2277,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 05 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -2.54,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.543,
+  "cm": 32,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 978,
@@ -2065,8 +2312,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 07 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -2.72,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.72,
+  "cm": 33,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 979,
@@ -2079,8 +2347,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte en V · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -1.27,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.268,
+  "cm": 20,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 980,
@@ -2093,8 +2382,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 09 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -2.44,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.444,
+  "cm": 31,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 981,
@@ -2112,11 +2422,11 @@
    "n": "Guía de partición para corte en V 10 · con capas",
    "capas": [
     0,
-    45,
-    45,
-    45,
-    90,
-    90,
+    20,
+    35,
+    50,
+    65,
+    80,
     90
    ],
    "linea": "v",
@@ -2126,8 +2436,10 @@
   },
   "L": 2.498,
   "cm": 22,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 982,
@@ -2140,8 +2452,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 11 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -2.46,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.462,
+  "cm": 31,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 983,
@@ -2154,8 +2487,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte en V · flequillo recto con capas",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "v",
+   "largoY": -1.26,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.264,
+  "cm": 20,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 984,
@@ -2172,10 +2526,10 @@
   "R": {
    "n": "Guía de partición corte en V · flequillo lateral con capas",
    "capas": [
-    0,
-    35,
-    35,
     45,
+    60,
+    75,
+    90,
     90,
     90,
     90
@@ -2187,8 +2541,10 @@
   },
   "L": 2.315,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 985,
@@ -2201,8 +2557,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "numeración calculada muy alta (medida dudosa)"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 17 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -6.59,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 7.595,
+  "cm": 68,
+  "grupo": "largo",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 986,
@@ -2215,8 +2592,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 18 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -1.95,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.946,
+  "cm": 26,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 987,
@@ -2230,7 +2628,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición para corte en V 01 · recta, sin capas",
    "capas": [
@@ -2249,7 +2646,9 @@
   },
   "L": 4.607,
   "cm": 41,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 988,
@@ -2263,7 +2662,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición para corte en V 02 · recta, sin capas",
    "capas": [
@@ -2282,7 +2680,9 @@
   },
   "L": 4.286,
   "cm": 38,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 989,
@@ -2296,7 +2696,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición para corte en V 04 · recta, sin capas",
    "capas": [
@@ -2315,7 +2714,9 @@
   },
   "L": 3.919,
   "cm": 35,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 990,
@@ -2329,7 +2730,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición corte en V · sin capas",
    "capas": [
@@ -2348,7 +2748,9 @@
   },
   "L": 2.31,
   "cm": 21,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 991,
@@ -2365,13 +2767,13 @@
   "R": {
    "n": "Guía de partición corte en V · flequillo recto sin capas",
    "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
    ],
    "linea": "v",
    "largoY": -1.35,
@@ -2380,8 +2782,10 @@
   },
   "L": 2.353,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 992,
@@ -2398,13 +2802,13 @@
   "R": {
    "n": "Guía de partición para corte en V 14 · recta, sin capas",
    "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
    ],
    "linea": "v",
    "largoY": -1.36,
@@ -2413,8 +2817,10 @@
   },
   "L": 2.364,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 993,
@@ -2428,7 +2834,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición para corte en V 16 · recta, sin capas",
    "capas": [
@@ -2447,7 +2852,9 @@
   },
   "L": 3.906,
   "cm": 35,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 994,
@@ -2460,8 +2867,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte cuadrado · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.97,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.974,
+  "cm": 26,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 995,
@@ -2474,8 +2902,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte cuadrado · flequillo recto, con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.89,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.894,
+  "cm": 26,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 996,
@@ -2488,8 +2937,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte cuadrado · flequillo lateral, con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -2.02,
+   "fleco": "lado",
+   "part": "vertical"
+  },
+  "L": 3.018,
+  "cm": 27,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 997,
@@ -2502,8 +2972,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte cuadrado · capas suaves",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -0.92,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.924,
+  "cm": 17,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 998,
@@ -2516,8 +3007,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte cuadrado · flequillo recto capas suaves",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -0.88,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 1.881,
+  "cm": 17,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 999,
@@ -2530,8 +3042,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte cuadrado · capas medias",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -0.96,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.959,
+  "cm": 17,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1000,
@@ -2544,8 +3077,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte cuadrado · flequillo lateral capas medias",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -0.96,
+   "fleco": "lado",
+   "part": "vertical"
+  },
+  "L": 1.96,
+  "cm": 17,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1001,
@@ -2558,8 +3112,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte cuadrado · capas intensas",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.05,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.053,
+  "cm": 18,
+  "grupo": "corto",
+  "minimo": true,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1002,
@@ -2573,7 +3148,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición corte cuadrado · recta, sin capas",
    "capas": [
@@ -2592,7 +3166,9 @@
   },
   "L": 2.912,
   "cm": 26,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1003,
@@ -2606,7 +3182,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición corte cuadrado · flequillo recto, sin capas",
    "capas": [
@@ -2625,7 +3200,9 @@
   },
   "L": 2.933,
   "cm": 26,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1004,
@@ -2639,7 +3216,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Corte cuadrado · sin capas",
    "capas": [
@@ -2658,7 +3234,9 @@
   },
   "L": 2.074,
   "cm": 18,
-  "grupo": "corto"
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1005,
@@ -2690,8 +3268,8 @@
   },
   "L": 2.885,
   "cm": 26,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 1006,
@@ -2708,13 +3286,13 @@
   "R": {
    "n": "Corte cuadrado · flequillo recto sin capas",
    "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
    ],
    "linea": "recta",
    "largoY": -1.07,
@@ -2723,8 +3301,10 @@
   },
   "L": 2.072,
   "cm": 18,
+  "grupo": "corto",
   "minimo": false,
-  "grupo": "corto"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1007,
@@ -2737,8 +3317,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte redondo · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -2,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.999,
+  "cm": 27,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1008,
@@ -2751,8 +3352,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte redondo · flequillo recto, con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.81,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.814,
+  "cm": 25,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1009,
@@ -2770,11 +3392,11 @@
    "n": "Guía de partición corte redondo · flequillo lateral, con capas",
    "capas": [
     0,
+    20,
     35,
-    45,
-    45,
-    90,
-    90,
+    50,
+    65,
+    80,
     90
    ],
    "linea": "redondeada",
@@ -2784,8 +3406,10 @@
   },
   "L": 2.56,
   "cm": 23,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1010,
@@ -2798,8 +3422,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte redondo 04 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.86,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.863,
+  "cm": 17,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1011,
@@ -2812,8 +3457,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte redondo 06 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.94,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.945,
+  "cm": 17,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1012,
@@ -2830,10 +3496,10 @@
   "R": {
    "n": "Guía de partición para corte redondo 07 · con capas",
    "capas": [
-    0,
-    35,
-    35,
     45,
+    60,
+    75,
+    90,
     90,
     90,
     90
@@ -2845,8 +3511,10 @@
   },
   "L": 2.311,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1013,
@@ -2859,8 +3527,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte redondo 08 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.83,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.829,
+  "cm": 16,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1014,
@@ -2873,8 +3562,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte redondo 10 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.8,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.796,
+  "cm": 16,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1015,
@@ -2888,7 +3598,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición corte redondo · recta, sin capas",
    "capas": [
@@ -2907,7 +3616,9 @@
   },
   "L": 3.603,
   "cm": 32,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1016,
@@ -2921,7 +3632,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición corte redondo · flequillo recto, sin capas",
    "capas": [
@@ -2940,7 +3650,9 @@
   },
   "L": 2.894,
   "cm": 26,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1017,
@@ -2972,8 +3684,8 @@
   },
   "L": 2.695,
   "cm": 24,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 1018,
@@ -2990,13 +3702,13 @@
   "R": {
    "n": "Guía de partición para corte redondo 05 · recta, sin capas",
    "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
    ],
    "linea": "redondeada",
    "largoY": -1.34,
@@ -3005,8 +3717,10 @@
   },
   "L": 2.338,
   "cm": 21,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1019,
@@ -3019,8 +3733,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en U 01 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -2.24,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.243,
+  "cm": 29,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1020,
@@ -3033,8 +3768,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en U 03 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.73,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.734,
+  "cm": 24,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1021,
@@ -3047,8 +3803,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "la foto corta el cabello: largo mínimo"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en U 04 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -3.42,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.42,
+  "cm": 39,
+  "grupo": "medio",
+  "minimo": true,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1022,
@@ -3061,8 +3838,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte en U · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.15,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.146,
+  "cm": 19,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1023,
@@ -3075,8 +3873,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en U 07 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.2,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.202,
+  "cm": 20,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1024,
@@ -3089,8 +3908,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte en U · flequillo recto con capas",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.15,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.15,
+  "cm": 19,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1025,
@@ -3103,8 +3943,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en U 09 · con capas",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.47,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.473,
+  "cm": 22,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1026,
@@ -3121,10 +3982,10 @@
   "R": {
    "n": "Guía de partición corte en U · flequillo lateral con capas",
    "capas": [
-    0,
-    25,
-    35,
     45,
+    60,
+    75,
+    90,
     90,
     90,
     90
@@ -3136,8 +3997,10 @@
   },
   "L": 2.207,
   "cm": 20,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1027,
@@ -3151,7 +4014,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "Guía de partición corte en U · sin capas",
    "capas": [
@@ -3170,7 +4032,9 @@
   },
   "L": 2.122,
   "cm": 19,
-  "grupo": "corto"
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1028,
@@ -3187,13 +4051,13 @@
   "R": {
    "n": "Guía de partición corte en U · flequillo recto sin capas",
    "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
    ],
    "linea": "u",
    "largoY": -1.22,
@@ -3202,8 +4066,10 @@
   },
   "L": 2.219,
   "cm": 20,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1029,
@@ -3216,8 +4082,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte semicuadrado · flequillo lateral capas ligeras",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.12,
+   "fleco": "lado",
+   "part": "vertical"
+  },
+  "L": 2.119,
+  "cm": 19,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1030,
@@ -3230,8 +4117,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte semicuadrado · flequillo lateral capas marcadas",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.11,
+   "fleco": "lado",
+   "part": "vertical"
+  },
+  "L": 2.108,
+  "cm": 19,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1031,
@@ -3244,8 +4152,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte semicuadrado · flequillo recto capas ligeras",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.1,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.098,
+  "cm": 19,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1032,
@@ -3291,8 +4220,8 @@
   },
   "L": 3.73,
   "cm": 33,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 1034,
@@ -3306,7 +4235,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "División · Corte en U largo",
    "capas": [
@@ -3325,7 +4253,9 @@
   },
   "L": 3.774,
   "cm": 34,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1035,
@@ -3339,7 +4269,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "División · Corte en V largo",
    "capas": [
@@ -3358,7 +4287,9 @@
   },
   "L": 4.387,
   "cm": 39,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1036,
@@ -3390,8 +4321,8 @@
   },
   "L": 3.453,
   "cm": 31,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 1037,
@@ -3423,8 +4354,8 @@
   },
   "L": 3.483,
   "cm": 31,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 1038,
@@ -3456,8 +4387,8 @@
   },
   "L": 3.337,
   "cm": 30,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 1039,
@@ -3470,8 +4401,29 @@
    "unidad": "pe_u_c_cortos"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "medida fuera de lo normal"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte pixie (largo recto)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.55,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.553,
+  "cm": 23,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1040,
@@ -3488,13 +4440,13 @@
   "R": {
    "n": "División · Corte bob largo (recto)",
    "capas": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
    ],
    "linea": "recta",
    "largoY": -1.28,
@@ -3503,8 +4455,10 @@
   },
   "L": 2.277,
   "cm": 20,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1041,
@@ -3518,7 +4472,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "División · Corte bob largo (en V)",
    "capas": [
@@ -3537,7 +4490,9 @@
   },
   "L": 2.983,
   "cm": 27,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1042,
@@ -3551,7 +4506,6 @@
   },
   "vista": "frente",
   "fuente": "escaner",
-  "aprox": "largo medido de frente (aproximado)",
   "R": {
    "n": "División · Corte bob largo (en U)",
    "capas": [
@@ -3570,7 +4524,9 @@
   },
   "L": 2.397,
   "cm": 21,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "largo medido de frente (aproximado)"
  },
  {
   "n": 1043,
@@ -3602,8 +4558,8 @@
   },
   "L": 2.533,
   "cm": 23,
-  "minimo": false,
-  "grupo": "medio"
+  "grupo": "medio",
+  "minimo": false
  },
  {
   "n": 1044,
@@ -3616,8 +4572,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte redondo largo (con capas)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.54,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.54,
+  "cm": 14,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1045,
@@ -3630,8 +4607,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte redondo largo (con capas rectas)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.55,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.549,
+  "cm": 14,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1046,
@@ -3644,8 +4642,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte en U largo (con capas)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.68,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.683,
+  "cm": 24,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1047,
@@ -3663,11 +4682,11 @@
    "n": "División · Corte en U largo (con capas rectas)",
    "capas": [
     0,
-    25,
-    45,
-    45,
-    45,
-    90,
+    20,
+    35,
+    50,
+    65,
+    80,
     90
    ],
    "linea": "u",
@@ -3677,8 +4696,10 @@
   },
   "L": 2.762,
   "cm": 25,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1048,
@@ -3691,8 +4712,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte en V largo (con capas)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "v",
+   "largoY": -2.72,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.719,
+  "cm": 33,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1049,
@@ -3705,8 +4747,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte en V largo (con capas rectas)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "v",
+   "largoY": -0.72,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.717,
+  "cm": 15,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1050,
@@ -3724,11 +4787,11 @@
    "n": "División · Corte cuadrado largo (con capas)",
    "capas": [
     0,
-    25,
-    45,
-    45,
-    45,
-    90,
+    20,
+    35,
+    50,
+    65,
+    80,
     90
    ],
    "linea": "recta",
@@ -3738,8 +4801,10 @@
   },
   "L": 3.219,
   "cm": 29,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1051,
@@ -3752,8 +4817,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte cuadrado largo (con capas rectas)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -0.52,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.519,
+  "cm": 14,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1052,
@@ -3766,8 +4852,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte redondo largo (en puntas)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.6,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.596,
+  "cm": 14,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1053,
@@ -3780,8 +4887,29 @@
    "unidad": "pe_u_c_capas"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "el título dice con capas y la foto no las enseña"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte redondo largo (en puntas rectas)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.56,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.564,
+  "cm": 14,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1054,
@@ -3808,8 +4936,29 @@
    "unidad": "pe_u_c_cortos"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "medida fuera de lo normal"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte pixie (largo en capas)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.76,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.764,
+  "cm": 25,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1056,
@@ -3822,8 +4971,29 @@
    "unidad": "pe_u_c_melenas"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte bob largo (en capas)",
+   "capas": [
+    0,
+    20,
+    35,
+    50,
+    65,
+    80,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -0.84,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.837,
+  "cm": 16,
+  "grupo": "corto",
+  "minimo": false,
+  "aprox": "elevación del corte «capas_largas» del motor · largo de frente (aproximado)",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1057,
@@ -3840,13 +5010,13 @@
   "R": {
    "n": "División · Corte shag largo (en capas)",
    "capas": [
-    0,
+    20,
     45,
-    45,
+    70,
     90,
-    90,
-    90,
-    90
+    110,
+    120,
+    130
    ],
    "linea": "redondeada",
    "largoY": -1.93,
@@ -3855,8 +5025,10 @@
   },
   "L": 2.932,
   "cm": 26,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «shag» del motor",
+  "corteTipo": "shag"
  },
  {
   "n": 1058,
@@ -3874,12 +5046,12 @@
    "n": "División · Corte mariposa (largo en capas)",
    "capas": [
     0,
-    45,
-    90,
-    90,
-    90,
-    90,
-    90
+    0,
+    20,
+    50,
+    80,
+    100,
+    110
    ],
    "linea": "redondeada",
    "largoY": -1.82,
@@ -3888,8 +5060,10 @@
   },
   "L": 2.823,
   "cm": 25,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «butterfly» del motor",
+  "corteTipo": "butterfly"
  },
  {
   "n": 1059,
@@ -3907,11 +5081,11 @@
    "n": "División · Corte long bob (en V)",
    "capas": [
     0,
-    45,
-    45,
-    90,
-    90,
-    90,
+    20,
+    35,
+    50,
+    65,
+    80,
     90
    ],
    "linea": "v",
@@ -3921,8 +5095,10 @@
   },
   "L": 2.848,
   "cm": 25,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «capas_largas» del motor",
+  "corteTipo": "capas_largas"
  },
  {
   "n": 1060,
@@ -3935,8 +5111,29 @@
    "unidad": "pe_u_c_cortos"
   },
   "vista": "atras",
-  "fuente": "revision",
-  "motivo": "medida fuera de lo normal"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte pixie (con flequillo lateral)",
+   "capas": [
+    45,
+    60,
+    75,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.65,
+   "fleco": "lado",
+   "part": "vertical"
+  },
+  "L": 2.651,
+  "cm": 24,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «pixie» del motor",
+  "corteTipo": "pixie"
  },
  {
   "n": 1061,
@@ -3949,8 +5146,29 @@
    "unidad": "pe_u_c_flequillos"
   },
   "vista": "frente",
-  "fuente": "revision",
-  "motivo": "solo hay vista de frente"
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte shag largo (con flequillo)",
+   "capas": [
+    20,
+    45,
+    70,
+    90,
+    110,
+    120,
+    130
+   ],
+   "linea": "a",
+   "largoY": -2.71,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 3.707,
+  "cm": 33,
+  "grupo": "medio",
+  "minimo": false,
+  "aprox": "elevación del corte «shag» del motor · largo de frente (aproximado)",
+  "corteTipo": "shag"
  },
  {
   "n": 1062,
@@ -3968,12 +5186,12 @@
    "n": "División · Corte mariposa (con flequillo)",
    "capas": [
     0,
-    45,
-    45,
-    90,
-    90,
-    90,
-    90
+    0,
+    20,
+    50,
+    80,
+    100,
+    110
    ],
    "linea": "redondeada",
    "largoY": -1.9,
@@ -3982,7 +5200,9 @@
   },
   "L": 2.903,
   "cm": 26,
+  "grupo": "medio",
   "minimo": false,
-  "grupo": "medio"
+  "aprox": "elevación del corte «butterfly» del motor",
+  "corteTipo": "butterfly"
  }
 ]
