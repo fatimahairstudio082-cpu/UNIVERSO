@@ -51,9 +51,12 @@
           '<image href="' + src + '" x="4" y="21" width="192" height="108"' + f + ' preserveAspectRatio="xMidYMid meet"/>';
       },
       intro: String(p.texto || '').replace(/\s+/g, ' ').trim() || (c.n + ': paso ' + (k + 1) + '.'),
-      q: [['¿Qué partición se usa en este paso?', 'Partición ' + pt + '.'],
-        ['¿A qué elevación se lleva el mechón?', el ? 'Hasta ' + el + '° en la zona más alta.' : 'Sin elevación: 0°, el pelo cae natural.'],
-        ['¿Qué hay que vigilar?', p.observaciones || g.aviso || 'Que cada mechón se compare con la guía antes de cortar.']],
+      /* 1-11-2026 (Fátima: «las preguntas no pueden ser idénticas en todos los pasos»): cada pregunta nombra SU paso concreto
+         (corte + título del paso), así no salen repetidas verbatim; las respuestas siguen siendo las reales de ese paso. */
+      q: (function () { var paso = c.n + (tit ? ' · ' + tit : ' · paso ' + (k + 1)); return [
+        ['En «' + paso + '», ¿por dónde va la partición?', 'Partición ' + pt + '.'],
+        ['En «' + paso + '», ¿a qué elevación se lleva el mechón?', el ? 'Hasta ' + el + '° en la zona más alta.' : 'Sin elevación: 0°, el pelo cae natural.'],
+        ['En «' + paso + '», ¿qué hay que vigilar?', p.observaciones || g.aviso || 'Que cada mechón se compare con la guía antes de cortar.']]; })(),
       porque: el >= 90 ? 'Al elevar el mechón, el pelo de arriba queda más corto: se crean capas y ligereza.' :
         el > 0 ? 'Una elevación media reparte el peso y da volumen en la zona trabajada.' : 'Sin elevación todas las puntas caen a la misma línea y el peso queda en el borde.'
     };
