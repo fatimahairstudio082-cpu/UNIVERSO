@@ -1148,7 +1148,10 @@
     }
     /* capas: cada mechón elevado deja su largo más arriba (calculado con EU_CALCULO_CAPILAR); se marca dónde termina, de la nuca a la coronilla */
     var pilaQ = (R.capas && R.capas.pila) || [];
-    if (!frente && CC && CC.calcular && pilaQ.some(function (g) { return g > 0; })) {
+    /* 1-11-2026 (Fátima, regla permanente: «eliminar del cabello del maniquí toda referencia de elevación encima del cabello»):
+       en los cortos (pixie, garzón, mixie) NO se dibujan las chapas «Mechón · grados» sobre el cabello; su resultado limpio va en
+       escQuedaCorto (queda_corto_*) y su elevación, en las escenas con el reloj al lado. Las melenas con capas ya usan escQuedaLineas. */
+    if (!frente && !CT && CC && CC.calcular && pilaQ.some(function (g) { return g > 0; })) {
       var cq = null; try { cq = CC.calcular({ capas: pilaQ, guias: R.guias, ref: R.ref }, medQ); } catch (e) { cq = null; }
       var Rcm = medQ ? medQ.contorno / (2 * Math.PI) : 8.9, capQ = cq && cq.capas || [], p0y = capQ.length ? capQ[0].punta[1] : 0, yTop = P(NUCA, 0.12).y;
       var hechas = [];
