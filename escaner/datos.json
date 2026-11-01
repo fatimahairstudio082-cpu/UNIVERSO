@@ -1,0 +1,3988 @@
+[
+ {
+  "n": 50,
+  "titulo": "Corte cuadrado",
+  "archivo": "10_Fichas_Cortes_de_Dama/01_Cuadrado.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_cuadrado",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "basico_cuadrado",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 51,
+  "titulo": "Corte en V",
+  "archivo": "10_Fichas_Cortes_de_Dama/02_En_V.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_v",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte en V",
+   "capas": [
+    0,
+    45,
+    45,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "v",
+   "largoY": -4.75,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 5.753,
+  "cm": 51,
+  "minimo": false,
+  "grupo": "largo"
+ },
+ {
+  "n": 52,
+  "titulo": "Corte en U",
+  "archivo": "10_Fichas_Cortes_de_Dama/03_En_U.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_u",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "basico_u",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 53,
+  "titulo": "Corte redondo",
+  "archivo": "10_Fichas_Cortes_de_Dama/04_Redondo.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_redondeado",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte redondo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.49,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.495,
+  "cm": 22,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 54,
+  "titulo": "Corte escalonado",
+  "archivo": "10_Fichas_Cortes_de_Dama/05_Escalonado.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_escalonado",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "basico_escalonado",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 55,
+  "titulo": "Corte hongo",
+  "archivo": "10_Fichas_Cortes_de_Dama/06_Hongo.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "bob_recto",
+   "ok": 0,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte hongo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.38,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.376,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 56,
+  "titulo": "Corte picado",
+  "archivo": "10_Fichas_Cortes_de_Dama/07_Picado.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "desfilado_punta",
+   "ok": 0,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte picado",
+   "capas": [
+    0,
+    35,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -1.62,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.619,
+  "cm": 23,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 57,
+  "titulo": "Corte bob",
+  "archivo": "10_Fichas_Cortes_de_Dama/08_Bob.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "bob_recto",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte bob",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.03,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.029,
+  "cm": 27,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 58,
+  "titulo": "Long bob (lob)",
+  "archivo": "10_Fichas_Cortes_de_Dama/09_Long_Bob_Lob.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "lob",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Long bob (lob)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.66,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.664,
+  "cm": 33,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 59,
+  "titulo": "Corte mariposa",
+  "archivo": "10_Fichas_Cortes_de_Dama/10_Mariposa.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "butterfly",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "butterfly",
+  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+ },
+ {
+  "n": 60,
+  "titulo": "Corte capas largas",
+  "archivo": "10_Fichas_Cortes_de_Dama/11_Capas_Largas.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte capas largas",
+   "capas": [
+    0,
+    45,
+    45,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -4.48,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 5.48,
+  "cm": 49,
+  "minimo": false,
+  "grupo": "largo"
+ },
+ {
+  "n": 61,
+  "titulo": "Corte degradado",
+  "archivo": "10_Fichas_Cortes_de_Dama/12_Degradado.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_90",
+   "ok": 0,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte degradado",
+   "capas": [
+    0,
+    35,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.36,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.364,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 62,
+  "titulo": "Corte B larga",
+  "archivo": "10_Fichas_Cortes_de_Dama/13_Corte_B_Larga.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "lob",
+   "ok": 0,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte B larga",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -3.59,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.591,
+  "cm": 41,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 63,
+  "titulo": "Corte semirredondo",
+  "archivo": "10_Fichas_Cortes_de_Dama/14_Semirredondo.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_redondeado",
+   "ok": 0,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte semirredondo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -3,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4,
+  "cm": 36,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 64,
+  "titulo": "Corte recto",
+  "archivo": "10_Fichas_Cortes_de_Dama/15_Recto.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_cuadrado",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte recto",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -4.58,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 5.578,
+  "cm": 50,
+  "minimo": false,
+  "grupo": "largo"
+ },
+ {
+  "n": 65,
+  "titulo": "Corte asimétrico",
+  "archivo": "10_Fichas_Cortes_de_Dama/16_Asimetrico.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "bob_asimetrico",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte asimétrico",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "a",
+   "largoY": -1.67,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.673,
+  "cm": 24,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 66,
+  "titulo": "Corte desfilado",
+  "archivo": "10_Fichas_Cortes_de_Dama/17_Desfilado.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "desfilado_punta",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte desfilado",
+   "capas": [
+    0,
+    45,
+    45,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.98,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.977,
+  "cm": 26,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 67,
+  "titulo": "Corte pixie",
+  "archivo": "10_Fichas_Cortes_de_Dama/18_Pixie.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "pixie",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 68,
+  "titulo": "Corte shag",
+  "archivo": "10_Fichas_Cortes_de_Dama/19_Shag.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "shag",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte shag",
+   "capas": [
+    0,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -3.18,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.185,
+  "cm": 37,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 69,
+  "titulo": "Corte mullet",
+  "archivo": "10_Fichas_Cortes_de_Dama/20_Mullet.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "wolf",
+   "ok": 0,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte mullet",
+   "capas": [
+    0,
+    45,
+    90,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -2.51,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.507,
+  "cm": 31,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 70,
+  "titulo": "Corte rizado",
+  "archivo": "10_Fichas_Cortes_de_Dama/21_Rizado.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "curly_bob",
+   "ok": 0,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte rizado",
+   "capas": [
+    0,
+    35,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.33,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.329,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 71,
+  "titulo": "Corte largo recto",
+  "archivo": "10_Fichas_Cortes_de_Dama/22_Largo_Recto.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "blunt",
+   "ok": 0,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte largo recto",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -4.38,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 5.381,
+  "cm": 48,
+  "minimo": false,
+  "grupo": "largo"
+ },
+ {
+  "n": 72,
+  "titulo": "Corte con flequillo",
+  "archivo": "10_Fichas_Cortes_de_Dama/23_Con_Flequillo.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "fleq_recto",
+   "ok": 1,
+   "unidad": ""
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte con flequillo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "a",
+   "largoY": -2.56,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 3.563,
+  "cm": 32,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 687,
+  "titulo": "Bob cuadrado con nuca recta (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/01_Bob_Cuadrado/Bob_cuadrado_con_nuca_recta_vista_posterior_B015.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "bob_recto",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob cuadrado con nuca recta (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.54,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.541,
+  "cm": 23,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 688,
+  "titulo": "Bob cuadrado (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/01_Bob_Cuadrado/Bob_cuadrado_vista_posterior_B004.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "bob_recto",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob cuadrado (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.7,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.697,
+  "cm": 24,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 689,
+  "titulo": "Bob semi U ovalado (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/02_Bob_Semi_U_Semirredondo/Bob_semi_U_ovalado_vista_posterior_C028.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob semi U ovalado (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.6,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.599,
+  "cm": 23,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 690,
+  "titulo": "Bob semi U suave (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/02_Bob_Semi_U_Semirredondo/Bob_semi_U_suave_vista_posterior_C030.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob semi U suave (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.71,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.712,
+  "cm": 24,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 691,
+  "titulo": "Bob semi U (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/02_Bob_Semi_U_Semirredondo/Bob_semi_U_vista_posterior_B012.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob semi U (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.45,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.453,
+  "cm": 22,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 692,
+  "titulo": "Bob semirredondo (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/02_Bob_Semi_U_Semirredondo/Bob_semirredondo_vista_posterior_B025.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob semirredondo (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.6,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.601,
+  "cm": 23,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 693,
+  "titulo": "Bob redondo con punta marcada (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/03_Bob_Redondo/Bob_redondo_con_punta_marcada_vista_posterior_C024.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob redondo con punta marcada (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.73,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.726,
+  "cm": 24,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 694,
+  "titulo": "Bob redondo (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/03_Bob_Redondo/Bob_redondo_vista_posterior_B009.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob redondo (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.9,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.904,
+  "cm": 26,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 695,
+  "titulo": "Bob redondo recto con bordes suaves (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/04_Bob_Redondo_Recto/Bob_redondo_recto_con_bordes_suaves_vista_posterior_B045.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob redondo recto con bordes suaves (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.74,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.74,
+  "cm": 24,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 696,
+  "titulo": "Bob redondo recto (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/04_Bob_Redondo_Recto/Bob_redondo_recto_vista_posterior_B024.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob redondo recto (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.5,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.5,
+  "cm": 22,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 697,
+  "titulo": "Bob con guías de proporción",
+  "archivo": "35_Cortes_por_Forma_y_Vista/05_Bob_sin_Flequillo/Bob_con_guias_de_proporcion_C026.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob con guías de proporción",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.12,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.118,
+  "cm": 28,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 698,
+  "titulo": "Bob con raya al medio (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/05_Bob_sin_Flequillo/Bob_con_raya_al_medio_frente_C029.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 699,
+  "titulo": "Bob con raya lateral (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/05_Bob_sin_Flequillo/Bob_con_raya_lateral_perfil_C027.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob con raya lateral (perfil)",
+   "capas": [
+    0,
+    45,
+    45,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -2.33,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.33,
+  "cm": 30,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 700,
+  "titulo": "Bob en cuatro vistas",
+  "archivo": "35_Cortes_por_Forma_y_Vista/05_Bob_sin_Flequillo/Bob_en_cuatro_vistas_C025.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob en cuatro vistas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.5,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.5,
+  "cm": 22,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 701,
+  "titulo": "Bob liso (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/05_Bob_sin_Flequillo/Bob_liso_frente_B044.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 702,
+  "titulo": "Bob sin flequillo (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/05_Bob_sin_Flequillo/Bob_sin_flequillo_perfil_B008.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob sin flequillo (perfil)",
+   "capas": [
+    0,
+    45,
+    45,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.92,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.923,
+  "cm": 26,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 703,
+  "titulo": "Bob con flequillo (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/06_Bob_con_Flequillo/Bob_con_flequillo_frente_B007.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob con flequillo (frente)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "a",
+   "largoY": -2.37,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 3.365,
+  "cm": 30,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 704,
+  "titulo": "Bob con flequillo (frente, hombros)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/06_Bob_con_Flequillo/Bob_con_flequillo_frente_hombros_B013.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob con flequillo (frente, hombros)",
+   "capas": [
+    0,
+    25,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "a",
+   "largoY": -1.85,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.855,
+  "cm": 25,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 705,
+  "titulo": "Bob con flequillo (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/06_Bob_con_Flequillo/Bob_con_flequillo_perfil_B011.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob con flequillo (perfil)",
+   "capas": [
+    0,
+    35,
+    35,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.33,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.334,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 706,
+  "titulo": "Bob con flequillo (perfil izquierdo)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/06_Bob_con_Flequillo/Bob_con_flequillo_perfil_izquierdo_B046.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob con flequillo (perfil izquierdo)",
+   "capas": [
+    0,
+    45,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.86,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.864,
+  "cm": 25,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 707,
+  "titulo": "Bob con flequillo recto (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/06_Bob_con_Flequillo/Bob_con_flequillo_recto_frente_B001.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob con flequillo recto (frente)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.64,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 3.639,
+  "cm": 32,
+  "minimo": true,
+  "grupo": "medio"
+ },
+ {
+  "n": 708,
+  "titulo": "Bob con flequillo (tres cuartos)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/06_Bob_con_Flequillo/Bob_con_flequillo_tres_cuartos_B010.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Bob con flequillo (tres cuartos)",
+   "capas": [
+    0,
+    45,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.9,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.902,
+  "cm": 26,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 709,
+  "titulo": "Capas largas con cortina (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/07_Capas_Largas_en_U_y_V/Capas_largas_con_cortina_frente_B022.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "capas_largas",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 710,
+  "titulo": "Capas largas con mechas (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/07_Capas_Largas_en_U_y_V/Capas_largas_con_mechas_perfil_B048.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "capas_largas",
+  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+ },
+ {
+  "n": 711,
+  "titulo": "Capas largas en U (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/07_Capas_Largas_en_U_y_V/Capas_largas_en_U_vista_posterior_B021.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Capas largas en U (vista posterior)",
+   "capas": [
+    0,
+    35,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "u",
+   "largoY": -3.91,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.907,
+  "cm": 44,
+  "minimo": true,
+  "grupo": "medio"
+ },
+ {
+  "n": 712,
+  "titulo": "Capas largas en V (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/07_Capas_Largas_en_U_y_V/Capas_largas_en_V_vista_posterior_B049.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "capas_largas",
+  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+ },
+ {
+  "n": 713,
+  "titulo": "Capas largas (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/07_Capas_Largas_en_U_y_V/Capas_largas_frente_B019.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "capas_largas",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 714,
+  "titulo": "Capas largas (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/07_Capas_Largas_en_U_y_V/Capas_largas_perfil_B020.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "capas_largas",
+  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+ },
+ {
+  "n": 715,
+  "titulo": "Capas largas (perfil izquierdo)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/07_Capas_Largas_en_U_y_V/Capas_largas_perfil_izquierdo_B023.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "capas_largas",
+  "motivo": "el título dice con capas y la foto no las enseña: se usa el corte del catálogo"
+ },
+ {
+  "n": 716,
+  "titulo": "Capas largas suaves (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/07_Capas_Largas_en_U_y_V/Capas_largas_suaves_frente_B047.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "capas_largas",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 717,
+  "titulo": "Largo recto con puntas rectas (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/08_Largo_Recto/Largo_recto_con_puntas_rectas_vista_posterior_B030.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "recto_largo",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Largo recto con puntas rectas (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -3.36,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.358,
+  "cm": 39,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 718,
+  "titulo": "Largo recto (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/08_Largo_Recto/Largo_recto_frente_B016.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "recto_largo",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Largo recto (frente)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -3.49,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.492,
+  "cm": 40,
+  "grupo": "medio"
+ },
+ {
+  "n": 719,
+  "titulo": "Largo recto (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/08_Largo_Recto/Largo_recto_perfil_B017.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "recto_largo",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Largo recto (perfil)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -3.42,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.416,
+  "cm": 39,
+  "minimo": true,
+  "grupo": "medio"
+ },
+ {
+  "n": 720,
+  "titulo": "Largo recto (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/08_Largo_Recto/Largo_recto_vista_posterior_B018.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "recto_largo",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Largo recto (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -3.53,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.525,
+  "cm": 40,
+  "minimo": true,
+  "grupo": "medio"
+ },
+ {
+  "n": 721,
+  "titulo": "Lob recto (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/08_Largo_Recto/Lob_recto_vista_posterior_B027.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "lob",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Lob recto (vista posterior)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.43,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.426,
+  "cm": 30,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 725,
+  "titulo": "Pixie con flequillo (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/10_Pixie/Pixie_con_flequillo_frente_B037.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "pixie",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 726,
+  "titulo": "Pixie con flequillo (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/10_Pixie/Pixie_con_flequillo_perfil_B038.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "pixie",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 727,
+  "titulo": "Pixie con mechas rubias (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/10_Pixie/Pixie_con_mechas_rubias_perfil_B040.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "pixie",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 728,
+  "titulo": "Pixie desfilado (frente)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/10_Pixie/Pixie_desfilado_frente_B041.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie_desfilado",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "pixie_desfilado",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 729,
+  "titulo": "Pixie desfilado (perfil)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/10_Pixie/Pixie_desfilado_perfil_B042.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie_desfilado",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "pixie_desfilado",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 730,
+  "titulo": "Pixie texturizado (nuca)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/10_Pixie/Pixie_texturizado_nuca_B043.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "pixie",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 731,
+  "titulo": "Pixie texturizado (vista posterior)",
+  "archivo": "35_Cortes_por_Forma_y_Vista/10_Pixie/Pixie_texturizado_vista_posterior_B039.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "pixie",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 937,
+  "titulo": "Corte bob clásico",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_bob_clasico_S1_01.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "bob_recto",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte bob clásico",
+   "capas": [
+    0,
+    45,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.39,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.394,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 938,
+  "titulo": "Corte bob escalonado",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_bob_escalonado_S1_02.jpg",
+  "destino": null,
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte bob escalonado",
+   "capas": [
+    0,
+    45,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -0.98,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 1.976,
+  "cm": 18,
+  "minimo": false,
+  "grupo": "corto"
+ },
+ {
+  "n": 939,
+  "titulo": "Corte degradado",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_degradado_S1_26.jpg",
+  "destino": null,
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 940,
+  "titulo": "Corte en U",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_en_U_S1_07.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_u",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte en U",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "u",
+   "largoY": -4.04,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 5.037,
+  "cm": 45,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 941,
+  "titulo": "Corte en V",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_en_V_S1_06.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_v",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte en V",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -2.73,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.734,
+  "cm": 33,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 942,
+  "titulo": "Corte en capas largas",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_en_capas_largas_S1_03.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "capas_largas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "capas_largas",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 943,
+  "titulo": "Corte en capas rizadas",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_en_capas_rizadas_S1_29.jpg",
+  "destino": null,
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 944,
+  "titulo": "Corte en seco (rizados)",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_en_seco_rizados_S1_08.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "rizo_seco",
+   "ok": 1,
+   "unidad": "pe_u_c_rizado"
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "rizo_seco",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 945,
+  "titulo": "Corte pixie",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_pixie_S1_04.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "pixie",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "catalogo",
+  "corte": "pixie",
+  "motivo": "corte corto: se usa la ficha del corte"
+ },
+ {
+  "n": 946,
+  "titulo": "Corte recto",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_recto_S1_05.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "basico_cuadrado",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte recto",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.2,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.202,
+  "cm": 28,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 947,
+  "titulo": "Corte shag",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Corte_shag_S1_09.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "shag",
+   "ok": 1,
+   "unidad": "pe_u_c_media"
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "shag",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 948,
+  "titulo": "Long bob (lob)",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Long_bob_lob_S1_27.jpg",
+  "destino": {
+   "k": "corte",
+   "id": "lob",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "frente",
+  "fuente": "catalogo",
+  "corte": "lob",
+  "motivo": "la foto no se puede medir: se usa el corte del catálogo"
+ },
+ {
+  "n": 949,
+  "titulo": "Pixie texturizado",
+  "archivo": "39_Tecnicas_de_Corte_y_Estilos_en_Foto/01_Tipos_de_Corte/Pixie_texturizado_S1_28.jpg",
+  "destino": null,
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "medida fuera de lo normal"
+ },
+ {
+  "n": 976,
+  "titulo": "Guía de partición para corte en V 03 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_03_S5_08.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 977,
+  "titulo": "Guía de partición para corte en V 05 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_05_S5_13.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 978,
+  "titulo": "Guía de partición para corte en V 07 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_07_S5_18.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 979,
+  "titulo": "Guía de partición corte en V · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_08_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 980,
+  "titulo": "Guía de partición para corte en V 09 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_09_S5_22.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 981,
+  "titulo": "Guía de partición para corte en V 10 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_10_S5_25.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 10 · con capas",
+   "capas": [
+    0,
+    45,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "v",
+   "largoY": -1.5,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.498,
+  "cm": 22,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 982,
+  "titulo": "Guía de partición para corte en V 11 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_11_S5_29.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 983,
+  "titulo": "Guía de partición corte en V · flequillo recto con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_13_flequillo_recto_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 984,
+  "titulo": "Guía de partición corte en V · flequillo lateral con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_15_flequillo_lateral_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte en V · flequillo lateral con capas",
+   "capas": [
+    0,
+    35,
+    35,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "v",
+   "largoY": -1.31,
+   "fleco": "lado",
+   "part": "vertical"
+  },
+  "L": 2.315,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 985,
+  "titulo": "Guía de partición para corte en V 17 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_17_S5_46.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "numeración calculada muy alta (medida dudosa)"
+ },
+ {
+  "n": 986,
+  "titulo": "Guía de partición para corte en V 18 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Con_capas/Guia_de_particion_para_corte_en_V_18_S5_49.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 987,
+  "titulo": "Guía de partición para corte en V 01 · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Rectas_sin_capas/Guia_de_particion_para_corte_en_V_01_S5_01.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición para corte en V 01 · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -3.61,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.607,
+  "cm": 41,
+  "grupo": "medio"
+ },
+ {
+  "n": 988,
+  "titulo": "Guía de partición para corte en V 02 · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Rectas_sin_capas/Guia_de_particion_para_corte_en_V_02_S5_05.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición para corte en V 02 · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -3.29,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.286,
+  "cm": 38,
+  "grupo": "medio"
+ },
+ {
+  "n": 989,
+  "titulo": "Guía de partición para corte en V 04 · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Rectas_sin_capas/Guia_de_particion_para_corte_en_V_04_S5_10.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición para corte en V 04 · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -2.92,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.919,
+  "cm": 35,
+  "grupo": "medio"
+ },
+ {
+  "n": 990,
+  "titulo": "Guía de partición corte en V · sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Rectas_sin_capas/Guia_de_particion_para_corte_en_V_06_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición corte en V · sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -1.31,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.31,
+  "cm": 21,
+  "grupo": "medio"
+ },
+ {
+  "n": 991,
+  "titulo": "Guía de partición corte en V · flequillo recto sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Rectas_sin_capas/Guia_de_particion_para_corte_en_V_12_flequillo_recto_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte en V · flequillo recto sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -1.35,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.353,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 992,
+  "titulo": "Guía de partición para corte en V 14 · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Rectas_sin_capas/Guia_de_particion_para_corte_en_V_14_S5_37.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte en V 14 · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -1.36,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.364,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 993,
+  "titulo": "Guía de partición para corte en V 16 · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/01_Corte_en_V/Rectas_sin_capas/Guia_de_particion_para_corte_en_V_16_S5_42.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición para corte en V 16 · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -2.91,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.906,
+  "cm": 35,
+  "grupo": "medio"
+ },
+ {
+  "n": 994,
+  "titulo": "Guía de partición corte cuadrado · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Con_capas/Guia_corte_cuadrado_hoja2_02_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 995,
+  "titulo": "Guía de partición corte cuadrado · flequillo recto, con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Con_capas/Guia_corte_cuadrado_hoja2_04_flequillo_recto_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 996,
+  "titulo": "Guía de partición corte cuadrado · flequillo lateral, con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Con_capas/Guia_corte_cuadrado_hoja2_05_flequillo_lateral_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 997,
+  "titulo": "Corte cuadrado · capas suaves",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Con_capas/Guia_de_particion_para_corte_cuadrado_04_capas_suaves.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 998,
+  "titulo": "Corte cuadrado · flequillo recto capas suaves",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Con_capas/Guia_de_particion_para_corte_cuadrado_05_flequillo_recto_capas_suaves.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 999,
+  "titulo": "Corte cuadrado · capas medias",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Con_capas/Guia_de_particion_para_corte_cuadrado_06_capas_medias.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1000,
+  "titulo": "Corte cuadrado · flequillo lateral capas medias",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Con_capas/Guia_de_particion_para_corte_cuadrado_07_flequillo_lateral_capas_medias.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1001,
+  "titulo": "Corte cuadrado · capas intensas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Con_capas/Guia_de_particion_para_corte_cuadrado_08_capas_intensas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1002,
+  "titulo": "Guía de partición corte cuadrado · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Rectas_sin_capas/Guia_corte_cuadrado_hoja2_01_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición corte cuadrado · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.91,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.912,
+  "cm": 26,
+  "grupo": "medio"
+ },
+ {
+  "n": 1003,
+  "titulo": "Guía de partición corte cuadrado · flequillo recto, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Rectas_sin_capas/Guia_corte_cuadrado_hoja2_03_flequillo_recto_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición corte cuadrado · flequillo recto, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.93,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.933,
+  "cm": 26,
+  "grupo": "medio"
+ },
+ {
+  "n": 1004,
+  "titulo": "Corte cuadrado · sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Rectas_sin_capas/Guia_de_particion_para_corte_cuadrado_01_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Corte cuadrado · sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.07,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.074,
+  "cm": 18,
+  "grupo": "corto"
+ },
+ {
+  "n": 1005,
+  "titulo": "Guía de partición para corte cuadrado 02 · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Rectas_sin_capas/Guia_de_particion_para_corte_cuadrado_02_S5_06.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte cuadrado 02 · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.88,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.885,
+  "cm": 26,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1006,
+  "titulo": "Corte cuadrado · flequillo recto sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/02_Corte_Cuadrado/Rectas_sin_capas/Guia_de_particion_para_corte_cuadrado_03_flequillo_recto_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Corte cuadrado · flequillo recto sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.07,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.072,
+  "cm": 18,
+  "minimo": false,
+  "grupo": "corto"
+ },
+ {
+  "n": 1007,
+  "titulo": "Guía de partición corte redondo · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Con_capas/Guia_corte_redondo_hoja2_02_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1008,
+  "titulo": "Guía de partición corte redondo · flequillo recto, con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Con_capas/Guia_corte_redondo_hoja2_04_flequillo_recto_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1009,
+  "titulo": "Guía de partición corte redondo · flequillo lateral, con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Con_capas/Guia_corte_redondo_hoja2_05_flequillo_lateral_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte redondo · flequillo lateral, con capas",
+   "capas": [
+    0,
+    35,
+    45,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.56,
+   "fleco": "lado",
+   "part": "vertical"
+  },
+  "L": 2.56,
+  "cm": 23,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1010,
+  "titulo": "Guía de partición para corte redondo 04 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Con_capas/Guia_de_particion_para_corte_redondo_04_S5_16.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1011,
+  "titulo": "Guía de partición para corte redondo 06 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Con_capas/Guia_de_particion_para_corte_redondo_06_S5_28.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1012,
+  "titulo": "Guía de partición para corte redondo 07 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Con_capas/Guia_de_particion_para_corte_redondo_07_S5_33.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte redondo 07 · con capas",
+   "capas": [
+    0,
+    35,
+    35,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.31,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.311,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1013,
+  "titulo": "Guía de partición para corte redondo 08 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Con_capas/Guia_de_particion_para_corte_redondo_08_S5_38.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1014,
+  "titulo": "Guía de partición para corte redondo 10 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Con_capas/Guia_de_particion_para_corte_redondo_10_S5_47.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1015,
+  "titulo": "Guía de partición corte redondo · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Rectas_sin_capas/Guia_corte_redondo_hoja2_01_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición corte redondo · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -2.6,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.603,
+  "cm": 32,
+  "grupo": "medio"
+ },
+ {
+  "n": 1016,
+  "titulo": "Guía de partición corte redondo · flequillo recto, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Rectas_sin_capas/Guia_corte_redondo_hoja2_03_flequillo_recto_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición corte redondo · flequillo recto, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.89,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.894,
+  "cm": 26,
+  "grupo": "medio"
+ },
+ {
+  "n": 1017,
+  "titulo": "Guía de partición para corte redondo 03 · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Rectas_sin_capas/Guia_de_particion_para_corte_redondo_03_S5_07.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte redondo 03 · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.69,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.695,
+  "cm": 24,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1018,
+  "titulo": "Guía de partición para corte redondo 05 · recta, sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/03_Corte_Redondo/Rectas_sin_capas/Guia_de_particion_para_corte_redondo_05_S5_23.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición para corte redondo 05 · recta, sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.34,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.338,
+  "cm": 21,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1019,
+  "titulo": "Guía de partición para corte en U 01 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Con_capas/Guia_de_particion_para_corte_en_U_01_S5_09.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1020,
+  "titulo": "Guía de partición para corte en U 03 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Con_capas/Guia_de_particion_para_corte_en_U_03_S5_14.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1021,
+  "titulo": "Guía de partición para corte en U 04 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Con_capas/Guia_de_particion_para_corte_en_U_04_S5_19.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "la foto corta el cabello: largo mínimo"
+ },
+ {
+  "n": 1022,
+  "titulo": "Guía de partición corte en U · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Con_capas/Guia_de_particion_para_corte_en_U_05_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1023,
+  "titulo": "Guía de partición para corte en U 07 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Con_capas/Guia_de_particion_para_corte_en_U_07_S5_36.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1024,
+  "titulo": "Guía de partición corte en U · flequillo recto con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Con_capas/Guia_de_particion_para_corte_en_U_08_flequillo_recto_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1025,
+  "titulo": "Guía de partición para corte en U 09 · con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Con_capas/Guia_de_particion_para_corte_en_U_09_S5_44.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1026,
+  "titulo": "Guía de partición corte en U · flequillo lateral con capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Con_capas/Guia_de_particion_para_corte_en_U_10_flequillo_lateral_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte en U · flequillo lateral con capas",
+   "capas": [
+    0,
+    25,
+    35,
+    45,
+    90,
+    90,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.21,
+   "fleco": "lado",
+   "part": "vertical"
+  },
+  "L": 2.207,
+  "cm": 20,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1027,
+  "titulo": "Guía de partición corte en U · sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Rectas_sin_capas/Guia_de_particion_para_corte_en_U_02_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "Guía de partición corte en U · sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "u",
+   "largoY": -1.12,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.122,
+  "cm": 19,
+  "grupo": "corto"
+ },
+ {
+  "n": 1028,
+  "titulo": "Guía de partición corte en U · flequillo recto sin capas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/04_Corte_en_U/Rectas_sin_capas/Guia_de_particion_para_corte_en_U_06_flequillo_recto_sin_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "Guía de partición corte en U · flequillo recto sin capas",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "u",
+   "largoY": -1.22,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.219,
+  "cm": 20,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1029,
+  "titulo": "Corte semicuadrado · flequillo lateral capas ligeras",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/05_Corte_Semicuadrado/Con_capas/Corte_semicuadrado_flequillo_lateral_capas_ligeras.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1030,
+  "titulo": "Corte semicuadrado · flequillo lateral capas marcadas",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/05_Corte_Semicuadrado/Con_capas/Corte_semicuadrado_flequillo_lateral_capas_marcadas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1031,
+  "titulo": "Corte semicuadrado · flequillo recto capas ligeras",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/05_Corte_Semicuadrado/Con_capas/Corte_semicuadrado_flequillo_recto_capas_ligeras.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1032,
+  "titulo": "Corte redondo recto · sin capas, sin pollina (5 vistas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/06_Corte_Redondo_Recto/Rectas_sin_capas/Corte_redondo_recto_sin_capas_sin_pollina_5_vistas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "medida fuera de lo normal"
+ },
+ {
+  "n": 1033,
+  "titulo": "División · Corte recto largo",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/01_Corte_recto_largo.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte recto largo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.73,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.73,
+  "cm": 33,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1034,
+  "titulo": "División · Corte en U largo",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/02_Corte_en_U_largo.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "División · Corte en U largo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "u",
+   "largoY": -2.77,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.774,
+  "cm": 34,
+  "grupo": "medio"
+ },
+ {
+  "n": 1035,
+  "titulo": "División · Corte en V largo",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/03_Corte_en_V_largo.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "División · Corte en V largo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -3.39,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 4.387,
+  "cm": 39,
+  "grupo": "medio"
+ },
+ {
+  "n": 1036,
+  "titulo": "División · Corte cuadrado largo",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/04_Corte_cuadrado_largo.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte cuadrado largo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.45,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.453,
+  "cm": 31,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1037,
+  "titulo": "División · Corte redondo largo",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/05_Corte_redondo_largo.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_basicos",
+   "ok": 1,
+   "unidad": "pe_u_c_basicos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte redondo largo",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -2.48,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.483,
+  "cm": 31,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1038,
+  "titulo": "División · Corte Shanghai largo (recto)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/17_Corte_Shanghai_largo_recto.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte Shanghai largo (recto)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -2.34,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.337,
+  "cm": 30,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1039,
+  "titulo": "División · Corte pixie (largo recto)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/19_Corte_pixie_largo_recto.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_cortos",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "medida fuera de lo normal"
+ },
+ {
+  "n": 1040,
+  "titulo": "División · Corte bob largo (recto)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/22_Corte_bob_largo_recto.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte bob largo (recto)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "recta",
+   "largoY": -1.28,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.277,
+  "cm": 20,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1041,
+  "titulo": "División · Corte bob largo (en V)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/23_Corte_bob_largo_en_V.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "División · Corte bob largo (en V)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "v",
+   "largoY": -1.98,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.983,
+  "cm": 27,
+  "grupo": "medio"
+ },
+ {
+  "n": 1042,
+  "titulo": "División · Corte bob largo (en U)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/24_Corte_bob_largo_en_U.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "frente",
+  "fuente": "escaner",
+  "aprox": "largo medido de frente (aproximado)",
+  "R": {
+   "n": "División · Corte bob largo (en U)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "u",
+   "largoY": -1.4,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.397,
+  "cm": 21,
+  "grupo": "medio"
+ },
+ {
+  "n": 1043,
+  "titulo": "División · Corte bob largo (redondo)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/01_Rectos_sin_capas/25_Corte_bob_largo_redondo.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte bob largo (redondo)",
+   "capas": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "linea": "redondeada",
+   "largoY": -1.53,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.533,
+  "cm": 23,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1044,
+  "titulo": "División · Corte redondo largo (con capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/06_Corte_redondo_largo_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1045,
+  "titulo": "División · Corte redondo largo (con capas rectas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/07_Corte_redondo_largo_con_capas_rectas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1046,
+  "titulo": "División · Corte en U largo (con capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/08_Corte_en_U_largo_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1047,
+  "titulo": "División · Corte en U largo (con capas rectas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/09_Corte_en_U_largo_con_capas_rectas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte en U largo (con capas rectas)",
+   "capas": [
+    0,
+    25,
+    45,
+    45,
+    45,
+    90,
+    90
+   ],
+   "linea": "u",
+   "largoY": -1.76,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.762,
+  "cm": 25,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1048,
+  "titulo": "División · Corte en V largo (con capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/10_Corte_en_V_largo_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1049,
+  "titulo": "División · Corte en V largo (con capas rectas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/11_Corte_en_V_largo_con_capas_rectas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1050,
+  "titulo": "División · Corte cuadrado largo (con capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/12_Corte_cuadrado_largo_con_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte cuadrado largo (con capas)",
+   "capas": [
+    0,
+    25,
+    45,
+    45,
+    45,
+    90,
+    90
+   ],
+   "linea": "recta",
+   "largoY": -2.22,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 3.219,
+  "cm": 29,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1051,
+  "titulo": "División · Corte cuadrado largo (con capas rectas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/13_Corte_cuadrado_largo_con_capas_rectas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1052,
+  "titulo": "División · Corte redondo largo (en puntas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/14_Corte_redondo_largo_en_puntas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1053,
+  "titulo": "División · Corte redondo largo (en puntas rectas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/15_Corte_redondo_largo_en_puntas_rectas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "el título dice con capas y la foto no las enseña"
+ },
+ {
+  "n": 1054,
+  "titulo": "División · Corte Shanghai largo (en capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/16_Corte_Shanghai_largo_en_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_capas",
+   "ok": 1,
+   "unidad": "pe_u_c_capas"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "medida fuera de lo normal"
+ },
+ {
+  "n": 1055,
+  "titulo": "División · Corte pixie (largo en capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/18_Corte_pixie_largo_en_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_cortos",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "medida fuera de lo normal"
+ },
+ {
+  "n": 1056,
+  "titulo": "División · Corte bob largo (en capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/21_Corte_bob_largo_en_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1057,
+  "titulo": "División · Corte shag largo (en capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/26_Corte_shag_largo_en_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_media",
+   "ok": 1,
+   "unidad": "pe_u_c_media"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte shag largo (en capas)",
+   "capas": [
+    0,
+    45,
+    45,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.93,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.932,
+  "cm": 26,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1058,
+  "titulo": "División · Corte mariposa (largo en capas)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/28_Corte_mariposa_largo_en_capas.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_media",
+   "ok": 1,
+   "unidad": "pe_u_c_media"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte mariposa (largo en capas)",
+   "capas": [
+    0,
+    45,
+    90,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.82,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.823,
+  "cm": 25,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1059,
+  "titulo": "División · Corte long bob (en V)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/02_Con_capas/30_Corte_long_bob_en_V.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_melenas",
+   "ok": 1,
+   "unidad": "pe_u_c_melenas"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte long bob (en V)",
+   "capas": [
+    0,
+    45,
+    45,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "v",
+   "largoY": -1.85,
+   "fleco": "",
+   "part": "vertical"
+  },
+  "L": 2.848,
+  "cm": 25,
+  "minimo": false,
+  "grupo": "medio"
+ },
+ {
+  "n": 1060,
+  "titulo": "División · Corte pixie (con flequillo lateral)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/03_Con_flequillo/20_Corte_pixie_con_flequillo_lateral.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_cortos",
+   "ok": 1,
+   "unidad": "pe_u_c_cortos"
+  },
+  "vista": "atras",
+  "fuente": "revision",
+  "motivo": "medida fuera de lo normal"
+ },
+ {
+  "n": 1061,
+  "titulo": "División · Corte shag largo (con flequillo)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/03_Con_flequillo/27_Corte_shag_largo_con_flequillo.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_flequillos",
+   "ok": 1,
+   "unidad": "pe_u_c_flequillos"
+  },
+  "vista": "frente",
+  "fuente": "revision",
+  "motivo": "solo hay vista de frente"
+ },
+ {
+  "n": 1062,
+  "titulo": "División · Corte mariposa (con flequillo)",
+  "archivo": "40_Guias_de_Particion_por_Forma_de_Corte/07_Tecnicas_de_corte_largo_por_forma/03_Con_flequillo/29_Corte_mariposa_con_flequillo.jpg",
+  "destino": {
+   "k": "uni",
+   "id": "pe_u_c_flequillos",
+   "ok": 1,
+   "unidad": "pe_u_c_flequillos"
+  },
+  "vista": "atras",
+  "fuente": "escaner",
+  "R": {
+   "n": "División · Corte mariposa (con flequillo)",
+   "capas": [
+    0,
+    45,
+    45,
+    90,
+    90,
+    90,
+    90
+   ],
+   "linea": "redondeada",
+   "largoY": -1.9,
+   "fleco": "pollina",
+   "part": "vertical"
+  },
+  "L": 2.903,
+  "cm": 26,
+  "minimo": false,
+  "grupo": "medio"
+ }
+]

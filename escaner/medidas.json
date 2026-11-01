@@ -1,0 +1,2793 @@
+{
+ "50": {
+  "L": 14.356,
+  "Lc": 14.356,
+  "vista": "atras",
+  "formaMedida": "u",
+  "aviso": "",
+  "caja": [
+   63,
+   47,
+   100,
+   177
+  ],
+  "tam": [
+   115,
+   260
+  ]
+ },
+ "51": {
+  "L": 5.753,
+  "Lc": 4.979,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   13,
+   45,
+   105,
+   231
+  ],
+  "tam": [
+   112,
+   260
+  ]
+ },
+ "52": {
+  "aviso": "cabello claro: medida dudosa"
+ },
+ "53": {
+  "L": 2.495,
+  "Lc": 2.495,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   3,
+   47,
+   108,
+   177
+  ],
+  "tam": [
+   112,
+   260
+  ]
+ },
+ "54": {
+  "L": 6.328,
+  "Lc": 6.328,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   38,
+   108,
+   231
+  ],
+  "tam": [
+   112,
+   260
+  ]
+ },
+ "55": {
+  "L": 2.376,
+  "Lc": 2.071,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   12,
+   43,
+   98,
+   144
+  ],
+  "tam": [
+   111,
+   260
+  ]
+ },
+ "56": {
+  "L": 2.619,
+  "Lc": 2.137,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   6,
+   44,
+   105,
+   169
+  ],
+  "tam": [
+   111,
+   260
+  ]
+ },
+ "57": {
+  "L": 3.029,
+  "Lc": 3.029,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   3,
+   108,
+   162
+  ],
+  "tam": [
+   112,
+   260
+  ]
+ },
+ "58": {
+  "L": 3.664,
+  "Lc": 3.664,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   7,
+   43,
+   96,
+   169
+  ],
+  "tam": [
+   111,
+   260
+  ]
+ },
+ "59": {
+  "L": 4.604,
+  "Lc": 4.604,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   36,
+   108,
+   224
+  ],
+  "tam": [
+   112,
+   260
+  ]
+ },
+ "60": {
+  "L": 5.48,
+  "Lc": 4.773,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   10,
+   38,
+   105,
+   224
+  ],
+  "tam": [
+   109,
+   260
+  ]
+ },
+ "61": {
+  "L": 2.364,
+  "Lc": 1.932,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   7,
+   44,
+   98,
+   148
+  ],
+  "tam": [
+   109,
+   260
+  ]
+ },
+ "62": {
+  "L": 4.591,
+  "Lc": 4.591,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   6,
+   39,
+   107,
+   228
+  ],
+  "tam": [
+   112,
+   260
+  ]
+ },
+ "63": {
+  "L": 4.0,
+  "Lc": 4.0,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   3,
+   37,
+   110,
+   225
+  ],
+  "tam": [
+   115,
+   260
+  ]
+ },
+ "64": {
+  "L": 5.578,
+  "Lc": 5.578,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   41,
+   103,
+   226
+  ],
+  "tam": [
+   110,
+   260
+  ]
+ },
+ "65": {
+  "L": 2.673,
+  "Lc": 2.673,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   11,
+   48,
+   117,
+   187
+  ],
+  "tam": [
+   140,
+   260
+  ]
+ },
+ "66": {
+  "L": 2.977,
+  "Lc": 2.199,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   18,
+   39,
+   134,
+   192
+  ],
+  "tam": [
+   153,
+   260
+  ]
+ },
+ "67": {
+  "L": 2.356,
+  "Lc": 1.626,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   37,
+   41,
+   122,
+   141
+  ],
+  "tam": [
+   153,
+   260
+  ]
+ },
+ "68": {
+  "L": 4.185,
+  "Lc": 2.901,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   18,
+   42,
+   125,
+   218
+  ],
+  "tam": [
+   147,
+   260
+  ]
+ },
+ "69": {
+  "L": 3.507,
+  "Lc": 2.55,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   22,
+   43,
+   109,
+   186
+  ],
+  "tam": [
+   136,
+   260
+  ]
+ },
+ "70": {
+  "L": 2.329,
+  "Lc": 1.909,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   16,
+   54,
+   127,
+   176
+  ],
+  "tam": [
+   143,
+   260
+  ]
+ },
+ "71": {
+  "L": 5.381,
+  "Lc": 5.381,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   22,
+   46,
+   116,
+   220
+  ],
+  "tam": [
+   146,
+   260
+  ]
+ },
+ "72": {
+  "L": 3.563,
+  "Lc": 3.563,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   22,
+   47,
+   125,
+   219
+  ],
+  "tam": [
+   139,
+   260
+  ]
+ },
+ "687": {
+  "L": 2.541,
+  "Lc": 2.541,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   5,
+   67,
+   228,
+   349
+  ],
+  "tam": [
+   232,
+   452
+  ]
+ },
+ "688": {
+  "L": 2.697,
+  "Lc": 2.697,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   8,
+   52,
+   238,
+   362
+  ],
+  "tam": [
+   242,
+   462
+  ]
+ },
+ "689": {
+  "L": 2.599,
+  "Lc": 2.599,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   20,
+   98,
+   234,
+   376
+  ],
+  "tam": [
+   242,
+   468
+  ]
+ },
+ "690": {
+  "L": 2.712,
+  "Lc": 2.712,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   19,
+   85,
+   228,
+   367
+  ],
+  "tam": [
+   242,
+   468
+  ]
+ },
+ "691": {
+  "L": 2.453,
+  "Lc": 2.453,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   14,
+   68,
+   240,
+   344
+  ],
+  "tam": [
+   244,
+   452
+  ]
+ },
+ "692": {
+  "L": 2.601,
+  "Lc": 2.601,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   11,
+   71,
+   225,
+   348
+  ],
+  "tam": [
+   232,
+   498
+  ]
+ },
+ "693": {
+  "L": 2.726,
+  "Lc": 2.726,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   12,
+   66,
+   238,
+   374
+  ],
+  "tam": [
+   242,
+   468
+  ]
+ },
+ "694": {
+  "L": 2.904,
+  "Lc": 2.904,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   8,
+   49,
+   240,
+   383
+  ],
+  "tam": [
+   244,
+   462
+  ]
+ },
+ "695": {
+  "L": 2.74,
+  "Lc": 2.74,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   10,
+   29,
+   228,
+   324
+  ],
+  "tam": [
+   232,
+   448
+  ]
+ },
+ "696": {
+  "L": 2.5,
+  "Lc": 2.5,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   12,
+   69,
+   230,
+   339
+  ],
+  "tam": [
+   242,
+   498
+  ]
+ },
+ "697": {
+  "L": 3.118,
+  "Lc": 3.118,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   19,
+   74,
+   223,
+   364
+  ],
+  "tam": [
+   236,
+   468
+  ]
+ },
+ "698": {
+  "L": 2.81,
+  "Lc": 2.81,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   29,
+   78,
+   224,
+   351
+  ],
+  "tam": [
+   244,
+   468
+  ]
+ },
+ "699": {
+  "L": 3.33,
+  "Lc": 2.512,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   11,
+   94,
+   226,
+   375
+  ],
+  "tam": [
+   238,
+   468
+  ]
+ },
+ "700": {
+  "L": 2.5,
+  "Lc": 2.5,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   16,
+   47,
+   149,
+   212
+  ],
+  "tam": [
+   232,
+   468
+  ]
+ },
+ "701": {
+  "L": 2.714,
+  "Lc": 2.714,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   8,
+   28,
+   236,
+   337
+  ],
+  "tam": [
+   242,
+   448
+  ]
+ },
+ "702": {
+  "L": 2.923,
+  "Lc": 2.256,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   3,
+   45,
+   238,
+   387
+  ],
+  "tam": [
+   242,
+   462
+  ]
+ },
+ "703": {
+  "L": 3.365,
+  "Lc": 3.365,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   3,
+   56,
+   234,
+   443
+  ],
+  "tam": [
+   238,
+   462
+  ]
+ },
+ "704": {
+  "L": 2.855,
+  "Lc": 2.521,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   4,
+   49,
+   240,
+   383
+  ],
+  "tam": [
+   244,
+   452
+  ]
+ },
+ "705": {
+  "L": 2.334,
+  "Lc": 1.954,
+  "vista": "atras",
+  "formaMedida": "u",
+  "aviso": "",
+  "caja": [
+   3,
+   65,
+   236,
+   335
+  ],
+  "tam": [
+   240,
+   452
+  ]
+ },
+ "706": {
+  "L": 2.864,
+  "Lc": 2.3,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   19,
+   38,
+   232,
+   343
+  ],
+  "tam": [
+   236,
+   448
+  ]
+ },
+ "707": {
+  "L": 3.639,
+  "Lc": 3.639,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   3,
+   34,
+   236,
+   458
+  ],
+  "tam": [
+   240,
+   462
+  ]
+ },
+ "708": {
+  "L": 2.902,
+  "Lc": 2.332,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   3,
+   53,
+   238,
+   394
+  ],
+  "tam": [
+   242,
+   462
+  ]
+ },
+ "709": {
+  "L": 4.384,
+  "Lc": 4.384,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   3,
+   33,
+   240,
+   494
+  ],
+  "tam": [
+   244,
+   498
+  ]
+ },
+ "710": {
+  "L": 4.042,
+  "Lc": 4.042,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   13,
+   22,
+   238,
+   443
+  ],
+  "tam": [
+   242,
+   448
+  ]
+ },
+ "711": {
+  "L": 4.907,
+  "Lc": 4.4,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   3,
+   39,
+   236,
+   494
+  ],
+  "tam": [
+   240,
+   498
+  ]
+ },
+ "712": {
+  "L": 5.011,
+  "Lc": 5.011,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   19,
+   29,
+   234,
+   443
+  ],
+  "tam": [
+   244,
+   448
+  ]
+ },
+ "713": {
+  "L": 3.685,
+  "Lc": 3.685,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   5,
+   30,
+   240,
+   448
+  ],
+  "tam": [
+   244,
+   452
+  ]
+ },
+ "714": {
+  "L": 3.85,
+  "Lc": 3.85,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   16,
+   35,
+   238,
+   448
+  ],
+  "tam": [
+   242,
+   452
+  ]
+ },
+ "715": {
+  "L": 4.532,
+  "Lc": 4.532,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   15,
+   32,
+   240,
+   494
+  ],
+  "tam": [
+   244,
+   498
+  ]
+ },
+ "716": {
+  "L": 4.549,
+  "Lc": 4.549,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   3,
+   28,
+   234,
+   443
+  ],
+  "tam": [
+   238,
+   448
+  ]
+ },
+ "717": {
+  "L": 4.358,
+  "Lc": 4.358,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   4,
+   46,
+   238,
+   444
+  ],
+  "tam": [
+   242,
+   498
+  ]
+ },
+ "718": {
+  "L": 4.492,
+  "Lc": 4.492,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   3,
+   46,
+   232,
+   448
+  ],
+  "tam": [
+   236,
+   452
+  ]
+ },
+ "719": {
+  "L": 4.416,
+  "Lc": 4.416,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   25,
+   55,
+   234,
+   448
+  ],
+  "tam": [
+   238,
+   452
+  ]
+ },
+ "720": {
+  "L": 4.525,
+  "Lc": 4.525,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   8,
+   47,
+   238,
+   448
+  ],
+  "tam": [
+   242,
+   452
+  ]
+ },
+ "721": {
+  "L": 3.426,
+  "Lc": 3.426,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   4,
+   70,
+   234,
+   404
+  ],
+  "tam": [
+   238,
+   498
+  ]
+ },
+ "725": {
+  "L": 2.823,
+  "Lc": 2.823,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   3,
+   42,
+   234,
+   368
+  ],
+  "tam": [
+   238,
+   428
+  ]
+ },
+ "726": {
+  "L": 2.366,
+  "Lc": 1.643,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   3,
+   32,
+   238,
+   310
+  ],
+  "tam": [
+   242,
+   428
+  ]
+ },
+ "727": {
+  "L": 3.464,
+  "Lc": 1.571,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   38,
+   233,
+   318
+  ],
+  "tam": [
+   242,
+   428
+  ]
+ },
+ "728": {
+  "L": 2.015,
+  "Lc": 2.015,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   15,
+   32,
+   227,
+   245
+  ],
+  "tam": [
+   240,
+   448
+  ]
+ },
+ "729": {
+  "L": 2.425,
+  "Lc": 1.563,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   5,
+   29,
+   234,
+   299
+  ],
+  "tam": [
+   244,
+   448
+  ]
+ },
+ "730": {
+  "L": 2.458,
+  "Lc": 1.953,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   6,
+   30,
+   237,
+   312
+  ],
+  "tam": [
+   244,
+   448
+  ]
+ },
+ "731": {
+  "L": 2.658,
+  "Lc": 1.88,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   9,
+   41,
+   240,
+   345
+  ],
+  "tam": [
+   244,
+   428
+  ]
+ },
+ "937": {
+  "L": 2.394,
+  "Lc": 1.796,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   17,
+   14,
+   298,
+   342
+  ],
+  "tam": [
+   310,
+   452
+  ]
+ },
+ "938": {
+  "L": 1.976,
+  "Lc": 1.437,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   48,
+   8,
+   307,
+   217
+  ],
+  "tam": [
+   320,
+   452
+  ]
+ },
+ "939": {
+  "L": 2.836,
+  "Lc": 1.645,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   45,
+   3,
+   297,
+   303
+  ],
+  "tam": [
+   308,
+   382
+  ]
+ },
+ "940": {
+  "L": 5.037,
+  "Lc": 5.037,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   3,
+   290,
+   444
+  ],
+  "tam": [
+   304,
+   452
+  ]
+ },
+ "941": {
+  "L": 3.734,
+  "Lc": 3.734,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   3,
+   300,
+   443
+  ],
+  "tam": [
+   308,
+   452
+  ]
+ },
+ "942": {
+  "L": 4.33,
+  "Lc": 4.33,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   3,
+   306,
+   437
+  ],
+  "tam": [
+   310,
+   452
+  ]
+ },
+ "943": {
+  "L": 4.24,
+  "Lc": 4.24,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   4,
+   3,
+   293,
+   378
+  ],
+  "tam": [
+   302,
+   382
+  ]
+ },
+ "944": {
+  "L": 3.01,
+  "Lc": 2.36,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   7,
+   13,
+   288,
+   379
+  ],
+  "tam": [
+   296,
+   452
+  ]
+ },
+ "945": {
+  "L": 2.529,
+  "Lc": 1.251,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   22,
+   11,
+   295,
+   284
+  ],
+  "tam": [
+   316,
+   452
+  ]
+ },
+ "946": {
+  "L": 3.202,
+  "Lc": 3.202,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   28,
+   3,
+   264,
+   376
+  ],
+  "tam": [
+   286,
+   452
+  ]
+ },
+ "947": {
+  "L": 4.148,
+  "Lc": 4.148,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   12,
+   297,
+   445
+  ],
+  "tam": [
+   302,
+   452
+  ]
+ },
+ "948": {
+  "L": 3.77,
+  "Lc": 1.982,
+  "vista": "frente",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   24,
+   8,
+   293,
+   377
+  ],
+  "tam": [
+   304,
+   382
+  ]
+ },
+ "949": {
+  "L": 2.092,
+  "Lc": 1.798,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   25,
+   10,
+   280,
+   274
+  ],
+  "tam": [
+   296,
+   382
+  ]
+ },
+ "976": {
+  "L": 3.79,
+  "Lc": 3.171,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   45,
+   248,
+   197,
+   499
+  ],
+  "tam": [
+   244,
+   538
+  ]
+ },
+ "977": {
+  "L": 3.543,
+  "Lc": 2.412,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   36,
+   236,
+   235,
+   499
+  ],
+  "tam": [
+   246,
+   510
+  ]
+ },
+ "978": {
+  "L": 3.72,
+  "Lc": 3.075,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   39,
+   234,
+   206,
+   482
+  ],
+  "tam": [
+   244,
+   510
+  ]
+ },
+ "979": {
+  "L": 2.268,
+  "Lc": 1.988,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   11,
+   33,
+   582,
+   648
+  ],
+  "tam": [
+   586,
+   880
+  ]
+ },
+ "980": {
+  "L": 3.444,
+  "Lc": 2.992,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   46,
+   219,
+   218,
+   448
+  ],
+  "tam": [
+   242,
+   458
+  ]
+ },
+ "981": {
+  "L": 2.498,
+  "Lc": 1.971,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   50,
+   22,
+   197,
+   202
+  ],
+  "tam": [
+   248,
+   458
+  ]
+ },
+ "982": {
+  "L": 3.462,
+  "Lc": 3.462,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   53,
+   213,
+   223,
+   448
+  ],
+  "tam": [
+   246,
+   458
+  ]
+ },
+ "983": {
+  "L": 2.264,
+  "Lc": 2.264,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   14,
+   32,
+   582,
+   647
+  ],
+  "tam": [
+   586,
+   880
+  ]
+ },
+ "984": {
+  "L": 2.315,
+  "Lc": 1.977,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   19,
+   32,
+   574,
+   647
+  ],
+  "tam": [
+   578,
+   880
+  ]
+ },
+ "985": {
+  "L": 7.595,
+  "Lc": 1.948,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   60,
+   14,
+   189,
+   322
+  ],
+  "tam": [
+   246,
+   328
+  ]
+ },
+ "986": {
+  "L": 2.946,
+  "Lc": 2.591,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   61,
+   146,
+   187,
+   320
+  ],
+  "tam": [
+   246,
+   328
+  ]
+ },
+ "987": {
+  "L": 4.607,
+  "Lc": 3.965,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   55,
+   246,
+   234,
+   526
+  ],
+  "tam": [
+   244,
+   538
+  ]
+ },
+ "988": {
+  "L": 4.286,
+  "Lc": 3.814,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   57,
+   246,
+   238,
+   527
+  ],
+  "tam": [
+   248,
+   538
+  ]
+ },
+ "989": {
+  "L": 3.919,
+  "Lc": 2.988,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   52,
+   249,
+   223,
+   527
+  ],
+  "tam": [
+   242,
+   538
+  ]
+ },
+ "990": {
+  "L": 2.31,
+  "Lc": 1.947,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   3,
+   32,
+   578,
+   649
+  ],
+  "tam": [
+   584,
+   880
+  ]
+ },
+ "991": {
+  "L": 2.353,
+  "Lc": 1.994,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   7,
+   33,
+   569,
+   649
+  ],
+  "tam": [
+   582,
+   880
+  ]
+ },
+ "992": {
+  "L": 2.364,
+  "Lc": 1.915,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   56,
+   18,
+   194,
+   176
+  ],
+  "tam": [
+   248,
+   410
+  ]
+ },
+ "993": {
+  "L": 3.906,
+  "Lc": 3.906,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   61,
+   136,
+   175,
+   317
+  ],
+  "tam": [
+   242,
+   328
+  ]
+ },
+ "994": {
+  "L": 2.974,
+  "Lc": 2.974,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   79,
+   516,
+   376,
+   932
+  ],
+  "tam": [
+   441,
+   1215
+  ]
+ },
+ "995": {
+  "L": 2.894,
+  "Lc": 2.894,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   69,
+   515,
+   369,
+   933
+  ],
+  "tam": [
+   441,
+   1215
+  ]
+ },
+ "996": {
+  "L": 3.018,
+  "Lc": 2.715,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   46,
+   515,
+   353,
+   934
+  ],
+  "tam": [
+   441,
+   1215
+  ]
+ },
+ "997": {
+  "L": 1.924,
+  "Lc": 1.924,
+  "vista": "frente",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   12,
+   10,
+   384,
+   365
+  ],
+  "tam": [
+   390,
+   384
+  ]
+ },
+ "998": {
+  "L": 1.881,
+  "Lc": 1.881,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   10,
+   10,
+   388,
+   362
+  ],
+  "tam": [
+   392,
+   384
+  ]
+ },
+ "999": {
+  "L": 1.959,
+  "Lc": 1.959,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   12,
+   10,
+   387,
+   372
+  ],
+  "tam": [
+   392,
+   384
+  ]
+ },
+ "1000": {
+  "L": 1.96,
+  "Lc": 1.96,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   8,
+   9,
+   385,
+   366
+  ],
+  "tam": [
+   392,
+   384
+  ]
+ },
+ "1001": {
+  "L": 2.053,
+  "Lc": 2.053,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   11,
+   7,
+   381,
+   380
+  ],
+  "tam": [
+   392,
+   384
+  ]
+ },
+ "1002": {
+  "L": 2.912,
+  "Lc": 2.912,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   72,
+   519,
+   358,
+   931
+  ],
+  "tam": [
+   441,
+   1215
+  ]
+ },
+ "1003": {
+  "L": 2.933,
+  "Lc": 2.933,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   82,
+   513,
+   374,
+   932
+  ],
+  "tam": [
+   441,
+   1215
+  ]
+ },
+ "1004": {
+  "L": 2.074,
+  "Lc": 1.797,
+  "vista": "frente",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   14,
+   17,
+   379,
+   384
+  ],
+  "tam": [
+   390,
+   428
+  ]
+ },
+ "1005": {
+  "L": 2.885,
+  "Lc": 2.531,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   48,
+   254,
+   191,
+   458
+  ],
+  "tam": [
+   246,
+   538
+  ]
+ },
+ "1006": {
+  "L": 2.072,
+  "Lc": 1.827,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   17,
+   17,
+   386,
+   390
+  ],
+  "tam": [
+   392,
+   428
+  ]
+ },
+ "1007": {
+  "L": 2.999,
+  "Lc": 2.999,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   61,
+   544,
+   371,
+   985
+  ],
+  "tam": [
+   441,
+   1230
+  ]
+ },
+ "1008": {
+  "L": 2.814,
+  "Lc": 2.814,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   52,
+   544,
+   372,
+   961
+  ],
+  "tam": [
+   441,
+   1230
+  ]
+ },
+ "1009": {
+  "L": 2.56,
+  "Lc": 2.097,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   58,
+   157,
+   358,
+   522
+  ],
+  "tam": [
+   441,
+   1230
+  ]
+ },
+ "1010": {
+  "L": 1.863,
+  "Lc": 1.863,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   26,
+   237,
+   226,
+   418
+  ],
+  "tam": [
+   246,
+   510
+  ]
+ },
+ "1011": {
+  "L": 1.945,
+  "Lc": 1.74,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   37,
+   218,
+   213,
+   379
+  ],
+  "tam": [
+   244,
+   458
+  ]
+ },
+ "1012": {
+  "L": 2.311,
+  "Lc": 1.961,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   52,
+   20,
+   193,
+   172
+  ],
+  "tam": [
+   246,
+   410
+  ]
+ },
+ "1013": {
+  "L": 1.829,
+  "Lc": 1.829,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   41,
+   197,
+   209,
+   348
+  ],
+  "tam": [
+   244,
+   410
+  ]
+ },
+ "1014": {
+  "L": 1.796,
+  "Lc": 1.583,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   46,
+   147,
+   205,
+   282
+  ],
+  "tam": [
+   248,
+   328
+  ]
+ },
+ "1015": {
+  "L": 3.603,
+  "Lc": 3.603,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   74,
+   545,
+   372,
+   959
+  ],
+  "tam": [
+   441,
+   1230
+  ]
+ },
+ "1016": {
+  "L": 2.894,
+  "Lc": 2.894,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   55,
+   544,
+   376,
+   963
+  ],
+  "tam": [
+   441,
+   1230
+  ]
+ },
+ "1017": {
+  "L": 2.695,
+  "Lc": 2.411,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   47,
+   253,
+   195,
+   452
+  ],
+  "tam": [
+   248,
+   538
+  ]
+ },
+ "1018": {
+  "L": 2.338,
+  "Lc": 2.338,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   51,
+   220,
+   194,
+   386
+  ],
+  "tam": [
+   246,
+   458
+  ]
+ },
+ "1019": {
+  "L": 3.243,
+  "Lc": 2.838,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   45,
+   250,
+   200,
+   490
+  ],
+  "tam": [
+   246,
+   538
+  ]
+ },
+ "1020": {
+  "L": 2.734,
+  "Lc": 2.45,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   38,
+   236,
+   209,
+   467
+  ],
+  "tam": [
+   246,
+   510
+  ]
+ },
+ "1021": {
+  "L": 4.42,
+  "Lc": 3.954,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "la foto corta el cabello: largo mínimo",
+  "caja": [
+   46,
+   231,
+   206,
+   506
+  ],
+  "tam": [
+   246,
+   510
+  ]
+ },
+ "1022": {
+  "L": 2.146,
+  "Lc": 2.146,
+  "vista": "frente",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   3,
+   22,
+   582,
+   605
+  ],
+  "tam": [
+   586,
+   860
+  ]
+ },
+ "1023": {
+  "L": 2.202,
+  "Lc": 2.202,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   47,
+   193,
+   201,
+   358
+  ],
+  "tam": [
+   246,
+   410
+  ]
+ },
+ "1024": {
+  "L": 2.15,
+  "Lc": 2.15,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   10,
+   22,
+   582,
+   604
+  ],
+  "tam": [
+   586,
+   860
+  ]
+ },
+ "1025": {
+  "L": 2.473,
+  "Lc": 2.218,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   55,
+   146,
+   193,
+   311
+  ],
+  "tam": [
+   246,
+   328
+  ]
+ },
+ "1026": {
+  "L": 2.207,
+  "Lc": 1.916,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   15,
+   21,
+   573,
+   604
+  ],
+  "tam": [
+   578,
+   860
+  ]
+ },
+ "1027": {
+  "L": 2.122,
+  "Lc": 1.846,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   9,
+   22,
+   579,
+   605
+  ],
+  "tam": [
+   584,
+   860
+  ]
+ },
+ "1028": {
+  "L": 2.219,
+  "Lc": 2.219,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   7,
+   23,
+   568,
+   605
+  ],
+  "tam": [
+   582,
+   860
+  ]
+ },
+ "1029": {
+  "L": 2.119,
+  "Lc": 2.119,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   5,
+   16,
+   382,
+   400
+  ],
+  "tam": [
+   392,
+   428
+  ]
+ },
+ "1030": {
+  "L": 2.108,
+  "Lc": 2.108,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   9,
+   16,
+   381,
+   405
+  ],
+  "tam": [
+   392,
+   428
+  ]
+ },
+ "1031": {
+  "L": 2.098,
+  "Lc": 2.098,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   15,
+   17,
+   382,
+   396
+  ],
+  "tam": [
+   392,
+   428
+  ]
+ },
+ "1032": {
+  "L": 1.448,
+  "Lc": 1.448,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   26,
+   178,
+   1177,
+   986
+  ],
+  "tam": [
+   3032,
+   1466
+  ]
+ },
+ "1033": {
+  "L": 3.73,
+  "Lc": 3.73,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   52,
+   93,
+   258,
+   461
+  ],
+  "tam": [
+   816,
+   495
+  ]
+ },
+ "1034": {
+  "L": 3.774,
+  "Lc": 3.355,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   300,
+   87,
+   505,
+   448
+  ],
+  "tam": [
+   810,
+   495
+  ]
+ },
+ "1035": {
+  "L": 4.387,
+  "Lc": 3.815,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   308,
+   87,
+   508,
+   455
+  ],
+  "tam": [
+   804,
+   495
+  ]
+ },
+ "1036": {
+  "L": 3.453,
+  "Lc": 3.047,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   49,
+   89,
+   264,
+   455
+  ],
+  "tam": [
+   801,
+   495
+  ]
+ },
+ "1037": {
+  "L": 3.483,
+  "Lc": 2.617,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   46,
+   91,
+   254,
+   429
+  ],
+  "tam": [
+   819,
+   495
+  ]
+ },
+ "1038": {
+  "L": 3.337,
+  "Lc": 3.337,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   57,
+   101,
+   259,
+   428
+  ],
+  "tam": [
+   810,
+   471
+  ]
+ },
+ "1039": {
+  "L": 2.553,
+  "Lc": 2.003,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   51,
+   102,
+   266,
+   376
+  ],
+  "tam": [
+   801,
+   471
+  ]
+ },
+ "1040": {
+  "L": 2.277,
+  "Lc": 2.277,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   57,
+   88,
+   259,
+   318
+  ],
+  "tam": [
+   810,
+   384
+  ]
+ },
+ "1041": {
+  "L": 2.983,
+  "Lc": 2.983,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   306,
+   90,
+   507,
+   357
+  ],
+  "tam": [
+   804,
+   384
+  ]
+ },
+ "1042": {
+  "L": 2.397,
+  "Lc": 2.397,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   329,
+   90,
+   523,
+   321
+  ],
+  "tam": [
+   801,
+   384
+  ]
+ },
+ "1043": {
+  "L": 2.533,
+  "Lc": 2.039,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   57,
+   102,
+   256,
+   338
+  ],
+  "tam": [
+   819,
+   384
+  ]
+ },
+ "1044": {
+  "L": 1.54,
+  "Lc": 1.54,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   44,
+   89,
+   521,
+   446
+  ],
+  "tam": [
+   816,
+   483
+  ]
+ },
+ "1045": {
+  "L": 1.549,
+  "Lc": 1.549,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   46,
+   88,
+   510,
+   439
+  ],
+  "tam": [
+   810,
+   483
+  ]
+ },
+ "1046": {
+  "L": 2.683,
+  "Lc": 1.844,
+  "vista": "frente",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   226,
+   85,
+   517,
+   440
+  ],
+  "tam": [
+   804,
+   483
+  ]
+ },
+ "1047": {
+  "L": 2.762,
+  "Lc": 2.453,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   58,
+   145,
+   264,
+   422
+  ],
+  "tam": [
+   801,
+   483
+  ]
+ },
+ "1048": {
+  "L": 3.719,
+  "Lc": 3.292,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   289,
+   86,
+   505,
+   443
+  ],
+  "tam": [
+   819,
+   483
+  ]
+ },
+ "1049": {
+  "L": 1.717,
+  "Lc": 1.717,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   49,
+   87,
+   517,
+   454
+  ],
+  "tam": [
+   816,
+   486
+  ]
+ },
+ "1050": {
+  "L": 3.219,
+  "Lc": 2.905,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   46,
+   89,
+   258,
+   427
+  ],
+  "tam": [
+   810,
+   486
+  ]
+ },
+ "1051": {
+  "L": 1.519,
+  "Lc": 1.519,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   44,
+   89,
+   515,
+   441
+  ],
+  "tam": [
+   804,
+   486
+  ]
+ },
+ "1052": {
+  "L": 1.596,
+  "Lc": 1.596,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   53,
+   93,
+   512,
+   451
+  ],
+  "tam": [
+   801,
+   486
+  ]
+ },
+ "1053": {
+  "L": 1.564,
+  "Lc": 1.564,
+  "vista": "atras",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   42,
+   91,
+   515,
+   444
+  ],
+  "tam": [
+   819,
+   486
+  ]
+ },
+ "1054": {
+  "L": 1.478,
+  "Lc": 1.478,
+  "vista": "atras",
+  "formaMedida": "recta",
+  "aviso": "",
+  "caja": [
+   52,
+   90,
+   527,
+   425
+  ],
+  "tam": [
+   816,
+   471
+  ]
+ },
+ "1055": {
+  "L": 2.764,
+  "Lc": 2.053,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   55,
+   106,
+   253,
+   374
+  ],
+  "tam": [
+   804,
+   471
+  ]
+ },
+ "1056": {
+  "L": 1.837,
+  "Lc": 1.144,
+  "vista": "frente",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   159,
+   76,
+   530,
+   357
+  ],
+  "tam": [
+   816,
+   384
+  ]
+ },
+ "1057": {
+  "L": 2.932,
+  "Lc": 2.191,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   58,
+   78,
+   268,
+   359
+  ],
+  "tam": [
+   816,
+   402
+  ]
+ },
+ "1058": {
+  "L": 2.823,
+  "Lc": 1.9,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   56,
+   105,
+   265,
+   374
+  ],
+  "tam": [
+   804,
+   402
+  ]
+ },
+ "1059": {
+  "L": 2.848,
+  "Lc": 2.109,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   53,
+   79,
+   257,
+   364
+  ],
+  "tam": [
+   819,
+   402
+  ]
+ },
+ "1060": {
+  "L": 2.651,
+  "Lc": 2.035,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   50,
+   105,
+   256,
+   372
+  ],
+  "tam": [
+   819,
+   471
+  ]
+ },
+ "1061": {
+  "L": 3.707,
+  "Lc": 3.707,
+  "vista": "frente",
+  "formaMedida": "a",
+  "aviso": "",
+  "caja": [
+   301,
+   68,
+   513,
+   380
+  ],
+  "tam": [
+   810,
+   402
+  ]
+ },
+ "1062": {
+  "L": 2.903,
+  "Lc": 2.175,
+  "vista": "atras",
+  "formaMedida": "redondeada",
+  "aviso": "",
+  "caja": [
+   59,
+   84,
+   266,
+   383
+  ],
+  "tam": [
+   801,
+   402
+  ]
+ }
+}
