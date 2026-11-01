@@ -1,38 +1,26 @@
-/* escaner/calcular.js — de las medidas a la numeración (31-10-2026, reglas aprobadas por Fátima):
-   · la forma, «con capas / sin capas» y el flequillo los dice su título o su carpeta; la foto solo da el largo y dónde termina la capa más corta;
-   · sin capas → todo a 0°;
-   · con capas → cálculo inverso con el motor (EU_CALCULO_CAPILAR y la caída de difCapas): capa por capa, el ángulo que deja la punta donde
-     está en la foto; las capas nunca bajan de una a la siguiente y cada ángulo va al valor suyo más cercano (0 25 35 45 90 120 135 180 200 220);
-   · grupo: corto hasta la barbilla (≤ 2,16 radios de cabeza ≈ 19 cm), largo desde media espalda (≥ 45 cm, a validar), medio entre los dos;
-   · solo se mide la vista de atrás (de frente la cara y el cabello que cae delante engañan la medida);
-   · si la foto no se puede medir y la imagen es un corte del catálogo, se usa ese corte tal cual; si no, queda para revisión (no entra en el libro);
-   · si el título dice «con capas» y la foto no las enseña, o la numeración pasa de 135° (medida dudosa), queda para revisión.
+/* escaner/calcular.js — de lo que ve la foto al corte del motor (1-11-2026, reglas de Fátima):
+   · El ESCÁNER (la foto) decide lo fiable: forma (recta/redonda/U/V), largo (corto/medio/largo) y si lleva ELEVACIÓN o no
+     (capas sí/no, por la densidad de borde interno `capasFoto` de medir.py; el título manda cuando lo dice).
+   · El MOTOR de geometría capilar pone la ELEVACIÓN: no se miden grados de la foto (salían irreales). Cada imagen engancha con el
+     corte del catálogo que corresponde (EU_CORTES: capas largas, graduado, mariposa, wolf, pixie…) y usa SU elevación, realista, con
+     la forma y el largo medidos de la foto. Cero numeración inventada.
+   · Sin capas → todo a 0°. Corto (pixie/garzón/mixie) → su corte del catálogo. Dudoso (ni con ni sin capas claro) → a validar.
    Escribe escaner/datos.json. Uso: node escaner/calcular.js */
 const fs = require('fs'), path = require('path');
-global.window = {}; global.localStorage = { getItem: () => null };
-require(path.join(__dirname, '..', 'b6_pelu_calculo.js'));
-const CC = window.EU_CALCULO_CAPILAR, SUYOS = [0, 25, 35, 45, 90, 120, 135, 180, 200, 220];
-const LISTA = require('./lista.json'), MED = require('./medidas.json');
-const n = 7, Rc = 56 / (2 * Math.PI), b0 = Math.min(Math.PI * .75, 17 / Rc), b1 = Math.min(.12, b0 / 4), RADIO_CM = 8.9;
-const bs = [...Array(n)].map((_, i) => b0 - (b0 - b1) * i / (n - 1));
-const CORTO = 2.16, LARGO = 45 / RADIO_CM;
+global.window = {}; global.localStorage = { getItem: () => null, setItem: () => {} };
+global.document = { createElement: () => ({ style: {}, setAttribute() {}, appendChild() {} }), head: { appendChild() {} }, body: { appendChild() {} }, querySelector: () => null, querySelectorAll: () => [] };
+global.customElements = { get: () => null, define: () => {} };
+require(path.join(__dirname, '..', 'b6_cortes.js'));
+const CO = window.EU_CORTES, RADIO_CM = 8.9, n = 7, CORTO = 2.16, LARGO = 45 / RADIO_CM;
+function elev(id) { const t = CO && CO.tecnica ? CO.tecnica(id) : null; const e = t && t.elev; return e && e.length === n ? e.slice() : null; }
+/* corte tipo del motor según lo que ve la foto (su elevación es la que se usa) */
+const TIPO_CAP = { mariposa: 'butterfly', butterfly: 'butterfly', wolf: 'wolf', mullet: 'wolf', shag: 'shag',
+  escalonad: 'desfilado_punta', degradad: 'desfilado_punta', desfilad: 'desfilado_punta', picad: 'desfilado_punta' };
+const TIPO_CORTO = { pixie: 'pixie', garz: 'garzon', mixie: 'mixie' };
+function corteCapas(t) { for (const k in TIPO_CAP) if (t.indexOf(k) >= 0) return TIPO_CAP[k]; return 'capas_largas'; }
+function corteCorto(t) { for (const k in TIPO_CORTO) if (t.indexOf(k) >= 0) return TIPO_CORTO[k]; return 'pixie'; }
 
-function fin(b, largo) { const arco = Rc * Math.max(0, b0 - b); return largo <= arco ? Rc * Math.cos(b + largo / Rc) : Rc * Math.cos(b0) - (largo - arco); }
-function caidas(pila, guia) { const r = CC.calcular({ capas: pila }, { guia }); return r.capas.map(c => fin(c.b, c.largo) - fin(r.capas[0].b, r.capas[0].largo)); }
-function numeracion(L, Lc) {
-  const t0 = (1 - L) * Rc, tc = (1 - Lc) * Rc, guia = Math.max(1, Rc * Math.cos(b0) - t0);
-  const base = caidas(Array(n).fill(0), guia), meta = bs.map((b, i) => base[i] + (tc - t0) * i / (n - 1)), pila = [0];
-  for (let i = 1; i < n; i++) {
-    let mejor = null;
-    for (let g = pila[i - 1]; g <= 225; g += 0.5) {             /* nunca por debajo de la capa anterior */
-      const t = pila.concat([g]); while (t.length < n) t.push(0);
-      const e = Math.abs(caidas(t, guia)[i] - meta[i]); if (!mejor || e < mejor.e - 1e-9) mejor = { g, e };
-    }
-    const ok = SUYOS.filter(v => v >= pila[i - 1]);
-    pila.push(ok.reduce((a, b) => Math.abs(b - mejor.g) < Math.abs(a - mejor.g) ? b : a));
-  }
-  return pila;
-}
+const LISTA = require('./lista.json'), MED = require('./medidas.json');
 function deTitulo(it) {
   const t = (it.titulo + ' ' + it.archivo).toLowerCase().replace(/_/g, ' ');
   let linea = '';
@@ -45,45 +33,56 @@ function deTitulo(it) {
   else if (/con capas|capas|escalonad|degradad|desfilad|shag|mariposa|butterfly|picad|mullet|wolf/.test(t)) capas = true;
   const fleco = /sin flequillo|sin pollina/.test(t) ? '' : /flequillo lateral|flequillo de lado|de lado/.test(t) ? 'lado' : /flequillo|pollina/.test(t) ? 'pollina' : '';
   const corto = /pixie|garz[oó]n|mixie/.test(t);
-  return { linea, capas, fleco, corto };
+  return { t, linea, capas, fleco, corto };
+}
+/* ¿lleva elevación? el título manda cuando lo dice; si no, la foto (densidad de borde interno) en vista de atrás */
+function llevaCapas(T, m, medible) {
+  if (T.capas === true) return true;
+  if (T.capas === false) return false;
+  const d = m.capasFoto;
+  if (medible && typeof d === 'number') return d >= 0.33 ? true : d <= 0.22 ? false : null;   /* null = dudoso */
+  return null;
 }
 const out = [];
 LISTA.forEach(it => {
   const m = MED[String(it.n)] || {}, T = deTitulo(it), d = it.destino || null;
   const e = { n: it.n, titulo: it.titulo, archivo: it.archivo, destino: d, vista: m.vista || 'atras' };
-  /* solo se mide la vista de atrás: de frente la cara y el cabello que cae delante engañan la medida */
   const medible = m.L && m.vista === 'atras' && !/primer plano|sin cabello|no reconocida|pequeña|claro|error/.test(m.aviso || '') && m.L >= 1.5 && m.L <= 8;
   if (m.vista === 'frente' && !m.aviso) m.aviso = 'solo hay vista de frente';
   const catalogo = d && d.k === 'corte' && d.ok;
-  /* sin capas y solo de frente: la numeración es la de su regla (todo a 0°); el largo, el medido de frente (aproximado) */
-  const deFrente = !medible && T.capas === false && !T.corto && m.vista === 'frente' && m.L >= 1.5 && m.L <= 8 && !/primer plano|claro/.test(m.aviso || '');
-  if (deFrente) {
-    e.fuente = 'escaner'; e.aprox = 'largo medido de frente (aproximado)';
-    e.R = { n: it.titulo, capas: Array(n).fill(0), linea: T.linea || 'recta', largoY: Math.round((1 - m.L) * 100) / 100, fleco: T.fleco, part: 'vertical' };
-    e.L = m.L; e.cm = Math.round(m.L * RADIO_CM); e.grupo = m.L <= CORTO ? 'corto' : m.L >= LARGO ? 'largo' : 'medio';
+  const L = m.L, grupo = L ? (L <= CORTO ? 'corto' : L >= LARGO ? 'largo' : 'medio') : null;
+  const corto = T.corto || (medible && L <= 2.4);
+  function ponR(capas, nota) {
+    e.fuente = 'escaner';
+    e.R = { n: it.titulo, capas: capas, linea: T.linea || (m.formaMedida === 'a' ? 'a' : m.formaMedida) || 'recta',
+      largoY: L ? Math.round((1 - L) * 100) / 100 : '', fleco: T.fleco, part: 'vertical' };
+    e.L = L; e.cm = L ? Math.round(L * RADIO_CM) : null; e.grupo = grupo; e.minimo = /corta el cabello/.test(m.aviso || '');
+    if (nota) e.aprox = nota;
+  }
+  /* cortos (pixie/garzón/mixie): su corte del catálogo, con su elevación */
+  if (corto) {
+    if (catalogo) { e.fuente = 'catalogo'; e.corte = d.id; e.motivo = 'corte corto: se usa la ficha del corte'; }
+    else { const id = corteCorto(T.t), ev = elev(id); if (ev) { ponR(ev, 'elevación del corte «' + id + '» del motor'); e.corteTipo = id; } else { e.fuente = 'revision'; e.motivo = 'corte corto sin elevación en el motor'; } }
     out.push(e); return;
   }
-  if (T.corto || !medible) {
-    if (catalogo) { e.fuente = 'catalogo'; e.corte = d.id; e.motivo = T.corto ? 'corte corto: se usa la ficha del corte' : 'la foto no se puede medir: se usa el corte del catálogo'; }
-    else { e.fuente = 'revision'; e.motivo = m.aviso || (m.L ? 'medida fuera de lo normal' : 'sin medida'); }
+  /* la foto no se puede medir */
+  if (!medible && !(m.vista === 'frente' && L >= 1.5 && L <= 8 && !/primer plano|claro/.test(m.aviso || ''))) {
+    if (catalogo) { e.fuente = 'catalogo'; e.corte = d.id; e.motivo = 'la foto no se puede medir: se usa el corte del catálogo'; }
+    else { e.fuente = 'revision'; e.motivo = m.aviso || (L ? 'medida fuera de lo normal' : 'sin medida'); }
     out.push(e); return;
   }
-  const L = m.L, Lc = Math.min(m.Lc || L, L);
-  let pila = T.capas === false ? Array(n).fill(0) : numeracion(L, Lc);
-  if (T.capas === true && pila.every(g => !g)) {
-    if (catalogo) { e.fuente = 'catalogo'; e.corte = d.id; e.motivo = 'el título dice con capas y la foto no las enseña: se usa el corte del catálogo'; }
-    else { e.fuente = 'revision'; e.motivo = 'el título dice con capas y la foto no las enseña'; }
+  const cap = llevaCapas(T, m, medible);
+  if (cap === null) {                                   /* ni con ni sin capas claro: a validar, no se fuerza */
+    if (catalogo) { e.fuente = 'catalogo'; e.corte = d.id; e.motivo = 'no está claro si lleva elevación: se usa el corte del catálogo'; }
+    else { e.fuente = 'revision'; e.motivo = 'no está claro si lleva elevación (a validar por Fátima)'; }
     out.push(e); return;
   }
-  if (Math.max.apply(null, pila) > 135) {                        /* medida dudosa (p. ej., cabello muy claro): no se inventa */
-    if (catalogo) { e.fuente = 'catalogo'; e.corte = d.id; e.motivo = 'numeración calculada muy alta (medida dudosa): se usa el corte del catálogo'; }
-    else { e.fuente = 'revision'; e.motivo = 'numeración calculada muy alta (medida dudosa)'; }
-    out.push(e); return;
-  }
-  e.fuente = 'escaner';
-  e.R = { n: it.titulo, capas: pila, linea: T.linea || (m.formaMedida === 'a' ? 'a' : m.formaMedida) || 'recta', largoY: Math.round((1 - L) * 100) / 100, fleco: T.fleco, part: 'vertical' };
-  e.L = L; e.cm = Math.round(L * RADIO_CM); e.minimo = /corta el cabello/.test(m.aviso || '');
-  e.grupo = L <= CORTO ? 'corto' : L >= LARGO ? 'largo' : 'medio';
+  if (cap === false) { ponR(Array(n).fill(0), m.vista === 'frente' ? 'largo medido de frente (aproximado)' : null); out.push(e); return; }
+  /* con capas: elevación del corte tipo del motor (según forma/título), con la forma y el largo de la foto */
+  const id = corteCapas(T.t), ev = elev(id);
+  if (!ev) { e.fuente = catalogo ? 'catalogo' : 'revision'; if (catalogo) { e.corte = d.id; e.motivo = 'sin elevación tipo en el motor: se usa el corte del catálogo'; } else e.motivo = 'sin elevación tipo en el motor'; out.push(e); return; }
+  ponR(ev, 'elevación del corte «' + id + '» del motor' + (m.vista === 'frente' ? ' · largo de frente (aproximado)' : ''));
+  e.corteTipo = id;
   out.push(e);
 });
 fs.writeFileSync(path.join(__dirname, 'datos.json'), JSON.stringify(out, null, 1));

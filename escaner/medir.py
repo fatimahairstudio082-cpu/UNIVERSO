@@ -106,9 +106,16 @@ def mide(ruta, atras=False):
     eV = np.abs(fondo[sel] - np.polyval(np.polyfit(np.abs(xn[sel]), fondo[sel], 1), np.abs(xn[sel]))).mean()
     eU = np.abs(fondo[sel] - np.polyval(np.polyfit(xn[sel] ** 2, fondo[sel], 1), xn[sel] ** 2)).mean()
     forma = 'recta' if abs(caida) < .06 else ('v' if eV < eU else 'u') if caida > .3 else 'redondeada' if caida > 0 else 'a'
+    # ¿lleva elevación (capas) o es de un solo largo? — densidad de borde horizontal INTERNO: una punta de mechón que cae sobre
+    # más cabello deja un borde dentro de la masa; un corte de un solo largo solo tiene el borde del contorno. (Señal, no numeración.)
+    gy = np.abs(nd.sobel(nd.gaussian_filter(Y, 1.2), axis=0))
+    dentro = M.copy(); dentro[:int(top + 1.1 * rpx)] = False
+    masAbajo = np.zeros_like(M); masAbajo[:-12] = M[12:]
+    interno = dentro & masAbajo & (gy > 14); area = max(1, int(dentro.sum()))
+    dens = round(float(interno.sum()) / area, 3)
     aviso = 'primer plano: la foto no enseña la cabeza entera' if (x0 <= 2 and x1 >= W - 3) or top <= 2 else \
             ('la foto corta el cabello: largo mínimo' if bot >= H - 4 else '')
-    return {'L': round(L, 3), 'Lc': round(Lc, 3), 'vista': vista, 'formaMedida': forma, 'aviso': aviso,
+    return {'L': round(L, 3), 'Lc': round(Lc, 3), 'vista': vista, 'formaMedida': forma, 'capasFoto': dens, 'aviso': aviso,
             'caja': [x0, top, x1, bot], 'tam': [W, H]}
 
 if __name__ == '__main__':
