@@ -364,7 +364,11 @@
     /* ─────────── proceso genérico (unidades sin generador propio) ─────────── */
     proc_orden: function (u, C, r) {
       var f = u.f, pasos = f && (f.t === 'flujo' || f.t === 'ciclo') && f.p ? f.p.filter(Boolean) : null, v = r();
-      if (pasos && pasos.length >= 3 && v < 0.45) {
+      /* 1-11-2026 (Fátima: «Ordena los pasos», una por técnica en Peluquería): si esta técnica ya tiene su «Ordena los pasos» en
+         este libro, se salta a V/F o Completa. Solo en pelu (C._ordenPelu, compartido con genOrdena); las demás materias no cambian. */
+      var _pelu = C && C.mat === 'pelu', _ya = _pelu && C._ordenPelu && C._ordenPelu[u.id];
+      if (pasos && pasos.length >= 3 && v < 0.45 && !_ya) {
+        if (_pelu) (C._ordenPelu = C._ordenPelu || {})[u.id] = 1;
         var ps = pasos.slice(0, 6).map(function (p) { return H.sub(p, C); }), LT = 'ABCDEF', mez = H.mezcla(r, ps.map(function (p, i) { return i; }));
         var enun = 'Ordena los pasos de «' + H.sub(u.t, C) + '»:<div style="display:flex;flex-wrap:wrap;gap:1mm 5mm;margin-top:1mm">' + mez.map(function (i, j) { return '<span><b>' + LT.charAt(j) + '</b>) ' + H.esc(ps[i]) + '</span>'; }).join('') + '</div>';
         var sol = ps.map(function (p, i) { return LT.charAt(mez.indexOf(i)); }).join(' → ');
