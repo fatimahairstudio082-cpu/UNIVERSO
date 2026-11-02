@@ -156,9 +156,23 @@
   /* preguntas de su banco de colorimetría (juegos_fatima.html) que hablan de lo mismo que la clase; si no hay, ninguna */
   var VACIAS = /^(de|la|el|los|las|un|una|y|o|en|con|para|por|que|del|al|se|es|su|sus|lo|como|más|sin|sobre|cuál|qué|cuántos)$/;
   function palabras(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(function (w) { return w.length > 3 && !VACIAS.test(w); }); }
+  /* 1-11-2026 (Fátima: «colorimetría más dinámica y variada, sin repetir, con mis datos y lecciones»): además de su banco, se
+     generan preguntas de opción múltiple desde SU calculadora real — estrella de neutralización y tabla de corrección —, con la
+     respuesta y la explicación de SU motor (nada inventado: los distractores también son opciones reales de su propia tabla).
+     Rotan por clase para que varíen y no se repitan; las clases de corrección/matización llevan primero las de corregir. */
+  function rndDe(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return function () { h = (h * 1103515245 + 12345) >>> 0; return h / 4294967296; }; }
+  function baraja(a, rnd) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function opcion(correcta, pool, rnd) { var d = baraja(pool.filter(function (x) { return x && x !== correcta; }), rnd).slice(0, 3), o = baraja([correcta].concat(d), rnd); return { o: o, c: o.indexOf(correcta) }; }
+  function qNeutral(e, rnd) { var oc = opcion(e.c, (CALC.estrella || []).map(function (x) { return x.c; }), rnd); return { e: 'El cabello quedó con «' + e.p.toLowerCase() + '» (' + e.r.replace(/^NIV\s*/, 'nivel ') + '). ¿Con qué reflejo lo neutralizas?', o: oc.o, c: oc.c, x: 'Estrella de neutralización: «' + e.p.toLowerCase() + '» se neutraliza con ' + e.c + '.' }; }
+  function qError(e, rnd) { var oc = opcion(e.cor, (CALC.errores || []).map(function (x) { return x.cor; }), rnd); return { e: 'El color quedó «' + e.l.toLowerCase() + '» (' + e.s.toLowerCase() + '). ¿Cómo lo corriges?', o: oc.o, c: oc.c, x: e.regla }; }
   function preguntas(c) {
-    var mias = palabras(c.n + ' ' + c.vds), out = [];
+    var mias = palabras(c.n + ' ' + c.vds), out = [], rnd = rndDe(c.id || 'cc');
     (CALC.preguntas || []).forEach(function (q) { var n = palabras(q.p).filter(function (w) { return mias.indexOf(w) >= 0; }).length; if (n >= 2) out.push({ e: q.p, o: q.o, c: q.c, x: q.exp }); });
+    var correc = /correc|matiz|neutral|decolor|fondo|ceniza|reflejo|cobr|amarill|naranj/i.test(c.n + ' ' + (c.u || '') + ' ' + (c.vds || ''));
+    var est = (CALC.estrella || []).map(function (e) { return ['neu', e]; }), err = (CALC.errores || []).map(function (e) { return ['err', e]; });
+    var pool = correc ? err.concat(est) : est.concat(err), off = 0, id = c.id || 'cc';
+    for (var k = 0; k < id.length; k++) off += id.charCodeAt(k);
+    for (var j = 0; j < pool.length && out.length < 3; j++) { var p = pool[(off + j) % pool.length]; out.push(p[0] === 'neu' ? qNeutral(p[1], rnd) : qError(p[1], rnd)); }
     return out.slice(0, 3);
   }
   function deClase(K, c) {
