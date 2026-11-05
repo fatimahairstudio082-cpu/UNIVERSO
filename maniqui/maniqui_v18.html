@@ -2602,7 +2602,33 @@ CorteMotor.sistema = {
     if (c) { camTween = null; camera.position.set(...c[0]); controls.target.set(...c[1]); controls.update(); }
     $('sisReloj').style.display = 'none'; renderer.render(scene, camera); return renderer.domElement;
   },
-  pelo: () => portraitHair
+  pelo: () => portraitHair,
+  /* vista de la cabeza para los fondos de EU_DIAGRAMA (libro, curso, técnicas): la misma cámara del maniquí de antes
+     (posición en radios de cabeza, orientación, fov) llevada a esta cabeza; sin cabello, sin suelo, fondo gris perla */
+  vista(pos, quat, fov, w, h) {
+    const g = portraitHair.group.parent;
+    /* la cabeza se ajusta un momento al cráneo del motor (1 · 1,17 · 1,05 radios) para que los trazos caigan en su sitio; luego vuelve */
+    const sc0 = g.scale.clone(), po0 = g.position.clone(), f = sisV(1, 1.17 * .093 / .123, 1.05 * .093 / .091), c0 = sisV(0, SIS_CY, .004);
+    g.scale.set(sc0.x * f.x, sc0.y * f.y, sc0.z * f.z);
+    g.position.add(c0.clone().multiply(sc0).sub(c0.clone().multiply(sc0).multiply(f)));
+    g.updateMatrixWorld(true);
+    const C = g.localToWorld(c0.clone()), ws = g.parent.getWorldScale(new T.Vector3()).x * sc0.x, s = .093 * ws, qh = g.getWorldQuaternion(new T.Quaternion());
+    const cam = new T.PerspectiveCamera(fov || 38, w / h, .01, 60);
+    cam.position.copy(sisV(pos[0], pos[1], pos[2]).multiplyScalar(s).applyQuaternion(qh).add(C));
+    cam.quaternion.copy(qh).multiply(new T.Quaternion(quat[0], quat[1], quat[2], quat[3])); cam.updateMatrixWorld(true);
+    const ocultos = []; scene.children.forEach(o => { if (o !== F.root && !o.isLight && o.visible) { o.visible = false; ocultos.push(o); } });
+    const pv = portraitHair.group.visible; portraitHair.group.visible = false;
+    const sg = SIS.gr && SIS.gr.g, sgv = sg ? sg.visible : false; if (sg) sg.visible = false;
+    const bg = scene.background; scene.background = null;
+    const cc = renderer.getClearColor(new T.Color()), ca = renderer.getClearAlpha(), pr = renderer.getPixelRatio();
+    renderer.setClearColor(0xE6EAF1, 1); renderer.setPixelRatio(1); renderer.setSize(w, h, false);
+    renderer.render(scene, cam);
+    const out = document.createElement('canvas'); out.width = w; out.height = h; out.getContext('2d').drawImage(renderer.domElement, 0, 0, w, h);
+    renderer.setPixelRatio(pr); resize(); renderer.setClearColor(cc, ca); scene.background = bg;
+    ocultos.forEach(o => o.visible = true); portraitHair.group.visible = pv; if (sg) sg.visible = sgv;
+    g.scale.copy(sc0); g.position.copy(po0); g.updateMatrixWorld(true);
+    return out;
+  }
 };
 
 window.__maniqui = { step, W };

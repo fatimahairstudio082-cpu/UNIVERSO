@@ -10,7 +10,7 @@
 (function () {
   'use strict';
   if (window.EU_MANIQUI_PUENTE) return;
-  var URL = 'maniqui/maniqui_v18.html?v=1799100000006';
+  var URL = 'maniqui/maniqui_v18.html?v=1799100000008';
   var PERFIL = { recta: 'recto', redondeada: 'redondo', u: 'u', v: 'v', a: 'v' };
   var ONDA = { ondulado: 0.45, rizado: 0.8, afro: 1, liso: 0, liso_extremo: 0, fino: 0, poblado: 0.15 };
   var FASE = { todo: 'inicio', seccion: 'divisiones', particion: 'divisiones', guia: 'atras', capas: 'atras', lateral: 'delante', frente: 'delante', dos: 'atras' };
@@ -161,6 +161,39 @@
     x.drawImage(src, (sw - cw) / 2, (sh - ch) / 2, cw, ch, 0, 0, w, h);
     return c;
   }
+  /* ── fondos del motor hechos con el V18 ── */
+  var VISTA = {}, CONV = { haciendo: 0, fallo: 0, inicio: 0 };
+  /* true cuando todas las vistas del motor ya son del V18 (o si el V18 no puede, para no bloquear) */
+  function convertir(DG) {
+    if (CONV.fallo) return true;
+    var C = DG.camaras ? DG.camaras() : {}, ks = Object.keys(C);
+    if (!ks.length) return false;
+    var hechas = DG._euFondosV18 || (DG._euFondosV18 = {}), faltan = ks.filter(function (k) { return !hechas[k]; });
+    if (!faltan.length) return true;
+    var w = null; try { w = oculto().contentWindow; } catch (e) { w = null; }
+    var S = w && w.CorteMotor && w.CorteMotor.sistema;
+    if (!S || !S.vista) {
+      if (!CONV.inicio) CONV.inicio = Date.now();
+      if (Date.now() - CONV.inicio > 25000) { CONV.fallo = 1; console.warn('Maniquí V18: no se pudieron hacer los fondos; quedan los de antes'); return true; }
+      if (!CONV.haciendo) { CONV.haciendo = 1; setTimeout(function () { CONV.haciendo = 0; if (convertir(DG)) { limpiarCaches(); rearmar(); } }, 400); }
+      return false;
+    }
+    try {
+      faltan.forEach(function (k) {
+        if (!VISTA[k]) {
+          var c = C[k].cam, p = C[k].pos || c.position, q = c.quaternion;
+          VISTA[k] = copia(S.vista([p.x, p.y, p.z], [q.x, q.y, q.z, q.w], c.fov, 1280, 720));
+        }
+        DG.fondoNuevo(k, VISTA[k]); hechas[k] = 1;
+      });
+    } catch (e) { console.warn('Maniquí V18 · fondos', e); CONV.fallo = 1; }
+    return true;
+  }
+  function esperarV18(DG) {
+    return new Promise(function (ok) { (function mira() { if (window.EU_MANIQUI_PUENTE_OFF || convertir(DG)) ok(); else setTimeout(mira, 300); })(); });
+  }
+  function limpiarCaches() { [window.EU_PELU_LIBRO_DG, window.EU_PELU_RECETA].forEach(function (m) { if (m && m.limpiar) { try { m.limpiar(); } catch (e) { } } }); }
+
   function engancharDG() {
     var DG = window.EU_DIAGRAMA;
     if (!DG || DG._euV18) return !!DG;
@@ -169,6 +202,20 @@
     var cy = DG.construirYa, co = DG.construir, fo = DG.foto;
     DG.construirYa = function () { return marca(cy.apply(this, arguments)); };
     DG.construir = function () { var p = co.apply(this, arguments); return p && p.then ? p.then(marca) : marca(p); };
+    /* fondos del motor → vistas del V18 (todas las animaciones: cortes, técnicas, color, libro web, curso).
+       Mientras se hacen, fondosYa() responde «aún no» y fondos() espera: así nadie arma con el maniquí de antes. */
+    var fy = DG.fondosYa, fs = DG.fondos;
+    if (fy && DG.camaras && DG.fondoNuevo) {
+      DG.fondosYa = function () {
+        var F = fy.apply(this, arguments);
+        if (!F || window.EU_MANIQUI_PUENTE_OFF) return F;
+        return convertir(DG) ? F : null;
+      };
+      DG.fondos = function () {
+        var self = this, a = arguments;
+        return fs.apply(self, a).then(function (F) { return esperarV18(DG).then(function () { return F; }); });
+      };
+    }
     DG.foto = function (e, w, cal, prog) {
       var R = e && e._R, m = R && !window.EU_MANIQUI_PUENTE_OFF && momento(e.tipo);
       if (m) {

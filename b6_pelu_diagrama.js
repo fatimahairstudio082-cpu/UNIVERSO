@@ -1822,6 +1822,19 @@
     construirConYa: function (fn) { return armar(fn, fondosYa()); },
     receta: receta, desdeGuia: desdeGuia, libre: libre, construir: construir, fondos: fondos, pinta: pinta,
     construirYa: construirYa, fondosYa: fondosYa, foto: foto, divSrc: divSrc,
+    /* 5-11-2026 (Fátima: «todas las animaciones con el maniquí realista»): b6_maniqui_puente.js cambia cada fondo por la vista
+       del maniquí V18 tomada con la misma cámara; los trazos siguen cayendo donde siempre */
+    camaras: function () { return CAM; },
+    fondoNuevo: function (k, src) {
+      if (!LIENZO[k] || !src) return false;
+      var cl = document.createElement('canvas'); cl.width = 1280; cl.height = 720; var x = cl.getContext('2d');
+      x.fillStyle = FONDO; x.fillRect(0, 0, 1280, 720); x.drawImage(src, 0, 0, 1280, 720);
+      cl.complete = true; cl.naturalWidth = 1280; LIENZO[k] = cl;
+      var d = cl.toDataURL('image/jpeg', 0.86);
+      if (FONDOS && k in FONDOS) FONDOS[k] = d;
+      if (typeof FONDOS_L !== 'undefined' && FONDOS_L && k in FONDOS_L) FONDOS_L[k] = d;
+      return true;
+    },
     /* código del reproductor para el curso descargado (sin dependencias) */
     js: function () { return 'window.CURSO_ANIM={pinta:(' + pinta.toString() + ')};'; }
   };
