@@ -889,7 +889,9 @@
         else if (p.tipo === 'solucion' && p.parte === 0) filas.push(['', 'Solucionario', p.num]);
         else if (p.tipo === 'bibliografia') filas.push(['', 'Bibliografía y referentes', p.num]);
       });
-      var lim = Math.floor(presupuesto(C, 80) / 1.6), p0 = (pg.parte || 0) * lim;
+      /* 1-11-2026 (Fátima, auditoría dislexia): en dislexia las filas son más altas y la letra más ancha (más filas de dos líneas),
+         así que caben menos por hoja; se reparten en más páginas de índice para que no se salga. Fácil y normal no cambian. */
+      var lim = Math.floor(presupuesto(C, 80) / (C.cfg.dislexia ? 1.95 : 1.6)), p0 = (pg.parte || 0) * lim;
       /* (10-10-2026) índice corto: las filas se separan por igual hasta ocupar la hoja (tope 5,5 mm de aire por fila), sin cambiar su contenido */
       var px = 25.4 / 96, Lh = C.fs * (C.cfg.facil || C.cfg.dislexia ? 1.8 : 1.5) * px, cpl = Math.max(16, Math.floor((C.papel.w - 34 - 40) / (C.fs * (C.cfg.dislexia ? .6 : .53) * px)));
       var vis = filas.slice(p0, p0 + lim), n = vis.length, natural = vis.reduce(function (t, f) { return t + Math.ceil(String(f[1]).length / cpl) * Lh + .3; }, 0);
@@ -1226,7 +1228,7 @@
     var front = [{ tipo: 'portada' }];
     if (N >= 20) front.push({ tipo: 'creditos' });
     if (N >= 12 && o.indice !== false) {
-      var lim = Math.floor(presupuesto(C, 80) / 1.6), ni = Math.max(1, Math.min(Math.ceil((o.indiceFilas || 1) / lim), Math.floor(N / 25) + 1));
+      var lim = Math.floor(presupuesto(C, 80) / (C.cfg.dislexia ? 1.95 : 1.6)), ni = Math.max(1, Math.min(Math.ceil((o.indiceFilas || 1) / lim), Math.floor(N / 25) + 1));
       for (var ii = 0; ii < ni; ii++) front.push({ tipo: 'indice', parte: ii });
     }
     if (N >= 24 && o.intro) front.push(o.intro);
