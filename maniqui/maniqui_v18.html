@@ -2387,9 +2387,11 @@ function sisAncla(r, y, stop) {
 }
 /* dirección del mechón elevado, regla 0–225°: 0 cae, 90 sale horizontal, 180 arriba, 225 pasado.
    Se eleva en el plano que se ve: atrás hacia atrás, delante hacia su lado y la cara. */
-function sisDir(r, g, zona) {
-  const a = g * Math.PI / 180, x = portraitHair.path(r, 1).x;
-  const o = zona === 'atras' ? sisV(Math.sign(x) * Math.min(.45, Math.abs(x) / .2), 0, -1).normalize() : sisV((r.side || Math.sign(x) || 1) * .75, 0, .66).normalize();
+function sisDir(r, g, zona, lado, horiz) {
+  const a = g * Math.PI / 180, x = portraitHair.path(r, 1).x, sd = lado || r.side || Math.sign(x) || 1;
+  /* 5-11-2026 (Fátima): el mechón vertical se saca en el plano que ve la cámara: atrás hacia su lado, delante hacia la cara.
+     En liso extremo (horizontal) atrás sale hacia atrás. */
+  const o = zona === 'atras' ? (horiz ? sisV(0, 0, -1) : sisV(sd, 0, -.22).normalize()) : sisV(sd * .35, 0, .94).normalize();
   return sisV(0, -1, 0).multiplyScalar(Math.cos(a)).add(o.multiplyScalar(Math.sin(a))).normalize();
 }
 
@@ -2446,20 +2448,26 @@ function sisPlan(D) {
     for (let k = 0; k < n; k++) {
       const cap = capas[k] || capas[capas.length - 1], g = pilas[k] || 0, enCapa = lista.filter(r => capaDe(r, n) === k);
       if (!enCapa.length) continue;
-      const enH = horiz || !g;          /* liso extremo, o capa a 0°: horizontal, toda la capa a la vez */
+      /* 5-11-2026 (Fátima): «la única forma de cortar el liso extremo es recto, en horizontal; en cualquier otro cabello
+         todo es vertical, también el bob y los rectos». Horizontal solo con liso extremo. */
+      const enH = !!horiz;
       let tajadas;
       if (enH) tajadas = [enCapa];
       else {
-        /* tajadas verticales del centro hacia los lados (atrás 4; delante 2 por lado) */
-        const orden = enCapa.slice().sort((a, b) => xFin(a) - xFin(b)), nt = nombre === 'atras' ? 4 : 4, tam = Math.ceil(orden.length / nt);
+        /* secciones verticales estrechas, del centro hacia los lados (atrás 6; delante 3 por lado) */
+        const orden = enCapa.slice().sort((a, b) => xFin(a) - xFin(b)), nt = 6, tam = Math.ceil(orden.length / nt);
         tajadas = []; for (let i = 0; i < nt; i++) { const s = orden.slice(i * tam, (i + 1) * tam); if (s.length) tajadas.push(s); }
         const c = (tajadas.length - 1) / 2; tajadas = tajadas.map((s, i) => [s, Math.abs(i - c)]).sort((a, b) => a[1] - b[1]).map(z => z[0]);
       }
+      /* raíces de la sección: en vertical, una debajo de otra, de la raíz de esta capa a la de la siguiente */
+      const yBajo = SIS_CY + cap.raizY * SIS_CM, ySig = capas[k + 1] ? SIS_CY + capas[k + 1].raizY * SIS_CM : yBajo + .025;
+      const raices = sec => { const m = new Map(), o = sec.slice().sort((a, b) => a.h - b.h); o.forEach((r, j) => m.set(r, enH ? yBajo : yBajo + (ySig - yBajo) * (o.length > 1 ? j / (o.length - 1) : .5) * .9)); return m; };
       tajadas.forEach((s, i) => paso({
-        tipo: 'mechon', zona: nombre, capa: k, n, cap, g: enH ? 0 : g, horiz: enH, recs: s, i, nt: tajadas.length, dur: enH ? 3.6 : 3,
-        cam: nombre === 'atras' ? (k < 2 ? 'nape' : 'cutBack') : (xFin(s[0]) < 0 ? 'cutLeft' : 'cutRight'),
-        t: (nombre === 'atras' ? 'Atrás' : 'Delante') + ' · capa ' + (k + 1) + ' de ' + n + (enH ? ' · horizontal' : ' · mechón ' + (i + 1) + ' de ' + tajadas.length) + ' · ' + (enH ? 0 : g) + '°',
-        texto: i ? '' : (nombre === 'atras' ? (k ? '' : (D.textos.capas || '')) + ' Capa ' + (k + 1) + ' a ' + (enH ? 0 : g) + ' grados' + (enH ? ', en horizontal.' : ', en vertical: se saca el mechón, se sujeta entre los dedos y se corta.')
+        tipo: 'mechon', zona: nombre, capa: k, n, cap, g, horiz: enH, recs: s, i, nt: tajadas.length, dur: enH ? 3.6 : 3.2,
+        yA: raices(s), lado: Math.sign(s.reduce((a, r) => a + xFin(r), 0)) || (i % 2 ? -1 : 1),
+        cam: nombre === 'atras' ? 'cutBack' : (s.reduce((a, r) => a + xFin(r), 0) < 0 ? 'cutLeft' : 'cutRight'),
+        t: (nombre === 'atras' ? 'Atrás' : 'Delante') + ' · capa ' + (k + 1) + ' de ' + n + (enH ? ' · horizontal' : ' · mechón ' + (i + 1) + ' de ' + tajadas.length) + ' · ' + g + '°',
+        texto: i ? '' : (nombre === 'atras' ? (k ? '' : (D.textos.capas || '')) + ' Capa ' + (k + 1) + ' a ' + g + ' grados' + (enH ? ', en horizontal.' : ', en vertical: se saca el mechón, se sujeta entre los dedos y se corta.')
           : (k ? 'Capa ' + (k + 1) + ' de delante.' : (D.textos.frente || 'Ahora delante.')))
       }));
     }
@@ -2470,7 +2478,7 @@ function sisPlan(D) {
   if (D.nivelar) {
     /* delante se empareja con la línea de atrás: a 0°, a la misma altura que quedó atrás */
     const capN = { raizY: (D.capas[0] || {}).raizY || -3, largo: (D.capas[0] || {}).largo || 20 };
-    zona('delante', delante, 1, [capN], [0], true);
+    zona('delante', delante, 1, [capN], [0], D.liso);
   } else zona('delante', delante, nD, D.capasF && D.capasF.length ? D.capasF : D.capas, D.pilaF && D.pilaF.length ? D.pilaF : D.pila, D.liso);
   if (D.fleco) paso({ tipo: 'fleco', dur: 4, cam: 'faceCheck', t: D.fleco === 'pollina' ? 'Pollina al ras de la ceja' : 'Flequillo de lado', texto: D.fleco === 'pollina' ? 'La pollina se separa delante y se corta al ras de la ceja.' : 'El flequillo de lado se saca más abajo de los ojos.' });
   paso({ tipo: 'queda', dur: 4, cam: 'cutLeft', t: 'Cómo queda · de lado', texto: D.textos.queda || 'Así queda el corte.' });
@@ -2503,10 +2511,11 @@ function sisDibuja() {
   const lineas = [];
   if (P.tipo === 'mechon') {
     const lift = sisEase(u / .25), corte = sisEase((u - .42) / .16), cae = sisEase((u - .66) / .28);
-    let cp = null, dirM = null;
+    let cp = null, dirM = null; const raizP = [];
     P.recs.forEach((r, i) => {
-      const st0 = 1, stF = SIS.fin.get(r), yA = SIS_CY + P.cap.raizY * SIS_CM, tA = sisAncla(r, yA, st0);
-      const dir = sisDir(r, P.g, P.zona);
+      const st0 = 1, stF = SIS.fin.get(r), yA = P.yA ? P.yA.get(r) : SIS_CY + P.cap.raizY * SIS_CM, tA = sisAncla(r, yA, st0);
+      const dir = sisDir(r, P.g, P.zona, P.lado, P.horiz);
+      raizP.push(portraitHair.path(r, tA));
       const Pl = sisPuntos(r, st0), Lt = sisLargo(Pl.slice(Math.round(tA * N_SIS))), Lc = Math.max(.01, sisLargo(sisPuntos(r, stF).slice(Math.round(tA / stF * N_SIS))));
       const largo = Lt + (Lc - Lt) * corte;
       let pts;
@@ -2517,10 +2526,13 @@ function sisDibuja() {
       if (cae < .6) for (let j = 1; j < pts.length; j++) lineas.push(pts[j - 1], pts[j]);
       if (i === Math.floor(P.recs.length / 2)) { cp = portraitHair.path(r, tA).clone().add(dir.clone().multiplyScalar(Lc)); dirM = dir; }
     });
+    if (raizP.length > 1 && u < .95) { const o = raizP.slice().sort((a, b) => P.horiz ? a.x - b.x : b.y - a.y); for (let j = 1; j < o.length; j++) lineas.push(o[j - 1], o[j]); }
     if (cp && u > .25 && u < .7) {
       /* dedos sujetando el mechón, del lado de la raíz; la tijera corta por fuera */
       /* el mechón se abre a lo ancho (x atrás, z delante); dedos y tijera van en la otra dirección del mechón: vertical o, en horizontal, a lo ancho */
-      const ancho = P.zona === 'atras' ? sisV(1, 0, 0) : sisV(0, 0, 1), eje = P.horiz ? ancho : ancho.clone().cross(dirM).normalize();
+      /* vertical: dedos y tijera a lo largo de la sección (vertical, perpendicular al mechón); horizontal: a lo ancho */
+      const ancho = P.zona === 'atras' ? sisV(1, 0, 0) : sisV(0, 0, 1), up = sisV(0, 1, 0), vEje = up.clone().sub(dirM.clone().multiplyScalar(up.dot(dirM)));
+      const eje = P.horiz ? ancho : (vEje.lengthSq() > 1e-4 ? vEje.normalize() : ancho.clone().cross(dirM).normalize());
       G.dedos.forEach((d, i) => { d.visible = true; d.position.copy(cp).add(dirM.clone().multiplyScalar(-.022 - i * .012)); d.quaternion.setFromUnitVectors(sisV(0, 1, 0), eje); });
       G.tij.visible = true; G.tij.position.copy(cp).add(dirM.clone().multiplyScalar(.012));
       G.tij.quaternion.setFromUnitVectors(sisV(0, 1, 0), eje);
