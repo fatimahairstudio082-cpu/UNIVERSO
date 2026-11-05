@@ -34,8 +34,11 @@ async def main():
                 r = await pg.evaluate("""async (e) => {
                   const D = window.EU_DIAGRAMA, R = e.R ? D.libre(e.R) : e.corte, E = await D.construir(R); if (!E) return null;
                   const quiero = e.vista === 'frente' ? 'queda_frente' : 'queda_nuca';
-                  let s = E.escenas.filter(x => x.tipo === quiero)[0] || E.escenas.filter(x => /^queda/.test(x.tipo || ''))[0] || E.escenas[E.escenas.length - 1];
-                  return { foto: D.foto(s, 640, 0.8), t: s.t, pasos: E.escenas.map(x => [x.t, x.texto]) };
+                  // cortos (pixie, garzón, mixie): el resultado corto LIMPIO, sin las chapas de elevación encima del cabello
+                  let s = (e.vista !== 'frente' && E.escenas.filter(x => x.tipo === 'queda_corto_nuca')[0])
+                    || E.escenas.filter(x => x.tipo === quiero)[0] || E.escenas.filter(x => /^queda/.test(x.tipo || ''))[0] || E.escenas[E.escenas.length - 1];
+                  // prog 1: el fotograma FINAL (a 0.8 la animación mechón a mechón aún no había soltado el cabello largo: salía corto)
+                  return { foto: D.foto(s, 640, 1), t: s.t, pasos: E.escenas.map(x => [x.t, x.texto]) };
                 }""", e)
                 if not r or not r.get('foto'): hechos[clave] = None; continue
                 open(os.path.join(OUT, clave + '.jpg'), 'wb').write(base64.b64decode(r['foto'].split(',')[1]))
