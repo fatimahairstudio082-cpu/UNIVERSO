@@ -103,6 +103,7 @@
   }
   function claveR(R) { return JSON.stringify([R.id, R.n, R.cab, R.liso, R.linea, R.nivelar, R.fleco, R.capas && R.capas.pila, R.frente && R.frente.pila]); }
   function rearmar() {
+    [window.EU_PELU_LIBRO_DG, window.EU_PELU_RECETA].forEach(function (m) { if (m && m.limpiar) { try { m.limpiar(); } catch (e) { } } });
     document.querySelectorAll('editorial-escolar').forEach(function (e) { if (e.cfg && e.cfg.materia === 'pelu' && e.programar) e.programar(); });
   }
   function oculto() {
