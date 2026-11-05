@@ -10,7 +10,7 @@
 (function () {
   'use strict';
   if (window.EU_MANIQUI_PUENTE) return;
-  var URL = 'maniqui/maniqui_v18.html?v=1799100000004';
+  var URL = 'maniqui/maniqui_v18.html?v=1799100000005';
   var PERFIL = { recta: 'recto', redondeada: 'redondo', u: 'u', v: 'v', a: 'v' };
   var ONDA = { ondulado: 0.45, rizado: 0.8, afro: 1, liso: 0, liso_extremo: 0, fino: 0, poblado: 0.15 };
   var FASE = { todo: 'inicio', seccion: 'divisiones', particion: 'divisiones', guia: 'atras', capas: 'atras', lateral: 'delante', frente: 'delante', dos: 'atras' };
@@ -85,5 +85,109 @@
 
   setInterval(function () { document.querySelectorAll('guias-3d:not([aria-hidden])').forEach(revisar); }, 700);
 
-  window.EU_MANIQUI_PUENTE = { datos: datos, url: URL };
+  /* ───── Libro y curso: las imágenes de corte salen del maniquí V18 (5-11-2026, Fátima) ─────
+     EU_DIAGRAMA.foto(e) es la imagen de cada escena de corte en el libro (pe_clase, pe_guia3d, pe_diagrama…).
+     Si la escena es de un corte, se devuelve el fotograma del V18 del mismo momento del corte, con el mismo tamaño.
+     Los fotogramas se hacen una vez por corte en un V18 oculto; la primera vez el libro sale con la imagen de antes
+     y el Editorial vuelve a armar cuando están listos (como hace el maniquí de EU_DIAGRAMA). */
+  var FOTOS = {}, COLA = [], PEDIDO = {}, OCULTO = null, OCUP = 0, USO = 0;
+  /* momento del corte en el V18 para cada escena del motor */
+  function momento(tipo) {
+    tipo = String(tipo || '');
+    var T = [[/^lavado/, 'inicio'], [/^(seccion|oblicua)/, 'divisiones'], [/^(particion|coronilla)/, 'particion'], [/^guia/, 'guia'],
+      [/^capas/, 'capas'], [/^angulos/, 'angulos'], [/^error_/, 'error'], [/^(peinado_nuca|pix)/, 'peinado_nuca'], [/^lateral/, 'lado'],
+      [/^peinado_lateral/, 'peinado_lado'], [/^frente/, 'delante'], [/^peinado_frente/, 'peinado_frente'], [/^emparejar/, 'emparejar'],
+      [/^pulir/, 'pulir'], [/^queda_(corto_)?lateral/, 'queda_lado'], [/^queda_(corto_)?nuca/, 'queda_atras'], [/^queda_frente/, 'queda_frente']];
+    for (var i = 0; i < T.length; i++) if (T[i][0].test(tipo)) return T[i][1];
+    return null;
+  }
+  function claveR(R) { return JSON.stringify([R.id, R.n, R.cab, R.liso, R.linea, R.nivelar, R.fleco, R.capas && R.capas.pila, R.frente && R.frente.pila]); }
+  function rearmar() {
+    document.querySelectorAll('editorial-escolar').forEach(function (e) { if (e.cfg && e.cfg.materia === 'pelu' && e.programar) e.programar(); });
+  }
+  function oculto() {
+    if (OCULTO) return OCULTO;
+    OCULTO = document.createElement('iframe'); OCULTO.src = URL; OCULTO.setAttribute('aria-hidden', 'true'); OCULTO.tabIndex = -1;
+    OCULTO.style.cssText = 'position:fixed;left:-20000px;top:0;width:1340px;height:760px;border:0;pointer-events:none';
+    document.body.appendChild(OCULTO); return OCULTO;
+  }
+  /* copia el lienzo del maniquí (el del iframe) a un lienzo de esta página */
+  function copia(src) { var c = document.createElement('canvas'); c.width = src.width; c.height = src.height; c.getContext('2d').drawImage(src, 0, 0); return c; }
+  function hacer(it, w) {
+    var S = w.CorteMotor.sistema, F = {};
+    w.CorteMotor.receta(datos(it.R, null));
+    var pl = S.plan(), mech = pl.filter(function (p) { return p.tipo === 'mechon'; });
+    var at = mech.filter(function (p) { return p.zona === 'atras'; }), de = mech.filter(function (p) { return p.zona === 'delante'; });
+    var qu = pl.filter(function (p) { return p.tipo === 'queda'; }), fin = S.estado().total;
+    var en = function (p, u) { return p ? p.t0 + p.dur * u : 0; };
+    var de0 = function (f) { return de[Math.min(de.length - 1, Math.floor(de.length * f))]; }, at0 = function (f) { return at[Math.min(at.length - 1, Math.floor(at.length * f))]; };
+    var div = pl.filter(function (p) { return p.tipo === 'divisiones'; })[0];
+    /* un momento distinto del corte para cada tipo de escena: así no se repite la misma imagen en el libro */
+    var M = {
+      inicio: [en(pl[0], 0.9), 'busto'], divisiones: [en(div, 0.95), 'cutBack'], particion: [en(div, 0.95), 'coronilla'],
+      guia: [en(at0(0), 0.38), 'cutBack'], capas: [en(at0(0.35), 0.38), 'cutBack'], angulos: [en(at0(0.55), 0.4), 'cutLeft'],
+      error: [en(at0(0.75), 0.5), 'cutBack'], peinado_nuca: [en(at0(0.95), 0.62), 'cutBack'],
+      lado: [en(de0(0), 0.38), null], peinado_lado: [en(de0(0.3), 0.45), null], delante: [en(de0(0.6), 0.38), 'faceCheck'],
+      peinado_frente: [en(de0(0.85), 0.5), 'faceCheck'], emparejar: [en(de0(0.95), 0.7), null],
+      pulir: [fin, 'cutRight'], queda_lado: [fin, 'cutLeft'], queda_atras: [fin, 'cutBack'], queda_frente: [fin, 'busto']
+    };
+    Object.keys(M).forEach(function (k) { if (M[k][0] || k === 'inicio') F[k] = copia(S.lienzo(M[k][0], M[k][1])); });
+    S.salir();
+    return F;
+  }
+  function siguiente() {
+    if (OCUP || !COLA.length) return;
+    OCUP = 1;
+    var it = COLA.shift(), fr = oculto(), n = 0;
+    (function esperar() {
+      var w = null; try { w = fr.contentWindow; } catch (e) { w = null; }
+      if (!(w && w.CorteMotor && w.CorteMotor.sistema && w.CorteMotor.sistema.lienzo)) {
+        if (++n > 300) { OCUP = 0; return; }
+        return setTimeout(esperar, 100);
+      }
+      try { FOTOS[it.k] = hacer(it, w); } catch (e) { console.warn('Maniquí V18 · fotogramas', e); FOTOS[it.k] = {}; }
+      OCUP = 0;
+      if (COLA.length) setTimeout(siguiente, 20); else rearmar();
+    })();
+  }
+  function pedir(R, k) { if (PEDIDO[k]) return; PEDIDO[k] = 1; COLA.push({ R: R, k: k }); setTimeout(siguiente, 0); }
+  /* fotograma del V18 recortado al mismo encuadre que pide la escena (alto/ancho del recorte del motor) */
+  function recorte(src, w, rel) {
+    var h = Math.round(w * rel), c = document.createElement('canvas'); c.width = w; c.height = h;
+    var sw = src.width, sh = src.height, r0 = sh / sw, cw, ch;
+    if (r0 > rel) { cw = sw; ch = sw * rel; } else { ch = sh; cw = sh / rel; }
+    var x = c.getContext('2d'); x.fillStyle = '#14171f'; x.fillRect(0, 0, w, h);
+    x.drawImage(src, (sw - cw) / 2, (sh - ch) / 2, cw, ch, 0, 0, w, h);
+    return c;
+  }
+  function engancharDG() {
+    var DG = window.EU_DIAGRAMA;
+    if (!DG || DG._euV18) return !!DG;
+    DG._euV18 = true;
+    var marca = function (E) { if (E && E.escenas && E.R) E.escenas.forEach(function (e) { e._R = E.R; }); return E; };
+    var cy = DG.construirYa, co = DG.construir, fo = DG.foto;
+    DG.construirYa = function () { return marca(cy.apply(this, arguments)); };
+    DG.construir = function () { var p = co.apply(this, arguments); return p && p.then ? p.then(marca) : marca(p); };
+    DG.foto = function (e, w, cal, prog) {
+      var R = e && e._R, m = R && !window.EU_MANIQUI_PUENTE_OFF && momento(e.tipo);
+      if (m) {
+        var k = claveR(R), F = FOTOS[k];
+        if (F && F[m]) {
+          try { var c = (e.anim && e.anim.crop) || [0, 0, 900, 720]; USO++; return recorte(F[m], w || 640, c[3] / c[2]).toDataURL('image/jpeg', cal || 0.8); } catch (er) { }
+        } else if (!F) pedir(R, k);
+      }
+      return fo.apply(this, arguments);
+    };
+    return true;
+  }
+  /* el Editorial vuelve a cargar b6_pelu_diagrama.js (lista diferida) y crea otro EU_DIAGRAMA: se engancha de nuevo */
+  engancharDG();
+  try {
+    var dgActual = window.EU_DIAGRAMA;
+    Object.defineProperty(window, 'EU_DIAGRAMA', { configurable: true, enumerable: true,
+      get: function () { return dgActual; },
+      set: function (v) { dgActual = v; try { engancharDG(); } catch (e) { } } });
+  } catch (e) { setInterval(engancharDG, 400); }
+
+  window.EU_MANIQUI_PUENTE = { datos: datos, url: URL, fotos: function (R) { return FOTOS[claveR(R)] || null; }, pedir: function (R) { pedir(R, claveR(R)); }, momento: momento, pendientes: function () { return COLA.length + OCUP; }, usados: function () { return USO; } };
 })();

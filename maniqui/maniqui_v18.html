@@ -2595,6 +2595,13 @@ CorteMotor.sistema = {
   plan() { return SIS.plan.map(p => ({ tipo: p.tipo, zona: p.zona, capa: p.capa, g: p.g, horiz: !!p.horiz, n: p.recs ? p.recs.length : 0, t: p.t, t0: p.t0, dur: p.dur })); },
   foto(t, ancho) { this.seek(t); renderer.render(scene, camera); const c = renderer.domElement, w = ancho || 960, h = Math.round(w * c.height / c.width), o = document.createElement('canvas'); o.width = w; o.height = h; o.getContext('2d').drawImage(c, 0, 0, w, h); return o.toDataURL('image/jpeg', .86); },
   cam: goCam,
+  /* fotograma para el libro y el curso: instante t, cámara de su paso (o la que se pida) puesta de golpe; devuelve el lienzo del maniquí */
+  lienzo(t, camNombre) {
+    this.seek(t); const k = SIS.plan.findIndex(p => SIS.t < p.t0 + p.dur), P = SIS.plan[k < 0 ? SIS.plan.length - 1 : k];
+    const c = CAMS[camNombre || (P && P.cam) || 'busto'];
+    if (c) { camTween = null; camera.position.set(...c[0]); controls.target.set(...c[1]); controls.update(); }
+    $('sisReloj').style.display = 'none'; renderer.render(scene, camera); return renderer.domElement;
+  },
   pelo: () => portraitHair
 };
 
