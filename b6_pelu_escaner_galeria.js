@@ -33,7 +33,7 @@
       try { fetch(DIR_M + e.man).then(function (x) { return x.ok ? x.blob() : null; }).then(function (b) { if (!b) return; var fr = new FileReader(); fr.onload = function () { MAN[e.man] = fr.result; }; fr.readAsDataURL(b); }).catch(function () { }); } catch (er) { }
     });
   }, 1500);
-  function srcMan(e) { return MAN[e.man] || DIR_M + e.man; }
+  function srcMan(e) { var V = window.EU_MANIQUI_PUENTE, v = V && V.manV18 && V.manV18(e); return v || MAN[e.man] || DIR_M + e.man; } /* V18 primero (5-11-2026) */
   function gwId(e) { var GA = window.EU_PELU_GALERIA; return GA && GA.id ? GA.id(e.n) : 'pe_gw_' + e.n; }
   function srcFoto(e) { var GA = window.EU_PELU_GALERIA; return (GA && GA.dato && GA.dato(gwId(e))) || DIR_F + e.archivo; }
   function unidad(e) {

@@ -49,7 +49,9 @@
     var fr = document.createElement('iframe');
     fr.src = URL; fr.title = 'Maniquí realista · Guías 3D'; fr.setAttribute('allow', 'autoplay');
     fr.style.cssText = 'display:block;width:100%;height:min(84vh,860px);min-height:560px;border:0;background:#14171f';
-    el.cv.style.display = 'none';
+    /* 5-11-2026 (Fátima): el V18 suma, no reemplaza. El lienzo del motor de Guías 3D no se oculta:
+       con 📐 Diagramación encendida (también «Ver mi corte», Escáner y Laboratorio) se ve el motor de siempre
+       sobre los fondos del V18; apagada, el V18 en 3D (ver revisar). */
     marco.appendChild(fr);
     el._v18 = { fr: fr, clave: '', modo: '' };
   }
@@ -57,6 +59,8 @@
 
   function revisar(el) {
     montar(el);
+    /* encendida: el motor de Guías 3D con todas sus escenas (guía móvil, reloj, transportador); apagada: el V18 */
+    if (el._v18) { var on = !!(el._dg && el._dg.on); el.cv.style.display = on ? '' : 'none'; el._v18.fr.style.display = on ? 'none' : 'block'; }
     var w = win(el), D3 = window.EU_G3D_DIAGRAMA; if (!w || !D3) return;
     var o = D3.recetaDe(el); if (!o || !o.R) return;
     var R = o.R, clave = JSON.stringify([R.id, R.n, R.cab, R.liso, R.linea, R.capas && R.capas.pila, R.frente && R.frente.pila, !!o.E]);
@@ -65,7 +69,7 @@
     var st = el._dg, m = st && st.on ? (st.modo || 'todo') : '';
     if (m !== el._v18.modo) {
       el._v18.modo = m;
-      if (m) { var f = FASE[m] || (/^queda/.test(m) ? 'queda' : /^(peinado|pix)/.test(m) ? 'atras' : 'inicio'); try { w.CorteMotor.sistema.fase(f); } catch (e) { } }
+      if (m) { try { w.CorteMotor.sistema.pause(); } catch (e) { } }
     }
   }
 
@@ -237,5 +241,33 @@
       set: function (v) { dgActual = v; try { engancharDG(); } catch (e) { } } });
   } catch (e) { setInterval(engancharDG, 400); }
 
-  window.EU_MANIQUI_PUENTE = { datos: datos, url: URL, fotos: function (R) { return FOTOS[claveR(R)] || null; }, pedir: function (R) { pedir(R, claveR(R)); }, momento: momento, pendientes: function () { return COLA.length + OCUP; }, usados: function () { return USO; } };
+  /* escáner de cortes (5-11-2026, Fátima: «fuera el maniquí viejo»): el maniquí de cada imagen es el fotograma
+     «cómo queda» del corte en el V18 (mismo corte y vista que la imagen guardada, que queda solo de respaldo) */
+  var MANV = {};
+  function manV18(e) {
+    var DG = window.EU_DIAGRAMA; if (!e || !DG || window.EU_MANIQUI_PUENTE_OFF || !DG.construirYa) return null;
+    var k = e.man || JSON.stringify([e.corte, e.R, e.vista]);
+    if (MANV[k]) return MANV[k];
+    try {
+      var E = DG.construirYa(e.R ? DG.libre(e.R) : e.corte); if (!E || !E.escenas) return null;
+      var es = E.escenas, quiero = e.vista === 'frente' ? 'queda_frente' : 'queda_nuca';
+      var s = es.filter(function (x) { return x.tipo === quiero; })[0] || es.filter(function (x) { return /^queda/.test(x.tipo || ''); })[0];
+      if (!s || !s._R || !FOTOS[claveR(s._R)]) { if (s && s._R) pedir(s._R, claveR(s._R)); return null; }
+      var u = DG.foto(s, 640, 0.82, 1); if (u) MANV[k] = u; return u || null;
+    } catch (er) { return null; }
+  }
+  /* pasos de Guías 3D como dibujos (pe_g3d_*): el paso k de n del corte = una escena del corte en el V18, repartidas en orden */
+  function pasoV18(corte, cab, k, n) {
+    var DG = window.EU_DIAGRAMA; if (!DG || window.EU_MANIQUI_PUENTE_OFF || !DG.construirYa || !DG.receta) return null;
+    var key = 'g3d|' + corte + '|' + (cab || '') + '|' + k + '|' + n; if (MANV[key]) return MANV[key];
+    try {
+      var R = DG.receta(corte, cab); if (!R) return null;
+      var E = DG.construirYa(R); if (!E || !E.escenas) return null;
+      var es = E.escenas.filter(function (x) { return x._R && momento(x.tipo); }); if (!es.length) return null;
+      var s = es[Math.min(es.length - 1, Math.round(k * (es.length - 1) / Math.max(1, (n || 4) - 1)))];
+      if (!FOTOS[claveR(s._R)]) { pedir(s._R, claveR(s._R)); return null; }
+      var u = DG.foto(s, 640, 0.86, 1); if (u) MANV[key] = u; return u || null;
+    } catch (er) { return null; }
+  }
+  window.EU_MANIQUI_PUENTE = { pasoV18: pasoV18, manV18: manV18, datos: datos, url: URL, fotos: function (R) { return FOTOS[claveR(R)] || null; }, pedir: function (R) { pedir(R, claveR(R)); }, momento: momento, pendientes: function () { return COLA.length + OCUP; }, usados: function () { return USO; } };
 })();
