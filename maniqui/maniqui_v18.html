@@ -2442,8 +2442,8 @@ function sisPlan(D) {
   const punta = (r, cap) => SIS_CY + (cap.raizY - cap.largo) * SIS_CM + cutDelta(prof, Math.min(1, Math.abs(xFin(r)) / .16));
   const plan = [];
   const paso = (o) => { o.dur = o.dur || 3; plan.push(o); };
-  paso({ tipo: 'inicio', dur: 3, cam: 'busto', t: 'Antes de cortar', texto: D.textos.lavado || 'Primero se lava el cabello, se seca con la toalla y se pone la capa.' });
-  paso({ tipo: 'divisiones', dur: 5, cam: 'cutBack', t: 'Divisiones', texto: D.textos.seccion || 'Raya central de la frente a la nuca, de oreja a oreja por la coronilla y una línea en la nuca.' });
+  paso({ tipo: 'inicio', dur: 3, cam: 'busto', t: 'Antes de cortar', texto: D.textos.lavado || 'Antes de empezar lavamos el cabello, lo secamos con la toalla y ponemos la capa.' });
+  paso({ tipo: 'divisiones', dur: 5, cam: 'cutBack', t: 'Divisiones', texto: D.textos.seccion || 'Hacemos las divisiones: la raya del centro de la frente a la nuca, la línea de oreja a oreja por la coronilla y una línea en la nuca.' });
   const zona = (nombre, lista, n, capas, pilas, horiz) => {
     for (let k = 0; k < n; k++) {
       const cap = capas[k] || capas[capas.length - 1], g = pilas[k] || 0, enCapa = lista.filter(r => capaDe(r, n) === k);
@@ -2467,21 +2467,21 @@ function sisPlan(D) {
         yA: raices(s), lado: Math.sign(s.reduce((a, r) => a + xFin(r), 0)) || (i % 2 ? -1 : 1),
         cam: nombre === 'atras' ? 'cutBack' : (s.reduce((a, r) => a + xFin(r), 0) < 0 ? 'cutLeft' : 'cutRight'),
         t: (nombre === 'atras' ? 'Atrás' : 'Delante') + ' · capa ' + (k + 1) + ' de ' + n + (enH ? ' · horizontal' : ' · mechón ' + (i + 1) + ' de ' + tajadas.length) + ' · ' + g + '°',
-        texto: i ? '' : (nombre === 'atras' ? (k ? '' : (D.textos.capas || '')) + ' Capa ' + (k + 1) + ' a ' + g + ' grados' + (enH ? ', en horizontal.' : ', en vertical: se saca el mechón, se sujeta entre los dedos y se corta.')
-          : (k ? 'Capa ' + (k + 1) + ' de delante.' : (D.textos.frente || 'Ahora delante.')))
+        texto: i ? '' : (nombre === 'atras' ? (k ? '' : (D.textos.capas || '')) + ' Vamos con la capa ' + (k + 1) + ', a ' + g + ' grados. ' + (enH ? 'Aquí va en horizontal: tomamos toda la capa a la vez.' : 'Sacamos el mechón en vertical, lo sujetamos entre los dedos y cortamos.')
+          : (k ? 'Seguimos con la capa ' + (k + 1) + ' de delante.' : (D.textos.frente || 'Ahora pasamos a la parte de delante.')))
       }));
     }
   };
   const atras = recs.filter(r => sisZona(r) === 'atras'), delante = recs.filter(r => sisZona(r) === 'delante');
   zona('atras', atras, nA, D.capas, D.pila, D.liso);
-  paso({ tipo: 'texto', dur: 2.5, cam: 'cutLeft', t: 'Línea de oreja a oreja', texto: 'Atrás está terminado. Ahora delante de la línea de oreja a oreja.' });
+  paso({ tipo: 'texto', dur: 2.5, cam: 'cutLeft', t: 'Línea de oreja a oreja', texto: 'Listo, atrás ya está. Ahora trabajamos lo que queda delante de la línea de oreja a oreja.' });
   if (D.nivelar) {
     /* delante se empareja con la línea de atrás: a 0°, a la misma altura que quedó atrás */
     const capN = { raizY: (D.capas[0] || {}).raizY || -3, largo: (D.capas[0] || {}).largo || 20 };
     zona('delante', delante, 1, [capN], [0], D.liso);
   } else zona('delante', delante, nD, D.capasF && D.capasF.length ? D.capasF : D.capas, D.pilaF && D.pilaF.length ? D.pilaF : D.pila, D.liso);
   if (D.fleco) paso({ tipo: 'fleco', dur: 4, cam: 'faceCheck', t: D.fleco === 'pollina' ? 'Pollina al ras de la ceja' : 'Flequillo de lado', texto: D.fleco === 'pollina' ? 'La pollina se separa delante y se corta al ras de la ceja.' : 'El flequillo de lado se saca más abajo de los ojos.' });
-  paso({ tipo: 'queda', dur: 4, cam: 'cutLeft', t: 'Cómo queda · de lado', texto: D.textos.queda || 'Así queda el corte.' });
+  paso({ tipo: 'queda', dur: 4, cam: 'cutLeft', t: 'Cómo queda · de lado', texto: D.textos.queda || 'Y así nos queda el corte terminado.' });
   paso({ tipo: 'queda', dur: 4, cam: 'cutBack', t: 'Cómo queda · atrás', texto: '' });
   paso({ tipo: 'queda', dur: 4, cam: 'busto', t: 'Cómo queda · de frente', texto: '' });
   /* largo final de cada mechón (se calcula una vez) */

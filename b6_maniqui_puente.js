@@ -10,7 +10,7 @@
 (function () {
   'use strict';
   if (window.EU_MANIQUI_PUENTE) return;
-  var URL = 'maniqui/maniqui_v18.html?v=1799100000005';
+  var URL = 'maniqui/maniqui_v18.html?v=1799100000006';
   var PERFIL = { recta: 'recto', redondeada: 'redondo', u: 'u', v: 'v', a: 'v' };
   var ONDA = { ondulado: 0.45, rizado: 0.8, afro: 1, liso: 0, liso_extremo: 0, fino: 0, poblado: 0.15 };
   var FASE = { todo: 'inicio', seccion: 'divisiones', particion: 'divisiones', guia: 'atras', capas: 'atras', lateral: 'delante', frente: 'delante', dos: 'atras' };
