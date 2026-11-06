@@ -674,6 +674,5 @@
   }
   if (!engancharLibro()) (function espera(n) { if (!engancharLibro() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
 
-  window.EU_PELU_RECETA = { R: R, curso: curso, pasos: pasos, hojas: hojas, transiciones: transiciones, libro: libro,
-    limpiar: function () { MANI = {}; } };   /* 5-11-2026: imágenes nuevas del maniquí V18 (b6_maniqui_puente.js) */
+  window.EU_PELU_RECETA = { R: R, curso: curso, pasos: pasos, hojas: hojas, transiciones: transiciones, libro: libro };
 })();
