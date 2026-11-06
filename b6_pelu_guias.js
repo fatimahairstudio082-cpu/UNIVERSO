@@ -27,13 +27,16 @@
   }
   function render(corte, cab, k) {
     var clave = corte + '|' + (cab || '') + '|' + k; if (CACHE[clave]) return CACHE[clave];
+    /* 5-11-2026 (Fátima): el paso sale del maniquí V18 (escena del corte); el visor de antes solo de respaldo */
+    var V = window.EU_MANIQUI_PUENTE, v = V && V.pasoV18 && V.pasoV18(corte, cab, k, ((CO.guiaDe(corte, cab) || {}).pasos || []).length || 4); if (v) return (CACHE[clave] = v);
     var e = motor(); if (!e || !e.laminaURL) return '';
     suelta();
     try {
       if (CARGADA !== corte + '|' + cab) { e.cargarGuia(CO.guiaDe(corte, cab)); CARGADA = corte + '|' + cab; }
-      CACHE[clave] = e.laminaURL(k, 'image/jpeg', 0.86);
+      var img = e.laminaURL(k, 'image/jpeg', 0.86);
+      if (!V || window.EU_MANIQUI_PUENTE_OFF) CACHE[clave] = img; /* con V18 el respaldo no se guarda: al rearmar sale el V18 */
     } catch (er) { console.warn('Guías 3D', corte, k, er); return ''; }
-    return CACHE[clave];
+    return img;
   }
 
   var PART = { horizontal: 'horizontal', vertical: 'vertical', diagAtras: 'diagonal hacia atrás', diagAdelante: 'diagonal hacia delante', radial: 'radial' };

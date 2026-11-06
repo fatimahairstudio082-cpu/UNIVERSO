@@ -475,10 +475,11 @@
         if (ops.length >= 3) out.push(it('mc', '¿Qué palabra completa la frase? «' + s.slice(0, i) + hueco() + s.slice(i + k.length) + '»', 'abc'.charAt(ops.indexOf(k)) + ') ' + k, { o: ops, c: ops.indexOf(k) }));
       });
     });
-    for (var a = 0; a < ks.length; a++) for (var b = a + 1; b < ks.length; b++) out.push(it('abierta', '¿Qué relación hay entre «' + ks[a] + '» y «' + ks[b] + '»? Escríbelo en una o dos frases.', '', { lin: 2 }));
+    /* Peluquería (Fátima, 5-11-2026): sin preguntas genéricas («¿qué relación hay…?», «pon un ejemplo en tu casa», «explica con tus palabras») */
+    if (u.m !== 'pelu') for (var a = 0; a < ks.length; a++) for (var b = a + 1; b < ks.length; b++) out.push(it('abierta', '¿Qué relación hay entre «' + ks[a] + '» y «' + ks[b] + '»? Escríbelo en una o dos frases.', '', { lin: 2 }));
     var lugares = C.adulto ? ['tu trabajo', 'tu barrio', 'una noticia reciente', 'tu día a día'] : ['tu casa', 'tu colegio', 'tu barrio', 'un cuento que conozcas'];
-    ks.forEach(function (k) { lugares.forEach(function (l) { out.push(it('abierta', 'Pon un ejemplo de «' + k + '» en ' + S(l, C) + '.', '', { lin: 2 })); }); });
-    ideas.forEach(function (s) { out.push(it('abierta', 'Explica con tus palabras: «' + s + '»', '', { lin: 3 })); });
+    if (u.m !== 'pelu') ks.forEach(function (k) { lugares.forEach(function (l) { out.push(it('abierta', 'Pon un ejemplo de «' + k + '» en ' + S(l, C) + '.', '', { lin: 2 })); }); });
+    if (u.m !== 'pelu') ideas.forEach(function (s) { out.push(it('abierta', 'Explica con tus palabras: «' + s + '»', '', { lin: 3 })); });
     return H.mezcla(r, out);
   }
   function alto(x, C) {

@@ -939,7 +939,8 @@
         return '<div style="background:' + T.soft + ';border-radius:' + T.r + 'px;padding:3mm 4mm;margin:0 0 3mm">' + sub(x.e, C) + '<div style="margin-top:1.5mm;color:' + T.acc2 + ';font-weight:700">→ ' + esc(x.s) + '</div>' + (x.x ? '<div style="font-size:.88em;opacity:.85">' + esc(x.x) + '</div>' : '') + '</div>';
       }).join('');
       else cuerpo += '<div style="margin:3mm 0">' + marcoImagen(C, 'Foto o dibujo de un ejemplo real en ' + ciudad, 55, (C.cfg.imagenes || [])[(pg.n) % Math.max(1, (C.cfg.imagenes || []).length)]) + '</div>';
-      cuerpo += h2(C, sub('Ahora tú', C)) + '<p style="margin:0 0 2mm">' + esc(sub('Busca un ejemplo de «' + sub((u.k || ['esto'])[0], C) + '» en tu casa, en tu barrio o en ' + P.ciudades[0] + '. Descríbelo.', C)) + '</p>' + lineas(4, C);
+      /* Peluquería (Fátima, 5-11-2026): sin «busca un ejemplo en tu casa» */
+      if (u.m !== 'pelu') cuerpo += h2(C, sub('Ahora tú', C)) + '<p style="margin:0 0 2mm">' + esc(sub('Busca un ejemplo de «' + sub((u.k || ['esto'])[0], C) + '» en tu casa, en tu barrio o en ' + P.ciudades[0] + '. Descríbelo.', C)) + '</p>' + lineas(4, C);
       return cabecera(C, pg) + h1(C, 'Cerca de ti') + cuerpo + guia(C, frase('ejemplo', C, r, u), true) + folio(C, pg);
     },
     actividad: function (pg, C, modo) {

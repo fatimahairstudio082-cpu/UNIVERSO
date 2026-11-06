@@ -381,6 +381,8 @@
         var s = pick(r, ideas || ['']), k = ks.filter(function (w) { return w.length > 3 && s && s.toLowerCase().indexOf(w.toLowerCase()) >= 0; })[0];
         if (k) { var i0 = s.toLowerCase().indexOf(k.toLowerCase()); return it('corta', 'Completa: ' + H.esc(s.slice(0, i0)) + '<span style="display:inline-block;min-width:26mm;border-bottom:1px solid currentColor">&#160;</span>' + H.esc(s.slice(i0 + k.length)), s.substr(i0, k.length), { ac: ac(s.substr(i0, k.length)), x: s }); }
       }
+      /* Peluquería (Fátima, 5-11-2026): sin «explica con tus palabras»; verdadero o falso con una idea real de la unidad */
+      if (u.m === 'pelu' && ideas[0]) return it('vf', H.esc(pick(r, ideas)), 'V');
       return it('abierta', 'Explica con tus palabras y un ejemplo: «' + H.sub(u.t, C) + '».', ideas.slice(0, 2).join(' '), { lin: 3 });
     }
   };

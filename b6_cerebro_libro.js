@@ -197,7 +197,7 @@
       que: [def, this.nueva(LENTE[g], D, 'lente')].filter(Boolean),
       como: [extra && !this.usado[extra] ? (this.usado[extra] = 1, cone[ki % cone.length] + minus1(extra)) : '', this.nueva(REL, D, 'rel')].filter(Boolean),
       ej: [this.nueva(ESCENA[g], D, 'esc'), this.nueva(CIERRE_ESC, D, 'cie')].filter(Boolean),
-      err: err, dato: dato, inv: dato ? '' : this.nueva(INVESTIGA, D, 'inv'),
+      err: err, dato: dato, inv: dato || u.m === 'pelu' ? '' : this.nueva(INVESTIGA, D, 'inv'), /* pelu: sin «pregunta a tu familia…» (Fátima, 5-11-2026) */
       fig: this.pie(fig),
       items: fig ? this.itemsDe(fig.V.items, C.peque ? 2 : 3) : []
     });
@@ -234,7 +234,7 @@
     var ds = []; for (var i = 0; i < 3; i++) { var d = this.dato(); if (d) ds.push(d); }
     if (ds.length < 2) { this.si -= ds.length; return null; }
     var fig = this.figura(u, 'amp', ['mapa_ruta', 'mapa_compara', 'linea_pais']);
-    var D = this.datos(u, 4), pg = Object.assign({ tipo: 'lec_amplia', ds: ds, inv: this.nueva(INVESTIGA, D, 'inv'), fig: this.pie(fig), items: fig ? this.itemsDe(fig.V.items, 2) : [] }, base);
+    var D = this.datos(u, 4), pg = Object.assign({ tipo: 'lec_amplia', ds: ds, inv: u.m === 'pelu' ? '' : this.nueva(INVESTIGA, D, 'inv'), fig: this.pie(fig), items: fig ? this.itemsDe(fig.V.items, 2) : [] }, base);
     pg.voz = ds.map(function (d) { return d[0] + '. ' + d[1]; }).join(' ');
     return pg;
   };
