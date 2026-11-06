@@ -156,39 +156,9 @@
   /* preguntas de su banco de colorimetría (juegos_fatima.html) que hablan de lo mismo que la clase; si no hay, ninguna */
   var VACIAS = /^(de|la|el|los|las|un|una|y|o|en|con|para|por|que|del|al|se|es|su|sus|lo|como|más|sin|sobre|cuál|qué|cuántos)$/;
   function palabras(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(function (w) { return w.length > 3 && !VACIAS.test(w); }); }
-  /* 1-11-2026 (Fátima: «colorimetría más dinámica y variada, sin repetir, con mis datos y lecciones»): además de su banco, se
-     generan preguntas de opción múltiple desde SU calculadora real — estrella de neutralización y tabla de corrección —, con la
-     respuesta y la explicación de SU motor (nada inventado: los distractores también son opciones reales de su propia tabla).
-     Rotan por clase para que varíen y no se repitan; las clases de corrección/matización llevan primero las de corregir. */
-  function rndDe(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return function () { h = (h * 1103515245 + 12345) >>> 0; return h / 4294967296; }; }
-  function baraja(a, rnd) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-  function opcion(correcta, pool, rnd) { var d = baraja(pool.filter(function (x) { return x && x !== correcta; }), rnd).slice(0, 3), o = baraja([correcta].concat(d), rnd); return { o: o, c: o.indexOf(correcta) }; }
-  function qNeutral(e, rnd) { var oc = opcion(e.c, (CALC.estrella || []).map(function (x) { return x.c; }), rnd); return { e: 'El cabello quedó con «' + e.p.toLowerCase() + '» (' + e.r.replace(/^NIV\s*/, 'nivel ') + '). ¿Con qué reflejo lo neutralizas?', o: oc.o, c: oc.c, x: 'Estrella de neutralización: «' + e.p.toLowerCase() + '» se neutraliza con ' + e.c + '.' }; }
-  function qError(e, rnd) { var oc = opcion(e.cor, (CALC.errores || []).map(function (x) { return x.cor; }), rnd); return { e: 'El color quedó «' + e.l.toLowerCase() + '» (' + e.s.toLowerCase() + '). ¿Cómo lo corriges?', o: oc.o, c: oc.c, x: e.regla }; }
-  /* 1-11-2026 (Fátima: «la realidad de la colorimetría está en sacar las cuentas»): generadores de CUENTAS desde sus reglas reales
-     — sumar y dividir (fat_p02), supermezcla (fat_a01), base → tono deseado, neutralizar colores fríos y cálidos (su tabla y su
-     estrella). El número cambia en cada clase (rnd por id), así hay variedad infinita; la respuesta la calcula SU regla, no yo. */
-  function r1(x) { return Math.round(x * 100) / 100; }
-  function nivAl(rnd, mn, mx) { return mn + Math.floor(rnd() * (mx - mn + 1)); }
-  function opsNum(correcta, lista, rnd) { var o = []; [correcta].concat(lista).forEach(function (x) { if (x > 0 && o.indexOf(x) < 0) o.push(x); }); o = baraja(o, rnd).map(String); return { o: o, c: o.indexOf(String(correcta)) }; }
-  function gMezcla(rnd) { var a = nivAl(rnd, 4, 8), b = nivAl(rnd, 5, 10); if (b === a) b = Math.min(10, b + 1); var s = a + b, r = r1(s / 2), oc = opsNum(r, [s, r1(r + 1), r1(r - 1)], rnd);
-    return { e: 'La clienta tiene de base un nivel ' + a + ' y preparas un tinte nivel ' + b + '. Sumando y dividiendo, ¿qué nivel resulta?', o: oc.o, c: oc.c, x: a + ' + ' + b + ' = ' + s + ', entre 2 = ' + r + '. Así se saca la cuenta del color: se suma la base con el tinte y se divide.' }; }
-  function gSuper(rnd) { var a = nivAl(rnd, 4, 9), b = nivAl(rnd, 5, 10); if (b === a) b = Math.min(10, b + 1); var s = a + b, r = r1(s / 2), oc = opsNum(r, [s, r1(r + 1), r1(r - 1)], rnd);
-    return { e: 'El tono que quiere la clienta no está en el salón. Lo fabricas con supermezcla, ligando un tinte ' + a + ' y un tinte ' + b + '. ¿Qué nivel sale?', o: oc.o, c: oc.c, x: a + ' + ' + b + ' = ' + s + ', entre 2 = ' + r + '. La supermezcla fabrica un tono personalizado; con peróxido de 20 volúmenes.' }; }
-  function gReto(rnd) { var base = nivAl(rnd, 3, 7), obj = nivAl(rnd, base + 1, 9), t = r1(2 * obj - base), oc = opsNum(t, [obj, r1(obj + base), r1(t + 1)], rnd);
-    return { e: 'La clienta tiene base ' + base + ' y quiere llegar a un ' + obj + '. ¿Qué nivel de tinte mezclas para que, sumando y dividiendo, dé ' + obj + '?', o: oc.o, c: oc.c, x: 'Para que (' + base + ' + tinte) ÷ 2 = ' + obj + ', el tinte es ' + t + ' (' + base + ' + ' + t + ' = ' + (base + t) + ', entre 2 = ' + obj + ').' }; }
-  function gFrio(rnd) { var fr = (CALC.errores || []).filter(function (e) { return /verde|fr[ií]o|violeta|morado|ceniza|azul/i.test(e.l + ' ' + e.s); }); return fr.length ? qError(fr[Math.floor(rnd() * fr.length)], rnd) : null; }
-  function gEstrella(rnd) { var es = CALC.estrella || []; return es.length ? qNeutral(es[Math.floor(rnd() * es.length)], rnd) : null; }
-  function gError(rnd) { var er = CALC.errores || []; return er.length ? qError(er[Math.floor(rnd() * er.length)], rnd) : null; }
   function preguntas(c) {
-    var mias = palabras(c.n + ' ' + c.vds), out = [], rnd = rndDe(c.id || 'cc'), txt = (c.n + ' ' + (c.u || '') + ' ' + (c.vds || '')).toLowerCase();
+    var mias = palabras(c.n + ' ' + c.vds), out = [];
     (CALC.preguntas || []).forEach(function (q) { var n = palabras(q.p).filter(function (w) { return mias.indexOf(w) >= 0; }).length; if (n >= 2) out.push({ e: q.p, o: q.o, c: q.c, x: q.exp }); });
-    var gens = [];
-    if (/correc|matiz|neutral|mancha|banda|fr[ií]o|verde|violeta|morado|ceniza|decolor/.test(txt)) gens.push(gFrio, gError, gEstrella, gMezcla);
-    if (/mezcla|f[óo]rmula|formul|supermezcla|tono|tinte|balayage|mecha|base|canas|ra[ií]z|peróxido|volumen/.test(txt)) gens.push(gMezcla, gReto, gSuper, gEstrella);
-    if (!gens.length) gens = [gEstrella, gError, gMezcla, gSuper];
-    var off = 0, id = c.id || 'cc'; for (var k = 0; k < id.length; k++) off += id.charCodeAt(k);
-    for (var j = 0; j < gens.length * 2 && out.length < 3; j++) { var q = gens[(off + j) % gens.length](rnd); if (q && !out.some(function (x) { return x.e === q.e; })) out.push(q); }
     return out.slice(0, 3);
   }
   function deClase(K, c) {

@@ -27,16 +27,13 @@
   }
   function render(corte, cab, k) {
     var clave = corte + '|' + (cab || '') + '|' + k; if (CACHE[clave]) return CACHE[clave];
-    /* 5-11-2026 (Fátima): el paso sale del maniquí V18 (escena del corte); el visor de antes solo de respaldo */
-    var V = window.EU_MANIQUI_PUENTE, v = V && V.pasoV18 && V.pasoV18(corte, cab, k, ((CO.guiaDe(corte, cab) || {}).pasos || []).length || 4); if (v) return (CACHE[clave] = v);
     var e = motor(); if (!e || !e.laminaURL) return '';
     suelta();
     try {
       if (CARGADA !== corte + '|' + cab) { e.cargarGuia(CO.guiaDe(corte, cab)); CARGADA = corte + '|' + cab; }
-      var img = e.laminaURL(k, 'image/jpeg', 0.86);
-      if (!V || window.EU_MANIQUI_PUENTE_OFF) CACHE[clave] = img; /* con V18 el respaldo no se guarda: al rearmar sale el V18 */
+      CACHE[clave] = e.laminaURL(k, 'image/jpeg', 0.86);
     } catch (er) { console.warn('Guías 3D', corte, k, er); return ''; }
-    return img;
+    return CACHE[clave];
   }
 
   var PART = { horizontal: 'horizontal', vertical: 'vertical', diagAtras: 'diagonal hacia atrás', diagAdelante: 'diagonal hacia delante', radial: 'radial' };
@@ -54,12 +51,9 @@
           '<image href="' + src + '" x="4" y="21" width="192" height="108"' + f + ' preserveAspectRatio="xMidYMid meet"/>';
       },
       intro: String(p.texto || '').replace(/\s+/g, ' ').trim() || (c.n + ': paso ' + (k + 1) + '.'),
-      /* 1-11-2026 (Fátima: «las preguntas no pueden ser idénticas en todos los pasos»): cada pregunta nombra SU paso concreto
-         (corte + título del paso), así no salen repetidas verbatim; las respuestas siguen siendo las reales de ese paso. */
-      q: (function () { var paso = c.n + (tit ? ' · ' + tit : ' · paso ' + (k + 1)); return [
-        ['En «' + paso + '», ¿por dónde va la partición?', 'Partición ' + pt + '.'],
-        ['En «' + paso + '», ¿a qué elevación se lleva el mechón?', el ? 'Hasta ' + el + '° en la zona más alta.' : 'Sin elevación: 0°, el pelo cae natural.'],
-        ['En «' + paso + '», ¿qué hay que vigilar?', p.observaciones || g.aviso || 'Que cada mechón se compare con la guía antes de cortar.']]; })(),
+      q: [['¿Qué partición se usa en este paso?', 'Partición ' + pt + '.'],
+        ['¿A qué elevación se lleva el mechón?', el ? 'Hasta ' + el + '° en la zona más alta.' : 'Sin elevación: 0°, el pelo cae natural.'],
+        ['¿Qué hay que vigilar?', p.observaciones || g.aviso || 'Que cada mechón se compare con la guía antes de cortar.']],
       porque: el >= 90 ? 'Al elevar el mechón, el pelo de arriba queda más corto: se crean capas y ligereza.' :
         el > 0 ? 'Una elevación media reparte el peso y da volumen en la zona trabajada.' : 'Sin elevación todas las puntas caen a la misma línea y el peso queda en el borde.'
     };

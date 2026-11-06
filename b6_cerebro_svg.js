@@ -341,18 +341,11 @@
     var pasos = f.t === 'linea' ? (f.h || []).map(function (x) { return x[1]; }) : (f.t === 'ciclo' || f.t === 'flujo') ? (f.p || []) : [];
     pasos = pasos.filter(function (x) { return !/^¿/.test(x); }).map(function (x) { return S(x, C); });
     if (pasos.length < 3) return null;
-    /* 1-11-2026 (Fátima): «Ordena los pasos», una por técnica en Peluquería (C._ordenPelu, compartido con proc_orden); otras materias igual */
-    var _pelu = C && C.mat === 'pelu';
-    if (_pelu && C._ordenPelu && C._ordenPelu[u.id]) return null;
-    if (_pelu) (C._ordenPelu = C._ordenPelu || {})[u.id] = 1;
     var orden = pasos.map(function (x, i) { return i; }), mez = H.mezcla(r, orden);
     if (mez.join() === orden.join()) mez.reverse();
     var L = 'ABCDEFG', sol = orden.map(function (i) { return L.charAt(mez.indexOf(i)); }).join(', ');
     var fig = '<div style="display:flex;flex-direction:column;gap:3mm;max-width:150mm">' + mez.map(function (i, k) { return '<div style="display:flex;gap:4mm;align-items:center;border:1px solid ' + C.T.soft + ';border-radius:' + Math.min(C.T.r, 10) + 'px;padding:3mm 4mm"><b style="flex:none;width:9mm;height:9mm;border-radius:50%;background:' + C.T.acc + ';color:#fff;display:flex;align-items:center;justify-content:center;font-family:' + C.T.tit + '">' + L.charAt(k) + '</b><span>' + esc(pasos[i]) + '</span></div>'; }).join('') + '</div>';
-    var _items = [it('corta', 'Escribe las letras en el orden correcto.', sol, { ac: [sol, sol.replace(/, /g, '')] })];
-    /* en pelu no se añade la subpregunta abierta «Explica con tus palabras» (Fátima la rechaza); en las demás materias sigue igual */
-    if (!_pelu) _items.push(it('abierta', 'Explica con tus palabras qué ocurre en el segundo paso.', pasos[1], { lin: 2 }));
-    return { t: 'Ordena los pasos', intro: 'Las tarjetas de «' + S(u.t, C) + '» están desordenadas.', fig: fig, items: _items };
+    return { t: 'Ordena los pasos', intro: 'Las tarjetas de «' + S(u.t, C) + '» están desordenadas.', fig: fig, items: [it('corta', 'Escribe las letras en el orden correcto.', sol, { ac: [sol, sol.replace(/, /g, '')] }), it('abierta', 'Explica con tus palabras qué ocurre en el segundo paso.', pasos[1], { lin: 2 })] };
   }
   function genSopa(u, C, r) {
     var SO = window.EU_SOPA; if (!SO) return null;
@@ -475,11 +468,10 @@
         if (ops.length >= 3) out.push(it('mc', '¿Qué palabra completa la frase? «' + s.slice(0, i) + hueco() + s.slice(i + k.length) + '»', 'abc'.charAt(ops.indexOf(k)) + ') ' + k, { o: ops, c: ops.indexOf(k) }));
       });
     });
-    /* Peluquería (Fátima, 5-11-2026): sin preguntas genéricas («¿qué relación hay…?», «pon un ejemplo en tu casa», «explica con tus palabras») */
-    if (u.m !== 'pelu') for (var a = 0; a < ks.length; a++) for (var b = a + 1; b < ks.length; b++) out.push(it('abierta', '¿Qué relación hay entre «' + ks[a] + '» y «' + ks[b] + '»? Escríbelo en una o dos frases.', '', { lin: 2 }));
+    for (var a = 0; a < ks.length; a++) for (var b = a + 1; b < ks.length; b++) out.push(it('abierta', '¿Qué relación hay entre «' + ks[a] + '» y «' + ks[b] + '»? Escríbelo en una o dos frases.', '', { lin: 2 }));
     var lugares = C.adulto ? ['tu trabajo', 'tu barrio', 'una noticia reciente', 'tu día a día'] : ['tu casa', 'tu colegio', 'tu barrio', 'un cuento que conozcas'];
-    if (u.m !== 'pelu') ks.forEach(function (k) { lugares.forEach(function (l) { out.push(it('abierta', 'Pon un ejemplo de «' + k + '» en ' + S(l, C) + '.', '', { lin: 2 })); }); });
-    if (u.m !== 'pelu') ideas.forEach(function (s) { out.push(it('abierta', 'Explica con tus palabras: «' + s + '»', '', { lin: 3 })); });
+    ks.forEach(function (k) { lugares.forEach(function (l) { out.push(it('abierta', 'Pon un ejemplo de «' + k + '» en ' + S(l, C) + '.', '', { lin: 2 })); }); });
+    ideas.forEach(function (s) { out.push(it('abierta', 'Explica con tus palabras: «' + s + '»', '', { lin: 3 })); });
     return H.mezcla(r, out);
   }
   function alto(x, C) {

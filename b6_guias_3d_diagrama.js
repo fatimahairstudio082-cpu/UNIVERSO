@@ -33,7 +33,7 @@
     var partes = String(g.nombre || '').split(' · '), c = null, cab = null;
     if (CO) {
       c = (CO.lista() || []).filter(function (x) { return x.n === partes[0]; })[0] || null;
-      cab = ((CO.cabellos && CO.cabellos()) || []).filter(function (t) { return t.n === partes.slice(1).join(' · '); })[0] || null;   /* 5-11-2026: «Liso extremo · indio» lleva « · » en su nombre */
+      cab = ((CO.cabellos && CO.cabellos()) || []).filter(function (t) { return t.n === partes[1]; })[0] || null;
     }
     var clave = (c ? c.id : 'guia:' + g.nombre) + '|' + (cab ? cab.id : '') + '|' + (g.pasos || []).length;
     if (CACHE[clave]) return CACHE[clave];

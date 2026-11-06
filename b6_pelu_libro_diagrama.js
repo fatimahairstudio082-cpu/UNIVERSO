@@ -240,6 +240,5 @@
   function esperar() { if (ED.__peluG3dLibro && (ED.__modelosLibro2 || !ED.__modelosLibro)) enganchar(); else setTimeout(esperar, 300); }
   if (document.readyState === 'complete') setTimeout(esperar, 50); else window.addEventListener('load', function () { setTimeout(esperar, 50); });
 
-  window.EU_PELU_LIBRO_DG = { pagina: pagina, repartir: repartir, datos: datos, receta: receta, fotoEscena: fotoEscena,
-    limpiar: function () { CACHE = {}; FOTOS = {}; } };   /* 5-11-2026: imágenes nuevas del maniquí V18 (b6_maniqui_puente.js) */
+  window.EU_PELU_LIBRO_DG = { pagina: pagina, repartir: repartir, datos: datos, receta: receta, fotoEscena: fotoEscena };
 })();
