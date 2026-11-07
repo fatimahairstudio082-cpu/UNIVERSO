@@ -8,7 +8,9 @@
    - Si B18 no tiene ese corte o técnica (p. ej. las clases del cerebro de colorimetría, que solo carga Universo) o falla, va con Guías 3D.
    - Las vistas de B18 llevan el prefijo «b18_» (fondos aparte, sin pisar los de Guías 3D).
    - La pestaña 💇 Guías 3D no cambia: DG.construir solo se reparte mientras se arma el curso (EU_CURSO_ANIM.enriquecer).
-   window.EU_MOTOR_B18_OFF = true lo apaga (todo vuelve a Guías 3D). */
+   window.EU_MOTOR_B18_OFF = true lo apaga (todo vuelve a Guías 3D).
+   7-11-2026 (Fátima: «quita ese maniquí feo, deja solo las clases con el maniquí 3D V18»): todo va con V18; el reparto alterno
+   solo con window.EU_MOTOR_B18_ALTERNAR = true. Las clases que B18 no trae se arman con su misma fn sobre el clon V18. */
 (function () {
   if (window.EU_MOTOR_B18) return;
   var DG = window.EU_DIAGRAMA, PA = window.EU_PARTICIONES;
@@ -53,6 +55,7 @@
   function hash(s) { var h = 0; s = String(s || ''); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
   function esB18(clave) {
     if (!clave || !activo()) return false;
+    if (!window.EU_MOTOR_B18_ALTERNAR) return true;   /* 7-11-2026 (Fátima): todas las clases con el maniquí V18; el otro solo si V18 falla */
     var o = orden(); return (o[clave] != null ? o[clave] : hash(clave)) % 2 === 1;
   }
   function claveDe(id) { return typeof id === 'object' && id ? (id.id || id.n || '') : String(id || ''); }
@@ -109,10 +112,16 @@
     var id = E && E.R && E.R.id; if (!id || !esB18(id)) return E;
     return tecB18(id) || E;
   }
-  if (o.construirConYa) DG.construirConYa = function () { return tecnica(o.construirConYa.apply(this, arguments)); };
+  /* técnica que B18 no tiene (clases del cerebro de colorimetría): su misma fn se arma con el kit del clon V18 */
+  function conB18(fn, E) {
+    var w = win(); if (!activo() || !LISTO || typeof fn !== 'function' || !w || !w.B18_DIAGRAMA || !E || !E.escenas || (E.motor === 'b18')) return E;
+    if (E.R && E.R.id && !esB18(E.R.id)) return E;
+    try { return marcar(w.B18_DIAGRAMA.construirConYa(fn)) || E; } catch (e) { console.warn('Motor B18 · clase', E.R && E.R.id, e); return E; }
+  }
+  if (o.construirConYa) DG.construirConYa = function (fn) { return conB18(fn, tecnica(o.construirConYa.apply(this, arguments))); };
   if (o.construirCon) DG.construirCon = function () {
     var p = o.construirCon.apply(this, arguments);
-    return activo() ? Promise.all([p, cargar()]).then(function (r) { return tecnica(r[0]); }) : p;
+    var fn = arguments[0]; return activo() ? Promise.all([p, cargar()]).then(function (r) { return conB18(fn, tecnica(r[0])); }) : p;
   };
   DG.foto = function (e) {
     if (e && e.vista && e.vista.indexOf(PRE) === 0) {
