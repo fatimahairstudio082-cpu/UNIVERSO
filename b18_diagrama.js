@@ -1536,12 +1536,14 @@
         x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(Math.round((T.m || 0) * su(u)) + ' min', kx, ky - Rc - 14); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(T.s || 'Exposición', kx, ky + Rc + 20); x.textAlign = 'left';
       }
       else if (T.k === 'r') {
-        x.setLineDash([]); var R = Math.min(62, bh * 0.16), cx = bx + bw - R - 46, cy = by + bh * 0.42, g = T.g[0] + (T.g[1] - T.g[0]) * su(u);
+        /* B18 (7-11-2026, Fátima: «que el motor de elevación no tape el cabello»): el reloj va arriba a la derecha, en una tarjeta, fuera del cabello */
+        x.setLineDash([]); var R = Math.min(44, bh * 0.11), cx = bx + bw - R - 26, cy = by + R + 32, g = T.g[0] + (T.g[1] - T.g[0]) * su(u);
+        x.fillStyle = 'rgba(255,255,255,.88)'; x.fillRect(cx - R - 32, cy - R - 28, 2 * R + 56, 2 * R + 96);
         x.strokeStyle = '#9A8F84'; x.lineWidth = 1.5; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2 - 1.25 * Math.PI, Math.PI / 2, false); x.stroke();
         x.fillStyle = '#6B625A'; x.font = '600 11px system-ui,sans-serif'; x.textAlign = 'center';
         [0, 45, 90, 135, 180, 225].forEach(function (k) { var ex = -Math.sin(k * Math.PI / 180), ey = Math.cos(k * Math.PI / 180); x.beginPath(); x.moveTo(cx + ex * R * 0.88, cy + ey * R * 0.88); x.lineTo(cx + ex * R, cy + ey * R); x.stroke(); x.fillText(k + '°', cx + ex * (R + 17), cy + ey * (R + 13) + 4); });
         x.strokeStyle = T.c; x.lineWidth = 4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - Math.sin(g * Math.PI / 180) * R, cy + Math.cos(g * Math.PI / 180) * R); x.stroke();
-        x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.fillText(Math.round(g) + '°', cx, cy - R - 30); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(T.s, cx, cy + R + 32); x.textAlign = 'left';
+        x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.fillText(Math.round(g) + '°', cx, cy + R + 58); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(T.s, cx, cy + R + 32); x.textAlign = 'left';
       }
     });
     /* la tijera va encima de todo: recorre la línea de corte y, si se desgrafila, deja cortes en punta */
