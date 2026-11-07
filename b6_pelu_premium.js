@@ -168,7 +168,7 @@
     permanente: [/^cb_quim_permanente$/],
     quimica: [/^cb_quera_/, /^cb_quim_/, /^cb_hidra_/, /^cb_cab_/]
   };
-  var BASE = /^pe_u_(fund|cab)$/, TEMA = null, SOLO = false, REGALO = false;
+  var BASE = /^pe_u_(fund|cab)$/, TEMA = null, SOLO = false;
   /* ─── Niveles del libro y del curso (19-10-2026, Fátima): Principiante = higiene, cabello, secciones y elevación, cortes
      básicos a 0° (cuadrado, redondo, U, V, escalonado), niños y niñas, secado, planchado, hidratación y el tinte; Intermedio = todo
      lo de Principiante más los cortes con elevación (pixie, shag, mariposa…); Avanzado y Profesional = todo. Las clases de su
@@ -202,9 +202,6 @@
       if (mat === 'pelu' && NIVEL && POR_NIVEL[NIVEL] && L && L.filter) L = L.filter(function (u) { return POR_NIVEL[NIVEL].some(function (r) { return r.test(u.id); }); });
       if (mat !== 'pelu' || !TEMA || !TEMAS[TEMA] || !L || !L.slice) return L;
       var es = function (u) { return TEMAS[TEMA].some(function (r) { return r.test(u.id); }); };
-      /* 7-11-2026 (Fátima: «las 10 hojas aparte para regalar, de cualquier área de Peluquería»): libro de hasta 12 hojas con
-         «Solo este bloque» = solo el área elegida, sin higiene ni cabello delante (si el área no tiene unidades, se quedan) */
-      if (SOLO && REGALO && L.some(es)) return L.filter(function (u) { return !BASE.test(u.id) && es(u); });
       var cab = L.filter(function (u) { return BASE.test(u.id); }).concat(L.filter(function (u) { return !BASE.test(u.id) && es(u); }));
       return SOLO ? cab : cab.concat(L.filter(function (u) { return !BASE.test(u.id) && !es(u); }));   /* «Solo este bloque»: sin las unidades de otros bloques */
     };
@@ -221,17 +218,15 @@
   if (!ED.ensamblar._temaPelu) {
     var ens = ED.ensamblar;
     ED.ensamblar = function (cfg) {
-      var prev = TEMA, prevS = SOLO, prevN = NIVEL, prevR = REGALO; REGALO = +(cfg && cfg.paginas) > 0 && +cfg.paginas <= 12; TEMA = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.tema && cfg.op.tema !== 'todo' ? cfg.op.tema : null;
+      var prev = TEMA, prevS = SOLO, prevN = NIVEL; TEMA = cfg && cfg.materia === 'pelu' && cfg.op && cfg.op.tema && cfg.op.tema !== 'todo' ? cfg.op.tema : null;
       SOLO = !!(TEMA && cfg.op.solo === 'si');
       NIVEL = nivelDe(cfg);
       /* Principiante/Intermedio/Avanzado del selector general: Peluquería se arma con el temario profesional y el nivel filtra
          unidades y clases (antes «Principiante» daba solo cortes, sin secado ni planchado, y la cabecera decía «Profesional») */
       if (NIVEL && /^(pri|sec|bach)$/.test(cfg.nivel)) cfg = Object.assign({}, cfg, { nivel: 'fp', curso: 0 });
       if (NIVEL) cfg = Object.assign({}, cfg, { op: Object.assign({}, cfg.op, { nivel: String(NIVEL) }) });
-      /* regalo de 10 hojas de un área: sin anexo ni hojas añadidas por imagen (escáner, galería solo en huecos), para que quede en 10–12 hojas */
-      if (REGALO && SOLO) cfg = Object.assign({}, cfg, { acab: Object.assign({ anexo: 'no', cortesForma: 'no', galeria: 'huecos', referencias: 'no' }, cfg.acab) });
       var args = [cfg].concat([].slice.call(arguments, 1));
-      try { return ens.apply(this, args); } finally { TEMA = prev; SOLO = prevS; NIVEL = prevN; REGALO = prevR; }
+      try { return ens.apply(this, args); } finally { TEMA = prev; SOLO = prevS; NIVEL = prevN; }
     };
     ED.ensamblar._temaPelu = 1;
   }
