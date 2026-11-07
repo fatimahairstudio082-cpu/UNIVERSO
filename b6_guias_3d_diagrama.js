@@ -170,9 +170,9 @@
     var fre = fila('Capas (frente)', ent('vacío = igual que atrás', 300));
     var latC = fila('Capas (lateral)', ent('una cifra por línea · vacío = igual que el frente', 300));
     var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
-    var alt = fila('Guía del frente', sel(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; })));
+    var alt = fila('Guía del frente', sel([['', 'Según el corte · se empareja con atrás']].concat(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; }))));
     var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Redondeada'], ['u', 'En U'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
-    alt.value = 'nariz';
+    alt.value = '';
     var aca = fila('Acabado', sel([['recto', 'Recto (cuadrado)'], ['v', 'En V'], ['u', 'En U'], ['desgrafilado', 'Desgrafilado']]));
     var lfr = fila('Puntas de delante', sel([['', 'Redondeadas'], ['recta', 'Rectas']]));
     var emp = fila('Emparejar', sel([['delante', 'Delante con atrás (solo la punta de delante)'], ['atras', 'Atrás (delante → atrás) · corte redondo'], ['no', 'No']]));
@@ -181,7 +181,7 @@
     var cor = document.createElement('input'); cor.type = 'checkbox'; var corG = ent('grados (vacío = la capa más alta)', 200);
     var fc = document.createElement('span'); fc.style.cssText = 'display:inline-flex;gap:8px;align-items:center'; fc.appendChild(cor); fc.appendChild(corG); fila('Coronilla △ oblicua', fc);
     var CA = window.EU_CALCULO_CAPILAR, med0 = CA ? CA.medidas() : { guia: 20, contorno: 56, nucaCoronilla: 17, estandar: true };
-    var mg = ent('cm', 70), mc = ent('cm', 70), mn = ent('cm', 70); mg.value = med0.guia; mc.value = med0.contorno; mn.value = med0.nucaCoronilla;
+    var mg = ent('cm', 70), mc = ent('cm', 70), mn = ent('cm', 70); mg.value = med0.estandar ? '' : med0.guia; mg.placeholder = 'según el corte'; mc.value = med0.contorno; mn.value = med0.nucaCoronilla;
     var fm = document.createElement('span'); fm.style.cssText = 'display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap';
     [['Largo de la guía', mg], ['Contorno', mc], ['Nuca–coronilla', mn]].forEach(function (q) { var l = document.createElement('span'); l.textContent = q[0]; l.style.color = '#a5a5c8'; fm.appendChild(l); fm.appendChild(q[1]); });
     var gm = document.createElement('button'); gm.textContent = '💾 Medidas de la clienta'; gm.style.cssText = CHIP_OFF + ';padding:3px 8px';
@@ -191,12 +191,12 @@
     function nums(t) { return String(t || '').split(/[^0-9.]+/).filter(Boolean).map(Number).filter(function (n) { return !isNaN(n); }); }
     function leer() {
       var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), lateral: nums(latC.value), part: par.value, altura: alt.value, linea: /^[uv]$/.test(aca.value) ? aca.value : lin.value, acabado: /^[uv]$/.test(aca.value) ? 'recto' : aca.value,
-        medidas: { guia: +mg.value || med0.guia, contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
+        medidas: { guia: +mg.value || (med0.estandar ? undefined : med0.guia), contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
         lineaFrente: lfr.value, emparejar: emp.value, guias: String(gui.value || '').split(/[^a-zA-Z]+/).filter(Boolean).map(function (x) { return /^f/i.test(x) ? 'f' : 'm'; }), ref: ref.value };
       if (cor.checked) { o.coronilla = true; var cg = nums(corG.value)[0]; if (cg != null) o.coronillaG = cg; }
       return o;
     }
-    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); latC.value = (o.lateral || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || 'nariz'; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
+    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); latC.value = (o.lateral || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || ''; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
       lfr.value = o.lineaFrente || ''; emp.value = o.emparejar || 'delante'; gui.value = (o.guias || []).join(', '); ref.value = o.ref || 'craneo'; cor.checked = !!o.coronilla; corG.value = o.coronillaG != null ? o.coronillaG : ''; nota.textContent = o.validar ? 'Elevaciones propuestas: a validar por Fátima. Cámbialas capa a capa si hace falta.' : (o.texto || ''); }
     tec.onchange = function () { var v = tec.value; if (!v) return; var o = v.slice(0, 2) === 't:' ? GC.tecnica(v.slice(2)) : v.slice(0, 2) === 'c:' ? (window.EU_CATALOGO_CORTES && EU_CATALOGO_CORTES.corte(v.slice(2))) : GC.mios().filter(function (m) { return m.n === v.slice(2); })[0]; if (o) poner(o); };
     var bar = document.createElement('div'); bar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px';
@@ -205,7 +205,7 @@
       e.preventDefault(); var o = leer(); if (!o.capas.length) { nota.textContent = 'Escribe al menos una capa con su elevación (0–225°).'; return; }
       var t = tec.value.slice(0, 2) === 't:' ? GC.tecnica(tec.value.slice(2)) : null; if (t && t.texto && o.n === t.n) o.texto = t.texto;
       el._dg = { on: true, modo: (el._dg && el._dg.modo) || 'todo', t0: 0, libre: o }; nota.textContent = 'Armando «' + o.n + '» con ' + o.capas.length + ' capas…'; alAplicar();
-      if (CA) { try { nota.textContent = CA.calcular(o, o.medidas).texto; } catch (er) { } }
+      if (CA) { try { var mdc = window.EU_DIAGRAMA && EU_DIAGRAMA.medidasDe ? EU_DIAGRAMA.medidasDe(o) : o.medidas; nota.textContent = CA.calcular(o, mdc).texto; } catch (er) { } }   /* 31-10-2026: el largo de la guía, del propio corte */
     };
     var gua = document.createElement('button'); gua.textContent = '💾 Guardar como mi corte'; gua.style.cssText = CHIP_OFF;
     gua.onclick = function (e) { e.preventDefault(); var o = leer(); if (!o.capas.length) return; nota.textContent = GC.guardar(o) ? 'Guardado «' + o.n + '» en tus cortes.' : 'No se pudo guardar en este navegador.'; llenarTec(); };
