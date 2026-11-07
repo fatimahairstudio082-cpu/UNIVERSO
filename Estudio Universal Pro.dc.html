@@ -236,7 +236,7 @@ window.EU_DIFERIDOS = ["./b6_curriculo.js?v=1798300000003",
 "./b6_interactivo_todos.js?v=1797400000002",
 "./b6_texto_auto.js?v=1797400000002",
 "./b6_hojas_llenas.js?v=1797400000002",
-"./b6_dashboard_premium.js?v=1797900000002", "./b6_pelu_fotos_libro.js?v=1798300000015", "./b6_pelu_laminas_libro.js?v=1798300000031", "./b6_pelu_videos.js?v=1798600000001", "./b6_pelu_receta.js?v=1799000000001"];
+"./b6_dashboard_premium.js?v=1797900000002", "./b6_pelu_fotos_libro.js?v=1798300000015", "./b6_pelu_laminas_libro.js?v=1798300000031", "./b6_pelu_videos.js?v=1798600000001", "./b6_pelu_receta.js?v=1799000000001", "./b6_motor_b18_editorial.js?v=1799100000002"];
 /* Antes eran 131 peticiones (una por módulo): el Editorial tardaba medio minuto y la conexión
    se saturaba. Ahora van en DOS archivos: b6_editorial_nucleo.js (motor, currículo, cerebros…,
    lo justo para abrir el Editorial) y b6_editorial_libs.js (las bibliotecas b6_lib_* de dibujos,
@@ -1238,6 +1238,11 @@ window.EU_CARGA_EDITORIAL = function (progreso) {
       <h2 style="font-size:14px;margin:0 0 3px;color:#a855f7">Editorial escolar · libros, cuadernos y trabajos</h2>
       <p style="margin:0 0 12px;font-size:11.5px;color:#94a3b8;line-height:1.6;max-width:860px;text-wrap:pretty">Eliges país, curso y materia, y el editorial arma el material con el <b>currículo oficial</b> de ese país, su moneda, su papel y sus ejemplos. De 10 a 300 páginas, para imprimir, como EPUB o como libro interactivo que se lee en voz alta.</p>
       <x-import component-from-global-scope="editorial-escolar" from="./b6_editorial.js?v=1798300000003" hint-size="100%,760px"></x-import>
+    </sc-if>
+
+    <!-- 7-11-2026 (Fátima): pestaña independiente «Motor B18» — su propia página en un marco, con su maniquí y sus motores b18_*; no comparte nada con Guías 3D -->
+    <sc-if value="{{ esB18 }}" hint-placeholder-val="{{ false }}">
+      <iframe src="./F%C3%A1tima%20Studio%20V18%20%C2%B7%20Labios%20que%20hablan..html" title="Motor B18" allow="fullscreen; microphone" style="width:100%;height:calc(100vh - 150px);min-height:640px;border:0;border-radius:12px;background:#0a0a0a;display:block"></iframe>
     </sc-if>
 
     <sc-if value="{{ esHerramientas }}" hint-placeholder-val="{{ false }}">
@@ -4786,6 +4791,7 @@ class Component extends DCLogic {
       esMios: s.pantalla === 'mios',
       esPlan: s.pantalla === 'plan',
       esHerramientas: s.pantalla === 'herramientas',
+      esB18: s.pantalla === 'b18',
       cerrarMuro: () => this.setState({ muro: '' }),
       irPlan: () => this.setState({ muro: '', pantalla: 'plan' }),
       irVideo: () => this.setState({ pantalla: 'video' }),
@@ -4798,7 +4804,7 @@ class Component extends DCLogic {
       { id: 'triptico', nombre: '📐 Tríptico' }, { id: 'carrusel', nombre: '🎠 Carrusel' },
       { id: 'video', nombre: '🎬 Vídeo' }, { id: 'editorial', nombre: '📚 Editorial' }, { id: 'anuncios', nombre: '📣 Anuncios' }, { id: 'laminas', nombre: '🧠 Láminas' },
       { id: 'repaso', nombre: '✅ Repaso' },
-      { id: 'guias', nombre: '💇 Guías 3D' }, { id: 'estudios', nombre: '💄 Estudios' },
+      { id: 'guias', nombre: '💇 Guías 3D' }, { id: 'estudios', nombre: '💄 Estudios' }, { id: 'b18', nombre: '🧑‍🎨 Motor B18' },
       { id: 'qr', nombre: '🔳 QR' }, { id: 'herramientas', nombre: '🛠 Herramientas' }, { id: 'mios', nombre: '📁 Míos' }, { id: 'plan', nombre: '💜 Plan' }
     ].map(t => ({
       nombre: t.nombre,
