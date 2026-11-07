@@ -1111,7 +1111,7 @@
         }
         return qs;
       })(),
-      porque: DESC[g[4]]
+      porque: ''   /* 7-11-2026 (Fátima: «quita el Por qué funciona inventado»): la descripción ya sale con la imagen; repetida bajo «Por qué funciona» no explica nada */
     };
   }
   var REG = false;

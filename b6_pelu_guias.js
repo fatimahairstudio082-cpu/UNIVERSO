@@ -57,8 +57,7 @@
         ['En «' + paso + '», ¿por dónde va la partición?', 'Partición ' + pt + '.'],
         ['En «' + paso + '», ¿a qué elevación se lleva el mechón?', el ? 'Hasta ' + el + '° en la zona más alta.' : 'Sin elevación: 0°, el pelo cae natural.'],
         ['En «' + paso + '», ¿qué hay que vigilar?', p.observaciones || g.aviso || 'Que cada mechón se compare con la guía antes de cortar.']]; })(),
-      porque: el >= 90 ? 'Al elevar el mechón, el pelo de arriba queda más corto: se crean capas y ligereza.' :
-        el > 0 ? 'Una elevación media reparte el peso y da volumen en la zona trabajada.' : 'Sin elevación todas las puntas caen a la misma línea y el peso queda en el borde.'
+      porque: /* 7-11-2026 (Fátima: «quita el Por qué funciona inventado»): explicación genérica del sistema, no suya */ ''
     };
   }
 

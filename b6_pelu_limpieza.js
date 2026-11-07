@@ -77,7 +77,7 @@
       q: [['¿Desde qué vista se ve esta división?', VISTA[vista]],
         ['¿Para qué sirve dividir antes de trabajar?', 'Para controlar cada sección por separado y que el producto o el corte quede igual en toda la cabeza.'],
         ['¿Qué se comprueba al terminar las divisiones?', 'Que las rayas estén limpias y simétricas, y que cada sección tenga el mismo grosor.']],
-      porque: 'Una división limpia hace que cada mecha reciba lo mismo: el resultado es parejo y se puede repetir.'
+      porque: /* 7-11-2026 (Fátima: «quita el Por qué funciona inventado»): explicación genérica del sistema, no suya */ ''
     };
   }
   var n = 0;

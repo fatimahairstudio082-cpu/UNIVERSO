@@ -331,7 +331,7 @@
   var LIBROS = /^(libro|ebook|cuaderno|emprender)$/;
   function ampliar(res) {
     var C = res.C, pages = res.pages, N = pages.length;
-    if (N < 30 || C.mat === 'idiomas' || C.mat === 'infantil' || C.libre) return; /* infantil: sus lecturas son de adultos; lo llenan sus propias páginas y la biblioteca */
+    if (N < 30 || C.mat === 'idiomas' || C.mat === 'infantil' || C.mat === 'pelu' || C.libre) return; /* pelu (7-11-2026, Fátima: «no se puede inventar en Peluquería y Colorimetría»): sus lecturas son plantillas genéricas («junto a alguien con experiencia», «¿Te ha pasado algo parecido?»); esos huecos los llenan sus clases, galería y técnicas */ /* infantil: sus lecturas son de adultos; lo llenan sus propias páginas y la biblioteca */
     var share = C.prod.id === 'cuaderno' ? 0.15 : N >= 150 ? 0.4 : N >= 60 ? 0.3 : 0.18;
     var units = []; pages.forEach(function (p) { if (p.u && units.indexOf(p.u) < 0 && p.tipo === 'apertura') units.push(p.u); });
     if (!units.length) return;
