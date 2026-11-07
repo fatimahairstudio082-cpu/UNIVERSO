@@ -2113,6 +2113,8 @@ window.Maniqui = {
   joints: F.J,            // acceso directo a cada articulación (Object3D)
   hands: F.hands,
   camera, controls, scene,
+  /* 7-11-2026 (Fátima, «crea el puente»): el motor b18_* dibuja sobre este maniquí */
+  get nucleo(){ return { T, renderer, scene, camera, controls, retrato: scene.getObjectByName('Retrato · corte paso a paso'), cabello: portraitHair }; },
   registerAnimation(name, fn, meta = {}) {
     ANIMS[name] = { fn, ...meta };
     ACTIONS[name] = { label: meta.label || name, anim: name, sec: meta.ex ? 'e' : 'a', ...(meta.action || {}) };
@@ -2345,5 +2347,5 @@ renderer.setAnimationLoop(now => { const dt = (now - last) / 1000; last = now; s
 window.__maniqui = { step, W };
 })();
 </script>
-</body>
+<!-- Motor B18: clones del motor de Guías 3D (7-11-2026) --><script src="./b18_cortes.js"></script><script src="./b18_cortes_catalogo.js"></script><script src="./b18_calculo.js"></script><script src="./b18_geometria.js"></script><script src="./b18_divisiones.js"></script><script src="./b18_cerebro.js"></script><script src="./b18_diagrama.js"></script><script src="./b18_particiones.js"></script></body>
 </html>

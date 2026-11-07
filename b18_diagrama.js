@@ -164,11 +164,13 @@
   /* Receta de un corte del catálogo (cabello: el elegido o el que mejor le va) */
   function receta(id, cab) {
     var CO = window.B18_CORTES, c = CO && CO.get(id); if (!c) return null;
+    var cabElegido = !!cab;   /* B18 (7-11-2026): saber si el cabello lo eligió quien corta o es el «mejor» del catálogo */
     cab = cab || (c.mejor || [])[0];
     var R = desdeGuia(CO.guiaDe(id, cab), { id: id, n: c.n, fam: c.fam, cab: cab, d: c.d });
     /* Fátima, 15-10-2026: la línea final sale del resultado que ya está escrito en el catálogo (antes casi todos quedaban rectos) */
     if (R && !R.linea) R.linea = lineaTexto(c.n + ' · ' + ((CO.tecnica(id) || {}).resultado || '') + ' · ' + (c.d || ''));
     /* 26-10-2026 (Fátima): largo y flequillo del catálogo; en los cortes a 0° la pollina solo si el nombre la dice */
+    if (R && !cabElegido) R.lisoPorDefecto = true;
     if (R && c.largo) R.largo = c.largo;
     if (R && c.fleco) R.fleco = c.fleco;
     else if (R && R.nivelar && (/pollina/i.test(c.n) || c.fam === 'flequillos')) R.fleco = 'pollina';   /* el flequillo recto a 0° es una pollina recta */
@@ -308,7 +310,12 @@
     /* B18 (7-11-2026, Fátima: «líneas verticales de proyección para que la tijera corte en vertical con elevaciones; los rectos que no llevan
        elevación, en horizontal»): con alguna capa elevada, secciones verticales; sin elevación y línea recta, horizontal; liso extremo, horizontal */
     var elevada = (R.capas.pila || []).some(function (g) { return g > 0; });
-    var v = 'nuca', pila = R.capas.pila, n = pila.length || 7, tr = [], vert = !R.liso && (elevada || R.capas.part === 'vertical') && (elevada || lineaDe(R) !== 'recta'), hY = R.cero ? yGuia() : null;
+    /* 7-11-2026 (Fátima, corrección): «cuando un cabello no tiene elevación está completamente recto al cuello: corte cuadrado, en V, en U,
+       redondo, los primeros cortes principales». Bob, lob, blunt y flequillos llevan elevación (movimiento) → vertical. Horizontal solo
+       la familia de básicos, las niñas a 0° y un corte creado sin elevación. El liso extremo sigue en horizontal solo si quien corta lo elige
+       (antes el «mejor cabello» del catálogo, liso extremo en bob/blunt/garzón, los dejaba en horizontal) */
+    var basicoCero = R.fam === 'basicos' || (!elevada && (R.fam === 'ninos' || !R.fam));
+    var v = 'nuca', pila = R.capas.pila, n = pila.length || 7, tr = [], vert = !basicoCero && !(R.liso && !R.lisoPorDefecto), hY = R.cero ? yGuia() : null;
     if (R.cero) tr = tr.concat(lineaGuia(v, 0));
     if (!vert) {
       for (var z = 0; z < n; z++) {
