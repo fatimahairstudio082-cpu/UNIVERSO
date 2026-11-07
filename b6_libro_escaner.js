@@ -34,12 +34,13 @@
   }
   function lamina(pg, C) {
     var LM = window.LAMINAS_MOTOR, u = pg.u; if (!LM || !u) return '';
-    var V = VARIANTES[pg.lam || 0], clave = C.mat + '|' + u.id + '|' + (pg.lam || 0) + '|' + C.T.acc; if (IMG[clave]) return IMG[clave];
-    var lam = especie(pg, C), W = 1400, Hh = 1560; if (!lam) return '';
+    /* 7-11-2026 (Fátima: libros de 300 a 500 hojas): desde 200 hojas la lámina se guarda a 3/4 (≈ 225 ppp en la hoja), JPEG 0,8 */
+    var gr = +((C.cfg || {}).paginas) >= 200, V = VARIANTES[pg.lam || 0], clave = C.mat + '|' + u.id + '|' + (pg.lam || 0) + '|' + C.T.acc + (gr ? '|g' : ''); if (IMG[clave]) return IMG[clave];
+    var lam = especie(pg, C), W = gr ? 1050 : 1400, Hh = gr ? 1170 : 1560; if (!lam) return '';
     try {
       var cv = document.createElement('canvas'); cv.width = W; cv.height = Hh;
       LM.pintar(cv.getContext('2d'), W, Hh, lam, { prog: 1, modo: 'aparecer' });
-      IMG[clave] = cv.toDataURL('image/jpeg', 0.86);
+      IMG[clave] = cv.toDataURL('image/jpeg', gr ? 0.8 : 0.86);
     } catch (e) { console.warn('Escáner · lámina', e); return ''; }
     return IMG[clave];
   }

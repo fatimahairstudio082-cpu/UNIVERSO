@@ -638,6 +638,16 @@
       }); });
     }, Promise.resolve());
   }
+  /* 7-11-2026 (Fátima: «optimiza el peso de libros y cursos sin que pierdan calidad»): en D.anim muchas escenas son idénticas
+     (la misma escena en varias lecciones: ~60 % del peso del curso). Se guardan una vez y las repetidas apuntan a la primera;
+     al abrir el curso se vuelven a enlazar. Mismo contenido, mismas animaciones. */
+  function datosJS(D) {
+    var A = D.anim, vistos = {}, C = {}, rep = 0;
+    if (A) Object.keys(A).forEach(function (k) { var j = JSON.stringify(A[k]); if (vistos[j] != null && typeof A[k] === 'object') { C[k] = vistos[j]; rep++; } else { vistos[j] = k; C[k] = A[k]; } });
+    var o = {}; Object.keys(D).forEach(function (k) { o[k] = k === 'anim' && rep ? C : D[k]; });
+    return 'window.CURSO=' + JSON.stringify(o).replace(/<\//g, '<\\/') + ';' +
+      (rep ? '(function(A){if(A)for(var k in A)if(typeof A[k]==="string")A[k]=A[A[k]];})(window.CURSO.anim);' : '');
+  }
   function paquete(res, aviso) {
     var VIDEOS = {};
     if (!window.JSZip) return Promise.reject(new Error('El curso premium necesita conexión la primera vez (JSZip).'));
@@ -662,12 +672,12 @@
       Object.keys(VIDEOS).forEach(function (n) { z.file(base + 'curso/' + n, VIDEOS[n]); });
       /* index.html autónomo: datos y animaciones dentro (abierto desde el gestor de archivos del móvil, los <script src> sueltos no cargan) */
       var du0 = duracion(res, D); D.minTotal = du0.total; D.horasOficiales = du0.oficial;   /* certificado = duración total, u oficial si la hay (18-10-2026) */
-      var datosIn = '<script>window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';<\/script>';
+      var datosIn = '<script>' + datosJS(D) + '<\/script>';
       var animIn = D.anim && window.EU_CURSO_ANIM ? '<script>' + EU_CURSO_ANIM.js().replace(/<\//g, '<\\/') + '<\/script>' : '';
       z.file(base + 'curso/index.html', cursoHTML(D).replace('<script src="datos.js"></script>', function () { return datosIn; }).replace('<script src="anim.js"></script>', function () { return animIn; }));
       if (D.anim && window.EU_CURSO_ANIM) z.file(base + 'curso/anim.js', EU_CURSO_ANIM.js());
       /* datos.js era una copia exacta de lo que ya va dentro de index.html (25–40 MB repetidos): solo si se pide */
-      if (window.EU_CURSO_DATOS_SUELTO) z.file(base + 'curso/datos.js', 'window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';');
+      if (window.EU_CURSO_DATOS_SUELTO) z.file(base + 'curso/datos.js', datosJS(D));
       z.file(base + 'libro/libro-imprimible.html', ED.documento(res, 'print'));
       z.file(base + 'libro/libro-interactivo.html', ED.documento(res, 'web'));
       var li = [];

@@ -65,7 +65,7 @@
           },
           intro: fr,
           q: [['¿Qué se hace en este paso?', fr], ['¿En qué técnica estamos?', t.n + '.'], ['¿Qué paso viene después?', narr[k + 1] || 'Se termina y se revisa el resultado.']],
-          porque: t.resumen || ''
+          porque: /* 7-11-2026 (Fátima): sin «Por qué funciona»; el resumen de la técnica no es un porqué */ ''
         });
       });
     });

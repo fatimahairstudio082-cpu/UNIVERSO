@@ -1096,8 +1096,22 @@
           '<rect x="1" y="1" width="198" height="148" rx="5" fill="#EEF0F3"/><image href="' + src(g) + '" x="3" y="3" width="194" height="144"' + f + ' preserveAspectRatio="xMidYMid meet"/>';
       },
       rot: [], intro: DESC[g[4]],
-      q: [['¿Qué se ve en «' + g[1] + '»?', DESC[g[4]]], ['¿De qué grupo de la galería es?', CATS[g[2]] + '.'], ['¿Qué enseña la imagen y qué enseña el maniquí?', 'La imagen enseña el resultado; el maniquí y la ficha, cómo se llega a él.']],
-      porque: DESC[g[4]]
+      q: (function () {
+        /* 1-11-2026 (Fátima: «las preguntas no pueden ser genéricas ni repetidas»): fuera las metapreguntas que se repetían
+           idénticas en todas las imágenes («¿de qué grupo de la galería es?», «¿qué enseña la imagen y qué enseña el maniquí?»).
+           Queda la pregunta real de la imagen y, si enlaza con un corte, una pregunta de SU técnica con su dato real (elevación). */
+        var qs = [['¿Qué se ve en «' + g[1] + '»?', DESC[g[4]]]];
+        var d = destino(g), CO = window.EU_CORTES;
+        if (d && d.k === 'corte' && CO && CO.tecnica) {
+          var tc = CO.tecnica(d.id), ev = tc && tc.elev;
+          if (ev) qs.push(['En «' + g[1] + '», ¿cómo se saca y se corta cada mechón?',
+            ev.some(function (x) { return +x > 0; })
+              ? 'En vertical, llevándolo a su elevación: en cabello mixto, en horizontal quedaría trasquilado.'
+              : 'En horizontal: todo a 0°, con el peso al cuello y el cabello bien estirado.']);
+        }
+        return qs;
+      })(),
+      porque: ''   /* 7-11-2026 (Fátima: «quita el Por qué funciona inventado»): la descripción ya sale con la imagen; repetida bajo «Por qué funciona» no explica nada */
     };
   }
   var REG = false;
