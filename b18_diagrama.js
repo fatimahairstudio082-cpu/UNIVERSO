@@ -305,7 +305,10 @@
     return [linea(plano(pts), [t0, t0 + 0.05], VERDE, 2.4, { d: 1 }), rotulo('Línea de la guía · un dedo', VERDE, t0)];
   }
   function escCapas(R) {
-    var v = 'nuca', pila = R.capas.pila, n = pila.length || 7, tr = [], vert = R.capas.part === 'vertical' && !R.liso, hY = R.cero ? yGuia() : null;
+    /* B18 (7-11-2026, Fátima: «líneas verticales de proyección para que la tijera corte en vertical con elevaciones; los rectos que no llevan
+       elevación, en horizontal»): con alguna capa elevada, secciones verticales; sin elevación y línea recta, horizontal; liso extremo, horizontal */
+    var elevada = (R.capas.pila || []).some(function (g) { return g > 0; });
+    var v = 'nuca', pila = R.capas.pila, n = pila.length || 7, tr = [], vert = !R.liso && (elevada || R.capas.part === 'vertical') && (elevada || lineaDe(R) !== 'recta'), hY = R.cero ? yGuia() : null;
     if (R.cero) tr = tr.concat(lineaGuia(v, 0));
     if (!vert) {
       for (var z = 0; z < n; z++) {
@@ -326,7 +329,7 @@
         }
         tr.push(tijera(plano(tips), [ta + (tb - ta) * 0.6, tb], CORTE, R.desg, ext));
       });
-      tr.push(rotulo('Secciones verticales · ' + pila.join(' · ') + '°', TINTA, 0), regla(0, Math.max.apply(null, pila), [0, 0.3], CORTE));
+      tr.push(rotulo('Líneas verticales de proyección · ' + pila.join(' · ') + '°', TINTA, 0), regla(0, Math.max.apply(null, pila), [0, 0.3], CORTE));
     }
     return { v: v, tr: tr };
   }
