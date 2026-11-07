@@ -641,9 +641,7 @@
       }
       var hF = alto ? (ver ? 62 : 76) : 46;
       return H.cabecera(C, pg) + kick((pg.u && pg.u.t ? pg.u.t + ' · ' : '') + 'Clase') + H.h1(C, esc(r.n)) +
-        (f ? img(f.src, f.t, hF) : (function () {   /* 7-11-2026 (Fátima: «sin hojas vacías»): sin foto, el maniquí de su primer paso */
-          if (resul || ver) return ''; var p0 = P.filter(function (p) { return p.e; })[0], m = p0 ? maniquí(p0, pg.rec) : '';
-          return m ? img(m, p0.t, hF) + '<div style="font-size:.7em;margin-top:1mm">' + esc(String(p0.t).replace(/^(Visualización|Clase) · /, '')) + '</div>' : ''; })()) +
+        (f ? img(f.src, f.t, hF) : '') +
         '<div style="font-size:.98em;line-height:1.55;margin-top:3mm">' + esc(texto) + '</div>' + ficha + resul + ver + H.folio(C, pg);
     }
     /* hoja 2: la receta paso a paso, la práctica y lo que viene después */
@@ -659,11 +657,7 @@
     var prac = qs.length ? caja(T, 'Práctica', '<ol style="margin:0;padding-left:5mm">' + qs.map(function (p) { return '<li style="margin:0 0 1mm">' + esc(p.q.e) + ' <i>(' + p.q.o.map(function (o, i) { return String.fromCharCode(97 + i) + ') ' + esc(o); }).join(' · ') + ')</i></li>'; }).join('') + '</ol><div style="margin-top:1mm;opacity:.8">Respuestas: ' + qs.map(function (p, i) { return (i + 1) + String.fromCharCode(97 + p.q.c); }).join(' · ') + '</div>') : '';
     var rec = r.cer && ult ? recomTinte(r.cer, T, r.quitaRec) : '';
     var luego = pg.sig && ult ? '<div style="margin-top:4mm;padding:2.5mm 4mm;border-radius:' + rad + 'px;background:' + T.acc + ';color:#fff;font-weight:700">A continuación · ' + esc(pg.sig) + '</div>' : '';
-    /* 7-11-2026 (Fátima: «sin hojas vacías»): receta corta → el maniquí de sus propios pasos debajo, con su título */
-    var vistos = vis.length <= 4 ? vis.filter(function (p) { return p.e; }).slice(-2) : [], hv = alto ? 56 : 36;
-    var mani = vistos.length ? '<div style="display:grid;grid-template-columns:repeat(' + vistos.length + ',minmax(0,1fr));gap:3mm;margin-top:3mm">' +
-      vistos.map(function (p) { var m = maniquí(p, pg.rec); return m ? '<div>' + img(m, p.t, hv) + '<div style="font-size:.7em;margin-top:1mm">' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + '</div></div>' : ''; }).join('') + '</div>' : '';
-    return H.cabecera(C, pg) + kick(r.n + ' · Paso a paso') + H.h1(C, 'La receta, paso a paso' + (pg.hojas > 1 ? ' · ' + pg.hoja + ' de ' + pg.hojas : '')) + lista + mani + prac + rec + luego + H.folio(C, pg);
+    return H.cabecera(C, pg) + kick(r.n + ' · Paso a paso') + H.h1(C, 'La receta, paso a paso' + (pg.hojas > 1 ? ' · ' + pg.hoja + ' de ' + pg.hojas : '')) + lista + prac + rec + luego + H.folio(C, pg);
   }
   if (ED && ED.registrar) ED.registrar({
     paginas: { pe_clase: paginaClase },
