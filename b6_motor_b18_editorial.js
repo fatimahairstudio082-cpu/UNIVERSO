@@ -42,7 +42,7 @@
     });
     return PROM;
   }
-  function activo() { return !window.EU_MOTOR_B18_OFF && !FALLO; }
+  function activo() { return !!window.EU_MOTOR_B18_ON && !window.EU_MOTOR_B18_OFF && !FALLO; }   /* 7-11-2026 (Fátima): el Editorial vuelve al maniquí de Guías 3D; V18 solo con EU_MOTOR_B18_ON */
 
   /* ---- reparto ordenado: Guías 3D, B18, Guías 3D, B18… ---- */
   function orden() {
