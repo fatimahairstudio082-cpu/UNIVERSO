@@ -40,7 +40,7 @@
         var sc = (e.vista !== 'frente' && ES.filter(function (x) { return x.tipo === 'queda_corto_nuca'; })[0]) || ES.filter(function (x) { return x.tipo === quiero; })[0] ||
           ES.filter(function (x) { return /^queda/.test(x.tipo || ''); })[0] || ES[ES.length - 1];
         var f = DG.foto(sc, 640, 0.82);   /* calidad 0,82 como el resto del libro (a 1,0 pesaba ~4 veces más sin verse mejor) */
-        if (f) out = { foto: f, t: sc.t, pasos: ES.map(function (x) { return [x.t, x.texto]; }) };
+        if (f) out = { foto: f, t: sc.t, pasos: ES.map(function (x) { return [x.t, x.texto]; }), es: ES };
       }
     } catch (er) { console.warn('Cortes por forma · maniquí', e.n, er); }
     return (MAN[e.man] = out);
@@ -97,7 +97,12 @@
       idx.map(function (i) { var p = L[i]; return '<li style="margin:0 0 1.2mm"><b>' + esc(p[0]) + '.</b> ' + esc(p[1] || '') + '</li>'; }).join('') + '</ol>';
     var kick = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + acc + ';margin:0 0 1.5mm">Corte por forma · ' +
       (pg.parte > 1 ? 'la lección, continuación (' + pg.parte + ' de ' + pg.partes + ')' : 'imagen, maniquí y lección') + '</div>';
-    if (pg.parte > 1) return H.cabecera(C, pg) + kick + H.h1(C, esc(e.titulo)) + '<div style="font-weight:700;color:' + acc + ';font-size:.8em">La lección, paso a paso (sigue)</div>' + lista + H.folio(C, pg);
+    /* 7-11-2026 (Fátima: «sin hojas vacías»): continuación corta → el maniquí de su último paso, con su título */
+    var fin = '';
+    if (pg.parte > 1 && idx.length <= 3) { var a = armado(e), sc = a && a.es && a.es[idx[idx.length - 1]], m = '';
+      if (sc) { var kf = e.man + '|' + idx[idx.length - 1]; if (MAN[kf] == null) { try { MAN[kf] = window.EU_DIAGRAMA.foto(sc, 640, 0.82) || ''; } catch (er) { MAN[kf] = ''; } } m = MAN[kf]; }
+      if (m) fin = '<figure style="margin:3mm 0 0"><img src="' + m + '" alt="' + esc(sc.t) + '" style="display:block;width:100%;max-height:' + Math.round(cap.mm * 0.55) + 'mm;object-fit:contain;background:' + soft + '"><figcaption style="font-size:.7em;margin-top:1mm">' + esc(sc.t) + '</figcaption></figure>'; }
+    if (pg.parte > 1) return H.cabecera(C, pg) + kick + H.h1(C, esc(e.titulo)) + '<div style="font-weight:700;color:' + acc + ';font-size:.8em">La lección, paso a paso (sigue)</div>' + lista + fin + H.folio(C, pg);
     var fh = cap.fig + (pg.clave ? (cap.fig > 50 ? 34 : 16) : 0);
     var figs = '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3mm;margin:0 0 2.5mm">' +
       '<figure style="margin:0;background:' + soft + ';border-radius:2mm;padding:1.2mm"><img src="' + srcFoto(e) + '" alt="' + esc(e.titulo) + '" style="display:block;width:100%;height:' + fh + 'mm;object-fit:contain;border-radius:1.5mm">' +
