@@ -42,19 +42,19 @@
       'function di(t,cb){var hecho=0,fin=function(){if(hecho)return;hecho=1;cb&&cb()};if(!S||!t){setTimeout(fin,1400);return}var u=new SpeechSynthesisUtterance(t);u.lang="es-ES";var v=V();if(v)u.voice=v;u.rate=.95;u.onend=fin;u.onerror=fin;setTimeout(fin,Math.max(2600,t.length*95));S.speak(u)}' +
       'function pinta(cv,lam,p,m){var c=cv.getContext("2d");c.setTransform(1,0,0,1,0,0);c.globalAlpha=1;c.globalCompositeOperation="source-over";c.clearRect(0,0,cv.width,cv.height);LM.pintar(c,cv.width,cv.height,lam,{prog:p,modo:m||"aparecer"})}' +
       'function va(cv,lam,a,b,ms,m,cb){var t0=performance.now();(function f(t){var k=Math.min(1,(t-t0)/ms);pinta(cv,lam,a+(b-a)*k,m);if(k<1&&!cv._stop)requestAnimationFrame(f);else if(cb)cb()})(t0)}' +
-      'var pal=(LM.paletas()||[]).filter(function(p){return p.claro})[0];' +
+      'var PAL=(LM.paletas()||[]).filter(function(p){return p.claro}),pal=PAL[0],K=0,MOD=["aparecer","dibujar","zoom"];' +   /* 7-11-2026 (Fátima): esquemas con variación: paleta clara y modo de animación distintos en cada uno */
       'function bt(t){var b=document.createElement("button");b.textContent=t;b.style.cssText="font:600 12px system-ui,sans-serif;padding:4px 11px;border-radius:99px;border:0;background:#1f1b18;color:#fff;cursor:pointer;margin:1.5mm 0";return b}' +
       /* ejemplos resueltos */
       '[].slice.call(document.querySelectorAll("script[data-ej-anim]")).forEach(function(sc){var D=JSON.parse(sc.textContent),box=sc.parentNode,b=bt("\\u25b6 Ver resoluci\\u00f3n"),cv=null;box.insertBefore(b,box.children[1]||null);' +
       'b.onclick=function(){if(cv){cv._stop=1;S&&S.cancel();cv.remove();cv=null;b.textContent="\\u25b6 Ver resoluci\\u00f3n";return}' +
-      'var nod=D.p.map(function(p,i){return{t:"Paso "+(i+1),d:p,nivel:1}}).concat([{t:"Respuesta",d:D.s,nivel:1}]),n=nod.length,lam={titulo:D.t,subtitulo:D.e.length>110?D.e.slice(0,108)+"\\u2026":D.e,estructura:n>4?"fl_serpiente":"fl_cadena",paleta:pal&&pal.id,nodos:nod};' +
-      'cv=document.createElement("canvas");cv.width=1400;cv.height=n>4?900:640;cv.style.cssText="width:100%;height:auto;display:block;border-radius:6px;margin:1mm 0";box.insertBefore(cv,b.nextSibling);b.textContent="\\u25a0 Parar";S&&S.cancel();pinta(cv,lam,0);' +
-      'var i=0;(function paso(){if(!cv||cv._stop)return;if(i>=n){di("Por qu\\u00e9: "+D.x,function(){if(cv)b.textContent="\\u21ba Cerrar"});return}var txt=i<n-1?"Paso "+(i+1)+". "+D.p[i]:"La respuesta es: "+D.s+".";var a=i/n,z=(i+1)/n;i++;var ok=0,sig=function(){if(++ok===2)paso()};va(cv,lam,a,z,900,"aparecer",sig);di(txt,sig)})()}});' +
+      'var nod=D.p.map(function(p,i){return{t:"Paso "+(i+1),d:p,nivel:1}}).concat([{t:"Respuesta",d:D.s,nivel:1}]),n=nod.length,lam={titulo:D.t,subtitulo:D.e.length>110?D.e.slice(0,108)+"\\u2026":D.e,estructura:n>4?"fl_serpiente":"fl_cadena",paleta:(PAL[K%Math.max(1,PAL.length)]||{}).id,nodos:nod},mo=MOD[K%3];K++;' +
+      'cv=document.createElement("canvas");cv.width=1400;cv.height=n>4?900:640;cv.style.cssText="width:100%;height:auto;display:block;border-radius:6px;margin:1mm 0";box.insertBefore(cv,b.nextSibling);b.textContent="\\u25a0 Parar";S&&S.cancel();pinta(cv,lam,0,mo);' +
+      'var i=0;(function paso(){if(!cv||cv._stop)return;if(i>=n){di("Por qu\\u00e9: "+D.x,function(){if(cv)b.textContent="\\u21ba Cerrar"});return}var txt=i<n-1?"Paso "+(i+1)+". "+D.p[i]:"La respuesta es: "+D.s+".";var a=i/n,z=(i+1)/n;i++;var ok=0,sig=function(){if(++ok===2)paso()};va(cv,lam,a,z,900,mo,sig);di(txt,sig)})()}});' +
       /* láminas de la unidad */
       '[].slice.call(document.querySelectorAll("img[data-lam]")).forEach(function(im){var lam;try{lam=JSON.parse(im.getAttribute("data-lam"))}catch(e){return}var b=bt("\\u25b6 Animar esquema"),cv=null;im.parentNode.insertBefore(b,im);' +
       'b.onclick=function(){if(cv){cv._stop=1;S&&S.cancel();cv.remove();cv=null;im.style.display="";b.textContent="\\u25b6 Animar esquema";return}' +
       'cv=document.createElement("canvas");cv.width=im.naturalWidth||1400;cv.height=im.naturalHeight||1560;cv.style.cssText=im.style.cssText+";display:block;height:"+im.offsetHeight+"px;width:auto;max-width:100%";im.style.display="none";im.parentNode.insertBefore(cv,im);b.textContent="\\u25a0 Parar";' +
-      'var N=lam.nodos||[],i=0,m=["aparecer","dibujar"][(lam.titulo||"").length%2];pinta(cv,lam,0,m);di(lam.titulo,function(){});' +
+      'var N=lam.nodos||[],i=0,m=MOD[K++%3];pinta(cv,lam,0,m);di(lam.titulo,function(){});' +
       '(function sig(){if(!cv||cv._stop)return;if(i>=N.length){b.textContent="\\u21ba Ver foto";return}var a=i/N.length,z=(i+1)/N.length,t=N[i].t;i++;var ok=0,f=function(){if(++ok===2)sig()};va(cv,lam,a,z,700,m,f);di(t,f)})()}});' +
       'if(S&&S.onvoiceschanged!==undefined)S.onvoiceschanged=function(){V()}})();<\/script>';
   }

@@ -134,14 +134,26 @@
     var p = o.construirCon.apply(this, arguments);
     var fn = arguments[0]; return activo() ? Promise.all([p, cargar()]).then(function (r) { return conB18(fn, tecnica(r[0])); }) : p;
   };
+  /* 7-11-2026 (Fátima: «reduce las imágenes para sacar libros y cursos de 300 a 500 hojas»): con libros grandes el maniquí
+     se guarda más pequeño (ancho ×0,75 desde 200 hojas, ×0,65 desde 400; JPEG 0,72 / 0,68). Hasta 199 hojas, igual que antes. */
+  var ESC = { w: 1, q: 1 }, ED0 = window.EU_EDITORIAL;
+  if (ED0 && ED0.ensamblar) {
+    var ens0 = ED0.ensamblar;
+    ED0.ensamblar = function (cfg) {
+      var n = +(cfg && cfg.paginas) || 0; ESC = n >= 400 ? { w: 0.65, q: 0.68 } : n >= 200 ? { w: 0.75, q: 0.72 } : { w: 1, q: 1 };
+      return ens0.apply(this, arguments);
+    };
+    Object.keys(ens0).forEach(function (k) { ED0.ensamblar[k] = ens0[k]; });
+  }
+  function talla(a) { if (ESC.w < 1) { a[1] = Math.round((+a[1] || 640) * ESC.w); a[2] = Math.min(+a[2] || 0.8, ESC.q); } return a; }
   DG.foto = function (e) {
     if (e && e.vista && e.vista.indexOf(PRE) === 0) {
       var w = win(); if (!w || !w.B18_DIAGRAMA) return '';
       var c = copia(e); c.vista = e.vista.slice(PRE.length);
-      var a = Array.prototype.slice.call(arguments); a[0] = c;
+      var a = talla(Array.prototype.slice.call(arguments)); a[0] = c;
       try { return w.B18_DIAGRAMA.foto.apply(w.B18_DIAGRAMA, a); } catch (er) { return ''; }
     }
-    return o.foto.apply(this, arguments);
+    return o.foto.apply(this, talla(Array.prototype.slice.call(arguments)));
   };
 
   /* el curso se arma con DG.construir (async): solo mientras dura, el reparto vale también ahí */
