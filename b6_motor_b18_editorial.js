@@ -66,8 +66,19 @@
     E = E && copia(E); if (!E || !E.escenas || !E.escenas.length) return null;
     var F = {}; Object.keys(E.fondos || {}).forEach(function (k) { F[PRE + k] = E.fondos[k]; });
     E.fondos = F; E.motor = 'b18';
-    E.escenas.forEach(function (e) { if (e.vista && e.vista.indexOf(PRE) !== 0) e.vista = PRE + e.vista; });
+    E.escenas.forEach(function (e) { if (e.vista && e.vista.indexOf(PRE) !== 0) e.vista = PRE + e.vista; ligero(e); });
     return E;
+  }
+  /* 7-11-2026 (Fátima: «optimiza el peso sin que pierdan calidad»): los trazos de cabello (líneas 'l' y mechones 'm') van en
+     píxeles de un lienzo de 1280; con décimas no se ve diferencia (en el libro la escena mide ≤ 640 px, error < 0,25 px).
+     Se redondean a enteros solo en la copia que va al libro y al curso; los tiempos y lo demás no se tocan. */
+  function ligero(e) {
+    var tr = e && e.anim && e.anim.tr; if (!tr) return;
+    var R = function (v) { return typeof v === 'number' ? Math.round(v) : v; };
+    tr.forEach(function (T) {
+      if (T.k === 'l' && T.p && T.p.map) T.p = T.p.map(R);
+      else if (T.k === 'm' && T.f && T.f.map) T.f = T.f.map(function (q) { return q && q.map ? q.map(R) : q; });
+    });
   }
   function corteB18(id) {
     var w = win(); if (!LISTO || !w || !w.B18_DIAGRAMA) return null;
