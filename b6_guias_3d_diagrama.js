@@ -19,6 +19,10 @@
   /* corte y cabello de la guía cargada: «<corte> · <cabello>» (EU_CORTES.guiaDe) o una guía propia */
   function recetaDe(el) {
     var DG = window.EU_DIAGRAMA, CO = window.EU_CORTES, g = el.guia;
+    /* 8-11-2026 (Fátima: «cada corte sincronizado con su escena, sin ligar unos cortes con otros»): el corte de «Crear mi corte» (o del
+       Escáner o del Laboratorio) queda unido a la guía que estaba cargada; si se carga otro corte de la Biblioteca (otra guía), se suelta
+       y manda el corte nuevo. Antes se quedaba pegado y el corte nuevo enseñaba las escenas del anterior. */
+    if (el._dg && el._dg.libre) { if (!('libreGuia' in el._dg)) el._dg.libreGuia = g; else if (el._dg.libreGuia !== g) { el._dg.libre = null; delete el._dg.libreGuia; el._dg.t0 = 0; } }
     /* corte creado en «Crear mi corte»: manda sobre la guía cargada */
     if (DG && el._dg && el._dg.libre && window.EU_GEOMETRIA_CAPILAR) {
       var kL = 'libre:' + JSON.stringify(el._dg.libre);
@@ -35,7 +39,10 @@
       c = (CO.lista() || []).filter(function (x) { return x.n === partes[0]; })[0] || null;
       cab = ((CO.cabellos && CO.cabellos()) || []).filter(function (t) { return t.n === partes[1]; })[0] || null;
     }
-    var clave = (c ? c.id : 'guia:' + g.nombre) + '|' + (cab ? cab.id : '') + '|' + (g.pasos || []).length;
+    /* una guía propia (fuera del catálogo) se reconoce por su nombre y sus elevaciones, no solo por cuántos pasos tiene: dos guías
+       distintas con el mismo nombre y los mismos pasos ya no comparten escenas */
+    var huella = c ? '' : '|' + JSON.stringify((g.pasos || []).map(function (p) { return [p.elevF, p.elevB, p.particion || p.part || '', p.zona || '']; }));
+    var clave = (c ? c.id : 'guia:' + g.nombre) + '|' + (cab ? cab.id : '') + '|' + (g.pasos || []).length + huella;
     if (CACHE[clave]) return CACHE[clave];
     var full = c && CO.get(c.id);
     var R = c ? DG.receta(c.id, cab ? cab.id : null) : DG.desdeGuia(g, { n: partes[0] || 'Mi corte' });
@@ -83,6 +90,7 @@
     if (!o || !o.R) { x.fillStyle = '#1F1B18'; x.font = '600 28px Georgia,serif'; x.fillText('Carga un corte para ver su diagramación.', 48, 90); return; }
     if (!o.E) { x.fillStyle = '#1F1B18'; x.font = '600 28px Georgia,serif'; x.fillText(o.err ? 'No se pudo preparar: ' + o.err : 'Preparando la diagramación de ' + o.R.n + '…', 48, 90); return; }
     if (st._chE !== o.E && el._dgSincro) { st._chE = o.E; el._dgSincro(); }
+    if (st._o !== o) { st._o = o; st.t0 = 0; }   /* otro corte: su animación empieza por su primera escena */
     var L = o.E.escenas, ahora = performance.now(), t0 = st.t0 || (st.t0 = ahora), dt = ahora - t0;
     /* 8-11-2026 (Fátima: «cómo queda el corte terminado: tres cabezas reducidas, de frente, de atrás y de lado»): una vista de cada
        «Cómo queda» del corte (primero las normales, si no, las de corte corto), pintadas a la vez en su fotograma final */
