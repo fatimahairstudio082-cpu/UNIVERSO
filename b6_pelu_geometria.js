@@ -31,7 +31,7 @@
       texto: 'Atrás se respeta el largo; delante, capas desgrafiladas con la guía desde la barbilla (o el cuello, según el largo).' },
     { id: 'shanghai', n: 'Shanghái', capas: [0, 45, 90, 135, 180, 220, 225], part: 'vertical', acabado: 'recto', altura: 'nariz', validar: true, coronilla: true,
       texto: 'Coronilla sobredirigida a 220–225°; las capas de abajo suben poco a poco hasta llegar ahí.' },
-    { id: 'box', n: 'Box (partición oblicua)', capas: [0, 45, 90, 135, 180, 200, 220], part: 'oblicua', acabado: 'recto', altura: 'nariz', validar: true, coronilla: true,
+    { id: 'box', n: 'Box (partición oblicua)', capas: [0, 30, 60, 90, 120, 135, 150], part: 'oblicua', acabado: 'recto', altura: 'nariz', validar: true, coronilla: true,
       texto: 'Partición oblicua del box universal: nuca en abanico, lados en diagonal y triángulo arriba.' },
     { id: 'mariposa', n: 'Mariposa', capas: [0, 45, 90, 135, 180], frente: [0, 45, 90, 90, 90], part: 'vertical', acabado: 'desgrafilado', altura: 'labio', validar: true, foto: 'mariposa.jpg',
       texto: 'Capas largas por fuera y capas cortas arriba que enmarcan el rostro como alas.' },

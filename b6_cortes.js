@@ -66,6 +66,7 @@
 
   var FAMILIAS = [
     { id: 'basicos', n: 'Cortes básicos · sin elevación' },   /* Fátima, 18-10-2026: primero los básicos, luego los avanzados */
+    { id: 'vu', n: 'Cortes en V y en U' },   /* Fátima, 8-11-2026: en V y en U rectos (los básicos) y con capas, organizados juntos */
     { id: 'melenas', n: 'Melenas y bob' },
     { id: 'capas', n: 'Capas y desfilados' },
     { id: 'cortos', n: 'Cortos de dama' },
@@ -247,6 +248,58 @@
           'Línea guía en la nuca a 0°. Se empieza a cortar a 0°: los únicos cortes que se hacen horizontales son los que no llevan ninguna elevación.',
           'Cada mechón que se agarra se corta a 0° y de esa misma medida. Los laterales se emparejan con el corte cómo quedó en la parte de atrás.',
           'Flequillo de lado: se saca más abajo de los ojos, colocándolo en triángulo, cortando en triángulo, y se peina de lado, sin dejar huecos.'
+        ] }
+    },
+    {
+      id: 'vu_v_capas', fam: 'vu', n: 'En V con capas', validar: true,
+      d: 'Atrás en V, con capas que suben poco a poco de 0° a 90°.',
+      mejor: ['liso', 'ondulado', 'grueso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 30, 45, 60, 75, 90), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en V, con capas.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en V.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 30 · 45 · 60 · 75 · 90°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda.',
+          'Delante se empareja con la línea de atrás. Elevaciones propuestas, a validar por Fátima.'
+        ] }
+    },
+    {
+      id: 'vu_v_capas_largas', fam: 'vu', n: 'En V con capas largas', validar: true,
+      d: 'Atrás en V, con las capas más largas: las dos primeras a 0° y luego suben hasta 75°.',
+      mejor: ['liso', 'ondulado', 'grueso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 15, 30, 45, 60, 75), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en V, con capas largas.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en V.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 15 · 30 · 45 · 60 · 75°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda.',
+          'Delante se empareja con la línea de atrás. Elevaciones propuestas, a validar por Fátima.'
+        ] }
+    },
+    {
+      id: 'vu_u_capas', fam: 'vu', n: 'En U con capas', validar: true,
+      d: 'Atrás en U, con capas de 0° a 90°.',
+      mejor: ['liso', 'ondulado', 'grueso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 20, 40, 60, 80, 90, 90), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en U, con capas.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en U.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 20 · 40 · 60 · 80 · 90 · 90°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda.',
+          'Delante se empareja con la línea de atrás. Elevaciones propuestas, a validar por Fátima.'
+        ] }
+    },
+    {
+      id: 'vu_u_capas_largas', fam: 'vu', n: 'En U con capas largas', validar: true,
+      d: 'Atrás en U, con las capas más largas: las dos primeras a 0° y luego suben hasta 90°.',
+      mejor: ['liso', 'ondulado', 'grueso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 20, 40, 60, 80, 90), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en U, con capas largas.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en U.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 20 · 40 · 60 · 80 · 90°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda.',
+          'Delante se empareja con la línea de atrás. Elevaciones propuestas, a validar por Fátima.'
         ] }
     },
     /* ── Melenas y bob ── */
@@ -674,7 +727,7 @@
         ] }
     },
     {
-      id: 'nina_recta', fam: 'ninos', n: 'Niña · melena recta',
+      id: 'nina_recta', fam: 'ninos', n: 'Niña · melena recta', largo: 'hombro',   /* 8-11-2026: a 0° como todos los de niños; más larga que el bob recto (a validar) */
       d: 'Un solo largo, borde cerrado. La forma más limpia de crecer.',
       mejor: ['liso_extremo', 'liso', 'fino'],
       g: { part: 'horizontal', tipo: 'Recto', elev: plana(0), dir: 'Caída natural',
@@ -762,7 +815,7 @@
       id: 'afro_redondo', fam: 'rizado', n: 'Afro redondo',
       d: 'La forma se corta a peine alto: una esfera medida desde el cráneo.',
       mejor: ['afro', 'rizado'],
-      g: { part: 'vertical', tipo: 'Recto', elev: plana(90), guiaElev: 90, dir: 'Perpendicular',
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(90, 90, 100, 110, 120, 135, 135), guiaElev: 90, dir: 'Perpendicular',   /* 8-11-2026: elevaciones propuestas, a validar por Fátima (antes igual que Capas a 90°) */
         acabado: 'Punteado', resultado: 'Esfera pareja, sin planos ni huecos.',
         notas: [
           'Cabello seco y peinado con peine de púa ancha hasta ganar volumen.',
@@ -832,7 +885,7 @@
       id: 'french_bob', fam: 'moda', n: 'French bob',
       d: 'Bob corto a la altura de la barbilla, con flequillo recto.',
       mejor: ['liso_extremo', 'liso', 'fino'],
-      g: { part: 'horizontal', tipo: 'Recto', elev: plana(0), dir: 'Caída natural',
+      g: { part: 'horizontal', tipo: 'Recto', elev: pila(0, 10, 20, 30, 30, 30, 30), dir: 'Caída natural',   /* 8-11-2026: elevaciones propuestas, a validar por Fátima (antes igual que Flequillo baby) */
         acabado: 'Punteado', resultado: 'Bob corto y flequillo en su sitio.',
         notas: [
           'Cuatro secciones y triángulo frontal marcado desde el principio.',

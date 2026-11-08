@@ -11,7 +11,7 @@
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
-  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['peinado_*', 'Línea por línea'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['queda_*', 'Cómo queda'], ['pix_*', 'Pixie · referencia'], ['pixc_*', 'Pixie corto'], ['dos', '◫ Lateral + nuca']];
+  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['peinado_*', 'Línea por línea'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['queda_*', 'Cómo queda'], ['pix_*', 'Pixie · referencia'], ['pixc_*', 'Pixie corto'], ['dos', '◫ Lateral + nuca'], ['tres', '◫ Cómo queda · 3 vistas'], ['recorrido', '▶ Recorrido de cortes']];
   var DUR = 20000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
@@ -19,6 +19,10 @@
   /* corte y cabello de la guía cargada: «<corte> · <cabello>» (EU_CORTES.guiaDe) o una guía propia */
   function recetaDe(el) {
     var DG = window.EU_DIAGRAMA, CO = window.EU_CORTES, g = el.guia;
+    /* 8-11-2026 (Fátima: «cada corte sincronizado con su escena, sin ligar unos cortes con otros»): el corte de «Crear mi corte» (o del
+       Escáner o del Laboratorio) queda unido a la guía que estaba cargada; si se carga otro corte de la Biblioteca (otra guía), se suelta
+       y manda el corte nuevo. Antes se quedaba pegado y el corte nuevo enseñaba las escenas del anterior. */
+    if (el._dg && el._dg.libre) { if (!('libreGuia' in el._dg)) el._dg.libreGuia = g; else if (el._dg.libreGuia !== g) { el._dg.libre = null; delete el._dg.libreGuia; el._dg.t0 = 0; } }
     /* corte creado en «Crear mi corte»: manda sobre la guía cargada */
     if (DG && el._dg && el._dg.libre && window.EU_GEOMETRIA_CAPILAR) {
       var kL = 'libre:' + JSON.stringify(el._dg.libre);
@@ -35,7 +39,10 @@
       c = (CO.lista() || []).filter(function (x) { return x.n === partes[0]; })[0] || null;
       cab = ((CO.cabellos && CO.cabellos()) || []).filter(function (t) { return t.n === partes[1]; })[0] || null;
     }
-    var clave = (c ? c.id : 'guia:' + g.nombre) + '|' + (cab ? cab.id : '') + '|' + (g.pasos || []).length;
+    /* una guía propia (fuera del catálogo) se reconoce por su nombre y sus elevaciones, no solo por cuántos pasos tiene: dos guías
+       distintas con el mismo nombre y los mismos pasos ya no comparten escenas */
+    var huella = c ? '' : '|' + JSON.stringify((g.pasos || []).map(function (p) { return [p.elevF, p.elevB, p.particion || p.part || '', p.zona || '']; }));
+    var clave = (c ? c.id : 'guia:' + g.nombre) + '|' + (cab ? cab.id : '') + '|' + (g.pasos || []).length + huella;
     if (CACHE[clave]) return CACHE[clave];
     var full = c && CO.get(c.id);
     var R = c ? DG.receta(c.id, cab ? cab.id : null) : DG.desdeGuia(g, { n: partes[0] || 'Mi corte' });
@@ -54,15 +61,63 @@
     if (l) x.fillText(l, x0, y);
   }
 
+  /* 8-11-2026 (Fátima: «cada transportador tiene que estar en cada cabeza, en pequeñito, con cada elevación que se realizó en esa
+     cabeza»): en «Cómo queda · 3 vistas», un transportador pequeño por cabeza (el mismo dibujo que el reloj del motor: 0° abajo,
+     90° hacia el lado, 180° arriba, hasta 225°) con una línea por capa en su color y sus grados debajo */
+  var COLT = ['#B01E45', '#C96A1E', '#D9920E', '#18906A', '#2C6FD1', '#7A4BD1', '#8A1C6B'];
+  function pilaDe(R, vk) {
+    var p = vk === 'lateral' ? ((R.lateral && R.lateral.pila && R.lateral.pila.length) ? R.lateral.pila : (R.frente.pila.length ? R.frente.pila : R.capas.pila))
+      : vk === 'frente' ? (R.frente.pila.length ? R.frente.pila : R.capas.pila) : R.capas.pila;
+    return (p || [0]).slice(0, 7);
+  }
+  function transp(x, pila, cx, cy) {
+    var Rr = 30; x.save(); x.setLineDash([]);
+    x.fillStyle = 'rgba(255,255,255,.88)'; x.beginPath(); x.arc(cx, cy, Rr + 22, 0, 7); x.fill();
+    x.strokeStyle = '#9A8F84'; x.lineWidth = 1.3; x.beginPath(); x.arc(cx, cy, Rr, -Math.PI / 2 - 1.25 * Math.PI, Math.PI / 2, false); x.stroke();
+    x.fillStyle = '#6B625A'; x.font = '600 8px system-ui,sans-serif'; x.textAlign = 'center';
+    [0, 45, 90, 135, 180, 225].forEach(function (k) { var ex = -Math.sin(k * Math.PI / 180), ey = Math.cos(k * Math.PI / 180); x.beginPath(); x.moveTo(cx + ex * Rr * 0.86, cy + ey * Rr * 0.86); x.lineTo(cx + ex * Rr, cy + ey * Rr); x.stroke(); x.fillText(k + '°', cx + ex * (Rr + 11), cy + ey * (Rr + 9) + 3); });
+    pila.forEach(function (g, z) { x.strokeStyle = COLT[z % 7]; x.lineWidth = 2.4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - Math.sin(g * Math.PI / 180) * Rr * (0.96 - z * 0.05), cy + Math.cos(g * Math.PI / 180) * Rr * (0.96 - z * 0.05)); x.stroke(); });
+    x.fillStyle = '#1F1B18'; x.beginPath(); x.arc(cx, cy, 2.2, 0, 7); x.fill();
+    x.font = '700 9px system-ui,sans-serif'; var yy = cy + Rr + 34, tx = '', l = 0;
+    pila.forEach(function (g, z) { var t = (z + 1) + '·' + g + '°'; x.fillStyle = COLT[z % 7]; var w = x.measureText(t + '  ').width; if (l + w > 120) { yy += 11; l = 0; } x.textAlign = 'left'; x.fillText(t, cx - 60 + l, yy); l += w; });
+    x.restore();
+  }
+
+  function numeros() { var m = {}; ((window.EU_CORTES && EU_CORTES.lista()) || []).forEach(function (c, i) { m[c.id] = i + 1; }); return m; }
+  /* «▶ Recorrido de cortes»: los cortes del catálogo uno detrás de otro, en su orden; cada uno con TODAS sus escenas (y sus tres
+     vistas al final) antes de pasar al siguiente. Nunca se mezclan escenas de dos cortes. */
+  function corteCache(id) {
+    var k = 'rec:' + id; if (CACHE[k]) return CACHE[k];
+    var DG = window.EU_DIAGRAMA, o = CACHE[k] = { R: DG.receta(id), E: null, err: null };
+    if (o.R) DG.construir(o.R).then(function (E) { o.E = E; if (E) Object.keys(E.fondos).forEach(function (v) { if (!IMG[v]) { IMG[v] = new Image(); IMG[v].src = E.fondos[v]; } }); }).catch(function (e) { o.err = e.message || String(e); });
+    return o;
+  }
+
   function pintar(el) {
     var x = el.cv.getContext('2d'), W = el.cv.width, H = el.cv.height, st = el._dg, o = recetaDe(el), DG = window.EU_DIAGRAMA;
+    var REC = null;
+    if (st && st.modo === 'recorrido' && window.EU_CORTES) {
+      var LC = EU_CORTES.lista(); st.ri = (st.ri || 0) % Math.max(1, LC.length);
+      o = corteCache(LC[st.ri].id); if (LC[st.ri + 1]) corteCache(LC[st.ri + 1].id);   /* el siguiente se prepara mientras tanto */
+      REC = { i: st.ri, n: LC.length };
+    }
     x.fillStyle = '#F2EEE7'; x.fillRect(0, 0, W, H);
     x.fillStyle = '#B5476B'; x.fillRect(0, 0, W, 6);
     if (!o || !o.R) { x.fillStyle = '#1F1B18'; x.font = '600 28px Georgia,serif'; x.fillText('Carga un corte para ver su diagramación.', 48, 90); return; }
     if (!o.E) { x.fillStyle = '#1F1B18'; x.font = '600 28px Georgia,serif'; x.fillText(o.err ? 'No se pudo preparar: ' + o.err : 'Preparando la diagramación de ' + o.R.n + '…', 48, 90); return; }
     if (st._chE !== o.E && el._dgSincro) { st._chE = o.E; el._dgSincro(); }
+    if (st._o !== o) { st._o = o; st.t0 = 0; }   /* otro corte: su animación empieza por su primera escena */
     var L = o.E.escenas, ahora = performance.now(), t0 = st.t0 || (st.t0 = ahora), dt = ahora - t0;
+    /* 8-11-2026 (Fátima: «cómo queda el corte terminado: tres cabezas reducidas, de frente, de atrás y de lado»): una vista de cada
+       «Cómo queda» del corte (primero las normales, si no, las de corte corto), pintadas a la vez en su fotograma final */
+    var TRES = ['nuca', 'lateral', 'frente'].map(function (vk) { var q = L.filter(function (z) { return z.vista === vk && z.tipo.indexOf('queda_') === 0; }); return q.filter(function (z) { return z.tipo.indexOf('queda_corto') < 0; })[0] || q[0]; }).filter(Boolean);
+    var ESC3 = TRES.length ? { tipo: 'tres', t: 'Cómo queda · atrás, de lado y de frente', texto: 'Así queda el corte terminado: atrás, de lado y de frente.', anim: { dur: DUR } } : null;
+    if (ESC3) L = L.concat([ESC3]);
     var modo = st.modo || 'todo', e, prog, k;
+    if (REC) {   /* recorrido: este corte entero como «▶ Todo»; al terminar, el siguiente corte */
+      modo = 'todo'; var totR = 0; L.forEach(function (z) { totR += Math.max(DUR, (z && z.anim && z.anim.dur) || 0); });
+      if (dt >= totR) { st.ri = REC.i + 1; st.t0 = 0; st._o = null; }
+    }
     /* 26-10-2026 (Fátima: «las animaciones se ven demasiado rápidas»): cada escena dura lo que pide (anim.dur, p. ej. una capa
        mechón por mechón) y nunca menos de DUR; antes todas 20 s */
     function durDe(z) { return Math.max(DUR, (z && z.anim && z.anim.dur) || 0); }
@@ -70,9 +125,11 @@
     var sel;
     if (modo === 'todo') { sel = elige(L); k = sel.k; e = sel.e; prog = sel.prog; }
     else if (modo === 'dos') { prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
+    else if (modo === 'tres') { e = ESC3 || L[0]; prog = 1; }
     else if (/\*$/.test(modo)) { var Lp = L.filter(function (z) { return z.tipo.indexOf(modo.slice(0, -1)) === 0; }); if (!Lp.length) Lp = [L[0]]; sel = elige(Lp); k = sel.k; e = sel.e; prog = sel.prog; }
     else { e = L.filter(function (z) { return z.tipo === modo; })[0] || L[0]; prog = Math.min(1, (dt % durDe(e)) / (durDe(e) * 0.85)); }
-    x.fillStyle = '#B5476B'; x.font = '600 18px Georgia,serif'; x.fillText(('Diagramación · ' + o.R.n + (o.R.liso ? ' · liso extremo' : '')).toUpperCase(), 40, 38);
+    var nC = REC ? REC.i + 1 : (o.R && window.EU_CORTES && numeros()[(EU_CORTES.lista() || []).filter(function (c) { return c.n === o.R.n; }).map(function (c) { return c.id; })[0]]);
+    x.fillStyle = '#B5476B'; x.font = '600 18px Georgia,serif'; x.fillText(((REC ? 'Recorrido · corte ' + nC + ' de ' + REC.n : (nC ? 'Corte ' + nC : 'Diagramación')) + ' · ' + o.R.n + (o.R.liso ? ' · liso extremo' : '')).toUpperCase(), 40, 38);
     x.fillStyle = '#1F1B18'; x.font = '600 32px Georgia,serif';
     if (modo === 'dos') {
       x.fillText('Dos cabezas: lateral y nuca', 40, 78);
@@ -81,6 +138,22 @@
       DG.pinta(x, cap.anim, IMG.nuca, 650, 100, 600, 470, prog);
       x.fillStyle = '#1F1B18'; x.font = '700 15px system-ui,sans-serif'; x.fillText('LATERAL', 44, 590); x.fillText('NUCA · capas de abajo arriba', 664, 590);
       e = { texto: lat.texto };
+    } else if (e && e.tipo === 'tres') {
+      /* tres cabezas reducidas con el corte terminado; sin rótulos ni reloj, para que se vea limpio (las escenas enteras siguen igual) */
+      x.fillText(e.t, 40, 78);
+      var NOM3 = { nuca: 'ATRÁS', lateral: 'DE LADO', frente: 'DE FRENTE' }, w3 = (W - 80) / 3;
+      /* las tres con el mismo recorte, justo alrededor del cabello y la cabeza: la misma escala, así el largo se compara de verdad.
+         Solo el corte: sin rótulos, reloj ni numeritos (las escenas enteras los siguen llevando) */
+      var limpio = function (z) { return (z.anim.tr || []).filter(function (T) { return T.k !== 'e' && T.k !== 'r' && T.k !== 'n' && !(T.k === 'l' && T.w === 1.1); }); };
+      var bb = [1e9, 1e9, -1e9, -1e9];
+      TRES.forEach(function (z) { limpio(z).forEach(function (T) { var q = T.k === 'm' && T.f ? T.f[T.f.length - 1] : (T.k === 'l' || T.k === 's') ? T.p : null; if (!q) return; for (var j = 0; j + 1 < q.length; j += 2) { bb[0] = Math.min(bb[0], q[j]); bb[1] = Math.min(bb[1], q[j + 1]); bb[2] = Math.max(bb[2], q[j]); bb[3] = Math.max(bb[3], q[j + 1]); } }); });
+      var cU = bb[0] < bb[2] ? [bb[0] - 30, bb[1] - 30, bb[2] - bb[0] + 60, bb[3] - bb[1] + 90] : [190, 0, 900, 720];
+      TRES.forEach(function (z, i) {
+        var a3 = Object.assign({}, z.anim, { crop: cU, banda: undefined, tr: limpio(z) });
+        DG.pinta(x, a3, IMG[z.vista], 30 + i * (w3 + 10), 100, w3, 470, 1);
+        transp(x, pilaDe(o.R, z.vista), 30 + i * (w3 + 10) + w3 - 52, 172);
+        x.fillStyle = '#1F1B18'; x.font = '700 15px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(NOM3[z.vista], 30 + i * (w3 + 10) + w3 / 2, 592); x.textAlign = 'left';
+      });
     } else {
       x.fillText(e.t, 40, 78);
       DG.pinta(x, e.anim, IMG[e.vista], 30, 100, W - 60, 480, prog);
@@ -107,6 +180,7 @@
       /* grupos «Línea por línea», «Cómo queda», «Pixie · referencia»: solo si el corte cargado tiene esas escenas */
       var oE = st.on && (recetaDe(el) || {}).E;
       chips.forEach(function (b) { if (oE && /\*$/.test(b._m) && !oE.escenas.some(function (z) { return z.tipo.indexOf(b._m.slice(0, -1)) === 0; })) b.style.display = 'none'; });
+      chips.forEach(function (b) { if (oE && b._m === 'tres' && !oE.escenas.some(function (z) { return z.tipo.indexOf('queda_') === 0; })) b.style.display = 'none'; });
     }
     on.onclick = function () { el._dg = el._dg || { modo: 'todo' }; el._dg.on = !el._dg.on; el._dg.t0 = 0; sincro(); };
     fila.appendChild(on);
@@ -230,6 +304,14 @@
     P.render3D = function () {
       if (this._dg && this._dg.on && !this.exportando && !this.animando && this.getAttribute('aria-hidden') !== 'true') return;
       return r3d.apply(this, arguments);
+    };
+    /* 8-11-2026 (Fátima: «corte 1, luego el otro corte, un hilo sincronizado»): la Biblioteca numera cada corte en el orden del
+       catálogo (familias como están: primero los básicos sin elevación). Solo cambia el texto que se ve; el valor y el nombre no. */
+    var pC = P.panelCortes;
+    if (pC) P.panelCortes = function () {
+      var r = pC.apply(this, arguments);
+      try { var num = numeros(), ss = this.cCortes && this.cCortes.querySelectorAll('select'); if (ss && ss[1]) [].forEach.call(ss[1].options, function (op) { if (num[op.value] && !/^Corte \d+ · /.test(op.textContent)) op.textContent = 'Corte ' + num[op.value] + ' · ' + op.textContent; }); } catch (e) { }
+      return r;
     };
     P.pintar2D = function () {
       if (this._dg && this._dg.on && !this.exportando && !this.animando && this.cv && window.EU_DIAGRAMA && this.getAttribute('aria-hidden') !== 'true') {
