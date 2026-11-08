@@ -91,8 +91,14 @@
       /* tres cabezas reducidas con el corte terminado; sin rótulos ni reloj, para que se vea limpio (las escenas enteras siguen igual) */
       x.fillText(e.t, 40, 78);
       var NOM3 = { nuca: 'ATRÁS', lateral: 'DE LADO', frente: 'DE FRENTE' }, w3 = (W - 80) / 3;
+      /* las tres con el mismo recorte, justo alrededor del cabello y la cabeza: la misma escala, así el largo se compara de verdad.
+         Solo el corte: sin rótulos, reloj ni numeritos (las escenas enteras los siguen llevando) */
+      var limpio = function (z) { return (z.anim.tr || []).filter(function (T) { return T.k !== 'e' && T.k !== 'r' && T.k !== 'n' && !(T.k === 'l' && T.w === 1.1); }); };
+      var bb = [1e9, 1e9, -1e9, -1e9];
+      TRES.forEach(function (z) { limpio(z).forEach(function (T) { var q = T.k === 'm' && T.f ? T.f[T.f.length - 1] : (T.k === 'l' || T.k === 's') ? T.p : null; if (!q) return; for (var j = 0; j + 1 < q.length; j += 2) { bb[0] = Math.min(bb[0], q[j]); bb[1] = Math.min(bb[1], q[j + 1]); bb[2] = Math.max(bb[2], q[j]); bb[3] = Math.max(bb[3], q[j + 1]); } }); });
+      var cU = bb[0] < bb[2] ? [bb[0] - 30, bb[1] - 30, bb[2] - bb[0] + 60, bb[3] - bb[1] + 90] : [190, 0, 900, 720];
       TRES.forEach(function (z, i) {
-        var a3 = Object.assign({}, z.anim, { banda: undefined, tr: (z.anim.tr || []).filter(function (T) { return T.k !== 'e' && T.k !== 'r'; }) });
+        var a3 = Object.assign({}, z.anim, { crop: cU, banda: undefined, tr: limpio(z) });
         DG.pinta(x, a3, IMG[z.vista], 30 + i * (w3 + 10), 100, w3, 470, 1);
         x.fillStyle = '#1F1B18'; x.font = '700 15px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(NOM3[z.vista], 30 + i * (w3 + 10) + w3 / 2, 592); x.textAlign = 'left';
       });

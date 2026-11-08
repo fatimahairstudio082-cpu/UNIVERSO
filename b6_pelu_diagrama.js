@@ -862,7 +862,10 @@
     }
     /* 26-10-2026 (Fátima: «ese corte es redondo, no cuadrado»): en línea recta, atrás y de lado, donde termina cada capa se ve una
        línea recta y horizontal (como yPlano de escQueda); antes la misma altura sobre la cabeza redonda se veía en arco, redonda */
-    var Pc1 = P(NUCA, 1.35, 1.05);
+    /* 8-11-2026 (Fátima: «de lado se ve más corto; atrás, de lado y delante al mismo nivel, emparejado»): la referencia es el punto que
+       mira a la cámara (atrás, el centro de la nuca; de lado, el lado de la oreja): antes de lado se tomaba la nuca, en el borde lejano
+       de la cabeza, y por la perspectiva el cabello de lado quedaba más corto que el de atrás */
+    var Pc1 = v === 'lateral' ? P(seVe(v, DER, 1.35) ? DER : IZQ, 1.35, 1.05) : P(NUCA, 1.35, 1.05);
     function yRecta(ph, y) {
       if (lin !== 'recta' || frente) return y;
       var b = P(ph, 1.35, 1.05), obj = pr(v, V3(Pc1.x * 1.03, y, Pc1.z * 1.03))[1], lo = y - 2, hi = Math.max(y, b.y);
