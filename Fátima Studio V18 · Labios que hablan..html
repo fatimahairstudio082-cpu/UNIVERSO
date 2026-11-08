@@ -52,6 +52,8 @@ pre{margin:10px 0 0;font:12px/1.5 ui-monospace,Consolas,monospace;color:#d8cabb;
 .note{font-size:12px;color:var(--muted)}
 @media(max-width:900px){.app{grid-template-columns:1fr}.stage{min-height:70vh}.side{max-height:none;border-left:0;border-top:1px solid var(--line)}.brand{left:16px;top:16px}.hint{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.ampliar{position:absolute;right:16px;bottom:16px;z-index:3;min-height:38px;padding:8px 14px;font-size:13px;background:rgba(15,11,9,.82);text-align:center}
+.app.amplio{grid-template-columns:minmax(0,1fr) 0}.app.amplio .side{display:none}
 select{display:block;width:100%;padding:11px;margin-top:6px;background:#1d1612;color:#f3ebe1;border:1px solid #594435;font:inherit;border-radius:3px}.wardrobe,.cutPanel{padding:15px;border:1px solid #594435;background:linear-gradient(135deg,#261b29,#17110e);border-radius:5px}.cutPanel{border-color:#5c8b7c;background:linear-gradient(135deg,#132924,#17110e)}.cutStatus{padding:12px;background:#0c1412;border:1px solid #375048;margin:10px 0}.cutStatus h3{margin:0 0 6px;color:#8ef0cf;font-size:15px}.cutStatus p{margin:0;font-size:13px}.check{display:block;font-size:13px;margin-top:9px}.wardrobe label{font-size:13px}.wardrobe .swatches button{width:34px;height:34px;min-height:34px}.brand small{letter-spacing:.25em}
 .studio{padding:15px;border:1px solid #4a5266;background:linear-gradient(135deg,#1f2430,#14171f);border-radius:5px}
 .studio h3{margin:14px 0 7px;font-size:11px;letter-spacing:.2em;color:#a3abbd;font-weight:600}
@@ -74,6 +76,7 @@ select{display:block;width:100%;padding:11px;margin-top:6px;background:#1d1612;c
     <canvas id="scene" aria-label="Maniquí 3D interactivo"></canvas>
     <div class="reps" id="repsBox"><b id="repsN">0</b><span>REPETICIONES</span></div>
     <div class="caption" id="caption" role="status" aria-live="polite"></div>
+    <button type="button" class="ampliar" id="ampliar" aria-pressed="false">⤢ Ampliar lienzo</button>
     <div class="hint">Arrastra para rotar la vista · rueda o pellizco para acercar · clic derecho para desplazar.</div>
   </section>
 
@@ -1752,7 +1755,7 @@ const ANIMS = {
   sit: { fn(p, t) {
     p.hipL = [-1.5, 0, 0.05]; p.hipR = [-1.5, 0, -0.05]; p.knL[0] = p.knR[0] = 1.5; flat(p);
     p.shL = [-0.35, 0, 0.12]; p.shR = [-0.35, 0, -0.12]; p.elL = [-0.85, 0, 0]; p.elR = [-0.85, 0, 0];
-    p.spine[0] = 0.04; p.head[1] = sn(t * 0.5) * 0.25; p.chest[0] = sn(t * 1.7) * 0.012;
+    p.spine[0] = 0.04; p.head[1] = sentado ? 0 : sn(t * 0.5) * 0.25; p.chest[0] = sn(t * 1.7) * 0.012;
     p.tools = 0; p.curlL = p.curlR = 0.25;
   } },
   talk: { fn(p, t) {
@@ -1818,6 +1821,28 @@ const ANIMS = {
    ===================================================================== */
 const CUT = { x: 0, z: 0.64, yaw: 0 };
 const SIT = { x: -1.55, z: -0.15, yaw: 0 };
+/* ---- Trabajo sentado (Fátima 8-11-2026): corte, color y estudio se ven con el maniquí sentado y la cámara sigue a la cabeza ---- */
+let sentado = false;
+const _hp = new T.Vector3();
+const VISTAS_CABEZA = { // [x, y, z de la cámara respecto al centro de la cabeza, desplazamiento vertical del punto de mira]
+  cutBack:[0,.02,-1.5,-.1], nape:[0,-.05,-1.1,-.2], cutLeft:[-1.4,0,.35,-.1], cutRight:[1.4,0,.35,-.1],
+  busto:[.25,0,1.05,-.03], portrait:[.2,.05,.95,0], coronilla:[.05,.8,-.5,0], nucaCerca:[.12,-.02,-.85,-.08],
+  faceCheck:[0,0,.9,0], cenital:[0,.9,-.1,0]
+};
+function sentarse() {
+  if (!(sentado && S.act === 'sienta')) {
+    W.x = SIT.x; W.z = SIT.z; W.yaw = SIT.yaw; followPos.set(W.x, 0, W.z);
+    play('sienta');
+  }
+  sentado = true; controls.minDistance = 0.5;
+}
+function camCabeza(name) {
+  F.J.head.getWorldPosition(_hp);
+  const v = VISTAS_CABEZA[name], c = Math.cos(W.yaw), sn_ = Math.sin(W.yaw);
+  const tg = new T.Vector3(_hp.x, _hp.y + 0.09, _hp.z);
+  const to = tg.clone().add(new T.Vector3(v[0] * c + v[2] * sn_, v[1], -v[0] * sn_ + v[2] * c));
+  camTween = { t: 0, from: camera.position.clone(), to, tFrom: controls.target.clone(), tTo: tg.clone().add(new T.Vector3(0, v[3], 0)) };
+}
 const ACTIONS = {
   detente:     { label: 'Detener',           anim: 'idle', sec: 'a' },
   saluda:      { label: 'Saludar',           anim: 'wave', dur: 4.6, say: 'Hola, bienvenida a Fátima Studio.', sec: 'a' },
@@ -1857,6 +1882,7 @@ function setStatus(html) { statusEl.innerHTML = '<b>Estado:</b> ' + html; }
 function play(name, opts = {}) {
   const a = ACTIONS[name];
   if (!a) return false;
+  if (name !== 'sienta') { sentado = false; controls.minDistance = 0.28; }
   S.act = name; S.t = 0; S.actTime = 0; S.reps = 0; S.repT = 0; S.arrived = !a.station;
   W.wp = null;
   if (a.roam) {
@@ -2047,6 +2073,7 @@ const CAMS = {
   free:  [[3.4, 1.7, 5.2], [0, 0.95, 0.4]],
 };
 function goCam(name) {
+  if (sentado && VISTAS_CABEZA[name]) return camCabeza(name);
   const [p, t] = CAMS[name];
   const off = follow ? new T.Vector3(W.x, 0, W.z) : new T.Vector3();
   camTween = { t: 0, from: camera.position.clone(), to: new T.Vector3(...p).add(off), tFrom: controls.target.clone(), tTo: new T.Vector3(...t).add(off) };
@@ -2150,10 +2177,11 @@ const palette=[['Negro','#120d0b'],['Castaño oscuro','#2a1a12'],['Castaño','#6
 function updateLengthLabel(){const v=portraitHair.getLength();$('hairLengthValue').textContent=v<.035?'Muy corto':v<.14?'Corto':v<.36?'Hasta los hombros':v<.65?'Media espalda':'Hasta la cintura';document.querySelectorAll('[data-length]').forEach(b=>b.classList.toggle('on',Math.abs(Number(b.dataset.length)-v)<.015));}
 let lengthFrame=null;$('hairLength').addEventListener('input',e=>{const v=Number(e.target.value);cancelAnimationFrame(lengthFrame);lengthFrame=requestAnimationFrame(()=>Maniqui.setHairLength(v));});document.querySelectorAll('[data-length]').forEach(b=>b.addEventListener('click',()=>Maniqui.setHairLength(Number(b.dataset.length))));$('hairColor').addEventListener('input',e=>Maniqui.setHair(e.target.value));
 $('hairHexForm').addEventListener('submit',e=>{e.preventDefault();let hex=$('hairHex').value.trim();if(!hex.startsWith('#'))hex='#'+hex;if(/^#[0-9a-fA-F]{6}$/.test(hex))Maniqui.setHair(hex);});updateLengthLabel();
-[['Negro','#17131d'],['Blanco','#eee9e1'],['Rojo','#ad1c36'],['Burdeos','#641e38'],['Azul noche','#172e66'],['Esmeralda','#086958'],['Violeta','#67329c'],['Rosa','#d777a0'],['Champán','#d6b88c'],['Plata','#aeb7c4']].forEach(([n,c])=>{const b=document.createElement('button');b.style.background=c;b.title=n;b.setAttribute('aria-label','Ropa '+n);b.addEventListener('click',()=>setClothColor(c));$('clothSwatches').appendChild(b);});$('outfit').addEventListener('change',e=>setOutfit(e.target.value));$('clothColor').addEventListener('input',e=>setClothColor(e.target.value));$('clothFinish').addEventListener('change',e=>setClothFinish(e.target.value));$('modelPose').addEventListener('click',()=>play('modelo'));$('sitSeat').addEventListener('click',()=>{CorteMotor.pause();play('sienta');goCam('seat');});$('standUp').addEventListener('click',()=>play('modelo'));setClothColor('#67329c');
+[['Negro','#17131d'],['Blanco','#eee9e1'],['Rojo','#ad1c36'],['Burdeos','#641e38'],['Azul noche','#172e66'],['Esmeralda','#086958'],['Violeta','#67329c'],['Rosa','#d777a0'],['Champán','#d6b88c'],['Plata','#aeb7c4']].forEach(([n,c])=>{const b=document.createElement('button');b.style.background=c;b.title=n;b.setAttribute('aria-label','Ropa '+n);b.addEventListener('click',()=>setClothColor(c));$('clothSwatches').appendChild(b);});$('outfit').addEventListener('change',e=>setOutfit(e.target.value));$('clothColor').addEventListener('input',e=>setClothColor(e.target.value));$('clothFinish').addEventListener('change',e=>setClothFinish(e.target.value));$('modelPose').addEventListener('click',()=>play('modelo'));$('sitSeat').addEventListener('click',()=>{CorteMotor.pause();sentarse();goCam('seat');});$('standUp').addEventListener('click',()=>play('modelo'));setClothColor('#67329c');
 $('spd').addEventListener('input', e => Maniqui.setSpeed(parseFloat(e.target.value)));
 document.querySelectorAll('[data-cam]').forEach(b => b.addEventListener('click', () => goCam(b.dataset.cam)));
 $('auto').addEventListener('click', e => { controls.autoRotate = !controls.autoRotate; e.currentTarget.classList.toggle('on', controls.autoRotate); });
+$('ampliar').addEventListener('click', e => { const a = document.querySelector('.app').classList.toggle('amplio'); e.currentTarget.setAttribute('aria-pressed', a); e.currentTarget.textContent = a ? '⤡ Mostrar panel' : '⤢ Ampliar lienzo'; });
 $('follow').addEventListener('click', e => { follow = !follow; e.currentTarget.classList.toggle('on', follow); followPos.set(W.x, 0, W.z); });
 $('turnL').addEventListener('click', () => { W.yaw += Math.PI / 4; });
 $('turnR').addEventListener('click', () => { W.yaw -= Math.PI / 4; });
@@ -2201,9 +2229,9 @@ function drawCut(){const state=cutState();portraitHair.update(state.cuts,state.a
  C.lastStep=state.step;syncCutUI(state);C.dirty=false;
 }
 function updateCutEngine(dt){if(C.playing){C.time=Math.min(21,C.time+Math.min(dt,.5)*C.speed/2);C.dirty=true;if(C.time>=21)C.playing=false;}if(C.dirty)drawCut();}
-window.CorteMotor={play(){if(C.time>=21)C.time=0;play('modelo');C.playing=true;C.dirty=true;},pause(){C.playing=false;C.dirty=true;},next(){C.playing=false;C.time=Math.min(21,Math.floor(C.time+.0001)+1);C.dirty=true;drawCut();},previous(){C.playing=false;C.time=Math.max(0,Math.ceil(C.time-.0001)-1);C.dirty=true;drawCut();},seek(t){C.playing=false;C.time=Math.max(0,Math.min(21,Number(t)));C.dirty=true;drawCut();},reset(){C.playing=false;C.time=0;C.lastStep=-1;C.dirty=true;drawCut();},state(){return {time:C.time,playing:C.playing,target:C.target,profile:C.profile,...cutState()};}};
+window.CorteMotor={play(){if(C.time>=21)C.time=0;sentarse();C.playing=true;C.dirty=true;},pause(){C.playing=false;C.dirty=true;},next(){C.playing=false;C.time=Math.min(21,Math.floor(C.time+.0001)+1);C.dirty=true;drawCut();},previous(){C.playing=false;C.time=Math.max(0,Math.ceil(C.time-.0001)-1);C.dirty=true;drawCut();},seek(t){C.playing=false;C.time=Math.max(0,Math.min(21,Number(t)));C.dirty=true;drawCut();},reset(){C.playing=false;C.time=0;C.lastStep=-1;C.dirty=true;drawCut();},state(){return {time:C.time,playing:C.playing,target:C.target,profile:C.profile,...cutState()};}};
 $('cutPlay').addEventListener('click',()=>C.playing?CorteMotor.pause():CorteMotor.play());$('cutNext').addEventListener('click',()=>CorteMotor.next());$('cutPrevious').addEventListener('click',()=>CorteMotor.previous());$('cutReset').addEventListener('click',()=>CorteMotor.reset());$('cutResult').addEventListener('click',()=>CorteMotor.seek(21));$('cutTimeline').addEventListener('input',e=>CorteMotor.seek(e.target.value));
-$('cutProfile').addEventListener('change',e=>{C.profile=e.target.value;CorteMotor.reset();});$('cutTarget').addEventListener('input',e=>{C.target=Number(e.target.value);CorteMotor.reset();});$('cutSpeed').addEventListener('change',e=>{C.speed=Number(e.target.value);});$('cutHighlight').addEventListener('change',e=>{C.highlight=e.target.checked;C.dirty=true;});$('cutAutoCam').addEventListener('change',e=>{C.autoCam=e.target.checked;C.lastStep=-1;C.dirty=true;});$('cutPrepare').addEventListener('click',()=>{Maniqui.setHairLength(.88);play('modelo');goCam('cutBack');});
+$('cutProfile').addEventListener('change',e=>{C.profile=e.target.value;CorteMotor.reset();});$('cutTarget').addEventListener('input',e=>{C.target=Number(e.target.value);CorteMotor.reset();});$('cutSpeed').addEventListener('change',e=>{C.speed=Number(e.target.value);});$('cutHighlight').addEventListener('change',e=>{C.highlight=e.target.checked;C.dirty=true;});$('cutAutoCam').addEventListener('change',e=>{C.autoCam=e.target.checked;C.lastStep=-1;C.dirty=true;});$('cutPrepare').addEventListener('click',()=>{Maniqui.setHairLength(.88);sentarse();goCam('cutBack');});
 
 
 // ---- Estudio de cabello integrado al maniquí 3D
@@ -2315,7 +2343,7 @@ function kUI(S){$('kPlay').textContent=K.playing?'Pausar':'Reproducir';$('kTimel
 function kUpdate(dt){if(K.playing){K.time=Math.min(KMAX,K.time+Math.min(dt,.5)*K.speed/2.2);K.dirty=true;if(K.time>=KMAX)K.playing=false;}if(K.dirty)kDraw();}
 (function kLoop(){let last=performance.now();const f=now=>{const dt=(now-last)/1000;last=now;kUpdate(dt);requestAnimationFrame(f);};requestAnimationFrame(f);})();
 function kStart(){if(HSt.tech!=='ninguna'){HSt.tech='ninguna';hsApply();}K.on=true;K.ordered=false;K.placed=false;}
-window.ColorMotor={play(){if(K.time>=KMAX)K.time=0;kStart();K.playing=true;K.dirty=true;},pause(){K.playing=false;K.dirty=true;},next(){kStart();K.playing=false;K.time=Math.min(KMAX,Math.floor(K.time+.0001)+1);K.dirty=true;kDraw();},previous(){kStart();K.playing=false;K.time=Math.max(0,Math.ceil(K.time-.0001)-1);K.dirty=true;kDraw();},seek(t){kStart();K.playing=false;K.time=Math.max(0,Math.min(KMAX,+t));K.dirty=true;kDraw();},reset(){K.playing=false;K.time=0;K.lastStep=-1;K.on=false;portraitHair.HS.anim=null;kProps.visible=false;portraitHair.recolor();kUI(kState());},
+window.ColorMotor={play(){if(K.time>=KMAX)K.time=0;sentarse();kStart();K.playing=true;K.dirty=true;},pause(){K.playing=false;K.dirty=true;},next(){kStart();K.playing=false;K.time=Math.min(KMAX,Math.floor(K.time+.0001)+1);K.dirty=true;kDraw();},previous(){kStart();K.playing=false;K.time=Math.max(0,Math.ceil(K.time-.0001)-1);K.dirty=true;kDraw();},seek(t){kStart();K.playing=false;K.time=Math.max(0,Math.min(KMAX,+t));K.dirty=true;kDraw();},reset(){K.playing=false;K.time=0;K.lastStep=-1;K.on=false;portraitHair.HS.anim=null;kProps.visible=false;portraitHair.recolor();kUI(kState());},
  set(o){Object.assign(K,o);K.placed=false;K.lastStep=-1;K.dirty=true;},keep(){HSt.tech=K.tech==='tinte'?'ninguna':K.tech;HSt.techAmt=K.amt;HSt.techTone=K.tone;const tinte=K.tech==='tinte',tone=K.tone;K.on=false;K.playing=false;K.time=0;portraitHair.HS.anim=null;kProps.visible=false;if(tinte)Maniqui.setHair(tone);else hsApply();kUI(kState());},state(){return {...kState(),tech:K.tech,amt:K.amt,tone:K.tone,playing:K.playing};}};
 $('kPlay').addEventListener('click',()=>K.playing?ColorMotor.pause():ColorMotor.play());$('kNext').addEventListener('click',()=>ColorMotor.next());$('kPrev').addEventListener('click',()=>ColorMotor.previous());$('kReset').addEventListener('click',()=>ColorMotor.reset());$('kResult').addEventListener('click',()=>ColorMotor.seek(KMAX));$('kKeep').addEventListener('click',()=>ColorMotor.keep());$('kTimeline').addEventListener('input',e=>ColorMotor.seek(e.target.value));
 $('kTech').addEventListener('change',e=>{ColorMotor.set({tech:e.target.value});if(e.target.value==='tinte'&&/^#(e|f|d)/i.test(K.tone))ColorMotor.set({tone:'#7a2a22'});if(!K.on)kUI(kState());});
