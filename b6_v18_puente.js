@@ -184,8 +184,8 @@
   }
   function camAuto() { var c = $('eg3dCamAuto'); return !c || c.checked; }
   function orbita(psi) {
-    var C = CAPA, M = window.Maniqui, hd = new T3.Vector3(); M.joints.head.getWorldPosition(hd);
-    var k = Math.max(0, Math.min(1, C.H.getLength() / 0.92)), es = 1 + 0.55 * k, yaw = M.state().yaw, c = Math.cos(yaw), s = Math.sin(yaw), R = 1.5 * es, x = R * Math.sin(psi), z = R * Math.cos(psi);
+    var M = window.Maniqui; T3 = T3 || window.THREE; var hd = new T3.Vector3(); M.joints.head.getWorldPosition(hd);
+    var k = Math.max(0, Math.min(1, window.CorteMotor.hair().getLength() / 0.92)), es = 1 + 0.55 * k, yaw = M.state().yaw, c = Math.cos(yaw), s = Math.sin(yaw), R = 1.5 * es, x = R * Math.sin(psi), z = R * Math.cos(psi);
     M.setCamera([hd.x + x * c + z * s, hd.y + 0.11 + 0.02 * es, hd.z - x * s + z * c], [hd.x, hd.y - 0.01 - 0.3 * k, hd.z]);
   }
   function seguirCamara(dt) {
@@ -283,6 +283,89 @@
     var S = window.CorteMotor.state(); CAPA.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, null); CAPA = null;
   }
 
+
+  /* ───────────── colorimetría: el cerebro de Guías 3D (EU_CEREBRO) sobre la animación de color del V18 ─────────────
+     El V18 ya anima la mezcla en el bol, las 6 secciones con paleta y papel de aluminio, el tiempo y el aclarado.
+     Aquí el cerebro pone la técnica (qué es, su fórmula y sus pasos reales), la cobertura y el tono, dibuja las 6 divisiones
+     numeradas y, al terminar, la cámara da la vuelta enseñando el resultado. */
+  var MAPA_K = { color_raiz: 'tinte', color_global: 'tinte', color_balayage: 'balayage', color_sombre: 'balayage', color_babylights: 'mechas', mechas_aluminio: 'mechas', mechas_gorro: 'mechas', quim_decoloracion: 'tinte' };
+  var colorAct = false, colDiv = null, colPsi = Math.PI, colTec = null, colUlt = 0;
+  function tecnicasColor() {
+    var CB = window.EU_CEREBRO, o = [];
+    ['color', 'mechas', 'quimicos'].forEach(function (f) { CB.listar(f).forEach(function (t) { if (MAPA_K[t.id]) o.push(t); }); });
+    return o;
+  }
+  function fasesDe(step) { return step === 0 ? ['preparacion', 'formula', 'divisiones'] : step <= 6 ? ['aplicacion'] : step === 7 ? ['tiempo'] : ['cierre']; }
+  function pasosHTML(t, step) {
+    var act = fasesDe(step);
+    return t.pasos.map(function (s) {
+      var on = act.indexOf(s.fase) >= 0;
+      return '<div style="padding:5px 6px;margin:3px 0;border-left:3px solid ' + (on ? '#c9a36a' : '#3a2e24') + ';background:' + (on ? 'rgba(201,163,106,.12)' : 'transparent') + '"><b>' + esc(s.t) + '</b> <span style="opacity:.6">· ' + esc(s.fase) + '</span><br>' + esc(s.n) + (s.e ? '<br><span style="opacity:.75">Error común: ' + esc(s.e) + '</span>' : '') + '</div>';
+    }).join('');
+  }
+  function fichaColor(t) {
+    var f = t.ficha || {};
+    return '<b>' + esc(t.n) + '</b><br>' + esc(t.resumen || '') + '<br>' + (f.formula ? 'Fórmula: <b>' + esc(f.formula) + '</b><br>' : '') + (f.proporciones ? 'Proporción: ' + esc(f.proporciones) + (f.cantidades ? ' · ' + esc(f.cantidades) : '') + '<br>' : '') + (f.tiempos ? 'Tiempos: ' + esc(f.tiempos) + '<br>' : '') + (f.herramientas ? 'Herramientas: ' + esc(f.herramientas.join(', ')) : '');
+  }
+  function aplicarColor() {
+    var id = $('eg3dTec').value, t = window.EU_CEREBRO.obtener(id); colTec = t;
+    var tech = MAPA_K[id], pd = t.pintado && t.pintado.desde, amt = pd != null ? Math.max(20, Math.min(90, Math.round((1 - pd) * 100))) : 50, o = { tech: tech, amt: amt };
+    if (id === 'quim_decoloracion') o.tone = '#efd9a3';
+    window.ColorMotor.reset(); window.ColorMotor.set(o);
+    var kt = $('kTech'), ka = $('kAmt'); if (kt) kt.value = tech; if (ka) ka.value = amt;
+    $('eg3dTecFicha').innerHTML = fichaColor(t); $('eg3dTecPasos').innerHTML = pasosHTML(t, 0);
+    return t;
+  }
+  /* las 6 divisiones del motor: raya central, oreja a oreja y línea de la nuca, con sus números 1–6 */
+  function divisionesColor() {
+    var H = window.CorteMotor.hair(); T3 = T3 || window.THREE; if (colDiv) return colDiv;
+    var g = new T3.Group(); g.name = 'Divisiones de color';
+    var mat = new T3.LineBasicMaterial({ color: 0x6fffe1, depthTest: false }), azul = new T3.LineBasicMaterial({ color: 0x4db8ff, depthTest: false });
+    function linea(pts, m) { var l = new T3.Line(new T3.BufferGeometry().setFromPoints(pts), m); l.renderOrder = 9; l.frustumCulled = false; g.add(l); }
+    var raya = [], oreja = [], nuca = [], i;
+    for (i = 0; i <= 30; i++) { var f = -1.2 + 2.2 * i / 30; raya.push(new T3.Vector3(0, 0.125 + 0.135 * Math.cos(f) + 0.004, 0.115 * Math.sin(f) * 1.02)); }
+    for (i = 0; i <= 30; i++) { var a = -Math.PI / 2 + Math.PI * i / 30; oreja.push(new T3.Vector3(0.108 * Math.sin(a), 0.12 + 0.136 * Math.cos(a), -0.012)); }
+    for (i = 0; i <= 16; i++) { var x = -0.095 + 0.19 * i / 16; nuca.push(new T3.Vector3(x, 0.105, -0.112 * Math.sqrt(Math.max(0.05, 1 - Math.pow(x / 0.104, 2))) - 0.004)); }
+    linea(raya, mat); linea(oreja, azul); linea(nuca, mat);
+    [[1, 0.05, 0.215, 0.07], [2, -0.05, 0.215, 0.07], [3, -0.05, 0.2, -0.085], [4, 0.05, 0.2, -0.085], [5, -0.045, 0.085, -0.115], [6, 0.045, 0.085, -0.115]].forEach(function (n) {
+      var cv = document.createElement('canvas'); cv.width = 64; cv.height = 64; var cx = cv.getContext('2d');
+      cx.fillStyle = 'rgba(15,11,9,.85)'; cx.beginPath(); cx.arc(32, 32, 28, 0, 7); cx.fill(); cx.fillStyle = '#e9d9c4'; cx.font = 'bold 36px sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(n[0], 32, 34);
+      var sp = new T3.Sprite(new T3.SpriteMaterial({ map: new T3.CanvasTexture(cv), transparent: true, depthTest: false })); sp.scale.set(0.034, 0.034, 1); sp.position.set(n[1], n[2], n[3]); sp.renderOrder = 11; g.add(sp);
+    });
+    H.group.add(g); colDiv = g; return g;
+  }
+  function bucleColor(ts) {
+    if (!colorAct) return;
+    var dt = Math.min(0.1, (ts - colUlt) / 1000 || 0); colUlt = ts;
+    var s = window.ColorMotor.state(), step = s.step == null ? 0 : s.step;
+    if (colTec) { var el = $('eg3dTecPasos'); if (el && el.dataset.s !== String(step)) { el.dataset.s = String(step); el.innerHTML = pasosHTML(colTec, step); } }
+    divisionesColor().visible = step <= 6;                                      /* las divisiones se ven mientras se aplica */
+    if (step >= 9 && camAuto()) { colPsi += dt * Math.PI * 2 / 24; orbita(colPsi); }  /* resultado: vuelta lenta */
+    else colPsi = Math.PI;
+    requestAnimationFrame(bucleColor);
+  }
+  function animarColor() {
+    if (!window.EU_CEREBRO || !window.ColorMotor) return;
+    aplicarColor(); if (CAPA) { CAPA.playing = false; } window.CorteMotor.pause();
+    colorAct = true; colUlt = performance.now(); colPsi = Math.PI; window.ColorMotor.play(); requestAnimationFrame(bucleColor);
+  }
+  function montarColor(caja) {
+    var c2 = document.createElement('div'); c2.id = 'eg3dColor'; c2.style.cssText = 'margin:18px 0 4px;padding-top:12px;border-top:1px solid #3a2e24';
+    var L = tecnicasColor();
+    c2.innerHTML = '<div style="font-size:11px;letter-spacing:.3em;color:#c9a36a;margin-bottom:8px">COLORIMETRÍA · CEREBRO DE GUÍAS 3D</div>' +
+      '<label for="eg3dTec">Técnica (' + L.length + ')</label><select id="eg3dTec">' + L.map(function (t) { return '<option value="' + esc(t.id) + '">' + esc(t.n) + '</option>'; }).join('') + '</select>' +
+      '<div id="eg3dTecFicha" class="note" style="margin:10px 0;line-height:1.55"></div>' +
+      '<div class="grid"><button id="eg3dTecPlay" class="primary wide">▶ Animar con el cerebro · divisiones, paleta y papel de aluminio</button>' +
+      '<button id="eg3dTecPausa">⏸ Pausar</button><button id="eg3dTecReinicia">↺ Reiniciar</button></div>' +
+      '<div id="eg3dTecPasos" class="note" style="margin-top:10px;line-height:1.5;font-size:12px"></div>';
+    caja.insertAdjacentElement('afterend', c2);
+    $('eg3dTec').addEventListener('change', function () { if (!colorAct) aplicarColor(); else animarColor(); });
+    $('eg3dTecPlay').addEventListener('click', animarColor);
+    $('eg3dTecPausa').addEventListener('click', function () { window.ColorMotor.pause(); });
+    $('eg3dTecReinicia').addEventListener('click', function () { colorAct = false; window.ColorMotor.reset(); if (colDiv) colDiv.visible = false; aplicarColor(); });
+    aplicarColor();
+  }
+
   function montar() {
     var cab = document.querySelector('details > summary'); if (!cab) return;
     var det = cab.parentNode, caja = document.createElement('div'); caja.id = 'eg3d'; caja.style.cssText = 'margin:10px 0 4px';
@@ -320,7 +403,7 @@
       $('eg3dDedo').addEventListener('change', function () { var v = parseFloat(String(this.value).replace(',', '.')); if (v > 0.5 && v < 4) { DEDO = v; refrescarLargo(); if (CAPA) estadoUI(); } else this.value = DEDO; });
       $('eg3dPulg').addEventListener('change', function () { var v = parseFloat(String(this.value).replace(',', '.')); if (v > 0) ponerLargo(Math.max(4, Math.min(34, v))); });
       document.addEventListener('input', function (e) { if (e.target && e.target.id === 'cutTarget') setTimeout(refrescarLargo, 0); });
-      aplicar(); window.CorteMotor.reset(); refrescarLargo();
+      aplicar(); window.CorteMotor.reset(); refrescarLargo(); if (window.EU_CEREBRO && window.ColorMotor) montarColor(caja);
     }).catch(function () { caja.querySelector('p').textContent = 'No se pudieron cargar los motores de Guías 3D.'; });
   }
   function ir(t) { if (!CAPA) return; CAPA.T = Math.max(0, Math.min(totalPasos(), +t || 0)); CAPA.fin = false; pintarCorte(); var o = psiObjetivo(); if (o != null) CAPA.psi = o; if (camAuto()) orbita(CAPA.psi == null ? Math.PI : CAPA.psi); }
