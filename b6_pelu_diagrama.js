@@ -441,7 +441,7 @@
     tr.push(linea(plano([pr(v, V3(-1.15, A.y, 1.25)), pr(v, V3(1.15, A.y, 1.25))]), [0.18, 0.26], VERDE, 2.5, { d: 1 }));
     tr.push(rotulo('Guía ' + A.n, VERDE, 0.18), rotulo('Espiga diagonal arriba', TINTA, 0.04));
     }
-    var tips = [], caida = R.forma === 'recto' ? 0 : 0.95, tipsF = [], cortaPunta = [];
+    var tips = [], caida = R.forma === 'recto' ? 0 : 0.95, tipsF = [];
     for (var i = 0; i < n; i++) {
       var d = -abre + 2 * abre * i / (n - 1), ph = CARA + d, ad = Math.abs(d) / abre;
       if (R.liso) tr = tr.concat(lineas(tramos(v, function (u) { return [CARA - abre + u * 2 * abre, 0.9 + i * 0.06]; }, 20), [0.2 + i * 0.015, 0.3 + i * 0.015], ROJO, 2.2));
@@ -457,35 +457,26 @@
           /* 31-10-2026 (Fátima: «líneas disparejas y enrolladas»): con capas, cada línea baja recta desde su raíz como antes (sin arcos
              hacia fuera); solo cambia hasta dónde llega, que sale de su elevación */
           tip = dfF.length ? V3(a.x * 1.22, yT, Math.max(a.z, 0.2) + 0.55) : V3(sg * Math.max(Math.abs(a.x) * 1.22, 1.22), yT, Math.max(a.z, 0.2) + 0.3);
-          /* 8-11-2026 (Fátima: «en los ángulos de frente las líneas derechitas, al número de elevación del cabello que se corta»):
-             con capas, cada línea sale recta desde su raíz con la inclinación de su elevación (0° abajo, 90° hacia fuera, 135° arriba
-             y fuera), como el mechón jalado; su número va al final, al lado, y la tijera corta en la punta */
-          if (dfF.length) { dRe = dirPlano(V3(sg, 0, 0), pf[kF] || 0); tip = a.clone().add(dRe.clone().multiplyScalar(0.8)); }
+          /* 8-11-2026 (Fátima, 2.ª corrección: «como estaba, pero rectas, como cabello bien prensado con el peine»): con capas, cada
+             línea va recta desde su raíz hasta donde se corta (el mismo sitio y el mismo número de antes), sin curva */
+          if (dfF.length) dRe = 1;
         }
         if (fleco || !dfF.length) c = V3((a.x + tip.x) / 2 * 1.1, (a.y + tip.y) / 2 + 0.25, a.z + 0.5);
         else c = V3(a.x * 1.1, (a.y + tip.y) / 2 + Math.min(0.25, Math.max(0, a.y - tip.y) * 0.2), a.z + 0.55);   /* corto: sin rizo */
       }
-      if (dRe) {   /* recta, y su número en la prolongación de la línea (encaje lo aparta si pisa cabello) */
-        tr.push(linea(plano([pr(v, a), pr(v, tip)]), [0.32 + i * 0.03, 0.55 + i * 0.03], ROJO, 2.6, { fl: 1 }));
-        var qN = pr(v, tip.clone().add(dRe.clone().multiplyScalar(0.16))), kN = Math.abs(i - (m - 1));
-        var tcN = 0.72 + 0.25 * i / Math.max(1, n - 1), qT = pr(v, tip), qD = pr(v, tip.clone().add(dRe)), ux = qD[0] - qT[0], uy = qD[1] - qT[1], ul = Math.sqrt(ux * ux + uy * uy) || 1;
-        cortaPunta.push(tijera(plano([[qT[0] - uy / ul * 14, qT[1] + ux / ul * 14], [qT[0] + uy / ul * 14, qT[1] - ux / ul * 14]]), [tcN - 0.06, tcN], CORTE, false));   /* la tijera corta la punta de cada línea (sin unir las puntas en zigzag) */
-        if (!R.cero) tr.push({ k: 'n', x: qN[0], y: qN[1], s: String(pf[kN] || 0), c: kN ? CORTE : VERDE, t: [tcN, 1] });
-      } else tr.push(linea(bezier(v, a, c, tip, 22), [0.32 + i * 0.03, 0.55 + i * 0.03], fleco ? CORTE : ROJO, 2.6, { fl: 1 }));
+      if (dRe) tr.push(linea(plano([pr(v, a), pr(v, tip)]), [0.32 + i * 0.03, 0.55 + i * 0.03], ROJO, 2.6, { fl: 1 }));   /* recta */
+      else tr.push(linea(bezier(v, a, c, tip, 22), [0.32 + i * 0.03, 0.55 + i * 0.03], fleco ? CORTE : ROJO, 2.6, { fl: 1 }));
       (fleco ? tipsF : tips).push(pr(v, tip));
     }
     if (niv && tipsF.length > 1) { tipsF.sort(function (p, q) { return p[0] - q[0]; }); tr.push(tijera(plano(tipsF), [0.6, 0.72], CORTE, false)); }
     if (niv) tips.sort(function (p, q) { return p[0] - q[0]; });
     tr.push(rotulo((R.liso ? (R.libre ? 'Secciones horizontales' : 'Liso extremo: secciones horizontales') : n + ' líneas verticales: de cada una sale su mechón'), ROJO, 0.2));
     /* dibujo de Fátima («Ejemplo»): cada línea lleva su número (centro = guía) y aparece cuando la tijera la corta */
-    if (!R.cero && !dfF.length) tips.forEach(function (q, i) { var k = Math.abs(i - (m - 1)), tc = 0.72 + 0.25 * i / Math.max(1, n - 1); tr.push({ k: 'n', x: q[0], y: q[1] + 30, s: String(pf[k] || 0), c: k ? CORTE : VERDE, t: [tc, 1] }); });
+    if (!R.cero) tips.forEach(function (q, i) { var k = Math.abs(i - (m - 1)), tc = 0.72 + 0.25 * i / Math.max(1, n - 1); tr.push({ k: 'n', x: q[0], y: q[1] + 30, s: String(pf[k] || 0), c: k ? CORTE : VERDE, t: [tc, 1] }); });
     if (niv) {   /* 26-10-2026: un lado y el otro, cada uno emparejado con atrás (sin cruzar la cara) */
       var xc = pr(v, V3(0, yN, 1))[0], izq = tips.filter(function (q) { return q[0] < xc; }), der = tips.filter(function (q) { return q[0] >= xc; });
-      if (cortaPunta.length) tr = tr.concat(cortaPunta);
-      else {
       if (izq.length > 1) tr.push(tijera(plano(izq), [0.72, 0.84], CORTE, R.desg));
       if (der.length > 1) tr.push(tijera(plano(der), [0.85, 0.97], CORTE, R.desg));
-      }
       tr.push(rotulo(R.cero ? 'Corte recto a 0°: los lados se emparejan con la línea de atrás' : 'Desde la línea de atrás, cada línea a su elevación', CORTE, 0.72));
       return { v: v, tr: tr, banda: 1 };
     }
@@ -931,7 +922,7 @@
             var q0 = cand[Math.min(cand.length - 1, Math.floor(cand.length * (((z + 1) / (pila.length + 1) + (ci % 2 ? 1 : -1) * Math.ceil(ci / 2) * 0.07 + 1) % 1)))], qy = q0[1] + [16, -40, 66, -90, 116, -140][fila];
             if (!puestasQ.some(function (o) { return Math.abs(o[0] - q0[0]) < 160 && Math.abs(o[1] - qy) < 52; })) qc = [q0[0], qy];
           }
-          if (qc) { puestasQ.push(qc); tr.push(chapa(qc, (z + 1) + ' · ' + g + '°', c, Math.min(0.99, tCae[1]))); }
+          if (qc) { puestasQ.push(qc); tr.push(chapa(qc, z + 1, c, Math.min(0.99, tCae[1]))); }   /* 8-11-2026 (Fátima: «después de cortar, sin números grandes que tapen las capas»): solo el número; los grados en el rótulo «Capas: …» */
         }
       });
     });
@@ -1287,9 +1278,9 @@
         colV.forEach(function (k) { tr.push(mechon(k, [ta, ta + dt * 0.45], '#FFFFFF', 6, ext), mechon(k, [ta, ta + dt * 0.45], c, 3, ext)); });
         var pV = colV.map(function (k) { return k[5].slice(2); }).sort(function (p, q) { return p[1] - q[1]; });
         tr.push(tijera(plano(pV), [ta + dt * 0.5, ta + dt * 0.8], CORTE, R.desg, ext), linea(plano(pV), [ta + dt * 0.5, ta + dt * 0.8], CORTE, 3.2, ext));
-        tr.push(Object.assign({ k: 'n', x: pV[0][0], y: pV[0][1], s: (z + 1) + ' · ' + g + '°', c: c, t: [ta + dt * 0.45, 1], x2: tb }));
+        tr.push(Object.assign({ k: 'n', x: pV[0][0], y: pV[0][1], s: String(z + 1), c: c, t: [ta + dt * 0.45, 1], x2: tb }));   /* 8-11-2026: solo el número; los grados en el reloj y el rótulo */
       }
-      else if (fuerte) { tr.push(mechon(fuerte, [ta, ta + dt * 0.45], '#FFFFFF', 7, ext), mechon(fuerte, [ta, ta + dt * 0.45], c, 3.6, ext)); var qf = fuerte[fuerte.length - 1]; tr.push(Object.assign({ k: 'n', x: qf[2], y: qf[3], s: cero ? (z ? '=' : '1') : (z + 1) + ' · ' + g + '°', c: c, t: [ta + dt * 0.45, 1], x2: tb })); }
+      else if (fuerte) { tr.push(mechon(fuerte, [ta, ta + dt * 0.45], '#FFFFFF', 7, ext), mechon(fuerte, [ta, ta + dt * 0.45], c, 3.6, ext)); var qf = fuerte[fuerte.length - 1]; tr.push(Object.assign({ k: 'n', x: qf[2], y: qf[3], s: cero ? (z ? '=' : '1') : String(z + 1), c: c, t: [ta + dt * 0.45, 1], x2: tb })); }
       tips.sort(function (p, q) { return p[0] - q[0]; });
       var tramo = [];
       if (!colV.length) tips.concat([null]).forEach(function (q) { if (q && (!tramo.length || q[0] - tramo[tramo.length - 1][0] < 50)) { tramo.push(q); return; } if (tramo.length > 1) tr.push(tijera(plano(R.desg ? tramo : seguida(tramo)), [ta + dt * 0.5, ta + dt * 0.8], CORTE, R.desg, ext)); tramo = q ? [q] : []; });
@@ -1307,7 +1298,7 @@
           if (!puestas.some(function (o) { return Math.abs(o[0] - q0[0]) < 125 && Math.abs(o[1] - qy) < 42; })) qc = [q0[0], qy];
         }
       }
-      if (qc) { puestas.push(qc); tr.push({ k: 'n', x: qc[0], y: qc[1], s: (z + 1) + ' · ' + g + '°', c: c, t: [ta + dt * 0.85, 1] }); }
+      if (qc) { puestas.push(qc); tr.push({ k: 'n', x: qc[0], y: qc[1], s: String(z + 1), c: c, t: [ta + dt * 0.85, 1] }); }   /* 8-11-2026 (Fátima: «después de cortar, sin números grandes que tapen las capas»): solo el número; los grados van en el rótulo «Capas: …» */
       tr.push(regla(z && !cero ? (pila[z - 1] || 0) : 0, g, [ta, ta + dt * 0.45], c, 'Línea ' + (z + 1), ext));
       tr.push(rotulo('Línea ' + (z + 1) + ' · ' + g + '°' + (cero ? (z ? ' · se baja a la guía y se corta en la misma línea' : ' · guía a un dedo') : (z ? '' : ' · guía')) + (colV.length ? ' · sección vertical' : ''), c, ta, ext));
     }
