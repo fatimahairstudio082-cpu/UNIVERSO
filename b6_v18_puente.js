@@ -126,13 +126,13 @@
     var clip = cur < 1 ? 0 : r.pk > K ? (K === 0 && primero ? e : 1) : r.pk === K ? (K > 0 && primero ? 1 - e : 0) : 0;
     if (st < cur) return { amount: 1, lift: 0, hl: false, delta: d, clip: clip };
     if (st > cur) return { amount: 0, lift: 0, hl: false, delta: d, clip: clip };
-    var lift = (p < 0.25 ? p / 0.25 : p < 0.75 ? 1 : (1 - p) / 0.25) * kmax, u = Math.max(0, Math.min(1, (p - 0.25) / 0.5)), amount = Math.max(0, Math.min(1, (u * 1.15 - (r.rk == null ? 0.5 : r.rk)) / 0.15));
-    return { amount: amount, lift: lift, hl: true, delta: d, clip: clip };
+    var fase = p < 0.25 ? p / 0.25 : p < 0.75 ? 1 : (1 - p) / 0.25, fe = fase * fase * (3 - 2 * fase), lift = fase * kmax, u = Math.max(0, Math.min(1, (p - 0.25) / 0.5)), amount = Math.max(0, Math.min(1, (u * 1.15 - (r.rk == null ? 0.5 : r.rk)) / 0.15));
+    return { amount: amount, lift: lift, ang: fe * g, hl: true, delta: d, clip: clip };
   }
   function pintarCorte() {
     var C = CAPA, S = window.CorteMotor.state();
     C.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, { ver: C.ver, info: info });
-    divisiones(); tijera(); estadoUI(); camaraPaso();
+    divisiones(); tijera(); estadoUI();
   }
   /* líneas de división (verticales entre mechones) y línea azul de oreja a oreja */
   function divisiones() {
@@ -170,21 +170,39 @@
     var rec = cur >= 1 && k < C.n ? C.recs.filter(function (r) { return r.pk === k && r.pm === m; }) : [];
     if (!rec.length || p < 0.25 || p > 0.78) { C.tij.visible = false; return; }
     var gr = C.grp[k + '_' + m] || rec, uu = Math.max(0, Math.min(1, (p - 0.25) / 0.5)), r = gr[Math.min(gr.length - 1, Math.round(uu * (gr.length - 1)))];
-    var t = Math.max(0.3, r.stop == null ? 1 : r.stop), q = C.H.path(r, t);
-    q.y += 0.12 * (r.lastLift || 0); q.z -= 0.16 * (r.lastLift || 0);
+    var t = Math.max(0.3, r.stop == null ? 1 : r.stop), q = C.H.tipAt(r, t, r.lastAng || 0);
     C.tij.position.copy(q); C.tij.visible = true; C.tij.rotation.set(0, 0, Math.PI / 2);    /* hojas abiertas en vertical, avanza a lo ancho del mechón */
     var ab = 0.06 + 0.22 * Math.abs(Math.sin(C.T * 40)); C.tij.children.forEach(function (b) { b.rotation.z = b.userData.s * ab; });
     /* cámara: atrás cutBack; lados cutLeft / cutRight */
   }
-  function camaraPaso() {
-    var C = CAPA, cur = Math.floor(C.T), cam = 'cutBack';
-    if (cur >= 1 && cur < totalPasos()) { var m = C.ms[(cur - 1) % C.J]; cam = C.atras(m) ? 'cutBack' : (m < C.J / 2 ? 'cutLeft' : 'cutRight'); }
-    if (cam !== C.camAnt) { C.camAnt = cam; window.Maniqui.camera(cam); }
+  /* cámara automática: gira despacio alrededor de la cabeza siguiendo el mechón que se corta (atrás → lados → delante);
+     al terminar el corte da una vuelta completa enseñando cómo queda */
+  function psiDe(a) { return Math.PI + (0.5 - a) * 2 * Math.PI; }            /* 0 = delante, π = atrás, 3π/2 = lado izquierdo */
+  function psiObjetivo() {
+    var C = CAPA, cur = Math.floor(C.T); if (cur < 1) return Math.PI; if (cur >= totalPasos()) return null;
+    return psiDe((C.ms[(cur - 1) % C.J] + 0.5) / C.J);
+  }
+  function camAuto() { var c = $('eg3dCamAuto'); return !c || c.checked; }
+  function orbita(psi) {
+    var C = CAPA, M = window.Maniqui, hd = new T3.Vector3(); M.joints.head.getWorldPosition(hd);
+    var k = Math.max(0, Math.min(1, C.H.getLength() / 0.92)), es = 1 + 0.55 * k, yaw = M.state().yaw, c = Math.cos(yaw), s = Math.sin(yaw), R = 1.5 * es, x = R * Math.sin(psi), z = R * Math.cos(psi);
+    M.setCamera([hd.x + x * c + z * s, hd.y + 0.11 + 0.02 * es, hd.z - x * s + z * c], [hd.x, hd.y - 0.01 - 0.3 * k, hd.z]);
+  }
+  function seguirCamara(dt) {
+    var C = CAPA; if (!camAuto()) return; var t = psiObjetivo();
+    if (C.psi == null) C.psi = Math.PI;
+    if (t == null) C.psi += dt * Math.PI * 2 / 24;                           /* resultado: una vuelta cada 24 s */
+    else { var d = Math.atan2(Math.sin(t - C.psi), Math.cos(t - C.psi)); C.psi += d * Math.min(1, dt * 1.6); }
+    orbita(C.psi);
   }
   function estadoUI() {
     var C = CAPA, cur = Math.floor(C.T), el = $('eg3dPaso'); if (!el) return;
     if (cur < 1) { el.textContent = 'Paso 0 · se divide la cabeza (líneas verticales y línea azul de oreja a oreja)'; return; }
-    if (cur >= totalPasos()) { el.textContent = 'Corte terminado · capas ' + C.n + ' · mechones ' + C.J + ' por capa'; return; }
+    if (cur >= totalPasos()) {
+      var lg0 = guiaPulg(window.CorteMotor.state().target), dd0 = C.dB, ult = lg0 + (dd0.cm[Math.min(dd0.cm.length - 1, C.n - 1)] - dd0.cm[0]) / CM_PULG;
+      el.textContent = 'Resultado · ' + (R ? R.n : 'corte') + ' · ' + C.n + ' capas, ' + C.J + ' mechones por capa · largo de ' + fm(lg0) + '″ (' + fm(lg0 * CM_PULG) + ' cm) en la nuca a ' + fm(ult) + '″ (' + fm(ult * CM_PULG) + ' cm) arriba · la cámara da la vuelta para verlo';
+      return;
+    }
     var k = Math.floor((cur - 1) / C.J), m = C.ms[(cur - 1) % C.J], atr = C.atras(m);
     var g = (atr ? C.pB : C.pF)[Math.min((atr ? C.pB : C.pF).length - 1, k)] || 0, cm = (atr ? C.dB : C.dF).cm[Math.min(((atr ? C.dB : C.dF).cm.length) - 1, k)];
     var dd = atr ? C.dB : C.dF, lg = guiaPulg(window.CorteMotor.state().target), lk = lg + (dd.cm[Math.min(dd.cm.length - 1, k)] - dd.cm[0]) / CM_PULG;
@@ -246,7 +264,8 @@
     if (CAPA.espera > 0) { CAPA.espera -= dt; if (CAPA.espera <= 0) CAPA.camAnt = ''; requestAnimationFrame(bucle); return; }
     var vel = parseFloat(($('cutSpeed') || {}).value) || 1;
     CAPA.T = Math.min(totalPasos(), CAPA.T + dt * vel / 3.2);
-    pintarCorte(); if (CAPA.T >= totalPasos()) CAPA.playing = false; else requestAnimationFrame(bucle);
+    if (!CAPA.fin) { pintarCorte(); if (CAPA.T >= totalPasos()) CAPA.fin = true; }
+    seguirCamara(dt); requestAnimationFrame(bucle);
   }
   function arrancar(desde) {
     if (!window.EU_CALCULO_CAPILAR) return;
@@ -255,7 +274,7 @@
     if (window.CorteMotor.hair().getLength() < 0.5) $('cutPrepare').click();        /* cabello largo inicial */
     window.CorteMotor.pause(); window.Maniqui.sentarse();
     if (!CAPA || desde === 'nuevo') { limpiar(); CAPA = modelo(); }
-    if (CAPA.T >= totalPasos()) CAPA.T = 0;
+    if (CAPA.T >= totalPasos()) { CAPA.T = 0; CAPA.fin = false; }
     CAPA.espera = 1.6; CAPA.camAnt = ''; CAPA.playing = true; CAPA.last = performance.now(); activo = true; reloj(); requestAnimationFrame(bucle);
   }
   function limpiar() {
@@ -288,6 +307,7 @@
         '<button id="eg3dCapas" class="primary wide">▶ Cortar capa por capa · mechón por mechón</button>' +
         '<button id="eg3dPausa">⏸ Pausar</button><button id="eg3dReinicia">↺ Reiniciar</button>' +
         '<button id="eg3dPlay" class="wide">Cortar por secciones (básico)</button></div>' +
+        '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:8px;cursor:pointer"><input type="checkbox" id="eg3dCamAuto" checked style="width:18px;height:18px;accent-color:#c9a36a"> Cámara automática: rueda sola de atrás a delante</label>' +
         '<p id="eg3dPaso" class="note" role="status" style="margin-top:8px"></p>' +
         '<p id="eg3dNota" class="note" role="status" style="margin-top:8px"></p>';
       $('eg3dCorte').addEventListener('change', aplicar);
@@ -303,7 +323,7 @@
       aplicar(); window.CorteMotor.reset(); refrescarLargo();
     }).catch(function () { caja.querySelector('p').textContent = 'No se pudieron cargar los motores de Guías 3D.'; });
   }
-  function ir(t) { if (!CAPA) return; CAPA.T = Math.max(0, Math.min(totalPasos(), +t || 0)); pintarCorte(); }
+  function ir(t) { if (!CAPA) return; CAPA.T = Math.max(0, Math.min(totalPasos(), +t || 0)); CAPA.fin = false; pintarCorte(); var o = psiObjetivo(); if (o != null) CAPA.psi = o; if (camAuto()) orbita(CAPA.psi == null ? Math.PI : CAPA.psi); }
   window.EU_V18_PUENTE = { montar: montar, aplicar: aplicar, elev: null, ir: ir, modelo: function () { return CAPA; } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', montar); else montar();
 })();
