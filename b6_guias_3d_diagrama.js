@@ -11,7 +11,7 @@
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
-  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['peinado_*', 'Línea por línea'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['queda_*', 'Cómo queda'], ['pix_*', 'Pixie · referencia'], ['pixc_*', 'Pixie corto'], ['dos', '◫ Lateral + nuca']];
+  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['peinado_*', 'Línea por línea'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['queda_*', 'Cómo queda'], ['pix_*', 'Pixie · referencia'], ['pixc_*', 'Pixie corto'], ['dos', '◫ Lateral + nuca'], ['tres', '◫ Cómo queda · 3 vistas']];
   var DUR = 20000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
@@ -62,6 +62,11 @@
     if (!o.E) { x.fillStyle = '#1F1B18'; x.font = '600 28px Georgia,serif'; x.fillText(o.err ? 'No se pudo preparar: ' + o.err : 'Preparando la diagramación de ' + o.R.n + '…', 48, 90); return; }
     if (st._chE !== o.E && el._dgSincro) { st._chE = o.E; el._dgSincro(); }
     var L = o.E.escenas, ahora = performance.now(), t0 = st.t0 || (st.t0 = ahora), dt = ahora - t0;
+    /* 8-11-2026 (Fátima: «cómo queda el corte terminado: tres cabezas reducidas, de frente, de atrás y de lado»): una vista de cada
+       «Cómo queda» del corte (primero las normales, si no, las de corte corto), pintadas a la vez en su fotograma final */
+    var TRES = ['nuca', 'lateral', 'frente'].map(function (vk) { var q = L.filter(function (z) { return z.vista === vk && z.tipo.indexOf('queda_') === 0; }); return q.filter(function (z) { return z.tipo.indexOf('queda_corto') < 0; })[0] || q[0]; }).filter(Boolean);
+    var ESC3 = TRES.length ? { tipo: 'tres', t: 'Cómo queda · atrás, de lado y de frente', texto: 'Así queda el corte terminado: atrás, de lado y de frente.', anim: { dur: DUR } } : null;
+    if (ESC3) L = L.concat([ESC3]);
     var modo = st.modo || 'todo', e, prog, k;
     /* 26-10-2026 (Fátima: «las animaciones se ven demasiado rápidas»): cada escena dura lo que pide (anim.dur, p. ej. una capa
        mechón por mechón) y nunca menos de DUR; antes todas 20 s */
@@ -70,6 +75,7 @@
     var sel;
     if (modo === 'todo') { sel = elige(L); k = sel.k; e = sel.e; prog = sel.prog; }
     else if (modo === 'dos') { prog = Math.min(1, (dt % DUR) / (DUR * 0.85)); }
+    else if (modo === 'tres') { e = ESC3 || L[0]; prog = 1; }
     else if (/\*$/.test(modo)) { var Lp = L.filter(function (z) { return z.tipo.indexOf(modo.slice(0, -1)) === 0; }); if (!Lp.length) Lp = [L[0]]; sel = elige(Lp); k = sel.k; e = sel.e; prog = sel.prog; }
     else { e = L.filter(function (z) { return z.tipo === modo; })[0] || L[0]; prog = Math.min(1, (dt % durDe(e)) / (durDe(e) * 0.85)); }
     x.fillStyle = '#B5476B'; x.font = '600 18px Georgia,serif'; x.fillText(('Diagramación · ' + o.R.n + (o.R.liso ? ' · liso extremo' : '')).toUpperCase(), 40, 38);
@@ -81,6 +87,15 @@
       DG.pinta(x, cap.anim, IMG.nuca, 650, 100, 600, 470, prog);
       x.fillStyle = '#1F1B18'; x.font = '700 15px system-ui,sans-serif'; x.fillText('LATERAL', 44, 590); x.fillText('NUCA · capas de abajo arriba', 664, 590);
       e = { texto: lat.texto };
+    } else if (e && e.tipo === 'tres') {
+      /* tres cabezas reducidas con el corte terminado; sin rótulos ni reloj, para que se vea limpio (las escenas enteras siguen igual) */
+      x.fillText(e.t, 40, 78);
+      var NOM3 = { nuca: 'ATRÁS', lateral: 'DE LADO', frente: 'DE FRENTE' }, w3 = (W - 80) / 3;
+      TRES.forEach(function (z, i) {
+        var a3 = Object.assign({}, z.anim, { banda: undefined, tr: (z.anim.tr || []).filter(function (T) { return T.k !== 'e' && T.k !== 'r'; }) });
+        DG.pinta(x, a3, IMG[z.vista], 30 + i * (w3 + 10), 100, w3, 470, 1);
+        x.fillStyle = '#1F1B18'; x.font = '700 15px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(NOM3[z.vista], 30 + i * (w3 + 10) + w3 / 2, 592); x.textAlign = 'left';
+      });
     } else {
       x.fillText(e.t, 40, 78);
       DG.pinta(x, e.anim, IMG[e.vista], 30, 100, W - 60, 480, prog);
@@ -107,6 +122,7 @@
       /* grupos «Línea por línea», «Cómo queda», «Pixie · referencia»: solo si el corte cargado tiene esas escenas */
       var oE = st.on && (recetaDe(el) || {}).E;
       chips.forEach(function (b) { if (oE && /\*$/.test(b._m) && !oE.escenas.some(function (z) { return z.tipo.indexOf(b._m.slice(0, -1)) === 0; })) b.style.display = 'none'; });
+      chips.forEach(function (b) { if (oE && b._m === 'tres' && !oE.escenas.some(function (z) { return z.tipo.indexOf('queda_') === 0; })) b.style.display = 'none'; });
     }
     on.onclick = function () { el._dg = el._dg || { modo: 'todo' }; el._dg.on = !el._dg.on; el._dg.t0 = 0; sincro(); };
     fila.appendChild(on);

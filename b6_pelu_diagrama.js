@@ -286,6 +286,34 @@
     var finas = [ths[0]]; for (var jf = 0; jf < n; jf++) finas.push((ths[jf] + ths[jf + 1]) / 2);
     tr = tr.concat(horizontales(v, Z, K, finas, [0.8, 0.84], '#2C6FD1', 1.2));
     tr.push(rotulo('Líneas finas: cada mechón que se jala en vertical, hasta el cuello', '#2C6FD1', 0.8));
+    /* 8-11-2026 (Fátima: «que se visualice como si fuera un mechón que se sujetara desde cada cuadrito de esa división»): cada
+       cuadrito (entre dos naranjas y dos azules) se llena de cabello fino que nace en su borde de arriba y se junta un poco abajo,
+       como un mechón sujetado y peinado hacia abajo, sin elevar. Va debajo de las líneas: la división se sigue viendo encima. */
+    var PELO_C = '#7A5238', tP = [0.84, 0.9], pelo = [], filas = finas.concat(ths).sort(function (p1, p2) { return p1 - p2; }).filter(function (t, i, l) { return !i || t - l[i - 1] > 0.02; });
+    for (var sC = 0; sC < K; sC++) {
+      var p0 = Z[0] + (Z[1] - Z[0]) * sC / K, p1 = Z[0] + (Z[1] - Z[0]) * (sC + 1) / K, pm = (p0 + p1) / 2;
+      for (var rC = 0; rC < filas.length - 1; rC++) {
+        var tA = filas[rC] + 0.02, tB = filas[rC + 1] - 0.03; if (tB - tA < 0.05) continue;
+        for (var hC = 0; hC < 9; hC++) {
+          var phA = p0 + (p1 - p0) * (hC + 0.5) / 9, phB = pm + (phA - pm) * 0.38, ptsC = [];
+          for (var uC = 0; uC <= 6; uC++) { var ph2 = phA + (phB - phA) * uC / 6, th2 = tA + (tB - tA) * uC / 6; if (seVe(v, ph2, th2)) ptsC.push(pr(v, P(ph2, th2, 1.04))); }
+          if (ptsC.length > 1) pelo.push(linea(plano(ptsC), tP, PELO_C, 1.5));
+        }
+      }
+      /* y los cuadritos de abajo, casi en el cuello (el tramo recto de las naranjas) */
+      if (seVe(v, p0, TH_FIN_CABEZA) && seVe(v, p1, TH_FIN_CABEZA)) {
+        var bajo = function (ph, f) { var a = P(ph, TH_FIN_CABEZA - 0.06), b = V3(a.x * 0.78, Math.min(a.y, Y_FIN_CABEZA), a.z); return a.clone().lerp(b, f); };
+        [[0.03, 0.42], [0.48, 0.87]].forEach(function (fr) {
+          for (var hC = 0; hC < 9; hC++) {
+            var u0 = (hC + 0.5) / 9, u1 = 0.5 + (u0 - 0.5) * 0.38;
+            var A0 = bajo(p0, fr[0]).lerp(bajo(p1, fr[0]), u0), B0 = bajo(p0, fr[1]).lerp(bajo(p1, fr[1]), u1);
+            pelo.push(linea(plano([pr(v, A0), pr(v, B0)]), tP, PELO_C, 1.5));
+          }
+        });
+      }
+    }
+    tr = pelo.concat(tr);
+    tr.push(rotulo('Cada cuadrito es un mechón sujetado, peinado hacia abajo', PELO_C, 0.84));
     for (var z = 0; z < n; z++) { var tc = (ths[z] + ths[z + 1]) / 2; [-1, 1].forEach(function (sg) { var phc = NUCA + sg * (Z[1] - Z[0]) * 2.5 / K; if (seVe(v, phc, tc)) tr.push(chapa(pr(v, P(phc, tc)), z + 1, COL[z % 7], 0.82 + 0.02 * z)); }); }
     return { v: v, tr: tr };
   }
