@@ -106,12 +106,15 @@
     var dB = deltas(pB), dF = deltas(pF);
     var recs = H.records.filter(function (r) { return r.kind === 'back' || r.kind === 'side'; });
     recs.forEach(function (r) { r.pk = Math.min(n - 1, Math.floor(r.h * n)); r.pm = Math.min(J - 1, Math.floor(posA(r) * J)); });
+    var grp = {};
+    recs.forEach(function (r) { var k = r.pk + '_' + r.pm; (grp[k] = grp[k] || []).push(r); });
+    Object.keys(grp).forEach(function (k) { var g = grp[k].sort(function (a, b) { return posA(a) - posA(b); }); g.forEach(function (r, i) { r.rk = g.length > 1 ? i / (g.length - 1) : 0.5; }); });
     /* orden de los mechones: primero los de atrás (entre las dos orejas), luego los de delante */
     var ms = []; for (var m = 0; m < J; m++) ms.push(m);
     var centro = function (m) { return (m + 0.5) / J; }, atras = function (m) { return centro(m) >= 0.25 && centro(m) < 0.75; };
     ms.sort(function (a, b) { return (atras(b) ? 1 : 0) - (atras(a) ? 1 : 0) || a - b; });
     var pos = {}; ms.forEach(function (m, i) { pos[m] = i; });
-    return { id: R.id, H: H, n: n, J: J, pB: pB, pF: pF, dB: dB, dF: dF, recs: recs, ms: ms, pos: pos, atras: atras, T: 0, ver: 1, playing: false, last: 0, camAnt: '', hl: null };
+    return { grp: grp, id: R.id, H: H, n: n, J: J, pB: pB, pF: pF, dB: dB, dF: dF, recs: recs, ms: ms, pos: pos, atras: atras, T: 0, ver: 1, playing: false, last: 0, camAnt: '', hl: null };
   }
   function pasoDe(k, m) { return 1 + k * CAPA.J + CAPA.pos[m]; }       /* 0 = dividir la cabeza; 1… = cada mechón */
   function totalPasos() { return 1 + CAPA.n * CAPA.J; }
@@ -123,7 +126,7 @@
     var clip = cur < 1 ? 0 : r.pk > K ? (K === 0 && primero ? e : 1) : r.pk === K ? (K > 0 && primero ? 1 - e : 0) : 0;
     if (st < cur) return { amount: 1, lift: 0, hl: false, delta: d, clip: clip };
     if (st > cur) return { amount: 0, lift: 0, hl: false, delta: d, clip: clip };
-    var lift = (p < 0.25 ? p / 0.25 : p < 0.75 ? 1 : (1 - p) / 0.25) * kmax, amount = Math.max(0, Math.min(1, (p - 0.25) / 0.5));
+    var lift = (p < 0.25 ? p / 0.25 : p < 0.75 ? 1 : (1 - p) / 0.25) * kmax, u = Math.max(0, Math.min(1, (p - 0.25) / 0.5)), amount = Math.max(0, Math.min(1, (u * 1.15 - (r.rk == null ? 0.5 : r.rk)) / 0.15));
     return { amount: amount, lift: lift, hl: true, delta: d, clip: clip };
   }
   function pintarCorte() {
@@ -166,9 +169,10 @@
     var cur = Math.floor(C.T), p = C.T - cur, k = Math.floor((cur - 1) / C.J), m = C.ms[(cur - 1) % C.J];
     var rec = cur >= 1 && k < C.n ? C.recs.filter(function (r) { return r.pk === k && r.pm === m; }) : [];
     if (!rec.length || p < 0.25 || p > 0.78) { C.tij.visible = false; return; }
-    var r = rec[Math.floor(rec.length / 2)], t = Math.max(0.3, r.stop == null ? 1 : r.stop), q = C.H.path(r, t);
+    var gr = C.grp[k + '_' + m] || rec, uu = Math.max(0, Math.min(1, (p - 0.25) / 0.5)), r = gr[Math.min(gr.length - 1, Math.round(uu * (gr.length - 1)))];
+    var t = Math.max(0.3, r.stop == null ? 1 : r.stop), q = C.H.path(r, t);
     q.y += 0.12 * (r.lastLift || 0); q.z -= 0.16 * (r.lastLift || 0);
-    C.tij.position.copy(q); C.tij.visible = true; C.tij.rotation.set(0, 0, Math.PI / 2);
+    C.tij.position.copy(q); C.tij.visible = true; C.tij.rotation.set(0, 0, Math.PI / 2);    /* hojas abiertas en vertical, avanza a lo ancho del mechón */
     var ab = 0.06 + 0.22 * Math.abs(Math.sin(C.T * 40)); C.tij.children.forEach(function (b) { b.rotation.z = b.userData.s * ab; });
     /* cámara: atrás cutBack; lados cutLeft / cutRight */
   }
