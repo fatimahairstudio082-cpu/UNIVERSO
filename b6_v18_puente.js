@@ -47,7 +47,7 @@
 
   function aplicar() {
     var id = $('eg3dCorte').value; R = window.EU_DIAGRAMA.receta(id); if (CAPA && !CAPA.playing && CAPA.id !== id) limpiar();
-    $('eg3dFicha').innerHTML = ficha(R);
+    $('eg3dFicha').innerHTML = ficha(R); if ($('eg3dLargoInfo')) refrescarLargo();
     var perfil = $('cutProfile'); perfil.value = LINEA[R.linea] || 'recto'; perfil.dispatchEvent(new Event('change'));
     if (LARGO[R.largo] != null) { var t = $('cutTarget'); t.value = LARGO[R.largo]; t.dispatchEvent(new Event('input')); }
     var e = elevaciones(R);
@@ -184,12 +184,13 @@
     var k = Math.floor((cur - 1) / C.J), m = C.ms[(cur - 1) % C.J], atr = C.atras(m);
     var g = (atr ? C.pB : C.pF)[Math.min((atr ? C.pB : C.pF).length - 1, k)] || 0, cm = (atr ? C.dB : C.dF).cm[Math.min(((atr ? C.dB : C.dF).cm.length) - 1, k)];
     var dd = atr ? C.dB : C.dF, lg = guiaPulg(window.CorteMotor.state().target), lk = lg + (dd.cm[Math.min(dd.cm.length - 1, k)] - dd.cm[0]) / CM_PULG;
-    el.textContent = 'Capa ' + (k + 1) + ' de ' + C.n + ' · mechón ' + ((cur - 1) % C.J + 1) + ' de ' + C.J + ' (' + (atr ? 'atrás' : 'delante') + ') · ' + g + '° · queda a ' + fm(lk) + '″ (' + fm(lk * CM_PULG) + ' cm)';
+    el.textContent = 'Capa ' + (k + 1) + ' de ' + C.n + ' · mechón ' + ((cur - 1) % C.J + 1) + ' de ' + C.J + ' (' + (atr ? 'atrás' : 'delante') + ') · ' + g + '° · queda a ' + fm(lk) + '″ (' + fm(lk * CM_PULG) + ' cm)' + (k > 0 ? ' · ' + (lk >= lg ? '+' : '−') + fd(Math.abs(lk - lg) * CM_PULG) + ' dedos sobre la guía' : '');
     window.EU_V18_PUENTE.g = g; window.EU_V18_PUENTE.largo = lk;
   }
 
   /* ───────────── largo real del cabello (1 unidad del V18 = 1 m: la oreja queda a 6,0″ de la raíz, como en la tabla de Fátima) ───────────── */
-  var PULG = 39.37, CM_PULG = 2.54, CHIPS = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28], rcC = null;
+  var DEDO = 2 /* cm por dedo: editable (1,5–2 según la mano) */, PULG = 39.37, CM_PULG = 2.54, CHIPS = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28], rcC = null;
+  function fd(cm) { return fm(Math.round(cm / DEDO * 10) / 10); }
   function fm(n) { return window.EU_CALCULO_CAPILAR ? window.EU_CALCULO_CAPILAR.fmt(n) : String(Math.round(n * 10) / 10).replace('.', ','); }
   function rcentro() {                                          /* mechón central de atrás: la medida del cabello se toma en él */
     var H = window.CorteMotor.hair(); if (rcC && rcC.mesh) return rcC;
@@ -203,9 +204,19 @@
   function refrescarLargo() {
     var el = $('eg3dLargoInfo'); if (!el || !window.CorteMotor.hair) return;
     var g = guiaPulg(window.CorteMotor.state().target), ini = inicialPulg(), corta = Math.max(0, ini - g);
-    el.innerHTML = 'Guía: <b>' + fm(g) + '″ · ' + fm(g * CM_PULG) + ' cm</b><br>Cabello inicial: ' + fm(ini) + '″ · ' + fm(ini * CM_PULG) + ' cm<br>Se cortan: <b>' + fm(corta) + '″ · ' + fm(corta * CM_PULG) + ' cm</b>';
+    el.innerHTML = 'Guía: <b>' + fm(g) + '″ · ' + fm(g * CM_PULG) + ' cm</b><br>Cabello inicial: ' + fm(ini) + '″ · ' + fm(ini * CM_PULG) + ' cm<br>Se cortan: <b>' + fm(corta) + '″ · ' + fm(corta * CM_PULG) + ' cm · ≈ ' + fd(corta * CM_PULG) + ' dedos</b>';
+    escalera(g);
     var inp = $('eg3dPulg'); if (inp && document.activeElement !== inp) inp.value = Math.round(g * 2) / 2;
     document.querySelectorAll('#eg3dChips button').forEach(function (b) { b.classList.toggle('on', Math.abs(+b.dataset.p - g) < 0.6); });
+  }
+  /* escalera de largos de la guía móvil: cada capa, sus grados y cuántos dedos queda sobre la guía */
+  function escalera(g) {
+    var el = $('eg3dEsc'); if (!el || !R || !window.EU_CALCULO_CAPILAR) return;
+    var c = window.EU_CALCULO_CAPILAR.calcular({ capas: R.capas.pila, guias: ['m'], ref: 'craneo' }), lg = g == null ? guiaPulg(window.CorteMotor.state().target) : g;
+    el.innerHTML = '<b>Guía móvil · largo de cada capa</b><br>' + c.capas.map(function (k, i) {
+      var dcm = k.largo - c.capas[0].largo, tot = lg + dcm / CM_PULG;
+      return 'Z' + i + ' · ' + fm(k.ang) + '° · ' + (i === 0 ? 'guía' : (dcm >= 0 ? '+' : '−') + fd(Math.abs(dcm)) + ' dedos') + ' · ' + fm(tot) + '″';
+    }).join('<br>') + '<br><span style="opacity:.8">1 dedo = ' + fm(DEDO) + ' cm · ' + esc(c.forma) + '</span>';
   }
   /* regla de pulgadas junto al cabello (atrás, centro) */
   function regla() {
@@ -266,7 +277,9 @@
         '<div style="font-size:11px;letter-spacing:.2em;color:#a3abbd;margin:12px 0 6px">LARGO DE LA GUÍA · PULGADAS</div>' +
         '<div id="eg3dChips" style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px">' + CHIPS.map(function (n) { return '<button data-p="' + n + '" style="text-align:center;padding:6px 2px;min-height:36px;font-size:13px">' + n + '″</button>'; }).join('') + '</div>' +
         '<div class="row" style="margin-top:8px;align-items:center"><label for="eg3dPulg" style="flex:none">Largo exacto (″)</label><input type="text" id="eg3dPulg" inputmode="decimal" style="max-width:90px"></div>' +
+        '<div class="row" style="margin-top:8px;align-items:center"><label for="eg3dDedo" style="flex:none">Un dedo mide (cm)</label><input type="text" id="eg3dDedo" inputmode="decimal" value="2" style="max-width:90px"></div>' +
         '<div id="eg3dLargoInfo" class="note" style="margin:8px 0;line-height:1.55"></div>' +
+        '<div id="eg3dEsc" class="note" style="margin:0 0 8px;line-height:1.55"></div>' +
         '<div class="grid"><button id="eg3dAplicar" class="primary wide">Aplicar el corte al maniquí</button>' +
         '<button id="eg3dCapas" class="primary wide">▶ Cortar capa por capa · mechón por mechón</button>' +
         '<button id="eg3dPausa">⏸ Pausar</button><button id="eg3dReinicia">↺ Reiniciar</button>' +
@@ -280,6 +293,7 @@
       $('eg3dPausa').addEventListener('click', function () { if (CAPA) CAPA.playing = false; });
       $('eg3dReinicia').addEventListener('click', function () { limpiar(); $('eg3dPaso').textContent = ''; window.CorteMotor.reset(); });
       document.querySelectorAll('#eg3dChips button').forEach(function (b) { b.addEventListener('click', function () { ponerLargo(+b.dataset.p); }); });
+      $('eg3dDedo').addEventListener('change', function () { var v = parseFloat(String(this.value).replace(',', '.')); if (v > 0.5 && v < 4) { DEDO = v; refrescarLargo(); if (CAPA) estadoUI(); } else this.value = DEDO; });
       $('eg3dPulg').addEventListener('change', function () { var v = parseFloat(String(this.value).replace(',', '.')); if (v > 0) ponerLargo(Math.max(4, Math.min(34, v))); });
       document.addEventListener('input', function (e) { if (e.target && e.target.id === 'cutTarget') setTimeout(refrescarLargo, 0); });
       aplicar(); window.CorteMotor.reset(); refrescarLargo();
