@@ -1240,6 +1240,11 @@ window.EU_CARGA_EDITORIAL = function (progreso) {
       <x-import component-from-global-scope="editorial-escolar" from="./b6_editorial.js?v=1798300000003" hint-size="100%,760px"></x-import>
     </sc-if>
 
+    <!-- 8-11-2026 (Fátima): pestaña independiente «Maniquí V18» — su propia página en un marco, con su maniquí; no comparte maniquí con Guías 3D -->
+    <sc-if value="{{ esV18 }}" hint-placeholder-val="{{ false }}">
+      <iframe src="./F%C3%A1tima%20Studio%20V18%20%C2%B7%20Labios%20que%20hablan..html" title="Maniquí V18" allow="fullscreen; microphone" style="width:100%;height:calc(100vh - 150px);min-height:640px;border:0;border-radius:12px;background:#0a0a0a;display:block"></iframe>
+    </sc-if>
+
     <sc-if value="{{ esHerramientas }}" hint-placeholder-val="{{ false }}">
       <iframe src="./herramientas/bloque6_herramientas.html" title="Herramientas de Utilidad Pro" allow="clipboard-write; fullscreen; microphone" style="width:100%;height:calc(100vh - 150px);min-height:640px;border:0;border-radius:12px;background:#0a0a0a;display:block"></iframe>
     </sc-if>
@@ -4786,6 +4791,7 @@ class Component extends DCLogic {
       esMios: s.pantalla === 'mios',
       esPlan: s.pantalla === 'plan',
       esHerramientas: s.pantalla === 'herramientas',
+      esV18: s.pantalla === 'v18',
       cerrarMuro: () => this.setState({ muro: '' }),
       irPlan: () => this.setState({ muro: '', pantalla: 'plan' }),
       irVideo: () => this.setState({ pantalla: 'video' }),
@@ -4798,7 +4804,7 @@ class Component extends DCLogic {
       { id: 'triptico', nombre: '📐 Tríptico' }, { id: 'carrusel', nombre: '🎠 Carrusel' },
       { id: 'video', nombre: '🎬 Vídeo' }, { id: 'editorial', nombre: '📚 Editorial' }, { id: 'anuncios', nombre: '📣 Anuncios' }, { id: 'laminas', nombre: '🧠 Láminas' },
       { id: 'repaso', nombre: '✅ Repaso' },
-      { id: 'guias', nombre: '💇 Guías 3D' }, { id: 'estudios', nombre: '💄 Estudios' },
+      { id: 'guias', nombre: '💇 Guías 3D' }, { id: 'estudios', nombre: '💄 Estudios' } { id: 'v18', nombre: '🧑‍🎨 Maniquí V18' },
       { id: 'qr', nombre: '🔳 QR' }, { id: 'herramientas', nombre: '🛠 Herramientas' }, { id: 'mios', nombre: '📁 Míos' }, { id: 'plan', nombre: '💜 Plan' }
     ].map(t => ({
       nombre: t.nombre,

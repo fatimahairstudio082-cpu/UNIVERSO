@@ -2215,7 +2215,7 @@ const cutPhases=['Seleccionar la sección','Separar y elevar visualmente','Recor
 const C={time:0,playing:false,target:.26,profile:'recto',speed:1,highlight:true,autoCam:true,lastStep:-1,dirty:true};
 const guideGeo=new T.BufferGeometry();guideGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(41*3),3));
 const guide=new T.Line(guideGeo,new T.LineDashedMaterial({color:0x6fffe1,dashSize:.009,gapSize:.005,depthTest:false,transparent:true,opacity:.95}));guide.renderOrder=9;guide.frustumCulled=false;F.J.head.add(guide);
-function cutState(){const t=C.time,cuts=[0,0,0,0,0];let active=-1,lift=0,step=Math.min(21,Math.floor(t));for(let i=0;i<5;i++){const p=t-(1+4*i);cuts[i]=Math.max(0,Math.min(1,p-2));if(p>=0&&p<4){active=i;lift=p<1?0:p<2?p-1:p<3?1:4-p;}}return {cuts,active,lift,step};}
+function cutState(){const t=C.time,cuts=[0,0,0,0,0];let active=-1,lift=0,step=Math.min(21,Math.floor(t));for(let i=0;i<5;i++){const p=t-(1+4*i);cuts[i]=Math.max(0,Math.min(1,p-2));if(p>=0&&p<4){active=i;lift=p<1?0:p<2?p-1:p<3?1:4-p;}}return {cuts,active,lift:(C.liftSec&&active>=0?lift*C.liftSec[active]:lift),step};}
 function syncCutUI(state){
  $('cutPlay').textContent=C.playing?'Pausar':'Reproducir';$('cutTimeline').value=C.time;
  $('cutProgress').textContent=Math.round(C.time/21*100)+'%';
@@ -2233,7 +2233,7 @@ function drawCut(){const state=cutState();portraitHair.update(state.cuts,state.a
  C.lastStep=state.step;syncCutUI(state);C.dirty=false;
 }
 function updateCutEngine(dt){if(C.playing){C.time=Math.min(21,C.time+Math.min(dt,.5)*C.speed/2);C.dirty=true;if(C.time>=21)C.playing=false;}if(C.dirty)drawCut();}
-window.CorteMotor={play(){if(C.time>=21)C.time=0;sentarse();C.playing=true;C.dirty=true;},pause(){C.playing=false;C.dirty=true;},next(){C.playing=false;C.time=Math.min(21,Math.floor(C.time+.0001)+1);C.dirty=true;drawCut();},previous(){C.playing=false;C.time=Math.max(0,Math.ceil(C.time-.0001)-1);C.dirty=true;drawCut();},seek(t){C.playing=false;C.time=Math.max(0,Math.min(21,Number(t)));C.dirty=true;drawCut();},reset(){C.playing=false;C.time=0;C.lastStep=-1;C.dirty=true;drawCut();},state(){return {time:C.time,playing:C.playing,target:C.target,profile:C.profile,...cutState()};}};
+window.CorteMotor={play(){if(C.time>=21)C.time=0;sentarse();C.playing=true;C.dirty=true;},pause(){C.playing=false;C.dirty=true;},next(){C.playing=false;C.time=Math.min(21,Math.floor(C.time+.0001)+1);C.dirty=true;drawCut();},previous(){C.playing=false;C.time=Math.max(0,Math.ceil(C.time-.0001)-1);C.dirty=true;drawCut();},seek(t){C.playing=false;C.time=Math.max(0,Math.min(21,Number(t)));C.dirty=true;drawCut();},reset(){C.playing=false;C.time=0;C.lastStep=-1;C.dirty=true;drawCut();},state(){return {time:C.time,playing:C.playing,target:C.target,profile:C.profile,...cutState()};},setElev(a){C.liftSec=a&&a.length===5?a:null;C.lastStep=-1;C.dirty=true;}};
 $('cutPlay').addEventListener('click',()=>C.playing?CorteMotor.pause():CorteMotor.play());$('cutNext').addEventListener('click',()=>CorteMotor.next());$('cutPrevious').addEventListener('click',()=>CorteMotor.previous());$('cutReset').addEventListener('click',()=>CorteMotor.reset());$('cutResult').addEventListener('click',()=>CorteMotor.seek(21));$('cutTimeline').addEventListener('input',e=>CorteMotor.seek(e.target.value));
 $('cutProfile').addEventListener('change',e=>{C.profile=e.target.value;CorteMotor.reset();});$('cutTarget').addEventListener('input',e=>{C.target=Number(e.target.value);CorteMotor.reset();});$('cutSpeed').addEventListener('change',e=>{C.speed=Number(e.target.value);});$('cutHighlight').addEventListener('change',e=>{C.highlight=e.target.checked;C.dirty=true;});$('cutAutoCam').addEventListener('change',e=>{C.autoCam=e.target.checked;C.lastStep=-1;C.dirty=true;});$('cutPrepare').addEventListener('click',()=>{Maniqui.setHairLength(.88);sentarse();goCam('cutBack');});
 
@@ -2369,5 +2369,6 @@ renderer.setAnimationLoop(now => { const dt = (now - last) / 1000; last = now; s
 window.__maniqui = { step, W };
 })();
 </script>
+<script src="./b6_v18_puente.js?v=1"></script>
 </body>
 </html>
