@@ -54,8 +54,8 @@
     window.CorteMotor.setElev(e.map(function (g) { return Math.min(2, g / 90); }));      /* 1 = elevación de 90° en el V18 */
     window.EU_V18_PUENTE.elev = e;
     $('eg3dNota').textContent = 'Aplicado: contorno «' + $('cutProfile').selectedOptions[0].text + '» y elevaciones reales por sección. ' +
-      'Esta primera fase eleva cada sección a la media de su pila; la capa por capa (Z0–Z6) sigue.';
-    activo = true; reloj();
+      'El largo de la guía va en pulgadas (botones o largo exacto); «Cortar capa por capa» usa los grados reales de cada capa.';
+    activo = true; reloj(); refrescarLargo();
   }
 
   /* reloj de elevación: junto al maniquí, no encima */
@@ -68,7 +68,8 @@
       '<line id="eg3dAguja" x1="50" y1="46" x2="50" y2="14" stroke="#f3ebe1" stroke-width="2" stroke-linecap="round"/><circle cx="50" cy="46" r="3" fill="#f3ebe1"/>' +
       '<text x="50" y="76" text-anchor="middle" fill="#b9ab9b" font-size="6">0°  ·  225°</text></svg>' +
       '<div id="eg3dGrados" style="font:500 26px/1 \'Cormorant Garamond\',Georgia,serif;color:#c9a36a">0°</div>' +
-      '<div id="eg3dSec" style="font-size:11px;color:#b9ab9b;margin-top:2px;letter-spacing:.04em"></div>';
+      '<div id="eg3dSec" style="font-size:11px;color:#b9ab9b;margin-top:2px;letter-spacing:.04em"></div>' +
+      '<div id="eg3dLargo" style="font-size:12px;color:#e9d9c4;margin-top:4px"></div>';
     $('stage').appendChild(d); return d;
   }
   function reloj() {
@@ -80,7 +81,7 @@
       else if (en && window.EU_V18_PUENTE.elev) g = Math.round(window.EU_V18_PUENTE.elev[s.active] * (s.lift > 0 ? 1 : 0));
       d.style.display = en ? 'block' : 'none';
       if (en) {
-        $('eg3dGrados').textContent = g + '°'; $('eg3dSec').textContent = nom;
+        $('eg3dGrados').textContent = g + '°'; $('eg3dSec').textContent = nom; var lgx = $('eg3dLargo'); if (lgx) lgx.textContent = CAPA && window.EU_V18_PUENTE.largo != null ? fm(window.EU_V18_PUENTE.largo) + '″ · ' + fm(window.EU_V18_PUENTE.largo * CM_PULG) + ' cm' : '';
         $('eg3dArco').setAttribute('stroke-dasharray', Math.min(225, g) + ' 225');
         $('eg3dAguja').setAttribute('transform', 'rotate(' + (-135 + Math.min(225, g) * 1.2) + ' 50 46)');
       }
@@ -138,14 +139,21 @@
       C.lineas = new T3.Group(); C.lineas.name = 'Divisiones del motor'; C.H.group.add(C.lineas);
       var mat = new T3.LineBasicMaterial({ color: 0x6fffe1, transparent: true, opacity: 0.9, depthTest: false }), azul = new T3.LineBasicMaterial({ color: 0x4db8ff, transparent: true, opacity: 0.95, depthTest: false });
       for (var b = 1; b < C.J; b++) {
-        var rb = C.recs.reduce(function (best, r) { return !best || (r.kind === 'back' && Math.abs(posA(r) - b / C.J) < Math.abs(posA(best) - b / C.J)) || (best.kind !== 'back' && Math.abs(posA(r) - b / C.J) < Math.abs(posA(best) - b / C.J)) ? r : best; }, null), pts = [];
-        for (var j = 0; j <= 14; j++) pts.push(C.H.path(rb, 0.02 + 0.3 * j / 14));
-        var l = new T3.Line(new T3.BufferGeometry().setFromPoints(pts), mat); l.renderOrder = 9; l.frustumCulled = false; C.lineas.add(l);
+        var rb = C.recs.filter(function (r) { return r.pk === 0; }).reduce(function (best, r) { return !best || Math.abs(posA(r) - b / C.J) < Math.abs(posA(best) - b / C.J) ? r : best; }, null), pts = [];
+        for (var j = 0; j <= 24; j++) pts.push(new T3.Vector3());
+        var l = new T3.Line(new T3.BufferGeometry().setFromPoints(pts), mat); l.renderOrder = 9; l.frustumCulled = false; l.userData.rec = rb; C.lineas.add(l);
       }
       var oj = []; for (var i = 0; i <= 30; i++) { var f = -Math.PI / 2 + Math.PI * i / 30; oj.push(new T3.Vector3(0.108 * Math.sin(f), 0.12 + 0.136 * Math.cos(f), -0.012)); }
       var la = new T3.Line(new T3.BufferGeometry().setFromPoints(oj), azul); la.renderOrder = 9; la.frustumCulled = false; C.lineas.add(la);
     }
-    C.lineas.visible = true; C.lineas.children.forEach(function (l) { l.material.opacity = 0.9 * vis; });
+    C.lineas.visible = true;
+    C.lineas.children.forEach(function (l) {
+      l.material.opacity = 0.9 * vis; var rb = l.userData.rec; if (!rb) return;
+      var fin = Math.max(0.3, rb.stop == null ? 1 : rb.stop), pa = l.geometry.attributes.position;       /* hasta donde llega el cabello */
+      for (var j = 0; j <= 24; j++) { var q = C.H.path(rb, 0.02 + (fin - 0.02) * j / 24); pa.setXYZ(j, q.x, q.y, q.z); }
+      pa.needsUpdate = true;
+    });
+    regla();
   }
   /* la tijera junto al mechón que se corta */
   function tijera() {
@@ -175,9 +183,48 @@
     if (cur >= totalPasos()) { el.textContent = 'Corte terminado · capas ' + C.n + ' · mechones ' + C.J + ' por capa'; return; }
     var k = Math.floor((cur - 1) / C.J), m = C.ms[(cur - 1) % C.J], atr = C.atras(m);
     var g = (atr ? C.pB : C.pF)[Math.min((atr ? C.pB : C.pF).length - 1, k)] || 0, cm = (atr ? C.dB : C.dF).cm[Math.min(((atr ? C.dB : C.dF).cm.length) - 1, k)];
-    el.textContent = 'Capa ' + (k + 1) + ' de ' + C.n + ' · mechón ' + ((cur - 1) % C.J + 1) + ' de ' + C.J + ' (' + (atr ? 'atrás' : 'delante') + ') · ' + g + '° · el escáner da ' + window.EU_CALCULO_CAPILAR.fmt(cm) + ' cm';
-    window.EU_V18_PUENTE.g = g;
+    var dd = atr ? C.dB : C.dF, lg = guiaPulg(window.CorteMotor.state().target), lk = lg + (dd.cm[Math.min(dd.cm.length - 1, k)] - dd.cm[0]) / CM_PULG;
+    el.textContent = 'Capa ' + (k + 1) + ' de ' + C.n + ' · mechón ' + ((cur - 1) % C.J + 1) + ' de ' + C.J + ' (' + (atr ? 'atrás' : 'delante') + ') · ' + g + '° · queda a ' + fm(lk) + '″ (' + fm(lk * CM_PULG) + ' cm)';
+    window.EU_V18_PUENTE.g = g; window.EU_V18_PUENTE.largo = lk;
   }
+
+  /* ───────────── largo real del cabello (1 unidad del V18 = 1 m: la oreja queda a 6,0″ de la raíz, como en la tabla de Fátima) ───────────── */
+  var PULG = 39.37, CM_PULG = 2.54, CHIPS = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28], rcC = null;
+  function fm(n) { return window.EU_CALCULO_CAPILAR ? window.EU_CALCULO_CAPILAR.fmt(n) : String(Math.round(n * 10) / 10).replace('.', ','); }
+  function rcentro() {                                          /* mechón central de atrás: la medida del cabello se toma en él */
+    var H = window.CorteMotor.hair(); if (rcC && rcC.mesh) return rcC;
+    rcC = H.records.filter(function (r) { return r.kind === 'back'; }).sort(function (a, b) { return Math.abs(a.q - 0.5) - Math.abs(b.q - 0.5); })[0]; return rcC;
+  }
+  function tDeY(r, y) { var H = window.CorteMotor.hair(), lo = 0.3, hi = 1; for (var i = 0; i < 18; i++) { var m = (lo + hi) / 2; if (H.path(r, m).y > y) lo = m; else hi = m; } return (lo + hi) / 2; }
+  function guiaPulg(target) { var H = window.CorteMotor.hair(), r = rcentro(); return H.lenAt(r, tDeY(r, H.tail(target))) * PULG; }
+  function inicialPulg() { return window.CorteMotor.hair().lenAt(rcentro(), 1) * PULG; }
+  function targetDePulg(pulg) { var lo = 0.0, hi = 0.70; for (var i = 0; i < 20; i++) { var m = (lo + hi) / 2; if (guiaPulg(m) < pulg) lo = m; else hi = m; } return (lo + hi) / 2; }
+  function ponerLargo(pulg) { if (window.CorteMotor.hair().getLength() < 0.5) $('cutPrepare').click(); var v = targetDePulg(pulg); window.CorteMotor.setTarget(v); if (CAPA) { CAPA.ver++; if (!CAPA.playing) pintarCorte(); } refrescarLargo(); }
+  function refrescarLargo() {
+    var el = $('eg3dLargoInfo'); if (!el || !window.CorteMotor.hair) return;
+    var g = guiaPulg(window.CorteMotor.state().target), ini = inicialPulg(), corta = Math.max(0, ini - g);
+    el.innerHTML = 'Guía: <b>' + fm(g) + '″ · ' + fm(g * CM_PULG) + ' cm</b><br>Cabello inicial: ' + fm(ini) + '″ · ' + fm(ini * CM_PULG) + ' cm<br>Se cortan: <b>' + fm(corta) + '″ · ' + fm(corta * CM_PULG) + ' cm</b>';
+    var inp = $('eg3dPulg'); if (inp && document.activeElement !== inp) inp.value = Math.round(g * 2) / 2;
+    document.querySelectorAll('#eg3dChips button').forEach(function (b) { b.classList.toggle('on', Math.abs(+b.dataset.p - g) < 0.6); });
+  }
+  /* regla de pulgadas junto al cabello (atrás, centro) */
+  function regla() {
+    var C = CAPA; if (!T3 || C.regla) return;
+    var H = C.H, r = rcentro(), g = new T3.Group(), mat = new T3.LineBasicMaterial({ color: 0xc9a36a, transparent: true, opacity: 0.85, depthTest: false });
+    g.name = 'Regla de largo';
+    for (var n = 2; n <= 40; n += 2) {
+      var t = H.tAtLen(r, n / PULG); if (t >= 0.999 && H.lenAt(r, 1) * PULG < n - 0.01) break;
+      var q = H.path(r, t), len = n % 4 === 0 ? 0.045 : 0.025;
+      var l = new T3.Line(new T3.BufferGeometry().setFromPoints([new T3.Vector3(0.1, q.y, -0.2), new T3.Vector3(0.1 + len, q.y, -0.2)]), mat); l.renderOrder = 10; l.frustumCulled = false; g.add(l);
+      if (n % 4 === 0) {
+        var cv = document.createElement('canvas'); cv.width = 96; cv.height = 48; var cx = cv.getContext('2d'); cx.fillStyle = '#e9d9c4'; cx.font = 'bold 34px sans-serif'; cx.textBaseline = 'middle'; cx.fillText(n + '″', 4, 26);
+        var sp = new T3.Sprite(new T3.SpriteMaterial({ map: new T3.CanvasTexture(cv), transparent: true, depthTest: false })); sp.scale.set(0.09, 0.045, 1); sp.position.set(0.1 + len + 0.05, q.y, -0.2); sp.renderOrder = 11; g.add(sp);
+      }
+    }
+    var eje = new T3.Line(new T3.BufferGeometry().setFromPoints([new T3.Vector3(0.1, H.path(r, 0.38).y, -0.2), new T3.Vector3(0.1, H.path(r, 1).y, -0.2)]), mat); eje.renderOrder = 10; eje.frustumCulled = false; g.add(eje);
+    C.regla = g; H.group.add(g);
+  }
+
   function bucle(ts) {
     if (!CAPA || !CAPA.playing) return;
     var dt = Math.min(0.1, (ts - CAPA.last) / 1000 || 0); CAPA.last = ts;
@@ -198,7 +245,7 @@
   }
   function limpiar() {
     if (!CAPA) return;
-    ['lineas', 'tij'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
+    ['lineas', 'tij', 'regla'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
     var S = window.CorteMotor.state(); CAPA.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, null); CAPA = null;
   }
 
@@ -216,6 +263,10 @@
         '<label for="eg3dCorte">Corte del motor (' + L.length + ')</label><select id="eg3dCorte">' +
         ord.map(function (f) { return '<optgroup label="' + esc(nom[f] || f) + '">' + fam[f].map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.n) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select>' +
         '<div id="eg3dFicha" class="note" style="margin:10px 0;line-height:1.55"></div>' +
+        '<div style="font-size:11px;letter-spacing:.2em;color:#a3abbd;margin:12px 0 6px">LARGO DE LA GUÍA · PULGADAS</div>' +
+        '<div id="eg3dChips" style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px">' + CHIPS.map(function (n) { return '<button data-p="' + n + '" style="text-align:center;padding:6px 2px;min-height:36px;font-size:13px">' + n + '″</button>'; }).join('') + '</div>' +
+        '<div class="row" style="margin-top:8px;align-items:center"><label for="eg3dPulg" style="flex:none">Largo exacto (″)</label><input type="text" id="eg3dPulg" inputmode="decimal" style="max-width:90px"></div>' +
+        '<div id="eg3dLargoInfo" class="note" style="margin:8px 0;line-height:1.55"></div>' +
         '<div class="grid"><button id="eg3dAplicar" class="primary wide">Aplicar el corte al maniquí</button>' +
         '<button id="eg3dCapas" class="primary wide">▶ Cortar capa por capa · mechón por mechón</button>' +
         '<button id="eg3dPausa">⏸ Pausar</button><button id="eg3dReinicia">↺ Reiniciar</button>' +
@@ -228,7 +279,10 @@
       $('eg3dCapas').addEventListener('click', function () { arrancar(CAPA && CAPA.playing === false && CAPA.T < totalPasos() ? '' : 'nuevo'); });
       $('eg3dPausa').addEventListener('click', function () { if (CAPA) CAPA.playing = false; });
       $('eg3dReinicia').addEventListener('click', function () { limpiar(); $('eg3dPaso').textContent = ''; window.CorteMotor.reset(); });
-      aplicar(); window.CorteMotor.reset();
+      document.querySelectorAll('#eg3dChips button').forEach(function (b) { b.addEventListener('click', function () { ponerLargo(+b.dataset.p); }); });
+      $('eg3dPulg').addEventListener('change', function () { var v = parseFloat(String(this.value).replace(',', '.')); if (v > 0) ponerLargo(Math.max(4, Math.min(34, v))); });
+      document.addEventListener('input', function (e) { if (e.target && e.target.id === 'cutTarget') setTimeout(refrescarLargo, 0); });
+      aplicar(); window.CorteMotor.reset(); refrescarLargo();
     }).catch(function () { caja.querySelector('p').textContent = 'No se pudieron cargar los motores de Guías 3D.'; });
   }
   function ir(t) { if (!CAPA) return; CAPA.T = Math.max(0, Math.min(totalPasos(), +t || 0)); pintarCorte(); }
