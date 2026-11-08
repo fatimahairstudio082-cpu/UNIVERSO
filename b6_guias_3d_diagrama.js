@@ -54,6 +54,28 @@
     if (l) x.fillText(l, x0, y);
   }
 
+  /* 8-11-2026 (Fátima: «cada transportador tiene que estar en cada cabeza, en pequeñito, con cada elevación que se realizó en esa
+     cabeza»): en «Cómo queda · 3 vistas», un transportador pequeño por cabeza (el mismo dibujo que el reloj del motor: 0° abajo,
+     90° hacia el lado, 180° arriba, hasta 225°) con una línea por capa en su color y sus grados debajo */
+  var COLT = ['#B01E45', '#C96A1E', '#D9920E', '#18906A', '#2C6FD1', '#7A4BD1', '#8A1C6B'];
+  function pilaDe(R, vk) {
+    var p = vk === 'lateral' ? ((R.lateral && R.lateral.pila && R.lateral.pila.length) ? R.lateral.pila : (R.frente.pila.length ? R.frente.pila : R.capas.pila))
+      : vk === 'frente' ? (R.frente.pila.length ? R.frente.pila : R.capas.pila) : R.capas.pila;
+    return (p || [0]).slice(0, 7);
+  }
+  function transp(x, pila, cx, cy) {
+    var Rr = 30; x.save(); x.setLineDash([]);
+    x.fillStyle = 'rgba(255,255,255,.88)'; x.beginPath(); x.arc(cx, cy, Rr + 22, 0, 7); x.fill();
+    x.strokeStyle = '#9A8F84'; x.lineWidth = 1.3; x.beginPath(); x.arc(cx, cy, Rr, -Math.PI / 2 - 1.25 * Math.PI, Math.PI / 2, false); x.stroke();
+    x.fillStyle = '#6B625A'; x.font = '600 8px system-ui,sans-serif'; x.textAlign = 'center';
+    [0, 45, 90, 135, 180, 225].forEach(function (k) { var ex = -Math.sin(k * Math.PI / 180), ey = Math.cos(k * Math.PI / 180); x.beginPath(); x.moveTo(cx + ex * Rr * 0.86, cy + ey * Rr * 0.86); x.lineTo(cx + ex * Rr, cy + ey * Rr); x.stroke(); x.fillText(k + '°', cx + ex * (Rr + 11), cy + ey * (Rr + 9) + 3); });
+    pila.forEach(function (g, z) { x.strokeStyle = COLT[z % 7]; x.lineWidth = 2.4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - Math.sin(g * Math.PI / 180) * Rr * (0.96 - z * 0.05), cy + Math.cos(g * Math.PI / 180) * Rr * (0.96 - z * 0.05)); x.stroke(); });
+    x.fillStyle = '#1F1B18'; x.beginPath(); x.arc(cx, cy, 2.2, 0, 7); x.fill();
+    x.font = '700 9px system-ui,sans-serif'; var yy = cy + Rr + 34, tx = '', l = 0;
+    pila.forEach(function (g, z) { var t = (z + 1) + '·' + g + '°'; x.fillStyle = COLT[z % 7]; var w = x.measureText(t + '  ').width; if (l + w > 120) { yy += 11; l = 0; } x.textAlign = 'left'; x.fillText(t, cx - 60 + l, yy); l += w; });
+    x.restore();
+  }
+
   function pintar(el) {
     var x = el.cv.getContext('2d'), W = el.cv.width, H = el.cv.height, st = el._dg, o = recetaDe(el), DG = window.EU_DIAGRAMA;
     x.fillStyle = '#F2EEE7'; x.fillRect(0, 0, W, H);
@@ -100,6 +122,7 @@
       TRES.forEach(function (z, i) {
         var a3 = Object.assign({}, z.anim, { crop: cU, banda: undefined, tr: limpio(z) });
         DG.pinta(x, a3, IMG[z.vista], 30 + i * (w3 + 10), 100, w3, 470, 1);
+        transp(x, pilaDe(o.R, z.vista), 30 + i * (w3 + 10) + w3 - 52, 172);
         x.fillStyle = '#1F1B18'; x.font = '700 15px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(NOM3[z.vista], 30 + i * (w3 + 10) + w3 / 2, 592); x.textAlign = 'left';
       });
     } else {
