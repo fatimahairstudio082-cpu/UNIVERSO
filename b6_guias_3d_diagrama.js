@@ -11,7 +11,7 @@
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
-  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['peinado_*', 'Línea por línea'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['queda_*', 'Cómo queda'], ['pix_*', 'Pixie · referencia'], ['pixc_*', 'Pixie corto'], ['dos', '◫ Lateral + nuca'], ['tres', '◫ Cómo queda · 3 vistas']];
+  var ESC = [['todo', '▶ Todo'], ['seccion', 'Seccionado'], ['particion', 'Particiones atrás'], ['guia', 'Guía nuca'], ['capas', 'Capas'], ['oblicua', 'Oblicua'], ['coronilla', 'Coronilla △'], ['coronilla_atras', 'Coronilla atrás'],['angulos', '📐 Ángulos y cm'], ['peinado_*', 'Línea por línea'], ['lateral', 'Lateral · corte'], ['emparejar', 'Emparejar'],['frente', 'Frente · guía'], ['pulir', 'Pulir puntas'], ['queda_*', 'Cómo queda'], ['pix_*', 'Pixie · referencia'], ['pixc_*', 'Pixie corto'], ['dos', '◫ Lateral + nuca'], ['tres', '◫ Cómo queda · 3 vistas'], ['recorrido', '▶ Recorrido de cortes']];
   var DUR = 20000, CACHE = {}, IMG = {};
   var CHIP_ON = 'background:#7c3aed;color:#fff;border:1px solid #7c3aed;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit';
   var CHIP_OFF = 'background:transparent;color:#cbd5e1;border:1px solid #3b3b5c;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit';
@@ -83,8 +83,24 @@
     x.restore();
   }
 
+  function numeros() { var m = {}; ((window.EU_CORTES && EU_CORTES.lista()) || []).forEach(function (c, i) { m[c.id] = i + 1; }); return m; }
+  /* «▶ Recorrido de cortes»: los cortes del catálogo uno detrás de otro, en su orden; cada uno con TODAS sus escenas (y sus tres
+     vistas al final) antes de pasar al siguiente. Nunca se mezclan escenas de dos cortes. */
+  function corteCache(id) {
+    var k = 'rec:' + id; if (CACHE[k]) return CACHE[k];
+    var DG = window.EU_DIAGRAMA, o = CACHE[k] = { R: DG.receta(id), E: null, err: null };
+    if (o.R) DG.construir(o.R).then(function (E) { o.E = E; if (E) Object.keys(E.fondos).forEach(function (v) { if (!IMG[v]) { IMG[v] = new Image(); IMG[v].src = E.fondos[v]; } }); }).catch(function (e) { o.err = e.message || String(e); });
+    return o;
+  }
+
   function pintar(el) {
     var x = el.cv.getContext('2d'), W = el.cv.width, H = el.cv.height, st = el._dg, o = recetaDe(el), DG = window.EU_DIAGRAMA;
+    var REC = null;
+    if (st && st.modo === 'recorrido' && window.EU_CORTES) {
+      var LC = EU_CORTES.lista(); st.ri = (st.ri || 0) % Math.max(1, LC.length);
+      o = corteCache(LC[st.ri].id); if (LC[st.ri + 1]) corteCache(LC[st.ri + 1].id);   /* el siguiente se prepara mientras tanto */
+      REC = { i: st.ri, n: LC.length };
+    }
     x.fillStyle = '#F2EEE7'; x.fillRect(0, 0, W, H);
     x.fillStyle = '#B5476B'; x.fillRect(0, 0, W, 6);
     if (!o || !o.R) { x.fillStyle = '#1F1B18'; x.font = '600 28px Georgia,serif'; x.fillText('Carga un corte para ver su diagramación.', 48, 90); return; }
@@ -98,6 +114,10 @@
     var ESC3 = TRES.length ? { tipo: 'tres', t: 'Cómo queda · atrás, de lado y de frente', texto: 'Así queda el corte terminado: atrás, de lado y de frente.', anim: { dur: DUR } } : null;
     if (ESC3) L = L.concat([ESC3]);
     var modo = st.modo || 'todo', e, prog, k;
+    if (REC) {   /* recorrido: este corte entero como «▶ Todo»; al terminar, el siguiente corte */
+      modo = 'todo'; var totR = 0; L.forEach(function (z) { totR += Math.max(DUR, (z && z.anim && z.anim.dur) || 0); });
+      if (dt >= totR) { st.ri = REC.i + 1; st.t0 = 0; st._o = null; }
+    }
     /* 26-10-2026 (Fátima: «las animaciones se ven demasiado rápidas»): cada escena dura lo que pide (anim.dur, p. ej. una capa
        mechón por mechón) y nunca menos de DUR; antes todas 20 s */
     function durDe(z) { return Math.max(DUR, (z && z.anim && z.anim.dur) || 0); }
@@ -108,7 +128,8 @@
     else if (modo === 'tres') { e = ESC3 || L[0]; prog = 1; }
     else if (/\*$/.test(modo)) { var Lp = L.filter(function (z) { return z.tipo.indexOf(modo.slice(0, -1)) === 0; }); if (!Lp.length) Lp = [L[0]]; sel = elige(Lp); k = sel.k; e = sel.e; prog = sel.prog; }
     else { e = L.filter(function (z) { return z.tipo === modo; })[0] || L[0]; prog = Math.min(1, (dt % durDe(e)) / (durDe(e) * 0.85)); }
-    x.fillStyle = '#B5476B'; x.font = '600 18px Georgia,serif'; x.fillText(('Diagramación · ' + o.R.n + (o.R.liso ? ' · liso extremo' : '')).toUpperCase(), 40, 38);
+    var nC = REC ? REC.i + 1 : (o.R && window.EU_CORTES && numeros()[(EU_CORTES.lista() || []).filter(function (c) { return c.n === o.R.n; }).map(function (c) { return c.id; })[0]]);
+    x.fillStyle = '#B5476B'; x.font = '600 18px Georgia,serif'; x.fillText(((REC ? 'Recorrido · corte ' + nC + ' de ' + REC.n : (nC ? 'Corte ' + nC : 'Diagramación')) + ' · ' + o.R.n + (o.R.liso ? ' · liso extremo' : '')).toUpperCase(), 40, 38);
     x.fillStyle = '#1F1B18'; x.font = '600 32px Georgia,serif';
     if (modo === 'dos') {
       x.fillText('Dos cabezas: lateral y nuca', 40, 78);
@@ -283,6 +304,14 @@
     P.render3D = function () {
       if (this._dg && this._dg.on && !this.exportando && !this.animando && this.getAttribute('aria-hidden') !== 'true') return;
       return r3d.apply(this, arguments);
+    };
+    /* 8-11-2026 (Fátima: «corte 1, luego el otro corte, un hilo sincronizado»): la Biblioteca numera cada corte en el orden del
+       catálogo (familias como están: primero los básicos sin elevación). Solo cambia el texto que se ve; el valor y el nombre no. */
+    var pC = P.panelCortes;
+    if (pC) P.panelCortes = function () {
+      var r = pC.apply(this, arguments);
+      try { var num = numeros(), ss = this.cCortes && this.cCortes.querySelectorAll('select'); if (ss && ss[1]) [].forEach.call(ss[1].options, function (op) { if (num[op.value] && !/^Corte \d+ · /.test(op.textContent)) op.textContent = 'Corte ' + num[op.value] + ' · ' + op.textContent; }); } catch (e) { }
+      return r;
     };
     P.pintar2D = function () {
       if (this._dg && this._dg.on && !this.exportando && !this.animando && this.cv && window.EU_DIAGRAMA && this.getAttribute('aria-hidden') !== 'true') {

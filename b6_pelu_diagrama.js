@@ -328,6 +328,9 @@
       var a = P(ph, thi), ks = [];
       for (var k = 0; k <= 5; k++) { var b = hasta != null && !g ? V3(a.x * 1.02, Math.min(a.y - 0.1, hasta), a.z * 1.02) : a.clone().add(dirElev(ph, thi, g * k / 5).multiplyScalar(0.95)); ks.push([].concat(pr(v, a), pr(v, b))); }
       tr.push(mechon(ks, [ta + (tb - ta) * 0.2, ta + (tb - ta) * 0.6], c, 2.4, ext)); tips.push(ks[5].slice(2));
+      /* 8-11-2026 (Fátima: «cada vez que se corta, el cabello cortado tiene que permanecer, para que se vea dónde queda y cómo queda»):
+         al pasar a la capa siguiente el mechón cortado cae a 0° a su largo y se queda en el maniquí, en el color de su capa */
+      if (ocultar) { var bC = hasta != null && !g ? V3(a.x * 1.02, Math.min(a.y - 0.1, hasta), a.z * 1.02) : a.clone().add(dirElev(ph, thi, 0).multiplyScalar(0.95)), qC = [].concat(pr(v, a), pr(v, bC)); tr.push(mechon([qC, qC], [tb, tb + 0.001], c, 1.8)); }
     }
     /* cuadrado: la línea de corte va recta; redondeado: la misma guía, la línea se lleva hacia delante (sube a los lados) */
     if (FORMAS_ATRAS[linea] && !FORMAS_ATRAS[linea].lat && tips.length > 2) {
@@ -376,7 +379,7 @@
              «capa · grados» en la punta; al cortarlo, cae y se queda dibujado en el maniquí con el color de su capa */
           tr.push(Object.assign({ k: 'n', x: ks[5][2], y: ks[5][3], s: String(z + 1), c: COL[z % 7], t: [ta + (tb - ta) * 0.6, 1], x2: ext.x || 0, p: 1 }));   /* 8-11-2026: el reloj y el rótulo dicen los grados; capa pelada: número pequeño, puede ir sobre la cabeza */
           var cayo = [].concat(pr(v, a), pr(v, a.clone().add(dirElev(ph, th, 0).multiplyScalar(0.6))));
-          if (s < secs.length - 1) tr.push(mechon([cayo, cayo], [tb, tb + 0.001], COL[z % 7], 1.8));
+          tr.push(mechon([cayo, cayo], [s < secs.length - 1 ? tb : 0.999, s < secs.length - 1 ? tb + 0.001 : 1], COL[z % 7], 1.8));   /* el cabello cortado se queda (la última sección, al final) */
         }
         tr.push(tijera(plano(tips), [ta + (tb - ta) * 0.6, tb], CORTE, R.desg, ext));
       });
