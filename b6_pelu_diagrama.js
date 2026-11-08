@@ -472,8 +472,8 @@
           /* 31-10-2026 (Fátima: «líneas disparejas y enrolladas»): con capas, cada línea baja recta desde su raíz como antes (sin arcos
              hacia fuera); solo cambia hasta dónde llega, que sale de su elevación */
           tip = dfF.length ? V3(a.x * 1.22, yT, Math.max(a.z, 0.2) + 0.55) : V3(sg * Math.max(Math.abs(a.x) * 1.22, 1.22), yT, Math.max(a.z, 0.2) + 0.3);
-          /* 8-11-2026 (Fátima, 2.ª corrección: «como estaba, pero rectas, como cabello bien prensado con el peine»): con capas, cada
-             línea va recta desde su raíz hasta donde se corta (el mismo sitio y el mismo número de antes), sin curva */
+          /* 8-11-2026 (Fátima: «rectas, como cabello bien prensado con el peine»): con capas, cada línea va recta desde su raíz
+             hasta donde se corta, sin curva */
           if (dfF.length) dRe = 1;
         }
         if (fleco || !dfF.length) c = V3((a.x + tip.x) / 2 * 1.1, (a.y + tip.y) / 2 + 0.25, a.z + 0.5);
@@ -1671,7 +1671,7 @@
         x.beginPath(); x.moveTo(ox + (a[0] + (b[0] - a[0]) * w) * s, oy + (a[1] + (b[1] - a[1]) * w) * s); x.lineTo(ox + (a[2] + (b[2] - a[2]) * w) * s, oy + (a[3] + (b[3] - a[3]) * w) * s); x.stroke();
       } else if (T.k === 's') cola.push([T, u]);
       else if (T.k === 'n') {
-        /* 8-11-2026 (Fátima: «los números en pequeñitos círculos; el corte limpio y profesional»): radio 7 y letra de 10 (antes 11 y 13) */
+        /* 8-11-2026 (Fátima: «los números en pequeñitos círculos; el corte limpio y profesional»): radio 7 y letra de 10 */
         var RN = T.sm ? 7 : 11, FN = T.sm ? '700 10px system-ui,sans-serif' : '700 13px system-ui,sans-serif';   /* sm: la pone encaje en las escenas de corte; las técnicas de color no cambian */
         x.beginPath(); if (T.s && T.s.length > 2) { x.font = FN; var nw = Math.max(RN, x.measureText(T.s).width / 2 + (T.sm ? 5 : 9)), nx = ox + T.x * s, ny = oy + T.y * s; x.moveTo(nx - nw + RN, ny - RN); x.arc(nx + nw - RN, ny, RN, -1.5708, 1.5708); x.arc(nx - nw + RN, ny, RN, 1.5708, 4.7124); x.closePath(); } else x.arc(ox + T.x * s, oy + T.y * s, RN, 0, 7); x.fill(); if (T.s) { x.fillStyle = '#fff'; x.font = FN; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(T.s, ox + T.x * s, oy + T.y * s + 0.5); x.textAlign = 'left'; x.textBaseline = 'alphabetic'; } }
       else if (T.k === 'e') { x.setLineDash([]); x.font = '700 15px system-ui,sans-serif'; var tw = x.measureText(T.s).width + 18; x.fillStyle = 'rgba(255,255,255,.93)'; x.fillRect(bx + 12, ry, tw, 26); x.fillStyle = T.c; x.fillRect(bx + 12, ry, 4, 26); x.fillStyle = '#1F1B18'; x.fillText(T.s, bx + 24, ry + 18); ry += 32; }
