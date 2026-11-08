@@ -205,7 +205,12 @@
       e.preventDefault(); var o = leer(); if (!o.capas.length) { nota.textContent = 'Escribe al menos una capa con su elevación (0–225°).'; return; }
       var t = tec.value.slice(0, 2) === 't:' ? GC.tecnica(tec.value.slice(2)) : null; if (t && t.texto && o.n === t.n) o.texto = t.texto;
       el._dg = { on: true, modo: (el._dg && el._dg.modo) || 'todo', t0: 0, libre: o }; nota.textContent = 'Armando «' + o.n + '» con ' + o.capas.length + ' capas…'; alAplicar();
-      if (CA) { try { var mdc = window.EU_DIAGRAMA && EU_DIAGRAMA.medidasDe ? EU_DIAGRAMA.medidasDe(o) : o.medidas; nota.textContent = CA.calcular(o, mdc).texto; } catch (er) { } }   /* 31-10-2026: el largo de la guía, del propio corte */
+      /* 8-11-2026 (Fátima, informe Guías 3D, parche 1): todo a 0° → guía fija, la misma regla del motor; si escribe «Guía por capa», manda lo suyo */
+      var oC = !o.guias.length && o.capas.concat(o.frente, o.lateral).every(function (g) { return !+g; }) ? Object.assign({}, o, { guias: ['f'] }) : o;
+      if (CA) { try { var mdc = window.EU_DIAGRAMA && EU_DIAGRAMA.medidasDe ? EU_DIAGRAMA.medidasDe(oC) : oC.medidas, rc = CA.calcular(oC, mdc), tx = rc.texto;
+        /* regla 7 (Fátima, 8-11-2026): todo a 0° → cada capa se corta en la misma línea de la guía y dice los cm de la guía */
+        if (oC !== o && rc.capas && rc.capas[0]) tx = tx.replace(/(Capa \d+ a 0°) con guía fija: [\d.,]+ cm/g, '$1, en la línea de la guía: ' + CA.fmt(rc.capas[0].largo) + ' cm');
+        nota.textContent = tx; } catch (er) { } }   /* 31-10-2026: el largo de la guía, del propio corte */
     };
     var gua = document.createElement('button'); gua.textContent = '💾 Guardar como mi corte'; gua.style.cssText = CHIP_OFF;
     gua.onclick = function (e) { e.preventDefault(); var o = leer(); if (!o.capas.length) return; nota.textContent = GC.guardar(o) ? 'Guardado «' + o.n + '» en tus cortes.' : 'No se pudo guardar en este navegador.'; llenarTec(); };
