@@ -46,7 +46,7 @@
   }
 
   function aplicar() {
-    var id = $('eg3dCorte').value; R = window.EU_DIAGRAMA.receta(id);
+    var id = $('eg3dCorte').value; R = window.EU_DIAGRAMA.receta(id); if (CAPA && !CAPA.playing && CAPA.id !== id) limpiar();
     $('eg3dFicha').innerHTML = ficha(R);
     var perfil = $('cutProfile'); perfil.value = LINEA[R.linea] || 'recto'; perfil.dispatchEvent(new Event('change'));
     if (LARGO[R.largo] != null) { var t = $('cutTarget'); t.value = LARGO[R.largo]; t.dispatchEvent(new Event('input')); }
@@ -75,16 +75,131 @@
     var d = relojHTML();
     (function tic() {
       if (!activo) { d.style.display = 'none'; return; }
-      var s = window.CorteMotor.state(), g = 0;
-      if (s.active >= 0 && window.EU_V18_PUENTE.elev) g = Math.round(window.EU_V18_PUENTE.elev[s.active] * (s.lift > 0 ? 1 : 0));
-      d.style.display = s.active >= 0 ? 'block' : 'none';
-      if (s.active >= 0) {
-        $('eg3dGrados').textContent = g + '°'; $('eg3dSec').textContent = SECC[s.active] || '';
+      var s = window.CorteMotor.state(), g = 0, en = s.active >= 0, nom = SECC[s.active] || '';
+      if (CAPA && CAPA.playing || (CAPA && CAPA.T >= 1 && CAPA.T < totalPasos())) { var cur = Math.floor(CAPA.T); en = cur >= 1 && cur < totalPasos(); g = window.EU_V18_PUENTE.g || 0; nom = 'Capa ' + (Math.floor((cur - 1) / CAPA.J) + 1) + ' · mechón ' + ((cur - 1) % CAPA.J + 1); }
+      else if (en && window.EU_V18_PUENTE.elev) g = Math.round(window.EU_V18_PUENTE.elev[s.active] * (s.lift > 0 ? 1 : 0));
+      d.style.display = en ? 'block' : 'none';
+      if (en) {
+        $('eg3dGrados').textContent = g + '°'; $('eg3dSec').textContent = nom;
         $('eg3dArco').setAttribute('stroke-dasharray', Math.min(225, g) + ' 225');
         $('eg3dAguja').setAttribute('transform', 'rotate(' + (-135 + Math.min(225, g) * 1.2) + ' 50 46)');
       }
       requestAnimationFrame(tic);
     })();
+  }
+
+
+  /* ───────────── corte capa por capa (Z0→Z6), mechón por mechón ─────────────
+     · capa k = nivel `h` de cada mechón del V18 (el mismo que ya usa su «rise» de capas): k = 0 la guía (nuca) … 6 arriba.
+     · largo de cada capa = la guía + (largo de la capa − largo de la guía) que da el ESCÁNER (EU_CALCULO_CAPILAR.calcular
+       con los grados de la receta). No se inventa ninguna medida.
+     · atrás se corta con la pila de atrás y los laterales con la del frente; cada capa se divide en J mechones verticales
+       (en horizontal, J = 1); primero los de atrás y después los de delante, separados por la línea azul de oreja a oreja. */
+  var CAPA = null, T3 = null;
+  var N_CAPAS = 7, J_MECH = 6;
+  function posA(r) { return r.kind === 'back' ? 0.25 + 0.5 * r.q : (r.side < 0 ? 0.25 * (1 - r.q) : 0.75 + 0.25 * r.q); }  /* 0 = delante izq … 1 = delante der */
+  function modelo() {
+    var H = window.CorteMotor.hair(), n = R.capas.pila.every(function (v) { return !v; }) && (!R.frente || R.frente.pila.every(function (v) { return !v; })) ? 1 : N_CAPAS;
+    var J = vertical(R) ? J_MECH : 1, pB = R.capas.pila, pF = R.frente && R.frente.pila ? R.frente.pila : pB;
+    function deltas(p) { var c = window.EU_CALCULO_CAPILAR.calcular({ capas: p, guias: ['m'], ref: 'craneo' }), o = []; for (var k = 0; k < n; k++) o.push((c.largos[Math.min(k, c.largos.length - 1)] - c.largos[0]) / 100); return { d: o, cm: c.largos, forma: c.forma }; }
+    var dB = deltas(pB), dF = deltas(pF);
+    var recs = H.records.filter(function (r) { return r.kind === 'back' || r.kind === 'side'; });
+    recs.forEach(function (r) { r.pk = Math.min(n - 1, Math.floor(r.h * n)); r.pm = Math.min(J - 1, Math.floor(posA(r) * J)); });
+    /* orden de los mechones: primero los de atrás (entre las dos orejas), luego los de delante */
+    var ms = []; for (var m = 0; m < J; m++) ms.push(m);
+    var centro = function (m) { return (m + 0.5) / J; }, atras = function (m) { return centro(m) >= 0.25 && centro(m) < 0.75; };
+    ms.sort(function (a, b) { return (atras(b) ? 1 : 0) - (atras(a) ? 1 : 0) || a - b; });
+    var pos = {}; ms.forEach(function (m, i) { pos[m] = i; });
+    return { id: R.id, H: H, n: n, J: J, pB: pB, pF: pF, dB: dB, dF: dF, recs: recs, ms: ms, pos: pos, atras: atras, T: 0, ver: 1, playing: false, last: 0, camAnt: '', hl: null };
+  }
+  function pasoDe(k, m) { return 1 + k * CAPA.J + CAPA.pos[m]; }       /* 0 = dividir la cabeza; 1… = cada mechón */
+  function totalPasos() { return 1 + CAPA.n * CAPA.J; }
+  function info(r) {
+    var C = CAPA, cur = Math.floor(C.T), p = C.T - cur, st = pasoDe(r.pk, r.pm), pila = r.kind === 'back' ? C.pB : C.pF;
+    var d = (r.kind === 'back' ? C.dB : C.dF).d[r.pk] || 0, g = pila[Math.min(pila.length - 1, r.pk)] || 0, kmax = Math.min(2, g / 90);
+    /* pinzas: el cabello de las capas que aún no se trabajan queda recogido arriba; cada capa se suelta cuando le toca */
+    var K = cur < 1 ? -1 : Math.floor((cur - 1) / C.J), primero = cur >= 1 && (cur - 1) % C.J === 0, e = Math.min(1, p / 0.25); e = e * e * (3 - 2 * e);
+    var clip = cur < 1 ? 0 : r.pk > K ? (K === 0 && primero ? e : 1) : r.pk === K ? (K > 0 && primero ? 1 - e : 0) : 0;
+    if (st < cur) return { amount: 1, lift: 0, hl: false, delta: d, clip: clip };
+    if (st > cur) return { amount: 0, lift: 0, hl: false, delta: d, clip: clip };
+    var lift = (p < 0.25 ? p / 0.25 : p < 0.75 ? 1 : (1 - p) / 0.25) * kmax, amount = Math.max(0, Math.min(1, (p - 0.25) / 0.5));
+    return { amount: amount, lift: lift, hl: true, delta: d, clip: clip };
+  }
+  function pintarCorte() {
+    var C = CAPA, S = window.CorteMotor.state();
+    C.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, { ver: C.ver, info: info });
+    divisiones(); tijera(); estadoUI(); camaraPaso();
+  }
+  /* líneas de división (verticales entre mechones) y línea azul de oreja a oreja */
+  function divisiones() {
+    var C = CAPA; if (!T3) return;
+    var vis = C.T < 1 ? C.T : 1;                                   /* aparecen durante el paso 0 y se quedan */
+    if (!C.lineas) {
+      C.lineas = new T3.Group(); C.lineas.name = 'Divisiones del motor'; C.H.group.add(C.lineas);
+      var mat = new T3.LineBasicMaterial({ color: 0x6fffe1, transparent: true, opacity: 0.9, depthTest: false }), azul = new T3.LineBasicMaterial({ color: 0x4db8ff, transparent: true, opacity: 0.95, depthTest: false });
+      for (var b = 1; b < C.J; b++) {
+        var rb = C.recs.reduce(function (best, r) { return !best || (r.kind === 'back' && Math.abs(posA(r) - b / C.J) < Math.abs(posA(best) - b / C.J)) || (best.kind !== 'back' && Math.abs(posA(r) - b / C.J) < Math.abs(posA(best) - b / C.J)) ? r : best; }, null), pts = [];
+        for (var j = 0; j <= 14; j++) pts.push(C.H.path(rb, 0.02 + 0.3 * j / 14));
+        var l = new T3.Line(new T3.BufferGeometry().setFromPoints(pts), mat); l.renderOrder = 9; l.frustumCulled = false; C.lineas.add(l);
+      }
+      var oj = []; for (var i = 0; i <= 30; i++) { var f = -Math.PI / 2 + Math.PI * i / 30; oj.push(new T3.Vector3(0.108 * Math.sin(f), 0.12 + 0.136 * Math.cos(f), -0.012)); }
+      var la = new T3.Line(new T3.BufferGeometry().setFromPoints(oj), azul); la.renderOrder = 9; la.frustumCulled = false; C.lineas.add(la);
+    }
+    C.lineas.visible = true; C.lineas.children.forEach(function (l) { l.material.opacity = 0.9 * vis; });
+  }
+  /* la tijera junto al mechón que se corta */
+  function tijera() {
+    var C = CAPA; if (!T3) return;
+    if (!C.tij) {
+      var met = new T3.MeshStandardMaterial({ color: 0xcfd3da, metalness: 0.9, roughness: 0.25 }), g = new T3.Group();
+      [-1, 1].forEach(function (sg) { var b = new T3.Mesh(new T3.BoxGeometry(0.004, 0.07, 0.002), met); b.position.y = 0.035; b.userData.s = sg; g.add(b); });
+      C.tij = g; C.H.group.add(g);
+    }
+    var cur = Math.floor(C.T), p = C.T - cur, k = Math.floor((cur - 1) / C.J), m = C.ms[(cur - 1) % C.J];
+    var rec = cur >= 1 && k < C.n ? C.recs.filter(function (r) { return r.pk === k && r.pm === m; }) : [];
+    if (!rec.length || p < 0.25 || p > 0.78) { C.tij.visible = false; return; }
+    var r = rec[Math.floor(rec.length / 2)], t = Math.max(0.3, r.stop == null ? 1 : r.stop), q = C.H.path(r, t);
+    q.y += 0.12 * (r.lastLift || 0); q.z -= 0.16 * (r.lastLift || 0);
+    C.tij.position.copy(q); C.tij.visible = true; C.tij.rotation.set(0, 0, Math.PI / 2);
+    var ab = 0.06 + 0.22 * Math.abs(Math.sin(C.T * 40)); C.tij.children.forEach(function (b) { b.rotation.z = b.userData.s * ab; });
+    /* cámara: atrás cutBack; lados cutLeft / cutRight */
+  }
+  function camaraPaso() {
+    var C = CAPA, cur = Math.floor(C.T), cam = 'cutBack';
+    if (cur >= 1 && cur < totalPasos()) { var m = C.ms[(cur - 1) % C.J]; cam = C.atras(m) ? 'cutBack' : (m < C.J / 2 ? 'cutLeft' : 'cutRight'); }
+    if (cam !== C.camAnt) { C.camAnt = cam; window.Maniqui.camera(cam); }
+  }
+  function estadoUI() {
+    var C = CAPA, cur = Math.floor(C.T), el = $('eg3dPaso'); if (!el) return;
+    if (cur < 1) { el.textContent = 'Paso 0 · se divide la cabeza (líneas verticales y línea azul de oreja a oreja)'; return; }
+    if (cur >= totalPasos()) { el.textContent = 'Corte terminado · capas ' + C.n + ' · mechones ' + C.J + ' por capa'; return; }
+    var k = Math.floor((cur - 1) / C.J), m = C.ms[(cur - 1) % C.J], atr = C.atras(m);
+    var g = (atr ? C.pB : C.pF)[Math.min((atr ? C.pB : C.pF).length - 1, k)] || 0, cm = (atr ? C.dB : C.dF).cm[Math.min(((atr ? C.dB : C.dF).cm.length) - 1, k)];
+    el.textContent = 'Capa ' + (k + 1) + ' de ' + C.n + ' · mechón ' + ((cur - 1) % C.J + 1) + ' de ' + C.J + ' (' + (atr ? 'atrás' : 'delante') + ') · ' + g + '° · el escáner da ' + window.EU_CALCULO_CAPILAR.fmt(cm) + ' cm';
+    window.EU_V18_PUENTE.g = g;
+  }
+  function bucle(ts) {
+    if (!CAPA || !CAPA.playing) return;
+    var dt = Math.min(0.1, (ts - CAPA.last) / 1000 || 0); CAPA.last = ts;
+    if (CAPA.espera > 0) { CAPA.espera -= dt; if (CAPA.espera <= 0) CAPA.camAnt = ''; requestAnimationFrame(bucle); return; }
+    var vel = parseFloat(($('cutSpeed') || {}).value) || 1;
+    CAPA.T = Math.min(totalPasos(), CAPA.T + dt * vel / 3.2);
+    pintarCorte(); if (CAPA.T >= totalPasos()) CAPA.playing = false; else requestAnimationFrame(bucle);
+  }
+  function arrancar(desde) {
+    if (!window.EU_CALCULO_CAPILAR) return;
+    T3 = window.THREE;
+    aplicar();
+    if (window.CorteMotor.hair().getLength() < 0.5) $('cutPrepare').click();        /* cabello largo inicial */
+    window.CorteMotor.pause(); window.Maniqui.sentarse();
+    if (!CAPA || desde === 'nuevo') { limpiar(); CAPA = modelo(); }
+    if (CAPA.T >= totalPasos()) CAPA.T = 0;
+    CAPA.espera = 1.6; CAPA.camAnt = ''; CAPA.playing = true; CAPA.last = performance.now(); activo = true; reloj(); requestAnimationFrame(bucle);
+  }
+  function limpiar() {
+    if (!CAPA) return;
+    ['lineas', 'tij'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
+    var S = window.CorteMotor.state(); CAPA.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, null); CAPA = null;
   }
 
   function montar() {
@@ -102,14 +217,21 @@
         ord.map(function (f) { return '<optgroup label="' + esc(nom[f] || f) + '">' + fam[f].map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.n) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select>' +
         '<div id="eg3dFicha" class="note" style="margin:10px 0;line-height:1.55"></div>' +
         '<div class="grid"><button id="eg3dAplicar" class="primary wide">Aplicar el corte al maniquí</button>' +
-        '<button id="eg3dPlay" class="wide">▶ Cortar con el motor</button></div>' +
+        '<button id="eg3dCapas" class="primary wide">▶ Cortar capa por capa · mechón por mechón</button>' +
+        '<button id="eg3dPausa">⏸ Pausar</button><button id="eg3dReinicia">↺ Reiniciar</button>' +
+        '<button id="eg3dPlay" class="wide">Cortar por secciones (básico)</button></div>' +
+        '<p id="eg3dPaso" class="note" role="status" style="margin-top:8px"></p>' +
         '<p id="eg3dNota" class="note" role="status" style="margin-top:8px"></p>';
       $('eg3dCorte').addEventListener('change', aplicar);
       $('eg3dAplicar').addEventListener('click', aplicar);
-      $('eg3dPlay').addEventListener('click', function () { aplicar(); window.CorteMotor.reset(); window.CorteMotor.play(); });
+      $('eg3dPlay').addEventListener('click', function () { limpiar(); aplicar(); window.CorteMotor.reset(); window.CorteMotor.play(); });
+      $('eg3dCapas').addEventListener('click', function () { arrancar(CAPA && CAPA.playing === false && CAPA.T < totalPasos() ? '' : 'nuevo'); });
+      $('eg3dPausa').addEventListener('click', function () { if (CAPA) CAPA.playing = false; });
+      $('eg3dReinicia').addEventListener('click', function () { limpiar(); $('eg3dPaso').textContent = ''; window.CorteMotor.reset(); });
       aplicar(); window.CorteMotor.reset();
     }).catch(function () { caja.querySelector('p').textContent = 'No se pudieron cargar los motores de Guías 3D.'; });
   }
-  window.EU_V18_PUENTE = { montar: montar, aplicar: aplicar, elev: null };
+  function ir(t) { if (!CAPA) return; CAPA.T = Math.max(0, Math.min(totalPasos(), +t || 0)); pintarCorte(); }
+  window.EU_V18_PUENTE = { montar: montar, aplicar: aplicar, elev: null, ir: ir, modelo: function () { return CAPA; } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', montar); else montar();
 })();
