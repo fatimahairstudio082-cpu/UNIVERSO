@@ -263,6 +263,18 @@
   /* 8-11-2026 (Fátima: «las líneas naranjas verticales hasta donde termina la cabeza, casi tocando el cuello»): el tramo que el
      cráneo no cubre baja recto, como la raya gris */
   function naranjaCuello(v, ph, t, w) { if (!seVe(v, ph, TH_FIN_CABEZA)) return []; var a = P(ph, TH_FIN_CABEZA - 0.06); return [linea(plano([pr(v, a), pr(v, V3(a.x * 0.78, Math.min(a.y, Y_FIN_CABEZA), a.z))]), t, NARANJA, w)]; }   /* baja cerrándose un poco hacia el cuello, sobre la cabeza */
+  /* 8-11-2026 (Fátima: «más líneas horizontales para que cada mechón que se jale en vertical se visualice y quede»): líneas
+     horizontales finas dentro de las secciones naranjas, en cada altura de thList y también en el tramo de abajo, casi en el cuello */
+  function horizontales(v, Z, K, thList, t, col, w) {
+    var out = [];
+    thList.forEach(function (th) { out = out.concat(lineas(tramos(v, function (u) { return [Z[0] + u * (Z[1] - Z[0]), th]; }, 30), t, col, w)); });
+    [0.45, 0.9].forEach(function (f) {
+      var pts = [];
+      for (var s = 0; s <= K; s++) { var ph = Z[0] + (Z[1] - Z[0]) * s / K; if (!seVe(v, ph, TH_FIN_CABEZA)) continue; var a = P(ph, TH_FIN_CABEZA - 0.06), b = V3(a.x * 0.78, Math.min(a.y, Y_FIN_CABEZA), a.z); pts.push(pr(v, a.clone().lerp(b, f))); }
+      if (pts.length > 1) out.push(linea(plano(pts), t, col, w));
+    });
+    return out;
+  }
   function escParticionVertical(R) {
     var v = 'nuca', tr = [], n = Math.max(2, Math.min(10, (R.capas.pila || []).length)), lin = n - 1, K = 6, Z = [NUCA - 1.3, NUCA + 1.3];
     tr.push(rayaCuello(v, [0, 0.15], GRIS, 4), rotulo('Raya central: de la coronilla hasta donde termina el cuello', GRIS, 0));
@@ -271,6 +283,9 @@
     tr.push(rotulo(K + ' secciones verticales', NARANJA, 0.15));
     for (var j = 1; j <= lin; j++) { var th = ths[j], tb = 0.45 + 0.35 * (j - 1) / lin; tr = tr.concat(lineas(tramos(v, function (u) { return [Z[0] + u * (Z[1] - Z[0]), th]; }, 30), [tb, tb + 0.35 / lin], '#2C6FD1', 2.4)); }
     tr.push(rotulo('Dentro de cada sección, ' + lin + ' líneas horizontales: ' + n + ' mechones de abajo arriba', '#2C6FD1', 0.45));
+    var finas = [ths[0]]; for (var jf = 0; jf < n; jf++) finas.push((ths[jf] + ths[jf + 1]) / 2);
+    tr = tr.concat(horizontales(v, Z, K, finas, [0.8, 0.84], '#2C6FD1', 1.2));
+    tr.push(rotulo('Líneas finas: cada mechón que se jala en vertical, hasta el cuello', '#2C6FD1', 0.8));
     for (var z = 0; z < n; z++) { var tc = (ths[z] + ths[z + 1]) / 2; [-1, 1].forEach(function (sg) { var phc = NUCA + sg * (Z[1] - Z[0]) * 2.5 / K; if (seVe(v, phc, tc)) tr.push(chapa(pr(v, P(phc, tc)), z + 1, COL[z % 7], 0.82 + 0.02 * z)); }); }
     return { v: v, tr: tr };
   }
@@ -1231,6 +1246,9 @@
          verticales en naranja se ven mientras se corta (de lado se queda como está) */
       if (v === 'nuca') {
         trV.push(rayaCuello(v, t0v, GRIS, 3.4));
+        /* 8-11-2026 (Fátima): las líneas horizontales de cada mechón también aquí, encima del cabello, toda la escena */
+        var finasV = [Math.max.apply(null, ths)]; for (var zf = 0; zf < ths.length - 1; zf++) finasV.push((ths[zf] + ths[zf + 1]) / 2);
+        trV = trV.concat(horizontales(v, Z, K, finasV, t0v, '#2C6FD1', 1.4));
         for (var kn = 0; kn <= K; kn++) { var phN = Z[0] + (Z[1] - Z[0]) * kn / K, tn1 = ths[ths.length - 1], tn2 = TH_FIN_CABEZA; trV = trV.concat(lineas(tramos(v, function (u) { return [phN, tn1 + u * (tn2 - tn1)]; }, 30), t0v, NARANJA, 2.4)).concat(naranjaCuello(v, phN, t0v, 2.4)); }
       }
       trV.push(rotulo((v === 'nuca' ? 'Atrás' : v === 'lateral' ? 'De lado · delante de la línea de oreja a oreja' : 'De frente') + ' · secciones verticales', TINTA, 0.97));
