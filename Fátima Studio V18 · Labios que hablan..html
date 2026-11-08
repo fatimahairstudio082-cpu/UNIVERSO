@@ -1839,9 +1839,13 @@ function sentarse() {
 function camCabeza(name) {
   F.J.head.getWorldPosition(_hp);
   const v = VISTAS_CABEZA[name], c = Math.cos(W.yaw), sn_ = Math.sin(W.yaw);
+  // el encuadre se gradúa con el largo del cabello: corto = cerca de la cabeza, largo = más lejos y más abajo
+  const k = Math.max(0, Math.min(1, portraitHair.getLength() / 0.92)), esc = 1 + 0.55 * k;
+  const baja = (name === 'coronilla' || name === 'cenital' || name === 'busto' || name === 'portrait' || name === 'faceCheck') ? 0 : -0.3 * k;
   const tg = new T.Vector3(_hp.x, _hp.y + 0.09, _hp.z);
-  const to = tg.clone().add(new T.Vector3(v[0] * c + v[2] * sn_, v[1], -v[0] * sn_ + v[2] * c));
-  camTween = { t: 0, from: camera.position.clone(), to, tFrom: controls.target.clone(), tTo: tg.clone().add(new T.Vector3(0, v[3], 0)) };
+  const dx = v[0] * esc, dy = v[1] * (name === 'coronilla' || name === 'cenital' ? 1 : esc), dz = v[2] * esc;
+  const to = tg.clone().add(new T.Vector3(dx * c + dz * sn_, dy + baja, -dx * sn_ + dz * c));
+  camTween = { t: 0, from: camera.position.clone(), to, tFrom: controls.target.clone(), tTo: tg.clone().add(new T.Vector3(0, v[3] + baja, 0)) };
 }
 const ACTIONS = {
   detente:     { label: 'Detener',           anim: 'idle', sec: 'a' },
