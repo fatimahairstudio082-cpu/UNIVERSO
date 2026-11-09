@@ -158,6 +158,33 @@
     });
     regla();
   }
+  /* manos de la peluquera: la izquierda sujeta el mechón entre los dedos con el peine, la derecha corta con la tijera */
+  function manosOn() { var c = $('eg3dManos'); return !c || c.checked; }
+  function manosCorte(o) {
+    var C = CAPA; if (!T3 || !window.Maniqui || !window.Maniqui.mano) return;
+    if (!C.manos) {
+      var M = window.Maniqui, g = new T3.Group(); g.name = 'Manos de la peluquera';
+      var mi = M.mano(1), md = M.mano(-1), ti = M.herr.tijera(), pe = M.herr.peine();
+      ti.add(md); ti.userData.mano = md;                         /* la mano derecha va en los anillos de la tijera */
+      M.agarrar(md, new T3.Vector3(0, -0.062, 0), new T3.Vector3(1, 0, 0), new T3.Vector3(0, -1, 0), T3.Vector3); md.userData.curl(0.6, 0.5);
+      pe.scale.setScalar(0.8); g.add(mi, ti, pe); C.H.group.add(g); C.manos = { g: g, mi: mi, ti: ti, pe: pe };
+    }
+    var m = C.manos, on = !!o && manosOn(); m.g.visible = on; if (C.tij) C.tij.children.forEach(function (b) { b.visible = !on; });
+    if (!on) return;
+    var H = C.H, r = o.gr[Math.floor(o.gr.length / 2)], uu = Math.max(0, Math.min(1, (o.p - 0.25) / 0.5));
+    var tg = function (rr, tt) { return H.tipAt(rr, Math.min(1, tt + 0.02), rr.lastAng || 0).sub(H.tipAt(rr, Math.max(0, tt - 0.02), rr.lastAng || 0)).normalize(); };
+    /* mano izquierda: sujeta el mechón 4,5 cm por encima del corte */
+    var th = H.tAtLen(r, Math.max(0.02, H.lenAt(r, o.t) - 0.045)), ph = H.tipAt(r, th, r.lastAng || 0), tgh = tg(r, th);
+    var out = new T3.Vector3(ph.x, ph.y > 0.12 ? (ph.y - 0.12) * 0.6 : 0, ph.z); if (out.lengthSq() < 1e-6) out.set(0, 0, -1); out.normalize();
+    var arm = out.clone().multiplyScalar(0.4).add(new T3.Vector3(0, 0.9, 0)).normalize();
+    window.Maniqui.agarrar(m.mi, ph, tgh, arm, T3.Vector3); m.mi.userData.curl(0.45, 0.4);
+    /* peine: junto a los dedos, por el lado de la raíz, con los dientes hacia las puntas */
+    var side = new T3.Vector3().crossVectors(tgh, out).normalize();
+    window.Maniqui.agarrar(m.pe, ph.clone().addScaledVector(tgh, -0.03).addScaledVector(out, 0.012), side, tgh.clone().negate(), T3.Vector3);
+    m.pe.position.copy(ph).addScaledVector(tgh, -0.03).addScaledVector(out, 0.012);
+    /* tijera: misma posición y giro que las hojas, con anillos y mano */
+    m.ti.position.copy(C.tij.position); m.ti.rotation.copy(C.tij.rotation); m.ti.userData.A.rotation.z = o.ab; m.ti.userData.B.rotation.z = -o.ab;
+  }
   /* la tijera junto al mechón que se corta */
   function tijera() {
     var C = CAPA; if (!T3) return;
@@ -168,11 +195,12 @@
     }
     var cur = Math.floor(C.T), p = C.T - cur, k = Math.floor((cur - 1) / C.J), m = C.ms[(cur - 1) % C.J];
     var rec = cur >= 1 && k < C.n ? C.recs.filter(function (r) { return r.pk === k && r.pm === m; }) : [];
-    if (!rec.length || p < 0.25 || p > 0.78) { C.tij.visible = false; return; }
+    if (!rec.length || p < 0.25 || p > 0.78) { C.tij.visible = false; manosCorte(null); return; }
     var gr = C.grp[k + '_' + m] || rec, uu = Math.max(0, Math.min(1, (p - 0.25) / 0.5)), r = gr[Math.min(gr.length - 1, Math.round(uu * (gr.length - 1)))];
     var t = Math.max(0.3, r.stop == null ? 1 : r.stop), q = C.H.tipAt(r, t, r.lastAng || 0);
     C.tij.position.copy(q); C.tij.visible = true; C.tij.rotation.set(0, 0, Math.PI / 2);    /* hojas abiertas en vertical, avanza a lo ancho del mechón */
     var ab = 0.06 + 0.22 * Math.abs(Math.sin(C.T * 40)); C.tij.children.forEach(function (b) { b.rotation.z = b.userData.s * ab; });
+    manosCorte({ r: r, t: t, p: p, ab: ab, gr: gr });
     /* cámara: atrás cutBack; lados cutLeft / cutRight */
   }
   /* cámara automática: gira despacio alrededor de la cabeza siguiendo el mechón que se corta (atrás → lados → delante);
@@ -279,7 +307,7 @@
   }
   function limpiar() {
     if (!CAPA) return;
-    ['lineas', 'tij', 'regla'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
+    ['lineas', 'tij', 'manos', 'regla'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
     var S = window.CorteMotor.state(); CAPA.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, null); CAPA = null;
   }
 
@@ -555,6 +583,7 @@
         '<button id="eg3dPausa">⏸ Pausar</button><button id="eg3dReinicia">↺ Reiniciar</button>' +
         '<button id="eg3dPlay" class="wide">Cortar por secciones (básico)</button></div>' +
         '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:8px;cursor:pointer"><input type="checkbox" id="eg3dCamAuto" checked style="width:18px;height:18px;accent-color:#c9a36a"> Cámara automática: rueda sola de atrás a delante</label>' +
+        '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:6px;cursor:pointer"><input type="checkbox" id="eg3dManos" checked style="width:18px;height:18px;accent-color:#c9a36a"> Manos: sujetan el mechón con peine y cortan con la tijera</label>' +
         '<p id="eg3dPaso" class="note" role="status" style="margin-top:8px"></p>' +
         '<p id="eg3dNota" class="note" role="status" style="margin-top:8px"></p>';
       $('eg3dCorte').addEventListener('change', aplicar);

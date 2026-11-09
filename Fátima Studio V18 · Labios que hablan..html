@@ -2312,6 +2312,11 @@ document.querySelectorAll('[data-hs-graytone]').forEach(b=>b.addEventListener('c
 Maniqui.setColorTechnique=(tech='balayage',pct=50,tone)=>{HSt.tech=tech;HSt.techAmt=Math.max(0,Math.min(100,+pct));if(tone)HSt.techTone=tone;hsApply();};
 Maniqui.setGray=(pct=20,root=22,tone)=>{HSt.gray=Math.max(0,Math.min(100,+pct));HSt.grayLen=Math.max(4,Math.min(100,+root));if(tone)HSt.grayTone=tone;hsApply();};
 Maniqui.setWaveLength=v=>hsWaveLen(+v);Maniqui.camera=n=>goCam(n);Maniqui.sentarse=sentarse;
+/* manos de la peluquera: la mano del maniquí (dedos) + antebrazo, con cierre de dedos propio (c: 0 abierta, 1 puño) */
+Maniqui.mano=function(side){const g=new T.Group(),h=buildHand(g,side),arm=new T.Group();arm.rotation.z=Math.PI;arm.add(limb(.34,.02,.03,M.skin,false));g.add(arm);
+ g.userData.curl=function(c,pinza){h.fingers.forEach(f=>{f.a.rotation.set(c*1.15*f.k,0,0);f.b.rotation.set(c*1.3*f.k,0,0);});h.thumb.a.rotation.set(-.5-(pinza==null?c:pinza)*.7,0,side*(.35-c*.25));h.thumb.b.rotation.set(-(pinza==null?c:pinza)*.8,0,0);};g.userData.curl(.3);return g;};
+Maniqui.herr={tijera:buildScissors,peine:buildComb};
+Maniqui.agarrar=function(g,anchor,x,y,V){x=x.clone().normalize();const z=new V().crossVectors(x,y).normalize(),yy=new V().crossVectors(z,x).normalize();g.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(x,yy,z));g.position.copy(anchor).addScaledVector(z,-.02).addScaledVector(yy,.07);};
 // ---- V17 · motor de color paso a paso (balayage, mechas con papel de aluminio, tinte)
 const KSEC=['Nuca central','Posterior izquierdo','Posterior derecho','Lateral izquierdo','Lateral derecho','Contorno del rostro'],KMAX=9;
 const K={time:0,playing:false,speed:1,autoCam:true,tech:'balayage',amt:50,tone:'#e0b878',lastStep:-1,ordered:false,placed:false,on:false};
@@ -2332,7 +2337,12 @@ const kPlancha=new T.Group(),kSteam=[];{const bx=(w,h,l,m,x,y,z)=>{const q=new T
 kProps.add(kPlancha);kPlancha.visible=false;
 const kSecador=new T.Group(),kRoundB=new T.Group(),kAirP=[];{const cy=(rt,rb,l,m,n)=>{const q=new T.Mesh(new T.CylinderGeometry(rt,rb,l,n||14),m);return q;};const body=cy(.026,.024,.12,kGray,18);body.rotation.x=Math.PI/2;body.position.z=-.095;kSecador.add(body);const nz=cy(.017,.025,.04,kBlack,16);nz.rotation.x=Math.PI/2;nz.position.z=-.015;nz.scale.set(1.6,1,.55);kSecador.add(nz);const hd=cy(.011,.011,.1,kGray);hd.position.set(0,-.07,-.11);hd.rotation.x=.18;kSecador.add(hd);const grill=cy(.0265,.0265,.012,kCeram,18);grill.rotation.x=Math.PI/2;grill.position.z=-.158;kSecador.add(grill);const led=new T.Mesh(new T.SphereGeometry(.0032,8,8),kHot);led.position.set(0,.0265,-.07);kSecador.add(led);for(let i=0;i<8;i++){const m=new T.Mesh(new T.BoxGeometry(.0025,.0025,.016),kAir);kSecador.add(m);kAirP.push(m);}
 const rb=new T.Group();const bar=cy(.016,.016,.07,kGray,18);bar.rotation.z=Math.PI/2;rb.add(bar);const bris=cy(.0215,.0215,.07,kBrist,16);bris.rotation.z=Math.PI/2;rb.add(bris);kRoundB.add(rb);kRoundB.userData.rb=rb;const hnd=cy(.0048,.0042,.13,kBlack,10);hnd.rotation.z=Math.PI/2;hnd.position.x=.1;kRoundB.add(hnd);}
-kProps.add(kSecador);kProps.add(kRoundB);kSecador.visible=false;kRoundB.visible=false;
+kProps.add(kSecador);kProps.add(kRoundB);
+kSecador.scale.setScalar(.72);
+const kManoS=Maniqui.mano(-1),kManoB=Maniqui.mano(1),kManoP=Maniqui.mano(-1);kSecador.add(kManoS);kRoundB.add(kManoB);kPlancha.add(kManoP);
+{const V3=T.Vector3,ha=.18,hx=new V3(0,Math.cos(ha),Math.sin(ha));Maniqui.agarrar(kManoS,new V3(0,-.07,-.11),hx,new V3(0,0,-1),V3);kManoS.scale.setScalar(1/.72);kManoS.userData.curl(.85,.7);
+Maniqui.agarrar(kManoB,new V3(.1,0,0),new V3(1,0,0),new V3(0,1,0),V3);kManoB.userData.curl(.85,.7);
+Maniqui.agarrar(kManoP,new V3(0,0,-.13),new V3(0,0,1),new V3(0,1,0),V3);kManoP.userData.curl(.8,.6);}kSecador.visible=false;kRoundB.visible=false;
 function kPt(r,w,t0){const N=portraitHair.N,st=r.stop||1,tt=t0+((K.hasta!=null?K.hasta:1)-t0)*Math.min(1,w*1.1),j=Math.max(1,Math.min(N-1,Math.round(tt/st*N))),bp=kVert(r,j),bo=kOut(bp),tg=kVert(r,Math.min(N,j+1)).sub(kVert(r,Math.max(0,j-1))).normalize();return {bp,bo,tg};}
 function kBasis(q,pt){const z=pt.tg.clone(),y=pt.bo.clone().sub(z.clone().multiplyScalar(pt.bo.dot(z))).normalize(),x=new T.Vector3().crossVectors(y,z);q.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(x,y,z));}
 function kHerr(S,t0){const pl=K.modo==='plancha'||K.modo==='queratina',sec=K.modo==='secado';kPlancha.visible=false;kSecador.visible=false;kRoundB.visible=false;if(!K.on||!(pl||sec))return;
