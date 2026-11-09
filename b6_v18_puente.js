@@ -346,6 +346,7 @@
     if (mt.modo === 'producto' || mt.modo === 'bigudi' || mt.modo === 'queratina') o.tone = '#efe6d6';
     if (colEscena) o.tone = colEscena.tone;
     o.cubre = !!(colEscena && colEscena.cubre);
+    o.capas = ['producto', 'queratina', 'secado', 'plancha'].indexOf(mt.modo) >= 0;     /* capas finas horizontales, de abajo arriba */
     o.desde = (mt.modo === 'barrido' && pd != null) ? pd : null; decDesde = o.desde;
     window.ColorMotor.reset(); window.ColorMotor.set(o);
     var kt = $('kTech'), ka = $('kAmt'); if (kt) kt.value = tech; if (ka) ka.value = amt;
