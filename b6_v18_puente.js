@@ -291,11 +291,12 @@
   var MAPA_K = { color_raiz: 'tinte', color_global: 'tinte', color_balayage: 'balayage', color_sombre: 'balayage', color_babylights: 'mechas', mechas_aluminio: 'mechas', mechas_gorro: 'mechas', quim_decoloracion: 'tinte' };
   /* cómo se aplica cada técnica (Guías 3D · `MODO` de EU_PARTICIONES): raíz, global, barrido, finas, papel, gorro, decoloración */
   var MAPA_T = { color_raiz: { tech: 'tinte', modo: 'raiz', hasta: 0.3 }, color_global: { tech: 'tinte', modo: 'global' }, color_balayage: { tech: 'balayage', modo: 'barrido' }, color_sombre: { tech: 'balayage', modo: 'ombre' },
-    color_babylights: { tech: 'mechas', modo: 'finas' }, mechas_aluminio: { tech: 'mechas', modo: 'papel' }, mechas_gorro: { tech: 'mechas', modo: 'gorro', sinPapel: true }, quim_decoloracion: { tech: 'tinte', modo: 'decolor' } };
+    color_babylights: { tech: 'mechas', modo: 'finas' }, quim_permanente: { tech: 'tinte', modo: 'bigudi' }, hidra_profunda: { tech: 'tinte', modo: 'producto' }, hidra_nutricion: { tech: 'tinte', modo: 'producto' }, quera_alisado: { tech: 'tinte', modo: 'producto' }, quera_botox: { tech: 'tinte', modo: 'producto' }, mechas_aluminio: { tech: 'mechas', modo: 'papel' }, mechas_gorro: { tech: 'mechas', modo: 'gorro', sinPapel: true }, quim_decoloracion: { tech: 'tinte', modo: 'decolor' } };
+  var colEscena = null, resAplicado = false, hairOrig = null, rollos = null;
   var colorAct = false, colDiv = null, colPsi = Math.PI, colTec = null, colUlt = 0;
   function tecnicasColor() {
     var CB = window.EU_CEREBRO, o = [];
-    ['color', 'mechas', 'quimicos'].forEach(function (f) { CB.listar(f).forEach(function (t) { if (MAPA_K[t.id]) o.push(t); }); });
+    ['color', 'mechas', 'quimicos', 'hidratacion', 'queratina'].forEach(function (f) { CB.listar(f).forEach(function (t) { if (MAPA_T[t.id]) o.push(t); }); });
     return o;
   }
   function fasesDe(step) { return step === 0 ? ['preparacion', 'formula', 'divisiones'] : step <= 6 ? ['aplicacion'] : step === 7 ? ['tiempo'] : ['cierre']; }
@@ -314,6 +315,9 @@
     var id = $('eg3dTec').value, t = window.EU_CEREBRO.obtener(id); colTec = t;
     var mt = MAPA_T[id], tech = mt.tech, pd = t.pintado && t.pintado.desde, amt = pd != null ? Math.max(20, Math.min(90, Math.round((1 - pd) * 100))) : 50, o = { tech: tech, amt: amt, modo: mt.modo, hasta: mt.hasta == null ? null : mt.hasta, sinPapel: !!mt.sinPapel, mech: 7 };
     if (id === 'quim_decoloracion') o.tone = '#efd9a3';
+    if (mt.modo === 'producto' || mt.modo === 'bigudi') o.tone = '#efe6d6';
+    if (colEscena) o.tone = colEscena.tone;
+    o.cubre = !!(colEscena && colEscena.cubre);
     o.desde = (mt.modo === 'barrido' && pd != null) ? pd : null; decDesde = o.desde;
     window.ColorMotor.reset(); window.ColorMotor.set(o);
     var kt = $('kTech'), ka = $('kAmt'); if (kt) kt.value = tech; if (ka) ka.value = amt;
@@ -422,6 +426,54 @@
     var pn = new T3.Points(pg, new T3.PointsMaterial({ color: 0x16304d, size: 0.007, depthTest: false })); pn.renderOrder = 7; g.add(pn);
     window.CorteMotor.hair().group.add(g); gorro = g; return g;
   }
+
+  /* rulos de la permanente: un rulo por mechón (6 secciones × 7), que se monta con cada pincelada y se retira al neutralizar */
+  var efecto = null;
+  function montarRollos() {
+    if (rollos) return rollos; var H = window.CorteMotor.hair(); T3 = T3 || window.THREE;
+    if (!H.records.some(function (r) { return r.mi != null; })) return null;                 /* aún no se ordenaron los mechones */
+    var g = new T3.Group(), grupos = {}, mat = new T3.MeshStandardMaterial({ color: 0xe58fb0, roughness: 0.6 }), pin = new T3.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.5 }); g.name = 'Rulos de permanente'; rollos = [];
+    H.records.forEach(function (r) { if (r.mi == null || r.kind === 'crown' || r.kind === 'fringe') return; var k = r.section + '_' + r.mi; if (!grupos[k]) grupos[k] = { si: r.section, mi: r.mi, r: r }; });
+    Object.keys(grupos).forEach(function (k) {
+      var o = grupos[k], q = H.path(o.r, 0.42), q2 = H.path(o.r, 0.5), tan = q2.clone().sub(q).normalize(), nor = q.clone().sub(new T3.Vector3(CEN.x, CEN.y, CEN.z)).normalize(), eje = new T3.Vector3().crossVectors(tan, nor).normalize();
+      var m = new T3.Mesh(new T3.CylinderGeometry(0.013, 0.013, 0.05, 14), mat); m.add(new T3.Mesh(new T3.CylinderGeometry(0.0045, 0.0045, 0.058, 8), pin));
+      m.position.copy(q).addScaledVector(nor, 0.018); m.quaternion.setFromUnitVectors(new T3.Vector3(0, 1, 0), eje); m.userData = o; m.visible = false; g.add(m); rollos.push(m);
+    });
+    H.group.add(g); rollos.grupo = g; return rollos;
+  }
+  function actualizarRollos(s, step) {
+    var R = montarRollos(); if (!R) return; R.grupo.visible = step <= 8;
+    R.forEach(function (m) { var o = m.userData; m.visible = step <= 8 && ((s.prog && s.prog[o.si]) || 0) * 7 > o.mi + 0.2; });
+  }
+  /* lo que queda al terminar: la permanente deja ondas; hidratación, nutrición y queratina dejan brillo */
+  function efectoFinal(modo) {
+    if (modo === 'bigudi') { var b = document.querySelector('[data-hs-style="ondas"]'); if (b) { b.click(); efecto = 'onda'; } }
+    else if (modo === 'producto') { var sh = $('hsShn'); if (sh) { sh.value = 96; sh.dispatchEvent(new Event('input')); efecto = 'brillo'; } }
+  }
+  function restaurarEfectos() {
+    if (efecto === 'onda') { var b = document.querySelector('[data-hs-style="bob"]'); if (b) b.click(); }
+    if (efecto) { var sh = $('hsShn'); if (sh) { sh.value = 62; sh.dispatchEvent(new Event('input')); } }
+    efecto = null; resAplicado = false; if (rollos) rollos.grupo.visible = false;
+  }
+  /* escenas: canas y corrección de color (el V18 ya cambia el color del cabello y tiene canas) */
+  var ESCENAS = [
+    { n: 'Cubrir canas · raíz', tec: 'color_raiz', gray: 50, tone: '#4a2c1c', cubre: true },
+    { n: 'Cubrir canas · todo el cabello', tec: 'color_global', gray: 50, tone: '#3a2418', cubre: true },
+    { n: 'Corrección · naranja → rubio ceniza', tec: 'color_global', base: '#c8661e', tone: '#cfc3a8' },
+    { n: 'Corrección · verde → castaño cobrizo', tec: 'color_global', base: '#4d7f3d', tone: '#7a4528' },
+    { n: 'Cambio de color · rubio → castaño oscuro', tec: 'color_global', base: '#e0c080', tone: '#4a3020' }
+  ];
+  function restaurarEscena() {
+    if (!colEscena) return; var gb = document.querySelector('[data-hs-graypct="0"]'); if (gb) gb.click();
+    window.Maniqui.setHair(hairOrig || '#2a1a12'); window.CorteMotor.hair().recolor(); colEscena = null;
+  }
+  function lanzarEscena(i) {
+    var e = ESCENAS[i]; restaurarEfectos(); colorAct = false; window.ColorMotor.reset();
+    if (hairOrig == null) hairOrig = ($('hairColor') || {}).value || '#2a1a12';
+    window.Maniqui.setHair(e.base || hairOrig); var gb = document.querySelector('[data-hs-graypct="' + (e.gray || 0) + '"]'); if (gb) gb.click();
+    window.CorteMotor.hair().recolor(); $('eg3dTec').value = e.tec; colEscena = e; animarColor();
+  }
+
   function bucleColor(ts) {
     if (!colorAct) return;
     var dt = Math.min(0.1, (ts - colUlt) / 1000 || 0); colUlt = ts;
@@ -429,6 +481,9 @@
     if (colTec) { var el = $('eg3dTecPasos'); if (el && el.dataset.s !== String(step)) { el.dataset.s = String(step); el.innerHTML = pasosHTML(colTec, step); } }
     divisionesColor().visible = step <= 6;                                      /* las divisiones se ven mientras se aplica */
     gorroMalla().visible = !!(colTec && colTec.id === 'mechas_gorro' && step <= 7);
+    var mo = colTec && MAPA_T[colTec.id] && MAPA_T[colTec.id].modo;
+    if (mo === 'bigudi') actualizarRollos(s, step); else if (rollos) rollos.grupo.visible = false;
+    if (step >= 9 && !resAplicado) { resAplicado = true; efectoFinal(mo); } else if (step < 9) resAplicado = false;
     if (DEC && $('eg3dLamVer') && $('eg3dLamVer').checked) {
       var pp = step <= 6 ? Math.round(Math.max(0, Math.min(1, ((s.t || 0) - 1) / 6)) * 42) / 42 : 1;
       if (Math.abs(pp - decP) > 0.012) { decP = pp; ['planta', 'perfil', 'nuca'].forEach(pintarDecal); tarjetaLamina(); }
@@ -439,7 +494,7 @@
   }
   function animarColor() {
     if (!window.EU_CEREBRO || !window.ColorMotor) return;
-    aplicarColor(); if (CAPA) { CAPA.playing = false; } window.CorteMotor.pause();
+    restaurarEfectos(); aplicarColor(); if (CAPA) { CAPA.playing = false; } window.CorteMotor.pause();
     colorAct = true; colUlt = performance.now(); colPsi = Math.PI; window.ColorMotor.play(); requestAnimationFrame(bucleColor);
   }
   function montarColor(caja) {
@@ -456,7 +511,13 @@
       '<button id="eg3dTecPausa">⏸ Pausar</button><button id="eg3dTecReinicia">↺ Reiniciar</button></div>' +
       '<div id="eg3dTecPasos" class="note" style="margin-top:10px;line-height:1.5;font-size:12px"></div>';
     caja.insertAdjacentElement('afterend', c2);
-    $('eg3dTec').addEventListener('change', function () { if (!colorAct) aplicarColor(); else animarColor(); });
+    hairOrig = ($('hairColor') || {}).value || '#2a1a12';
+    var c3 = document.createElement('div'); c3.id = 'eg3dEscenas'; c3.style.cssText = 'margin:14px 0 4px;padding-top:12px;border-top:1px solid #3a2e24';
+    c3.innerHTML = '<div style="font-size:11px;letter-spacing:.3em;color:#c9a36a;margin-bottom:8px">ESCENAS · CANAS Y CORRECCIÓN DE COLOR</div><div class="grid">' + ESCENAS.map(function (e, i) { return '<button data-esc="' + i + '" class="wide">' + esc(e.n) + '</button>'; }).join('') + '</div>' +
+      '<p class="note" style="margin-top:6px">Prepara el cabello (color de partida y canas) y aplica la técnica con sus divisiones, mechón a mechón. «Reiniciar» devuelve el cabello como estaba.</p>';
+    c2.insertAdjacentElement('afterend', c3);
+    c3.querySelectorAll('button[data-esc]').forEach(function (b) { b.addEventListener('click', function () { lanzarEscena(+b.dataset.esc); }); });
+    $('eg3dTec').addEventListener('change', function () { restaurarEscena(); if (!colorAct) aplicarColor(); else animarColor(); });
     $('eg3dLam').addEventListener('change', function () {
       lamSel = this.value; decP = 1; if (!$('eg3dLamVer').checked) { tarjetaLamina(); return; } verDivisiones();
       var id = lamsActuales()[0]; if (id && !colorAct) window.Maniqui.camera({ planta: 'cenital', perfil: 'cutRight', nuca: 'cutBack' }[vistaDe(id)]);
@@ -465,7 +526,7 @@
     $('eg3dDesde').addEventListener('change', function () { var v = this.value === '' ? null : +this.value / 100; decDesde = v; window.ColorMotor.set({ desde: v }); if (v == null && colTec && colTec.pintado) { decDesde = colTec.pintado.desde; window.ColorMotor.set({ desde: decDesde }); } if ($('eg3dLamVer').checked) verDivisiones(); else tarjetaLamina(); });
     $('eg3dTecPlay').addEventListener('click', animarColor);
     $('eg3dTecPausa').addEventListener('click', function () { window.ColorMotor.pause(); });
-    $('eg3dTecReinicia').addEventListener('click', function () { colorAct = false; window.ColorMotor.reset(); if (colDiv) colDiv.visible = false; if (gorro) gorro.visible = false; decP = 1; aplicarColor(); });
+    $('eg3dTecReinicia').addEventListener('click', function () { colorAct = false; window.ColorMotor.reset(); if (colDiv) colDiv.visible = false; if (gorro) gorro.visible = false; restaurarEfectos(); restaurarEscena(); decP = 1; aplicarColor(); });
     aplicarColor();
   }
 
