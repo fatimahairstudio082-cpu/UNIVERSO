@@ -291,12 +291,12 @@
   var MAPA_K = { color_raiz: 'tinte', color_global: 'tinte', color_balayage: 'balayage', color_sombre: 'balayage', color_babylights: 'mechas', mechas_aluminio: 'mechas', mechas_gorro: 'mechas', quim_decoloracion: 'tinte' };
   /* cómo se aplica cada técnica (Guías 3D · `MODO` de EU_PARTICIONES): raíz, global, barrido, finas, papel, gorro, decoloración */
   var MAPA_T = { color_raiz: { tech: 'tinte', modo: 'raiz', hasta: 0.3 }, color_global: { tech: 'tinte', modo: 'global' }, color_balayage: { tech: 'balayage', modo: 'barrido' }, color_sombre: { tech: 'balayage', modo: 'ombre' },
-    color_babylights: { tech: 'mechas', modo: 'finas' }, quim_permanente: { tech: 'tinte', modo: 'bigudi' }, hidra_profunda: { tech: 'tinte', modo: 'producto' }, hidra_nutricion: { tech: 'tinte', modo: 'producto' }, quera_alisado: { tech: 'tinte', modo: 'producto' }, quera_botox: { tech: 'tinte', modo: 'producto' }, mechas_aluminio: { tech: 'mechas', modo: 'papel' }, mechas_gorro: { tech: 'mechas', modo: 'gorro', sinPapel: true }, quim_decoloracion: { tech: 'tinte', modo: 'decolor' } };
+    color_babylights: { tech: 'mechas', modo: 'finas' }, quim_permanente: { tech: 'tinte', modo: 'bigudi' }, hidra_profunda: { tech: 'tinte', modo: 'producto' }, hidra_nutricion: { tech: 'tinte', modo: 'producto' }, quera_alisado: { tech: 'tinte', modo: 'queratina' }, quera_botox: { tech: 'tinte', modo: 'queratina' }, cab_secado: { tech: 'tinte', modo: 'secado', sinBrocha: true, sinPasta: true }, cab_planchado: { tech: 'tinte', modo: 'plancha', sinBrocha: true, sinPasta: true }, mechas_aluminio: { tech: 'mechas', modo: 'papel' }, mechas_gorro: { tech: 'mechas', modo: 'gorro', sinPapel: true }, quim_decoloracion: { tech: 'tinte', modo: 'decolor' } };
   var colEscena = null, resAplicado = false, hairOrig = null, rollos = null;
   var colorAct = false, colDiv = null, colPsi = Math.PI, colTec = null, colUlt = 0;
   function tecnicasColor() {
     var CB = window.EU_CEREBRO, o = [];
-    ['color', 'mechas', 'quimicos', 'hidratacion', 'queratina'].forEach(function (f) { CB.listar(f).forEach(function (t) { if (MAPA_T[t.id]) o.push(t); }); });
+    ['color', 'mechas', 'quimicos', 'hidratacion', 'queratina', 'cabello'].forEach(function (f) { CB.listar(f).forEach(function (t) { if (MAPA_T[t.id]) o.push(t); }); });
     return o;
   }
   function fasesDe(step) { return step === 0 ? ['preparacion', 'formula', 'divisiones'] : step <= 6 ? ['aplicacion'] : step === 7 ? ['tiempo'] : ['cierre']; }
@@ -313,9 +313,9 @@
   }
   function aplicarColor() {
     var id = $('eg3dTec').value, t = window.EU_CEREBRO.obtener(id); colTec = t;
-    var mt = MAPA_T[id], tech = mt.tech, pd = t.pintado && t.pintado.desde, amt = pd != null ? Math.max(20, Math.min(90, Math.round((1 - pd) * 100))) : 50, o = { tech: tech, amt: amt, modo: mt.modo, hasta: mt.hasta == null ? null : mt.hasta, sinPapel: !!mt.sinPapel, mech: 7 };
+    var mt = MAPA_T[id], tech = mt.tech, pd = t.pintado && t.pintado.desde, amt = pd != null ? Math.max(20, Math.min(90, Math.round((1 - pd) * 100))) : 50, o = { tech: tech, amt: amt, modo: mt.modo, hasta: mt.hasta == null ? null : mt.hasta, sinPapel: !!mt.sinPapel, sinBrocha: !!mt.sinBrocha, sinPasta: !!mt.sinPasta, mech: 7 };
     if (id === 'quim_decoloracion') o.tone = '#efd9a3';
-    if (mt.modo === 'producto' || mt.modo === 'bigudi') o.tone = '#efe6d6';
+    if (mt.modo === 'producto' || mt.modo === 'bigudi' || mt.modo === 'queratina') o.tone = '#efe6d6';
     if (colEscena) o.tone = colEscena.tone;
     o.cubre = !!(colEscena && colEscena.cubre);
     o.desde = (mt.modo === 'barrido' && pd != null) ? pd : null; decDesde = o.desde;
@@ -448,7 +448,7 @@
   /* lo que queda al terminar: la permanente deja ondas; hidratación, nutrición y queratina dejan brillo */
   function efectoFinal(modo) {
     if (modo === 'bigudi') { var b = document.querySelector('[data-hs-style="ondas"]'); if (b) { b.click(); efecto = 'onda'; } }
-    else if (modo === 'producto') { var sh = $('hsShn'); if (sh) { sh.value = 96; sh.dispatchEvent(new Event('input')); efecto = 'brillo'; } }
+    else if (modo === 'producto' || modo === 'queratina' || modo === 'plancha' || modo === 'secado') { var sh = $('hsShn'); if (sh) { sh.value = modo === 'secado' ? 84 : 96; sh.dispatchEvent(new Event('input')); efecto = 'brillo'; } }
   }
   function restaurarEfectos() {
     if (efecto === 'onda') { var b = document.querySelector('[data-hs-style="bob"]'); if (b) b.click(); }
