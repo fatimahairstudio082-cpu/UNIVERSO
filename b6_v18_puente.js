@@ -311,9 +311,17 @@
     var id = $('eg3dTec').value, t = window.EU_CEREBRO.obtener(id); colTec = t;
     var tech = MAPA_K[id], pd = t.pintado && t.pintado.desde, amt = pd != null ? Math.max(20, Math.min(90, Math.round((1 - pd) * 100))) : 50, o = { tech: tech, amt: amt };
     if (id === 'quim_decoloracion') o.tone = '#efd9a3';
+    o.desde = (tech === 'balayage' && pd != null) ? pd : null; decDesde = o.desde;
     window.ColorMotor.reset(); window.ColorMotor.set(o);
     var kt = $('kTech'), ka = $('kAmt'); if (kt) kt.value = tech; if (ka) ka.value = amt;
     $('eg3dTecFicha').innerHTML = fichaColor(t); $('eg3dTecPasos').innerHTML = pasosHTML(t, 0);
+    var sel = $('eg3dLam'); if (sel && window.EU_DIVISIONES) {
+      var lt = window.EU_DIVISIONES.laminasDe(id), tdo = window.EU_DIVISIONES.catalogo();
+      sel.innerHTML = '<option value="tec">Todas las de esta técnica (' + lt.length + ')</option><optgroup label="Esta técnica">' + lt.map(function (l) { return '<option value="' + l.id + '">' + esc(l.n) + '</option>'; }).join('') + '</optgroup><optgroup label="Todas las láminas del motor (' + tdo.length + ')">' + tdo.map(function (l) { return '<option value="' + l.id + '">' + esc(l.n) + '</option>'; }).join('') + '</optgroup>';
+      sel.value = 'tec'; lamSel = 'tec'; decP = 1; var dd = $('eg3dDesdeFila'); if (dd) dd.style.display = tech === 'balayage' ? 'flex' : 'none';
+      var ds = $('eg3dDesde'); if (ds) ds.value = decDesde == null ? '' : String(Math.round(decDesde * 100));
+      if ($('eg3dLamVer') && $('eg3dLamVer').checked) verDivisiones();
+    }
     return t;
   }
   /* las 6 divisiones del motor: raya central, oreja a oreja y línea de la nuca, con sus números 1–6 */
@@ -334,12 +342,82 @@
     });
     H.group.add(g); colDiv = g; return g;
   }
+
+  /* ───────────── divisiones de colorimetría: las láminas de EU_DIVISIONES proyectadas sobre el cabello del V18 ─────────────
+     Cada lámina (planta, perfil, nuca, zigzag, herradura, media luna, ladrillo, gorro…) se dibuja en un lienzo sin el contorno
+     de la cabeza ni el relleno, y ese dibujo se pega sobre la cabeza con la proyección de su vista: planta desde arriba, perfil
+     a los lados y nuca por detrás. Se dibujan a medida que avanza la aplicación (p = 0…1), como en el motor de Guías 3D. */
+  var CN = 512, DEC = null, decLam = { planta: null, perfil: null, nuca: null }, decP = 1, decDesde = null, lamSel = 'tec';
+  var CEN = { x: 0, y: 0.125, z: -0.012 }, RADIO = { a: 0.118, b: 0.143, c: 0.124 }, RLAM = { planta: 215, perfil: 195, nuca: 215 };
+  function vistaDe(id) { return /^perfil/.test(id) ? 'perfil' : /^nuca|^gorro$/.test(id) ? 'nuca' : 'planta'; }
+  function filtrar(x) {                                                  /* sin contorno de cabeza, sin relleno de piel/pelo y sin textos */
+    var f0 = CanvasRenderingContext2D.prototype.fill, s0 = CanvasRenderingContext2D.prototype.stroke;
+    x.fill = function () { var fs = this.fillStyle; if (typeof fs !== 'string' || fs === '#ffffff' || fs === '#f6f1ec') return; return f0.apply(this, arguments); };
+    x.stroke = function () { var ss = this.strokeStyle; if (typeof ss === 'string' && (ss === '#2b2b3d' || /^rgba\(43, ?43, ?61/.test(ss))) return; return s0.apply(this, arguments); };
+    x.fillText = function () { }; x.strokeText = function () { };
+  }
+  function geoDecal(v) {
+    var sg = new T3.SphereGeometry(1, 56, 36), pos = sg.attributes.position, idx = sg.index.array, P = [], U = [], R = RLAM[v];
+    function n3(i) { return [pos.getX(i), pos.getY(i), pos.getZ(i)]; }
+    for (var t = 0; t < idx.length; t += 3) {
+      var a = n3(idx[t]), b = n3(idx[t + 1]), c = n3(idx[t + 2]), mx = (a[0] + b[0] + c[0]) / 3, my = (a[1] + b[1] + c[1]) / 3, mz = (a[2] + b[2] + c[2]) / 3;
+      if (!(v === 'planta' ? my > 0.05 : v === 'nuca' ? mz < -0.12 : Math.abs(mx) > 0.22)) continue;
+      [a, b, c].forEach(function (n) {
+        P.push(CEN.x + n[0] * RADIO.a, CEN.y + n[1] * RADIO.b, CEN.z + n[2] * RADIO.c);
+        var px, py;
+        if (v === 'planta') { px = CN / 2 - n[0] * 0.92 * R; py = CN / 2 - n[2] * R; }       /* nariz arriba; su derecha = −x */
+        else if (v === 'perfil') { px = CN / 2 + n[2] * R; py = CN / 2 - n[1] * 1.02 * R; }  /* mira a la derecha */
+        else { px = CN / 2 - n[0] * 0.84 * R; py = CN / 2 - n[1] * R; }                       /* desde atrás */
+        U.push(px / CN, 1 - py / CN);
+      });
+    }
+    var g = new T3.BufferGeometry(); g.setAttribute('position', new T3.Float32BufferAttribute(P, 3)); g.setAttribute('uv', new T3.Float32BufferAttribute(U, 2)); return g;
+  }
+  function crearDecales() {
+    if (DEC) return DEC; T3 = T3 || window.THREE; DEC = {};
+    ['planta', 'perfil', 'nuca'].forEach(function (v) {
+      var cv = document.createElement('canvas'); cv.width = cv.height = CN; filtrar(cv.getContext('2d'));
+      var tex = new T3.CanvasTexture(cv); tex.encoding = T3.sRGBEncoding;
+      var mesh = new T3.Mesh(geoDecal(v), new T3.MeshBasicMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false, side: T3.DoubleSide }));
+      mesh.renderOrder = 8; mesh.frustumCulled = false; mesh.name = 'Divisiones · ' + v; mesh.visible = false; window.CorteMotor.hair().group.add(mesh);
+      DEC[v] = { cv: cv, tex: tex, mesh: mesh };
+    });
+    return DEC;
+  }
+  function pintarDecal(v) {
+    var d = DEC[v], x = d.cv.getContext('2d'), id = decLam[v]; x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, CN, CN); x.restore();
+    d.mesh.visible = !!id; if (!id) return;
+    window.EU_DIVISIONES.dibujarUna(x, id, CN / 2, CN / 2, RLAM[v], decP, { desde: decDesde == null ? 0.45 : decDesde }); d.tex.needsUpdate = true;
+  }
+  function lamsActuales() {
+    var id = colTec && colTec.id; if (!id || !window.EU_DIVISIONES) return [];
+    return lamSel === 'tec' ? window.EU_DIVISIONES.laminasDe(id).map(function (l) { return l.id; }) : [lamSel];
+  }
+  function verDivisiones() {
+    crearDecales(); var ids = lamsActuales(); decLam = { planta: null, perfil: null, nuca: null };
+    ids.forEach(function (id) { var v = vistaDe(id); if (!decLam[v]) decLam[v] = id; });
+    ['planta', 'perfil', 'nuca'].forEach(pintarDecal); tarjetaLamina();
+  }
+  function ocultarDivisiones() { if (!DEC) return; Object.keys(DEC).forEach(function (v) { DEC[v].mesh.visible = false; }); }
+  /* la lámina completa, tal cual la dibuja el motor de Guías 3D (con sus números y escalas), junto al maniquí */
+  function tarjetaLamina() {
+    var cv = $('eg3dLamCard'); if (!cv) return; var x = cv.getContext('2d'), ids = lamsActuales(), id = ids[0], el = $('eg3dLamNom');
+    x.clearRect(0, 0, cv.width, cv.height); x.fillStyle = '#f6efe1'; x.fillRect(0, 0, cv.width, cv.height);
+    if (!id) { if (el) el.textContent = ''; return; }
+    window.EU_DIVISIONES.dibujarUna(x, id, cv.width / 2, 98, 80, decP, { desde: decDesde == null ? 0.45 : decDesde });
+    var L = window.EU_DIVISIONES.catalogo().filter(function (l) { return l.id === id; })[0]; if (el) el.innerHTML = '<b>' + esc(L ? L.n : id) + '</b><br>' + esc(L ? L.d : '');
+  }
+
   function bucleColor(ts) {
     if (!colorAct) return;
     var dt = Math.min(0.1, (ts - colUlt) / 1000 || 0); colUlt = ts;
     var s = window.ColorMotor.state(), step = s.step == null ? 0 : s.step;
     if (colTec) { var el = $('eg3dTecPasos'); if (el && el.dataset.s !== String(step)) { el.dataset.s = String(step); el.innerHTML = pasosHTML(colTec, step); } }
     divisionesColor().visible = step <= 6;                                      /* las divisiones se ven mientras se aplica */
+    if (DEC && $('eg3dLamVer') && $('eg3dLamVer').checked) {
+      var pp = step <= 6 ? Math.max(0, Math.min(1, (s.t || 0) / 6)) : 1;
+      if (Math.abs(pp - decP) > 0.012) { decP = pp; ['planta', 'perfil', 'nuca'].forEach(pintarDecal); tarjetaLamina(); }
+    }
     if (step >= 9 && camAuto()) { colPsi += dt * Math.PI * 2 / 24; orbita(colPsi); }  /* resultado: vuelta lenta */
     else colPsi = Math.PI;
     requestAnimationFrame(bucleColor);
@@ -355,14 +433,24 @@
     c2.innerHTML = '<div style="font-size:11px;letter-spacing:.3em;color:#c9a36a;margin-bottom:8px">COLORIMETRÍA · CEREBRO DE GUÍAS 3D</div>' +
       '<label for="eg3dTec">Técnica (' + L.length + ')</label><select id="eg3dTec">' + L.map(function (t) { return '<option value="' + esc(t.id) + '">' + esc(t.n) + '</option>'; }).join('') + '</select>' +
       '<div id="eg3dTecFicha" class="note" style="margin:10px 0;line-height:1.55"></div>' +
+      '<label for="eg3dLam">Divisiones que dibuja el motor</label><select id="eg3dLam"></select>' +
+      '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin:8px 0;cursor:pointer"><input type="checkbox" id="eg3dLamVer" checked style="width:18px;height:18px;accent-color:#c9a36a"> Dibujarlas sobre el maniquí (se trazan al aplicar)</label>' +
+      '<div id="eg3dDesdeFila" class="row" style="align-items:center;display:none"><label for="eg3dDesde" style="flex:none">Arranque del balayage</label><select id="eg3dDesde" style="max-width:150px"><option value="">Según la técnica</option><option value="10">10 %</option><option value="25">25 %</option><option value="50">50 %</option><option value="75">75 %</option></select></div>' +
+      '<canvas id="eg3dLamCard" width="300" height="300" style="width:100%;max-width:300px;border-radius:6px;margin-top:8px;display:block"></canvas><div id="eg3dLamNom" class="note" style="margin:6px 0 10px;line-height:1.5"></div>' +
       '<div class="grid"><button id="eg3dTecPlay" class="primary wide">▶ Animar con el cerebro · divisiones, paleta y papel de aluminio</button>' +
       '<button id="eg3dTecPausa">⏸ Pausar</button><button id="eg3dTecReinicia">↺ Reiniciar</button></div>' +
       '<div id="eg3dTecPasos" class="note" style="margin-top:10px;line-height:1.5;font-size:12px"></div>';
     caja.insertAdjacentElement('afterend', c2);
     $('eg3dTec').addEventListener('change', function () { if (!colorAct) aplicarColor(); else animarColor(); });
+    $('eg3dLam').addEventListener('change', function () {
+      lamSel = this.value; decP = 1; if (!$('eg3dLamVer').checked) { tarjetaLamina(); return; } verDivisiones();
+      var id = lamsActuales()[0]; if (id && !colorAct) window.Maniqui.camera({ planta: 'cenital', perfil: 'cutRight', nuca: 'cutBack' }[vistaDe(id)]);
+    });
+    $('eg3dLamVer').addEventListener('change', function () { if (this.checked) verDivisiones(); else ocultarDivisiones(); });
+    $('eg3dDesde').addEventListener('change', function () { var v = this.value === '' ? null : +this.value / 100; decDesde = v; window.ColorMotor.set({ desde: v }); if (v == null && colTec && colTec.pintado) { decDesde = colTec.pintado.desde; window.ColorMotor.set({ desde: decDesde }); } if ($('eg3dLamVer').checked) verDivisiones(); else tarjetaLamina(); });
     $('eg3dTecPlay').addEventListener('click', animarColor);
     $('eg3dTecPausa').addEventListener('click', function () { window.ColorMotor.pause(); });
-    $('eg3dTecReinicia').addEventListener('click', function () { colorAct = false; window.ColorMotor.reset(); if (colDiv) colDiv.visible = false; aplicarColor(); });
+    $('eg3dTecReinicia').addEventListener('click', function () { colorAct = false; window.ColorMotor.reset(); if (colDiv) colDiv.visible = false; decP = 1; aplicarColor(); });
     aplicarColor();
   }
 
