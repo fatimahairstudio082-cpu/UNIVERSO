@@ -176,14 +176,16 @@
     /* mano izquierda: sujeta el mechón 4,5 cm por encima del corte */
     var th = H.tAtLen(r, Math.max(0.02, H.lenAt(r, o.t) - 0.045)), ph = H.tipAt(r, th, r.lastAng || 0), tgh = tg(r, th);
     var out = new T3.Vector3(ph.x, ph.y > 0.12 ? (ph.y - 0.12) * 0.6 : 0, ph.z); if (out.lengthSq() < 1e-6) out.set(0, 0, -1); out.normalize();
-    var arm = out.clone().multiplyScalar(0.4).add(new T3.Vector3(0, 0.9, 0)).normalize();
+    /* con elevación (cabello mixto) el mechón va en vertical: dedos y tijera en vertical; a 0° o liso extremo, en horizontal */
+    var vert = C.J > 1, arm = vert ? new T3.Vector3(-0.35, 1, 0).normalize() : new T3.Vector3(1, 0.5, 0).normalize();
     window.Maniqui.agarrar(m.mi, ph, tgh, arm, T3.Vector3); m.mi.userData.curl(0.45, 0.4);
     /* peine: junto a los dedos, por el lado de la raíz, con los dientes hacia las puntas */
     var side = new T3.Vector3().crossVectors(tgh, out).normalize();
     window.Maniqui.agarrar(m.pe, ph.clone().addScaledVector(tgh, -0.03).addScaledVector(out, 0.012), side, tgh.clone().negate(), T3.Vector3);
     m.pe.position.copy(ph).addScaledVector(tgh, -0.03).addScaledVector(out, 0.012);
     /* tijera: misma posición y giro que las hojas, con anillos y mano */
-    m.ti.position.copy(C.tij.position); m.ti.rotation.copy(C.tij.rotation); m.ti.userData.A.rotation.z = o.ab; m.ti.userData.B.rotation.z = -o.ab;
+    m.ti.position.copy(C.tij.position);
+    if (vert) m.ti.quaternion.setFromUnitVectors(new T3.Vector3(0, 1, 0), new T3.Vector3(-0.33, -0.94, 0).normalize()); else m.ti.rotation.copy(C.tij.rotation); m.ti.userData.A.rotation.z = o.ab; m.ti.userData.B.rotation.z = -o.ab;
   }
   /* la tijera junto al mechón que se corta */
   function tijera() {
