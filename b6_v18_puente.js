@@ -289,6 +289,9 @@
      Aquí el cerebro pone la técnica (qué es, su fórmula y sus pasos reales), la cobertura y el tono, dibuja las 6 divisiones
      numeradas y, al terminar, la cámara da la vuelta enseñando el resultado. */
   var MAPA_K = { color_raiz: 'tinte', color_global: 'tinte', color_balayage: 'balayage', color_sombre: 'balayage', color_babylights: 'mechas', mechas_aluminio: 'mechas', mechas_gorro: 'mechas', quim_decoloracion: 'tinte' };
+  /* cómo se aplica cada técnica (Guías 3D · `MODO` de EU_PARTICIONES): raíz, global, barrido, finas, papel, gorro, decoloración */
+  var MAPA_T = { color_raiz: { tech: 'tinte', modo: 'raiz', hasta: 0.3 }, color_global: { tech: 'tinte', modo: 'global' }, color_balayage: { tech: 'balayage', modo: 'barrido' }, color_sombre: { tech: 'balayage', modo: 'ombre' },
+    color_babylights: { tech: 'mechas', modo: 'finas' }, mechas_aluminio: { tech: 'mechas', modo: 'papel' }, mechas_gorro: { tech: 'mechas', modo: 'gorro', sinPapel: true }, quim_decoloracion: { tech: 'tinte', modo: 'decolor' } };
   var colorAct = false, colDiv = null, colPsi = Math.PI, colTec = null, colUlt = 0;
   function tecnicasColor() {
     var CB = window.EU_CEREBRO, o = [];
@@ -309,9 +312,9 @@
   }
   function aplicarColor() {
     var id = $('eg3dTec').value, t = window.EU_CEREBRO.obtener(id); colTec = t;
-    var tech = MAPA_K[id], pd = t.pintado && t.pintado.desde, amt = pd != null ? Math.max(20, Math.min(90, Math.round((1 - pd) * 100))) : 50, o = { tech: tech, amt: amt };
+    var mt = MAPA_T[id], tech = mt.tech, pd = t.pintado && t.pintado.desde, amt = pd != null ? Math.max(20, Math.min(90, Math.round((1 - pd) * 100))) : 50, o = { tech: tech, amt: amt, modo: mt.modo, hasta: mt.hasta == null ? null : mt.hasta, sinPapel: !!mt.sinPapel, mech: 7 };
     if (id === 'quim_decoloracion') o.tone = '#efd9a3';
-    o.desde = (tech === 'balayage' && pd != null) ? pd : null; decDesde = o.desde;
+    o.desde = (mt.modo === 'barrido' && pd != null) ? pd : null; decDesde = o.desde;
     window.ColorMotor.reset(); window.ColorMotor.set(o);
     var kt = $('kTech'), ka = $('kAmt'); if (kt) kt.value = tech; if (ka) ka.value = amt;
     $('eg3dTecFicha').innerHTML = fichaColor(t); $('eg3dTecPasos').innerHTML = pasosHTML(t, 0);
@@ -408,14 +411,26 @@
     var L = window.EU_DIVISIONES.catalogo().filter(function (l) { return l.id === id; })[0]; if (el) el.innerHTML = '<b>' + esc(L ? L.n : id) + '</b><br>' + esc(L ? L.d : '');
   }
 
+  /* gorro perforado de la técnica «mechas con gorro»: casquete con sus agujeros hasta que se retira */
+  var gorro = null;
+  function gorroMalla() {
+    if (gorro) return gorro; T3 = T3 || window.THREE; var g = new T3.Group(), pts = []; g.name = 'Gorro perforado';
+    var cap = new T3.Mesh(new T3.SphereGeometry(1, 40, 24, 0, Math.PI * 2, 0, 1.78), new T3.MeshBasicMaterial({ color: 0x9fd4ff, transparent: true, opacity: 0.32, depthWrite: false, side: T3.DoubleSide }));
+    cap.scale.set(RADIO.a * 1.04, RADIO.b * 1.04, RADIO.c * 1.04); cap.position.set(CEN.x, CEN.y, CEN.z); cap.renderOrder = 6; g.add(cap);
+    for (var fila = 0; fila < 9; fila++) { var lat = 0.12 + fila * 0.17, n = Math.max(6, Math.round(22 * Math.sin(lat) - fila * 0.6)); for (var k = 0; k < n; k++) { var az = (k + (fila % 2) * 0.5) / n * Math.PI * 2; pts.push(CEN.x + RADIO.a * 1.05 * Math.sin(lat) * Math.sin(az), CEN.y + RADIO.b * 1.05 * Math.cos(lat), CEN.z + RADIO.c * 1.05 * Math.sin(lat) * Math.cos(az)); } }
+    var pg = new T3.BufferGeometry(); pg.setAttribute('position', new T3.Float32BufferAttribute(pts, 3));
+    var pn = new T3.Points(pg, new T3.PointsMaterial({ color: 0x16304d, size: 0.007, depthTest: false })); pn.renderOrder = 7; g.add(pn);
+    window.CorteMotor.hair().group.add(g); gorro = g; return g;
+  }
   function bucleColor(ts) {
     if (!colorAct) return;
     var dt = Math.min(0.1, (ts - colUlt) / 1000 || 0); colUlt = ts;
     var s = window.ColorMotor.state(), step = s.step == null ? 0 : s.step;
     if (colTec) { var el = $('eg3dTecPasos'); if (el && el.dataset.s !== String(step)) { el.dataset.s = String(step); el.innerHTML = pasosHTML(colTec, step); } }
     divisionesColor().visible = step <= 6;                                      /* las divisiones se ven mientras se aplica */
+    gorroMalla().visible = !!(colTec && colTec.id === 'mechas_gorro' && step <= 7);
     if (DEC && $('eg3dLamVer') && $('eg3dLamVer').checked) {
-      var pp = step <= 6 ? Math.max(0, Math.min(1, (s.t || 0) / 6)) : 1;
+      var pp = step <= 6 ? Math.round(Math.max(0, Math.min(1, ((s.t || 0) - 1) / 6)) * 42) / 42 : 1;
       if (Math.abs(pp - decP) > 0.012) { decP = pp; ['planta', 'perfil', 'nuca'].forEach(pintarDecal); tarjetaLamina(); }
     }
     if (step >= 9 && camAuto()) { colPsi += dt * Math.PI * 2 / 24; orbita(colPsi); }  /* resultado: vuelta lenta */
@@ -450,7 +465,7 @@
     $('eg3dDesde').addEventListener('change', function () { var v = this.value === '' ? null : +this.value / 100; decDesde = v; window.ColorMotor.set({ desde: v }); if (v == null && colTec && colTec.pintado) { decDesde = colTec.pintado.desde; window.ColorMotor.set({ desde: decDesde }); } if ($('eg3dLamVer').checked) verDivisiones(); else tarjetaLamina(); });
     $('eg3dTecPlay').addEventListener('click', animarColor);
     $('eg3dTecPausa').addEventListener('click', function () { window.ColorMotor.pause(); });
-    $('eg3dTecReinicia').addEventListener('click', function () { colorAct = false; window.ColorMotor.reset(); if (colDiv) colDiv.visible = false; decP = 1; aplicarColor(); });
+    $('eg3dTecReinicia').addEventListener('click', function () { colorAct = false; window.ColorMotor.reset(); if (colDiv) colDiv.visible = false; if (gorro) gorro.visible = false; decP = 1; aplicarColor(); });
     aplicarColor();
   }
 
