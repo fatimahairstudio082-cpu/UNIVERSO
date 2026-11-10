@@ -62,8 +62,8 @@
   function relojHTML() {
     var d = $('eg3dReloj'); if (d) return d;
     d = document.createElement('div'); d.id = 'eg3dReloj'; d.setAttribute('aria-live', 'polite');
-    d.style.cssText = 'position:absolute;right:16px;top:16px;z-index:3;width:150px;padding:10px 10px 8px;background:rgba(15,11,9,.82);border:1px solid #3a2e24;border-radius:3px;text-align:center;display:none;pointer-events:none';
-    d.innerHTML = '<svg viewBox="0 0 100 80" width="130" height="104" aria-hidden="true"><path d="M17 66 A38 38 0 1 1 83 66" fill="none" stroke="#3a2e24" stroke-width="6" stroke-linecap="round"/>' +
+    d.style.cssText = 'position:absolute;right:16px;top:16px;z-index:3;width:186px;padding:10px 10px 8px;background:rgba(15,11,9,.82);border:1px solid #3a2e24;border-radius:3px;text-align:center;display:none;pointer-events:none';
+    d.innerHTML = '<svg viewBox="0 0 100 80" width="166" height="133" aria-hidden="true"><path d="M17 66 A38 38 0 1 1 83 66" fill="none" stroke="#3a2e24" stroke-width="6" stroke-linecap="round"/>' +
       '<path id="eg3dArco" d="M17 66 A38 38 0 1 1 83 66" fill="none" stroke="#c9a36a" stroke-width="6" stroke-linecap="round" pathLength="225" stroke-dasharray="0 225"/>' +
       '<line id="eg3dAguja" x1="50" y1="46" x2="50" y2="14" stroke="#f3ebe1" stroke-width="2" stroke-linecap="round"/><circle cx="50" cy="46" r="3" fill="#f3ebe1"/>' +
       '<text x="50" y="76" text-anchor="middle" fill="#b9ab9b" font-size="6">0°  ·  225°</text></svg>' +
@@ -71,6 +71,16 @@
       '<div id="eg3dSec" style="font-size:11px;color:#b9ab9b;margin-top:2px;letter-spacing:.04em"></div>' +
       '<div id="eg3dLargo" style="font-size:12px;color:#e9d9c4;margin-top:4px"></div>';
     $('stage').appendChild(d); return d;
+  }
+  /* el transportador va al lado de la cabeza (no en la esquina): se coloca con la posición de la cabeza en el lienzo */
+  function junto(d) {
+    try {
+      var cam = window.Maniqui.controls && window.Maniqui.controls.object; if (!CAPA || !cam || !window.THREE) return;   /* Maniqui.camera es la función de vistas; la cámara está en controls.object */
+      var st = $('stage'), W = st.clientWidth, Hh = st.clientHeight, v = new window.THREE.Vector3(); window.Maniqui.joints.head.getWorldPosition(v); v.project(cam);
+      var hx = (v.x + 1) / 2 * W, hy = (1 - v.y) / 2 * Hh, bw = d.offsetWidth || 186, bh = d.offsetHeight || 220, sep = Math.max(120, Hh * 0.2);
+      var x = hx + sep; if (x + bw > W - 8) x = hx - sep - bw;
+      d.style.right = 'auto'; d.style.left = Math.max(8, Math.min(W - bw - 8, x)) + 'px'; d.style.top = Math.max(8, Math.min(Hh - bh - 8, hy - bh * 0.45)) + 'px';
+    } catch (e) { }
   }
   function reloj() {
     var d = relojHTML();
@@ -81,9 +91,12 @@
       else if (en && window.EU_V18_PUENTE.elev) g = Math.round(window.EU_V18_PUENTE.elev[s.active] * (s.lift > 0 ? 1 : 0));
       d.style.display = en ? 'block' : 'none';
       if (en) {
-        $('eg3dGrados').textContent = g + '°'; $('eg3dSec').textContent = nom; var lgx = $('eg3dLargo'); if (lgx) lgx.textContent = CAPA && window.EU_V18_PUENTE.largo != null ? fm(window.EU_V18_PUENTE.largo) + '″ · ' + fm(window.EU_V18_PUENTE.largo * CM_PULG) + ' cm' : '';
-        $('eg3dArco').setAttribute('stroke-dasharray', Math.min(225, g) + ' 225');
-        $('eg3dAguja').setAttribute('transform', 'rotate(' + (-135 + Math.min(225, g) * 1.2) + ' 50 46)');
+        $('eg3dGrados').textContent = (CAPA && window.EU_V18_PUENTE.gAhora != null ? window.EU_V18_PUENTE.gAhora : g) + '°'; $('eg3dSec').textContent = nom; var lgx = $('eg3dLargo'); if (lgx) lgx.textContent = CAPA && window.EU_V18_PUENTE.largo != null ? fm(window.EU_V18_PUENTE.largo) + '″ · ' + fm(window.EU_V18_PUENTE.largo * CM_PULG) + ' cm' : '';
+        /* 10-11-2026 (Fátima: «el reloj es el transportador»): la aguja sube a la vez que el mechón y marca los grados de la capa cuando llega */
+        var ga = CAPA && window.EU_V18_PUENTE.gAhora != null && en ? window.EU_V18_PUENTE.gAhora : g;
+        $('eg3dArco').setAttribute('stroke-dasharray', Math.min(225, ga) + ' 225');
+        $('eg3dAguja').setAttribute('transform', 'rotate(' + (-135 + Math.min(225, ga) * 1.2) + ' 50 46)');
+        junto(d);
       }
       requestAnimationFrame(tic);
     })();
@@ -152,19 +165,21 @@
     C.lineas.visible = true;
     C.lineas.children.forEach(function (l) {
       l.material.opacity = 0.9 * vis; var rb = l.userData.rec; if (!rb) return;
-      var fin = Math.max(0.3, rb.stop == null ? 1 : rb.stop), pa = l.geometry.attributes.position;       /* hasta donde llega el cabello */
+      var fin = reglaOn() ? Math.max(0.3, rb.stop == null ? 1 : rb.stop) : 0.42, pa = l.geometry.attributes.position;       /* 10-11-2026: solo sobre la cabeza (no tapan el corte); con la regla encendida, hasta donde llega el cabello */
       for (var j = 0; j <= 24; j++) { var q = C.H.path(rb, 0.02 + (fin - 0.02) * j / 24); pa.setXYZ(j, q.x, q.y, q.z); }
       pa.needsUpdate = true;
     });
     regla();
   }
   /* manos de la peluquera: la izquierda sujeta el mechón entre los dedos con el peine, la derecha corta con la tijera */
-  function manosOn() { var c = $('eg3dManos'); return !c || c.checked; }
+  function manosOn() { var c = $('eg3dManos'); return !!c && c.checked; }
+  function reglaOn() { var c = $('eg3dRegla'); return !!c && c.checked; }
   function manosCorte(o) {
     var C = CAPA; if (!T3 || !window.Maniqui || !window.Maniqui.mano) return;
     if (!C.manos) {
       var M = window.Maniqui, g = new T3.Group(); g.name = 'Manos de la peluquera';
       var mi = M.mano(1), md = M.mano(-1), ti = M.herr.tijera(), pe = M.herr.peine();
+      [mi, md].forEach(function (h) { var a = h.children[h.children.length - 1]; if (a) a.visible = false; });   /* 10-11-2026 (Fátima: «las manos tapan el corte»): solo la mano, sin antebrazo ni manga */
       ti.add(md); ti.userData.mano = md;                         /* la mano derecha va en los anillos de la tijera */
       M.agarrar(md, new T3.Vector3(0, -0.062, 0), new T3.Vector3(1, 0, 0), new T3.Vector3(0, -1, 0), T3.Vector3); md.userData.curl(0.6, 0.5);
       pe.scale.setScalar(0.8); g.add(mi, ti, pe); C.H.group.add(g); C.manos = { g: g, mi: mi, ti: ti, pe: pe };
@@ -202,7 +217,7 @@
     var t = Math.max(0.3, r.stop == null ? 1 : r.stop), q = C.H.tipAt(r, t, r.lastAng || 0);
     C.tij.position.copy(q); C.tij.visible = true; C.tij.rotation.set(0, 0, Math.PI / 2);    /* hojas abiertas en vertical, avanza a lo ancho del mechón */
     var ab = 0.06 + 0.22 * Math.abs(Math.sin(C.T * 40)); C.tij.children.forEach(function (b) { b.rotation.z = b.userData.s * ab; });
-    manosCorte({ r: r, t: t, p: p, ab: ab, gr: gr });
+    manosCorte({ r: r, t: t, p: p, ab: ab, gr: gr }); if (p <= 0.75) caer(q);
     /* cámara: atrás cutBack; lados cutLeft / cutRight */
   }
   /* cámara automática: gira despacio alrededor de la cabeza siguiendo el mechón que se corta (atrás → lados → delante);
@@ -214,9 +229,15 @@
   }
   function camAuto() { var c = $('eg3dCamAuto'); return !c || c.checked; }
   function orbita(psi) {
+    /* 10-11-2026 (Fátima: «el maniquí queda a mitad»): encuadre de la cabeza entera hasta donde llega el corte; antes la cámara
+       se alejaba para que cupiera todo el cabello sin cortar y la cabeza quedaba pequeña */
     var M = window.Maniqui; T3 = T3 || window.THREE; var hd = new T3.Vector3(); M.joints.head.getWorldPosition(hd);
-    var k = Math.max(0, Math.min(1, window.CorteMotor.hair().getLength() / 0.92)), es = 1 + 0.55 * k, yaw = M.state().yaw, c = Math.cos(yaw), s = Math.sin(yaw), R = 1.5 * es, x = R * Math.sin(psi), z = R * Math.cos(psi);
-    M.setCamera([hd.x + x * c + z * s, hd.y + 0.11 + 0.02 * es, hd.z - x * s + z * c], [hd.x, hd.y - 0.01 - 0.3 * k, hd.z]);
+    var H = window.CorteMotor.hair(), S = window.CorteMotor.state(), lt = Math.min(H.getLength(), S.target == null ? H.getLength() : S.target);
+    var top = H.group.localToWorld(new T3.Vector3(0, 0.34, 0)).y, bot = H.group.localToWorld(new T3.Vector3(0, H.tail(lt) - 0.17, 0)).y;
+    if (!(top > bot)) { top = hd.y + 0.3; bot = hd.y - 0.4; }
+    var st = $('stage'), asp = st && st.clientHeight ? st.clientWidth / st.clientHeight : 1.5, alto = Math.max(0.62, top - bot), mid = (top + bot) / 2;
+    var R = Math.max(alto / 2, 0.42 / Math.max(0.5, asp)) / Math.tan(18 * Math.PI / 180) * 1.08, yaw = M.state().yaw, c = Math.cos(yaw), s = Math.sin(yaw), x = R * Math.sin(psi), z = R * Math.cos(psi);
+    M.setCamera([hd.x + x * c + z * s, mid + 0.06 * R, hd.z - x * s + z * c], [hd.x, mid, hd.z]);
   }
   function seguirCamara(dt) {
     var C = CAPA; if (!camAuto()) return; var t = psiObjetivo();
@@ -237,7 +258,8 @@
     var g = (atr ? C.pB : C.pF)[Math.min((atr ? C.pB : C.pF).length - 1, k)] || 0, cm = (atr ? C.dB : C.dF).cm[Math.min(((atr ? C.dB : C.dF).cm.length) - 1, k)];
     var dd = atr ? C.dB : C.dF, lg = guiaPulg(window.CorteMotor.state().target), lk = lg + (dd.cm[Math.min(dd.cm.length - 1, k)] - dd.cm[0]) / CM_PULG;
     el.textContent = 'Capa ' + (k + 1) + ' de ' + C.n + ' · mechón ' + ((cur - 1) % C.J + 1) + ' de ' + C.J + ' (' + (atr ? 'atrás' : 'delante') + ') · ' + g + '° · queda a ' + fm(lk) + '″ (' + fm(lk * CM_PULG) + ' cm)' + (k > 0 ? ' · ' + (lk >= lg ? '+' : '−') + fd(Math.abs(lk - lg) * CM_PULG) + ' dedos sobre la guía' : '');
-    window.EU_V18_PUENTE.g = g; window.EU_V18_PUENTE.largo = lk;
+    var pp = C.T - cur, fa = pp < 0.25 ? pp / 0.25 : pp < 0.75 ? 1 : (1 - pp) / 0.25;                 /* la misma fase que eleva el mechón en info() */
+    window.EU_V18_PUENTE.g = g; window.EU_V18_PUENTE.largo = lk; window.EU_V18_PUENTE.gAhora = Math.round(fa * fa * (3 - 2 * fa) * g);
   }
 
   /* ───────────── largo real del cabello (1 unidad del V18 = 1 m: la oreja queda a 6,0″ de la raíz, como en la tabla de Fátima) ───────────── */
@@ -271,20 +293,38 @@
     }).join('<br>') + '<br><span style="opacity:.8">1 dedo = ' + fm(DEDO) + ' cm · ' + esc(c.forma) + '</span>';
   }
   /* regla de pulgadas junto al cabello (atrás, centro) */
+  var RX = 0.27;                                                /* la regla va fuera del cabello, a su derecha (antes 0.1: quedaba encima) */
+  /* 10-11-2026 (Fátima: «que cuando corte, caiga el cabello»): las puntas que corta la tijera caen desde el punto de corte y
+     se desvanecen; el mechón baja después y se queda a su largo nuevo (eso ya lo hacía info()) */
+  function caer(q) {
+    var C = CAPA; if (!T3 || C.T - (C.caeT || 0) < 0.012) return; C.caeT = C.T;
+    if (!C.caeG) { C.caeG = new T3.Group(); C.caeG.name = 'Puntas cortadas'; C.H.group.add(C.caeG); C.caeL = []; var m0 = C.H.allMats && C.H.allMats[0]; C.caeC = m0 && m0.color ? m0.color.getHex() : 0x2a1a12; }
+    for (var i = 0; i < 3 && C.caeL.length < 90; i++) {
+      var a = new T3.Vector3(q.x + (Math.random() - 0.5) * 0.014, q.y, q.z + (Math.random() - 0.5) * 0.014), b = a.clone(); b.y -= 0.04 + Math.random() * 0.05; b.x += (Math.random() - 0.5) * 0.01;
+      var l = new T3.Line(new T3.BufferGeometry().setFromPoints([a, b]), new T3.LineBasicMaterial({ color: C.caeC, transparent: true, opacity: 1 })); l.frustumCulled = false; C.caeG.add(l); C.caeL.push({ l: l, v: 0, t: 0 });
+    }
+  }
+  function caida(dt) {
+    var C = CAPA; if (!C || !C.caeL) return;
+    C.caeL = C.caeL.filter(function (o) {
+      o.t += dt; o.v += 1.4 * dt; o.l.position.y -= o.v * dt; o.l.material.opacity = Math.max(0, 1 - o.t / 1.7);
+      if (o.t < 1.7) return true; C.caeG.remove(o.l); o.l.geometry.dispose(); o.l.material.dispose(); return false;
+    });
+  }
   function regla() {
-    var C = CAPA; if (!T3 || C.regla) return;
+    var C = CAPA; if (!T3) return; if (C.regla) { C.regla.visible = reglaOn(); return; } if (!reglaOn()) return;
     var H = C.H, r = rcentro(), g = new T3.Group(), mat = new T3.LineBasicMaterial({ color: 0xc9a36a, transparent: true, opacity: 0.85, depthTest: false });
     g.name = 'Regla de largo';
     for (var n = 2; n <= 40; n += 2) {
       var t = H.tAtLen(r, n / PULG); if (t >= 0.999 && H.lenAt(r, 1) * PULG < n - 0.01) break;
       var q = H.path(r, t), len = n % 4 === 0 ? 0.045 : 0.025;
-      var l = new T3.Line(new T3.BufferGeometry().setFromPoints([new T3.Vector3(0.1, q.y, -0.2), new T3.Vector3(0.1 + len, q.y, -0.2)]), mat); l.renderOrder = 10; l.frustumCulled = false; g.add(l);
+      var l = new T3.Line(new T3.BufferGeometry().setFromPoints([new T3.Vector3(RX, q.y, -0.2), new T3.Vector3(RX + len, q.y, -0.2)]), mat); l.renderOrder = 10; l.frustumCulled = false; g.add(l);
       if (n % 4 === 0) {
         var cv = document.createElement('canvas'); cv.width = 96; cv.height = 48; var cx = cv.getContext('2d'); cx.fillStyle = '#e9d9c4'; cx.font = 'bold 34px sans-serif'; cx.textBaseline = 'middle'; cx.fillText(n + '″', 4, 26);
-        var sp = new T3.Sprite(new T3.SpriteMaterial({ map: new T3.CanvasTexture(cv), transparent: true, depthTest: false })); sp.scale.set(0.09, 0.045, 1); sp.position.set(0.1 + len + 0.05, q.y, -0.2); sp.renderOrder = 11; g.add(sp);
+        var sp = new T3.Sprite(new T3.SpriteMaterial({ map: new T3.CanvasTexture(cv), transparent: true, depthTest: false })); sp.scale.set(0.09, 0.045, 1); sp.position.set(RX + len + 0.05, q.y, -0.2); sp.renderOrder = 11; g.add(sp);
       }
     }
-    var eje = new T3.Line(new T3.BufferGeometry().setFromPoints([new T3.Vector3(0.1, H.path(r, 0.38).y, -0.2), new T3.Vector3(0.1, H.path(r, 1).y, -0.2)]), mat); eje.renderOrder = 10; eje.frustumCulled = false; g.add(eje);
+    var eje = new T3.Line(new T3.BufferGeometry().setFromPoints([new T3.Vector3(RX, H.path(r, 0.38).y, -0.2), new T3.Vector3(RX, H.path(r, 1).y, -0.2)]), mat); eje.renderOrder = 10; eje.frustumCulled = false; g.add(eje);
     C.regla = g; H.group.add(g);
   }
 
@@ -295,7 +335,7 @@
     var vel = parseFloat(($('cutSpeed') || {}).value) || 1;
     CAPA.T = Math.min(totalPasos(), CAPA.T + dt * vel / 3.2);
     if (!CAPA.fin) { pintarCorte(); if (CAPA.T >= totalPasos()) CAPA.fin = true; }
-    seguirCamara(dt); requestAnimationFrame(bucle);
+    caida(dt); seguirCamara(dt); requestAnimationFrame(bucle);
   }
   function arrancar(desde) {
     if (!window.EU_CALCULO_CAPILAR) return;
@@ -309,7 +349,7 @@
   }
   function limpiar() {
     if (!CAPA) return;
-    ['lineas', 'tij', 'manos', 'regla'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
+    ['lineas', 'tij', 'manos', 'regla', 'caeG'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
     var S = window.CorteMotor.state(); CAPA.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, null); CAPA = null;
   }
 
@@ -586,7 +626,8 @@
         '<button id="eg3dPausa">⏸ Pausar</button><button id="eg3dReinicia">↺ Reiniciar</button>' +
         '<button id="eg3dPlay" class="wide">Cortar por secciones (básico)</button></div>' +
         '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:8px;cursor:pointer"><input type="checkbox" id="eg3dCamAuto" checked style="width:18px;height:18px;accent-color:#c9a36a"> Cámara automática: rueda sola de atrás a delante</label>' +
-        '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:6px;cursor:pointer"><input type="checkbox" id="eg3dManos" checked style="width:18px;height:18px;accent-color:#c9a36a"> Manos: sujetan el mechón con peine y cortan con la tijera</label>' +
+        '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:6px;cursor:pointer"><input type="checkbox" id="eg3dManos" style="width:18px;height:18px;accent-color:#c9a36a"> Manos: sujetan el mechón con peine y cortan con la tijera</label>' +
+        '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:6px;cursor:pointer"><input type="checkbox" id="eg3dRegla" style="width:18px;height:18px;accent-color:#c9a36a"> Regla de pulgadas al lado del cabello</label>' +
         '<p id="eg3dPaso" class="note" role="status" style="margin-top:8px"></p>' +
         '<p id="eg3dNota" class="note" role="status" style="margin-top:8px"></p>';
       $('eg3dCorte').addEventListener('change', aplicar);
