@@ -376,7 +376,7 @@
       }
     } else {
       var secs = [-0.6, -0.3, 0, 0.3, 0.6];
-      var lsC = [];
+      var lsC = [], prevC = {};
       secs.forEach(function (d, s) {
         var ph = NUCA + d, ta = s / secs.length, tb = (s + 1) / secs.length, tips = [], ext = s < secs.length - 1 ? { x: tb } : {};
         tr = tr.concat(lineas(tramos(v, function (u) { return [ph, 0.5 + u * 1.45]; }, 24), [ta, ta + (tb - ta) * 0.2], '#8E847A', 2.4));
@@ -389,7 +389,8 @@
              «capa · grados» en la punta; al cortarlo, cae y se queda dibujado en el maniquí con el color de su capa */
           tr.push(Object.assign({ k: 'n', x: ks[5][2], y: ks[5][3], s: String(z + 1), c: COL[z % 7], t: [ta + (tb - ta) * (0.6 + 0.4 * z / n), 1], x2: ta + (tb - ta) * (0.6 + 0.4 * (z + 1) / n), p: 1 })); lsC.push([ta + (tb - ta) * (0.6 + 0.4 * z / n), 'Capa ' + (z + 1) + ' · ' + (pila[z] || 0) + '°', pila[z] || 0, COL[z % 7]]);   /* 14-11-2026: número pequeñito solo al cortar; los grados, en la esquina */   /* 8-11-2026: el reloj y el rótulo dicen los grados; capa pelada: número pequeño, puede ir sobre la cabeza */
           var cayo = [].concat(pr(v, a), pr(v, a.clone().add(dirElev(ph, th, 0).multiplyScalar(0.6))));
-          tr.push(mechon([cayo, cayo], [s < secs.length - 1 ? tb : 0.999, s < secs.length - 1 ? tb + 0.001 : 1], COL[z % 7], 1.8));   /* el cabello cortado se queda (la última sección, al final) */
+          tr.push(mechon([cayo, cayo], [s < secs.length - 1 ? tb : 0.999, s < secs.length - 1 ? tb + 0.001 : 1], COL[z % 7], 1.8));
+          (function () { var tC = cayo.slice(2), tt = [s < secs.length - 1 ? tb : 0.999, s < secs.length - 1 ? tb + 0.001 : 1], cR = z % 2 ? '#F57C00' : '#E0218A'; tr.push(linea([tC[0] - 7, tC[1], tC[0] + 7, tC[1]], tt, cR, 3.4)); if (prevC[z]) tr.push(linea(prevC[z].concat(tC), tt, cR, 3.4)); prevC[z] = tC; })();   /* 14-11-2026 (Fátima): la línea cortada queda resaltada; el corte se va construyendo */   /* el cabello cortado se queda (la última sección, al final) */
         }
         tr.push(tijera(plano(tips), [ta + (tb - ta) * 0.6, tb], CORTE, R.desg, ext));
       });
@@ -1286,6 +1287,10 @@
       });
       function yCorte(pf) { return Math.min(P(pf, thR, 1).y - 0.06, yFin(0, pf)); }
       if (v === 'lateral') relleno(oreja - sC * 0.12, oreja - sC * 1.6, [0, 0.001], yCorte, '#6E5240');
+      /* 14-11-2026 (Fátima: «lo cortado queda cortado y resaltado; se pasa al área sin cortar; no se vuelve a cortar la misma parte»):
+         de lado, el área de atrás ya está hecha: sus líneas de capa se ven resaltadas desde el principio */
+      var hechas = [];
+      if (v === 'lateral') ths.forEach(function (th, z) { var lc = []; for (var pf = Math.min(oreja - sC * 0.12, oreja - sC * 1.6); pf <= Math.max(oreja - sC * 0.12, oreja - sC * 1.6); pf += 0.05) { if (!seVe(v, pf, th)) continue; var pp = peina(pf, th, Math.min(P(pf, th, 1.05).y - 0.06, yFin(z, pf)), 1.04 + 0.004 * z); if (pp.length) lc.push(pp[pp.length - 1]); } if (lc.length > 1) hechas.push(linea(plano(lc), [0, 0.001], z % 2 ? '#F57C00' : '#E0218A', 3.4)); });
       var cortadas = [];
       for (var k = 0; k < K; k++) {
         var ph = phK(k), ta = 0.04 + dS * k, tb = ta + dS, ck = COL[k % 7], ext = k < K - 1 ? { x: tb } : {};
@@ -1320,7 +1325,7 @@
         trV.push(regla(0, cero ? 0 : (pila[vis[vis.length - 1]] || 0), [ta + dS * 0.15, ta + dS * 0.45], ck, 'Sección ' + (k + 1) + ' · vertical', Object.assign({ ls: lsV }, ext)));
         trV.push(rotulo('Sección vertical ' + (k + 1) + ' · cada mechón a su elevación: ' + vis.map(function (z) { return cero ? 0 : (pila[z] || 0); }).join(' · ') + '°', ck, ta, ext));
       }
-      cortadas.forEach(function (T) { trV.push(T); });   /* las líneas cortadas, encima del cabello */
+      hechas.concat(cortadas).forEach(function (T) { trV.push(T); });   /* las líneas cortadas, encima del cabello */
       /* la línea azul de oreja a oreja y la raya, siempre; entre secciones, líneas verticales (nunca horizontales) */
       var DIVv = '#2C6FD1', t0v = [0, 0.03];
       trV = trV.concat(lineas(tramos(v, function (u) { var t = -1.62 + u * 3.24; return t < 0 ? [IZQ - 0.12, -t] : [DER + 0.12, t]; }, 90), t0v, DIVv, 3.6));
