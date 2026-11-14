@@ -1249,8 +1249,8 @@
         if (v !== 'lateral' || haciaCara.lengthSq() < 1e-6) return dirVP(a, ph0, th0, gg);
         /* 30-10-2026 (Fátima, sus líneas rojas): de lado el mechón elevado sale horizontal de la línea azul hacia la cara, uno encima de
            otro; su chapa sigue diciendo los grados de su número */
-        /* 14-11-2026 (Fátima eligió «a su elevación real»): 0° cae, 90° sale recto hacia la cara, 180° sube */
-        var an = gg * Math.PI / 180; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(haciaCara.clone().multiplyScalar(Math.sin(an))).normalize();
+        /* 14-11-2026 (Fátima: «de lado se visualizan las líneas en horizontal, pero se cortan en vertical, como lo gestionaba el sistema»): vuelve a como estaba; NO cambiar */
+        var an = gg > 0 ? Math.PI / 2 : 0; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(haciaCara.clone().multiplyScalar(Math.sin(an))).normalize();
       }
       /* 14-11-2026 (Fátima: «que el cabello se visualice tipo realista»): cada mechón con cinco cabellos y dos tonos de castaño; el
          color de la capa queda solo en el mechón que se sujeta, su línea de corte y su número; lo cortado se queda en castaño natural */
