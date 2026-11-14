@@ -376,6 +376,7 @@
       }
     } else {
       var secs = [-0.6, -0.3, 0, 0.3, 0.6];
+      var lsC = [];
       secs.forEach(function (d, s) {
         var ph = NUCA + d, ta = s / secs.length, tb = (s + 1) / secs.length, tips = [], ext = s < secs.length - 1 ? { x: tb } : {};
         tr = tr.concat(lineas(tramos(v, function (u) { return [ph, 0.5 + u * 1.45]; }, 24), [ta, ta + (tb - ta) * 0.2], '#8E847A', 2.4));
@@ -386,13 +387,13 @@
           tr.push(mechon(ks, [ta + (tb - ta) * 0.2, ta + (tb - ta) * 0.6], COL[z % 7], 2.2, ext)); tips.push(ks[5].slice(2));
           /* 30-10-2026 (Fátima: «número y grados en cada mechón; el cabello cortado se queda en el maniquí»): mientras se sujeta, su chapa
              «capa · grados» en la punta; al cortarlo, cae y se queda dibujado en el maniquí con el color de su capa */
-          tr.push(Object.assign({ k: 'n', x: ks[5][2], y: ks[5][3], s: (z + 1) + ' · ' + (pila[z] || 0) + '°', c: COL[z % 7], t: [ta + (tb - ta) * 0.6, 1], x2: ext.x || 0, p: 1 }));   /* 8-11-2026: el reloj y el rótulo dicen los grados; capa pelada: número pequeño, puede ir sobre la cabeza */
+          tr.push(Object.assign({ k: 'n', x: ks[5][2], y: ks[5][3], s: String(z + 1), c: COL[z % 7], t: [ta + (tb - ta) * (0.6 + 0.4 * z / n), 1], x2: ta + (tb - ta) * (0.6 + 0.4 * (z + 1) / n), p: 1 })); lsC.push([ta + (tb - ta) * (0.6 + 0.4 * z / n), 'Capa ' + (z + 1) + ' · ' + (pila[z] || 0) + '°', pila[z] || 0, COL[z % 7]]);   /* 14-11-2026: número pequeñito solo al cortar; los grados, en la esquina */   /* 8-11-2026: el reloj y el rótulo dicen los grados; capa pelada: número pequeño, puede ir sobre la cabeza */
           var cayo = [].concat(pr(v, a), pr(v, a.clone().add(dirElev(ph, th, 0).multiplyScalar(0.6))));
           tr.push(mechon([cayo, cayo], [s < secs.length - 1 ? tb : 0.999, s < secs.length - 1 ? tb + 0.001 : 1], COL[z % 7], 1.8));   /* el cabello cortado se queda (la última sección, al final) */
         }
         tr.push(tijera(plano(tips), [ta + (tb - ta) * 0.6, tb], CORTE, R.desg, ext));
       });
-      tr.push(rotulo('Secciones verticales · ' + pila.join(' · ') + '°', TINTA, 0), regla(0, Math.max.apply(null, pila), [0, 0.3], CORTE));
+      tr.push(rotulo('Secciones verticales · ' + pila.join(' · ') + '°', TINTA, 0), regla(0, Math.max.apply(null, pila), [0, 0.3], CORTE, 'Elevación', { ls: lsC }));
     }
     return { v: v, tr: tr };
   }
@@ -1297,7 +1298,8 @@
         trV.push(linea(plano(vis.map(function (z) { return pr(v, P(ph, ths[z], 1.05)); })), [ta, ta + dS * 0.15], ck, 4));
         if (v === 'lateral') { var abj = P(ph, ths[vis[0]], 1.05); trV.push(linea(plano([pr(v, abj), pr(v, V3(abj.x, yLargo, abj.z))]), [ta, ta + dS * 0.15], ck, 2)); }   /* de lado la sección vertical sigue hasta el final del cabello */
         var puntas = [];
-        vis.forEach(function (z) {
+        var lsV = [];
+        vis.forEach(function (z, iz) {
           var th = ths[z], g = cero ? 0 : (pila[z] || 0), a = P(ph, th, 1.05), yf = Math.min(a.y - 0.06, yFin(z, ph)), Lcor = v === 'lateral' && g > 0 ? 0.55 : frente ? Math.min(0.5, Math.max(0.12, a.y - yf)) : Math.max(0.12, a.y - yf), Llar = Lcor + (frente ? 0.12 : 0.3), sube = [], baja = [];
           GRUESO.forEach(function (o) {
             var aa = P(ph + o, th, 1.05), su = [];
@@ -1306,12 +1308,13 @@
             trV.push(mechon(su, [ta + dS * 0.15, ta + dS * 0.45], '#FFFFFF', 7, ext), mechon(su, [ta + dS * 0.15, ta + dS * 0.45], COL[z % 7], 4, ext));
           });
           var punta = pr(v, a.clone().add(dirM(a, ph, th, g).multiplyScalar(Lcor))); puntas.push(punta);
-          trV.push({ k: 'n', x: punta[0], y: punta[1], s: (z + 1) + ' · ' + g + '°', c: COL[z % 7], t: [ta + dS * 0.45, 1], x2: k < K - 1 ? ta + dS * 0.8 : 0 });   /* 14-11-2026 (Fátima): cada mechón con su elevación junto a la tijera */
+          trV.push({ k: 'n', x: punta[0], y: punta[1], s: String(z + 1), c: COL[z % 7], t: [ta + dS * (0.5 + 0.3 * iz / vis.length), 1], x2: ta + dS * (0.5 + 0.3 * (iz + 1) / vis.length) });   /* 14-11-2026 (Fátima: «número pequeñito, que aparezca y desaparezca, sin tapar el cabello»): solo mientras la tijera corta ese mechón; «capa · grados» va en la esquina, junto al transportador */
+          lsV.push([ta + dS * (0.5 + 0.3 * iz / vis.length), 'Capa ' + (z + 1) + ' · ' + g + '°', g, COL[z % 7]]);
           /* cortado: cae a su largo y se queda en el maniquí */
           GRUESO.forEach(function (o) { trV.push(linea(plano(peina(ph + o, th, yf, 1.04 + 0.004 * z)), [ta + dS * 0.8, tb], tono('#5E4232'), 2.6)); });
         });
         trV.push(tijera(plano(puntas), [ta + dS * 0.5, ta + dS * 0.8], CORTE, R.desg, Object.assign({ ll: 1 }, ext)));   /* línea de corte seguida y fina: sin punticos que tapen el cabello */   /* la tijera pasa por las puntas, de abajo arriba */
-        trV.push(regla(0, cero ? 0 : (pila[vis[vis.length - 1]] || 0), [ta + dS * 0.15, ta + dS * 0.45], ck, 'Sección ' + (k + 1) + ' · vertical', ext));
+        trV.push(regla(0, cero ? 0 : (pila[vis[vis.length - 1]] || 0), [ta + dS * 0.15, ta + dS * 0.45], ck, 'Sección ' + (k + 1) + ' · vertical', Object.assign({ ls: lsV }, ext)));
         trV.push(rotulo('Sección vertical ' + (k + 1) + ' · cada mechón a su elevación: ' + vis.map(function (z) { return cero ? 0 : (pila[z] || 0); }).join(' · ') + '°', ck, ta, ext));
       }
       /* la línea azul de oreja a oreja y la raya, siempre; entre secciones, líneas verticales (nunca horizontales) */
@@ -1373,7 +1376,7 @@
         colV.forEach(function (k) { tr.push(mechon(k, [ta, ta + dt * 0.45], '#FFFFFF', 6, ext), mechon(k, [ta, ta + dt * 0.45], c, 3, ext)); });
         var pV = colV.map(function (k) { return k[5].slice(2); }).sort(function (p, q) { return p[1] - q[1]; });
         tr.push(tijera(plano(pV), [ta + dt * 0.5, ta + dt * 0.8], CORTE, R.desg, ext), linea(plano(pV), [ta + dt * 0.5, ta + dt * 0.8], CORTE, 3.2, ext));
-        tr.push(Object.assign({ k: 'n', x: pV[0][0], y: pV[0][1], s: (z + 1) + ' · ' + g + '°', c: c, t: [ta + dt * 0.45, 1], x2: tb }));   /* 8-11-2026: solo el número; los grados en el reloj y el rótulo */
+        tr.push(Object.assign({ k: 'n', x: pV[0][0], y: pV[0][1], s: String(z + 1), c: c, t: [ta + dt * 0.45, 1], x2: tb }));   /* 8-11-2026: solo el número; los grados en el reloj y el rótulo */
       }
       else if (fuerte) { tr.push(mechon(fuerte, [ta, ta + dt * 0.45], '#FFFFFF', 7, ext), mechon(fuerte, [ta, ta + dt * 0.45], c, 3.6, ext)); var qf = fuerte[fuerte.length - 1]; tr.push(Object.assign({ k: 'n', x: qf[2], y: qf[3], s: cero ? (z ? '=' : '1') : String(z + 1), c: c, t: [ta + dt * 0.45, 1], x2: tb })); }
       tips.sort(function (p, q) { return p[0] - q[0]; });
@@ -1393,7 +1396,7 @@
           if (!puestas.some(function (o) { return Math.abs(o[0] - q0[0]) < 125 && Math.abs(o[1] - qy) < 42; })) qc = [q0[0], qy];
         }
       }
-      if (qc) { puestas.push(qc); tr.push({ k: 'n', x: qc[0], y: qc[1], s: (z + 1) + ' · ' + g + '°', c: c, t: [ta + dt * 0.85, 1] }); }   /* 14-11-2026 (Fátima): cada línea cortada conserva «capa · grados», pequeño */   /* 8-11-2026 (Fátima: «después de cortar, sin números grandes que tapen las capas»): solo el número; los grados van en el rótulo «Capas: …» */
+      if (qc) { puestas.push(qc); tr.push({ k: 'n', x: qc[0], y: qc[1], s: String(z + 1), c: c, t: [ta + dt * 0.85, 1] }); }   /* 8-11-2026 (Fátima: «después de cortar, sin números grandes que tapen las capas»): solo el número; los grados van en el rótulo «Capas: …» */
       tr.push(regla(z && !cero ? (pila[z - 1] || 0) : 0, g, [ta, ta + dt * 0.45], c, 'Línea ' + (z + 1), ext));
       tr.push(rotulo('Línea ' + (z + 1) + ' · ' + g + '°' + (cero ? (z ? ' · se baja a la guía y se corta en la misma línea' : ' · guía a un dedo') : (z ? '' : ' · guía')) + (colV.length ? ' · sección vertical' : ''), c, ta, ext));
     }
@@ -1808,12 +1811,12 @@
         x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(Math.round((T.m || 0) * su(u)) + ' min', kx, ky - Rc - 14); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(T.s || 'Exposición', kx, ky + Rc + 20); x.textAlign = 'left';
       }
       else if (T.k === 'r') {
-        x.setLineDash([]); /* 14-11-2026 (Fátima: «el transportador, a una esquina; lo veo pegado a la cabeza»): abajo a la derecha, algo más pequeño */ var R = Math.min(44, bh * 0.115), cx = bx + bw - R - 32, cy = by + bh - R - 40, g = T.g[0] + (T.g[1] - T.g[0]) * su(u);
+        x.setLineDash([]); /* 14-11-2026 (Fátima: «el transportador, a una esquina; lo veo pegado a la cabeza»): abajo a la derecha, algo más pequeño */ var R = Math.min(44, bh * 0.115), cx = bx + bw - R - 32, cy = by + bh - R - 40, g = T.g[0] + (T.g[1] - T.g[0]) * su(u), aL = null; (T.ls || []).forEach(function (o) { if (p >= o[0]) aL = o; }); var cT = aL ? aL[3] : T.c; if (aL) g = aL[2];
         x.strokeStyle = '#9A8F84'; x.lineWidth = 1.5; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2 - 1.25 * Math.PI, Math.PI / 2, false); x.stroke();
         x.fillStyle = '#6B625A'; x.font = '600 11px system-ui,sans-serif'; x.textAlign = 'center';
         [0, 45, 90, 135, 180, 225].forEach(function (k) { var ex = -Math.sin(k * Math.PI / 180), ey = Math.cos(k * Math.PI / 180); x.beginPath(); x.moveTo(cx + ex * R * 0.88, cy + ey * R * 0.88); x.lineTo(cx + ex * R, cy + ey * R); x.stroke(); x.fillText(k + '°', cx + ex * (R + 17), cy + ey * (R + 13) + 4); });
-        x.strokeStyle = T.c; x.lineWidth = 4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - Math.sin(g * Math.PI / 180) * R, cy + Math.cos(g * Math.PI / 180) * R); x.stroke();
-        x.fillStyle = T.c; x.font = '800 19px system-ui,sans-serif'; x.fillText(Math.round(g) + '°', cx, cy - R - 26); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(T.s, cx, cy + R + 32); x.textAlign = 'left';
+        x.strokeStyle = cT; x.lineWidth = 4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - Math.sin(g * Math.PI / 180) * R, cy + Math.cos(g * Math.PI / 180) * R); x.stroke();
+        x.fillStyle = cT; x.font = '800 19px system-ui,sans-serif'; x.fillText(Math.round(g) + '°', cx, cy - R - 26); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(aL ? aL[1] : T.s, cx, cy + R + 32); x.textAlign = 'left';
       }
     });
     /* la tijera va encima de todo: recorre la línea de corte y, si se desgrafila, deja cortes en punta */
