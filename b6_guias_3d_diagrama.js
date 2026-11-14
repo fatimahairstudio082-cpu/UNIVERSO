@@ -8,6 +8,8 @@
    (PDF, lámina, vídeo) tampoco interviene. No edita b6_guias_3d.js: envuelve su prototipo, como
    b6_boton_biblioteca.js. Cargar después de b6_cortes.js y b6_pelu_diagrama.js. */
 (function () {
+  /* modo revisión de Fátima (localStorage eu_revision = 'si'): las notas «a validar» solo las ve ella; el alumno nunca */
+  function REVISION() { try { return localStorage.getItem('eu_revision') === 'si'; } catch (e) { return false; } }
   'use strict';
   if (window.EU_G3D_DIAGRAMA) return;
 
@@ -245,7 +247,7 @@
     var latC = fila('Capas (lateral)', ent('una cifra por línea · vacío = igual que el frente', 300));
     var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
     var alt = fila('Guía del frente', sel([['', 'Según el corte · se empareja con atrás']].concat(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; }))));
-    var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Redondeada'], ['u', 'En U'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
+    var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['semi_cuadrada', 'Semicuadrada'], ['redondeada', 'Redondeada'], ['semi_redonda', 'Semirredonda'], ['u', 'En U'], ['semi_u', 'En semi-U'], ['v', 'En V'], ['semi_v', 'En semi-V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
     alt.value = '';
     var aca = fila('Acabado', sel([['recto', 'Recto (cuadrado)'], ['v', 'En V'], ['u', 'En U'], ['desgrafilado', 'Desgrafilado']]));
     var lfr = fila('Puntas de delante', sel([['', 'Redondeadas'], ['recta', 'Rectas']]));
@@ -271,7 +273,7 @@
       return o;
     }
     function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); latC.value = (o.lateral || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || ''; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
-      lfr.value = o.lineaFrente || ''; emp.value = o.emparejar || 'delante'; gui.value = (o.guias || []).join(', '); ref.value = o.ref || 'craneo'; cor.checked = !!o.coronilla; corG.value = o.coronillaG != null ? o.coronillaG : ''; nota.textContent = o.validar ? 'Elevaciones propuestas: a validar por Fátima. Cámbialas capa a capa si hace falta.' : (o.texto || ''); }
+      lfr.value = o.lineaFrente || ''; emp.value = o.emparejar || 'delante'; gui.value = (o.guias || []).join(', '); ref.value = o.ref || 'craneo'; cor.checked = !!o.coronilla; corG.value = o.coronillaG != null ? o.coronillaG : ''; nota.textContent = o.validar ? (REVISION() ? 'Elevaciones propuestas: a validar por Fátima. Cámbialas capa a capa si hace falta.' : 'Puedes cambiar la elevación de cada capa.') : (o.texto || ''); }
     tec.onchange = function () { var v = tec.value; if (!v) return; var o = v.slice(0, 2) === 't:' ? GC.tecnica(v.slice(2)) : v.slice(0, 2) === 'c:' ? (window.EU_CATALOGO_CORTES && EU_CATALOGO_CORTES.corte(v.slice(2))) : GC.mios().filter(function (m) { return m.n === v.slice(2); })[0]; if (o) poner(o); };
     var bar = document.createElement('div'); bar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px';
     var ver = document.createElement('button'); ver.textContent = '▶ Ver mi corte'; ver.style.cssText = CHIP_ON;
