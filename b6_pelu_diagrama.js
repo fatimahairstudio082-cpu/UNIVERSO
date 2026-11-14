@@ -990,7 +990,7 @@
             var q0 = cand[Math.min(cand.length - 1, Math.floor(cand.length * (((z + 1) / (pila.length + 1) + (ci % 2 ? 1 : -1) * Math.ceil(ci / 2) * 0.07 + 1) % 1)))], qy = q0[1] + [16, -40, 66, -90, 116, -140][fila];
             if (!puestasQ.some(function (o) { return Math.abs(o[0] - q0[0]) < 160 && Math.abs(o[1] - qy) < 52; })) qc = [q0[0], qy];
           }
-          if (qc) { puestasQ.push(qc); tr.push(chapa(qc, z + 1, c, Math.min(0.99, tCae[1]))); }   /* 8-11-2026 (Fátima: «después de cortar, sin números grandes que tapen las capas»): solo el número; los grados en el rótulo «Capas: …» */
+          if (qc) { puestasQ.push(qc); }   /* 14-11-2026 (Fátima: «el corte limpio; las líneas resaltadas ya enseñan cada capa»): sin número sobre el cabello; las elevaciones van en el rótulo «Capas: …» de arriba */   /* 8-11-2026 (Fátima: «después de cortar, sin números grandes que tapen las capas»): solo el número; los grados en el rótulo «Capas: …» */
         }
       });
     });
@@ -1162,7 +1162,7 @@
         if (pts.length < 3) return;
         pts.sort(function (p, q) { return p[0] - q[0]; });
         var col = COL[i % 7], t0 = 0.8 + Math.min(0.12, i * 0.02);
-        tr.push(linea(plano(pts), [t0, Math.min(0.97, t0 + 0.08)], col, 2.6, { d: 1 }), chapa(pts[pts.length - 1], 'Mechón ' + (i + 1) + ' · ' + c.ang + '°', col, t0));
+        tr.push(linea(plano(pts), [t0, Math.min(0.97, t0 + 0.08)], col, 2.6, { d: 1 }), rotulo('Mechón ' + (i + 1) + ' · ' + c.ang + '°', col, t0));   /* 14-11-2026: arriba, fuera del cabello */
       });
       if (capQ.length > 1) tr.push(rotulo('Líneas de color: largo de cada mechón elevado', TINTA, 0.8));
     }
@@ -1180,7 +1180,7 @@
         if (pts.length < 3) return;
         pts.sort(function (p, o) { return p[0] - o[0]; });
         var col = COL[i % 7], t0 = 0.8 + i * 0.04;
-        tr.push(linea(plano(pts), [t0, Math.min(0.97, t0 + 0.08)], col, 2.8, { d: 1 }), chapa(pts[Math.floor(pts.length * (v === "nuca" ? 0.6 : 0.4))], q[1], col, t0));
+        tr.push(linea(plano(pts), [t0, Math.min(0.97, t0 + 0.08)], col, 2.8, { d: 1 }), rotulo(q[1], col, t0));   /* 14-11-2026: arriba, fuera del cabello */
       });
       tr.push(rotulo('Todo a 0°: cada línea, más larga que la de abajo', TINTA, 0.8));
     }
