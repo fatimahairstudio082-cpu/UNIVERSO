@@ -1286,6 +1286,7 @@
       });
       function yCorte(pf) { return Math.min(P(pf, thR, 1).y - 0.06, yFin(0, pf)); }
       if (v === 'lateral') relleno(oreja - sC * 0.12, oreja - sC * 1.6, [0, 0.001], yCorte, '#6E5240');
+      var cortadas = [];
       for (var k = 0; k < K; k++) {
         var ph = phK(k), ta = 0.04 + dS * k, tb = ta + dS, ck = COL[k % 7], ext = k < K - 1 ? { x: tb } : {};
         var pA = k === 0 && v === 'lateral' ? oreja - sC * 0.12 : Z[0] + (Z[1] - Z[0]) * k / K, pB = Z[0] + (Z[1] - Z[0]) * (k + 1) / K;
@@ -1312,11 +1313,14 @@
           lsV.push([ta + dS * (0.5 + 0.3 * iz / vis.length), 'Capa ' + (z + 1) + ' · ' + g + '°', g, COL[z % 7]]);
           /* cortado: cae a su largo y se queda en el maniquí */
           GRUESO.forEach(function (o) { trV.push(linea(plano(peina(ph + o, th, yf, 1.04 + 0.004 * z)), [ta + dS * 0.8, tb], tono('#5E4232'), 2.6)); });
+          /* 14-11-2026 (Fátima: «que se resalte cada línea cortada, en naranja o fucsia, para ver el tipo de corte»): donde termina el cabello de esta capa en la sección, su línea queda marcada */
+          (function () { var hs = Math.min(0.13, Math.abs(Z[1] - Z[0]) / K / 2), lc = []; for (var w = -3; w <= 3; w++) { var pf = ph + hs * w / 3; if (!seVe(v, pf, th)) continue; var pp = peina(pf, th, Math.min(P(pf, th, 1.05).y - 0.06, yFin(z, pf)), 1.04 + 0.004 * z); if (pp.length) lc.push(pp[pp.length - 1]); } if (lc.length > 1) cortadas.push(linea(plano(lc), [ta + dS * 0.8, ta + dS * 0.9], z % 2 ? '#F57C00' : '#E0218A', 3.4)); })();
         });
         trV.push(tijera(plano(puntas), [ta + dS * 0.5, ta + dS * 0.8], CORTE, R.desg, Object.assign({ ll: 1 }, ext)));   /* línea de corte seguida y fina: sin punticos que tapen el cabello */   /* la tijera pasa por las puntas, de abajo arriba */
         trV.push(regla(0, cero ? 0 : (pila[vis[vis.length - 1]] || 0), [ta + dS * 0.15, ta + dS * 0.45], ck, 'Sección ' + (k + 1) + ' · vertical', Object.assign({ ls: lsV }, ext)));
         trV.push(rotulo('Sección vertical ' + (k + 1) + ' · cada mechón a su elevación: ' + vis.map(function (z) { return cero ? 0 : (pila[z] || 0); }).join(' · ') + '°', ck, ta, ext));
       }
+      cortadas.forEach(function (T) { trV.push(T); });   /* las líneas cortadas, encima del cabello */
       /* la línea azul de oreja a oreja y la raya, siempre; entre secciones, líneas verticales (nunca horizontales) */
       var DIVv = '#2C6FD1', t0v = [0, 0.03];
       trV = trV.concat(lineas(tramos(v, function (u) { var t = -1.62 + u * 3.24; return t < 0 ? [IZQ - 0.12, -t] : [DER + 0.12, t]; }, 90), t0v, DIVv, 3.6));
@@ -1396,8 +1400,8 @@
           if (!puestas.some(function (o) { return Math.abs(o[0] - q0[0]) < 125 && Math.abs(o[1] - qy) < 42; })) qc = [q0[0], qy];
         }
       }
-      if (qc) { puestas.push(qc); tr.push({ k: 'n', x: qc[0], y: qc[1], s: String(z + 1), c: c, t: [ta + dt * 0.85, 1] }); }   /* 8-11-2026 (Fátima: «después de cortar, sin números grandes que tapen las capas»): solo el número; los grados van en el rótulo «Capas: …» */
-      tr.push(regla(z && !cero ? (pila[z - 1] || 0) : 0, g, [ta, ta + dt * 0.45], c, 'Línea ' + (z + 1), ext));
+      if (qc) { puestas.push(qc); tr.push({ k: 'n', x: qc[0], y: qc[1], s: String(z + 1), c: c, t: [ta + dt * 0.85, 1], x2: tb }); }   /* 14-11-2026 (Fátima): el número se quita al pasar a la línea siguiente; no se acumulan sobre el cabello */   /* 8-11-2026 (Fátima: «después de cortar, sin números grandes que tapen las capas»): solo el número; los grados van en el rótulo «Capas: …» */
+      tr.push(regla(z && !cero ? (pila[z - 1] || 0) : 0, g, [ta, ta + dt * 0.45], c, 'Línea ' + (z + 1) + ' · ' + g + '°', ext));
       tr.push(rotulo('Línea ' + (z + 1) + ' · ' + g + '°' + (cero ? (z ? ' · se baja a la guía y se corta en la misma línea' : ' · guía a un dedo') : (z ? '' : ' · guía')) + (colV.length ? ' · sección vertical' : ''), c, ta, ext));
     }
     /* Fátima, 19-10-2026: «las divisiones de oreja a oreja y las particiones de atrás y de adelante nunca pueden desaparecer»:
