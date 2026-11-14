@@ -7,10 +7,10 @@
 (function () {
   'use strict';
   var MOTORES = ['b6_cerebro.js', 'b6_divisiones.js', 'b6_cortes.js', 'b6_pelu_geometria.js', 'b6_pelu_calculo.js', 'b6_pelu_diagrama.js'];
-  var LINEA = { recta: 'recto', redondeada: 'redondo', u: 'u', v: 'v' };           /* línea de atrás del motor → contorno del V18 */
+  var LINEA = { recta: 'recto', redondeada: 'redondo', u: 'u', v: 'v', semi_v: 'semiv', semi_redonda: 'semiredondo', semi_cuadrada: 'semicuadrado' };           /* línea de atrás del motor → contorno del V18 */
   var LARGO = { hombro: 0.26 };                                                      /* solo lo que el corte dice y el V18 ya nombra («Hombros») */
   var SECC = ['Nuca central', 'Posterior izquierdo', 'Posterior derecho', 'Lateral izquierdo', 'Lateral derecho'];
-  var R = null, activo = false;
+  var R = null, activo = false, IDR = '';
 
   function cargar() {
     if (window.EU_DIAGRAMA && window.EU_CORTES) return Promise.resolve();
@@ -40,13 +40,19 @@
     var pa = r.capas.pila, pf = r.frente && r.frente.pila ? r.frente.pila : pa;
     return '<b>' + esc(r.n) + '</b><br>' +
       'Cabello: ' + esc(r.liso ? 'liso extremo' : r.cab) + ' · corte ' + (vertical(r) ? '<b>en vertical</b>' : '<b>en horizontal</b>') + '<br>' +
-      'Línea de atrás: ' + esc(r.linea) + ' · partición: ' + esc(r.capas.part) + '<br>' +
+      'Línea de atrás: ' + esc({ recta: 'recta (cuadrado)', redondeada: 'redondeada', u: 'en U', v: 'en V', semi_v: 'en semi-V · a validar', semi_redonda: 'semirredonda · a validar', semi_cuadrada: 'semicuadrada · a validar' }[r.linea] || r.linea) + ' · partición: ' + esc(r.capas.part) + '<br>' +
       'Atrás Z0→Z6: <b>' + pa.map(function (v) { return v + '°'; }).join(' · ') + '</b><br>' +
       'Frente Z0→Z6: <b>' + pf.map(function (v) { return v + '°'; }).join(' · ') + '</b>';
   }
 
   function aplicar() {
-    var id = $('eg3dCorte').value; R = window.EU_DIAGRAMA.receta(id); if (CAPA && !CAPA.playing && CAPA.id !== id) limpiar();
+    var id = $('eg3dCorte').value, fo = $('eg3dForma') && $('eg3dForma').value;
+    /* 14-11-2026 (Fátima: «la forma se elige; lo que cambia es la elevación: el motor saca cualquier corte de 0° a 225°»): con una
+       forma elegida el corte se arma con EU_DIAGRAMA.libre: forma + recto (todo a 0°) o en capas con las elevaciones que se escriban */
+    if (fo) { var tp = $('eg3dTipo').value, el = tp === 'recto' ? [0] : String($('eg3dElev').value || '').split(/[^0-9.,]+|,/).map(function (x) { return parseFloat(String(x).replace(',', '.')); }).filter(function (x) { return x >= 0 && x <= 225; });
+      if (!el.length) el = [0]; id = 'forma:' + fo + ':' + el.join('-'); R = window.EU_DIAGRAMA.libre({ n: $('eg3dForma').selectedOptions[0].text + (el.some(function (x) { return x > 0; }) ? ' en capas' : ' recto'), capas: el, linea: fo }); }
+    else R = window.EU_DIAGRAMA.receta(id);
+    if (CAPA && CAPA.id !== id) { if (CAPA.playing) CAPA.playing = false; limpiar(); } IDR = id;
     $('eg3dFicha').innerHTML = ficha(R); if ($('eg3dLargoInfo')) refrescarLargo();
     var perfil = $('cutProfile'); perfil.value = LINEA[R.linea] || 'recto'; perfil.dispatchEvent(new Event('change'));
     if (LARGO[R.largo] != null) { var t = $('cutTarget'); t.value = LARGO[R.largo]; t.dispatchEvent(new Event('input')); }
@@ -62,8 +68,8 @@
   function relojHTML() {
     var d = $('eg3dReloj'); if (d) return d;
     d = document.createElement('div'); d.id = 'eg3dReloj'; d.setAttribute('aria-live', 'polite');
-    d.style.cssText = 'position:absolute;right:16px;top:16px;z-index:3;width:186px;padding:10px 10px 8px;background:rgba(15,11,9,.82);border:1px solid #3a2e24;border-radius:3px;text-align:center;display:none;pointer-events:none';
-    d.innerHTML = '<svg viewBox="0 0 100 80" width="166" height="133" aria-hidden="true"><path d="M17 66 A38 38 0 1 1 83 66" fill="none" stroke="#3a2e24" stroke-width="6" stroke-linecap="round"/>' +
+    d.style.cssText = 'position:absolute;right:16px;top:16px;z-index:3;width:150px;padding:10px 10px 8px;background:rgba(15,11,9,.82);border:1px solid #3a2e24;border-radius:3px;text-align:center;display:none;pointer-events:none';
+    d.innerHTML = '<svg viewBox="0 0 100 80" width="130" height="104" aria-hidden="true"><path d="M17 66 A38 38 0 1 1 83 66" fill="none" stroke="#3a2e24" stroke-width="6" stroke-linecap="round"/>' +
       '<path id="eg3dArco" d="M17 66 A38 38 0 1 1 83 66" fill="none" stroke="#c9a36a" stroke-width="6" stroke-linecap="round" pathLength="225" stroke-dasharray="0 225"/>' +
       '<line id="eg3dAguja" x1="50" y1="46" x2="50" y2="14" stroke="#f3ebe1" stroke-width="2" stroke-linecap="round"/><circle cx="50" cy="46" r="3" fill="#f3ebe1"/>' +
       '<text x="50" y="76" text-anchor="middle" fill="#b9ab9b" font-size="6">0°  ·  225°</text></svg>' +
@@ -72,14 +78,14 @@
       '<div id="eg3dLargo" style="font-size:12px;color:#e9d9c4;margin-top:4px"></div>';
     $('stage').appendChild(d); return d;
   }
-  /* el transportador va al lado de la cabeza (no en la esquina): se coloca con la posición de la cabeza en el lienzo */
+  /* 14-11-2026 (Fátima: «el reloj a una esquina que no estorbe: tapa el mechón que se está jalando»): el transportador va en la
+     esquina de arriba contraria al lado por donde sale el mechón */
   function junto(d) {
     try {
-      var cam = window.Maniqui.controls && window.Maniqui.controls.object; if (!CAPA || !cam || !window.THREE) return;   /* Maniqui.camera es la función de vistas; la cámara está en controls.object */
-      var st = $('stage'), W = st.clientWidth, Hh = st.clientHeight, v = new window.THREE.Vector3(); window.Maniqui.joints.head.getWorldPosition(v); v.project(cam);
-      var hx = (v.x + 1) / 2 * W, hy = (1 - v.y) / 2 * Hh, bw = d.offsetWidth || 186, bh = d.offsetHeight || 220, sep = Math.max(120, Hh * 0.2);
-      var x = hx + sep; if (x + bw > W - 8) x = hx - sep - bw;
-      d.style.right = 'auto'; d.style.left = Math.max(8, Math.min(W - bw - 8, x)) + 'px'; d.style.top = Math.max(8, Math.min(Hh - bh - 8, hy - bh * 0.45)) + 'px';
+      var cam = window.Maniqui.controls && window.Maniqui.controls.object; if (!CAPA || !cam || !window.THREE || !CAPA.tij) return;   /* Maniqui.camera es la función de vistas; la cámara está en controls.object */
+      var st = $('stage'), v = new window.THREE.Vector3(), h = new window.THREE.Vector3(); window.Maniqui.joints.head.getWorldPosition(h); h.project(cam);
+      if (CAPA.tij.visible) { CAPA.tij.getWorldPosition(v); v.project(cam); CAPA.relIzq = v.x > h.x; }
+      var izq = !!CAPA.relIzq; d.style.top = izq ? '96px' : '16px'; d.style.left = izq ? '16px' : 'auto'; d.style.right = izq ? 'auto' : '16px';
     } catch (e) { }
   }
   function reloj() {
@@ -113,7 +119,7 @@
   var N_CAPAS = 7, J_MECH = 6;
   function posA(r) { return r.kind === 'back' ? 0.25 + 0.5 * r.q : (r.side < 0 ? 0.25 * (1 - r.q) : 0.75 + 0.25 * r.q); }  /* 0 = delante izq … 1 = delante der */
   function modelo() {
-    var H = window.CorteMotor.hair(), n = R.capas.pila.every(function (v) { return !v; }) && (!R.frente || R.frente.pila.every(function (v) { return !v; })) ? 1 : N_CAPAS;
+    var H = window.CorteMotor.hair(), n = R.capas.pila.every(function (v) { return !v; }) && (!R.frente || R.frente.pila.every(function (v) { return !v; })) ? 1 : R.libre ? Math.max(2, Math.min(12, R.capas.pila.length)) : N_CAPAS;   /* corte armado con «Forma + elevaciones»: tantas capas como elevaciones se escriban */
     var J = vertical(R) ? J_MECH : 1, pB = R.capas.pila, pF = R.frente && R.frente.pila ? R.frente.pila : pB;
     function deltas(p) { var c = window.EU_CALCULO_CAPILAR.calcular({ capas: p, guias: ['m'], ref: 'craneo' }), o = []; for (var k = 0; k < n; k++) o.push((c.largos[Math.min(k, c.largos.length - 1)] - c.largos[0]) / 100); return { d: o, cm: c.largos, forma: c.forma }; }
     var dB = deltas(pB), dF = deltas(pF);
@@ -136,7 +142,9 @@
     var d = (r.kind === 'back' ? C.dB : C.dF).d[r.pk] || 0, g = pila[Math.min(pila.length - 1, r.pk)] || 0, kmax = Math.min(2, g / 90);
     /* pinzas: el cabello de las capas que aún no se trabajan queda recogido arriba; cada capa se suelta cuando le toca */
     var K = cur < 1 ? -1 : Math.floor((cur - 1) / C.J), primero = cur >= 1 && (cur - 1) % C.J === 0, e = Math.min(1, p / 0.25); e = e * e * (3 - 2 * e);
-    var clip = cur < 1 ? 0 : r.pk > K ? (K === 0 && primero ? e : 1) : r.pk === K ? (K > 0 && primero ? 1 - e : 0) : 0;
+    /* 14-11-2026 (Fátima: «se tiene que sacar mechón por mechón»): queda recogido todo lo que aún no se trabaja, también los
+       mechones de la misma capa; cada uno se suelta de su pinza al empezar su paso */
+    var clip = cur < 1 ? 0 : st > cur ? (cur === 1 ? e : 1) : st === cur ? (cur === 1 ? 0 : 1 - e) : 0;
     if (st < cur) return { amount: 1, lift: 0, hl: false, delta: d, clip: clip };
     if (st > cur) return { amount: 0, lift: 0, hl: false, delta: d, clip: clip };
     var fase = p < 0.25 ? p / 0.25 : p < 0.75 ? 1 : (1 - p) / 0.25, fe = fase * fase * (3 - 2 * fase), lift = fase * kmax, u = Math.max(0, Math.min(1, (p - 0.25) / 0.5)), amount = Math.max(0, Math.min(1, (u * 1.15 - (r.rk == null ? 0.5 : r.rk)) / 0.15));
@@ -145,7 +153,7 @@
   function pintarCorte() {
     var C = CAPA, S = window.CorteMotor.state();
     C.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, { ver: C.ver, info: info });
-    divisiones(); tijera(); estadoUI();
+    divisiones(); tijera(); pinzas(); numeritos(); estadoUI();
   }
   /* líneas de división (verticales entre mechones) y línea azul de oreja a oreja */
   function divisiones() {
@@ -294,6 +302,45 @@
   }
   /* regla de pulgadas junto al cabello (atrás, centro) */
   var RX = 0.27;                                                /* la regla va fuera del cabello, a su derecha (antes 0.1: quedaba encima) */
+  /* 14-11-2026 (Fátima: «el recogido: se debe recoger el cabello para sacar mechón por mechón y llevar la guía»): una pinza por
+     sección sobre el cabello que sigue recogido; se quita cuando esa sección ya no tiene nada recogido */
+  function pinzas() {
+    var C = CAPA; if (!T3) return;
+    if (!C.pinzas) {
+      C.pinzas = new T3.Group(); C.pinzas.name = 'Pinzas del recogido'; C.H.group.add(C.pinzas);
+      var oro = new T3.MeshStandardMaterial({ color: 0xc9a36a, metalness: 0.7, roughness: 0.35 });
+      C.ms.forEach(function (m) { var g = new T3.Group(), a = new T3.Mesh(new T3.BoxGeometry(0.05, 0.007, 0.012), oro), b = new T3.Mesh(new T3.BoxGeometry(0.03, 0.005, 0.01), oro); b.position.set(-0.012, 0.008, 0); b.rotation.z = -0.25; g.add(a, b); g.userData.m = m; C.pinzas.add(g); });
+    }
+    var cur = Math.floor(C.T);
+    C.pinzas.children.forEach(function (g) {
+      var m = g.userData.m, k0 = -1; for (var k = 0; k < C.n; k++) if (pasoDe(k, m) > cur) { k0 = k; break; }
+      var gr = k0 >= 0 && cur >= 1 && cur < totalPasos() ? C.grp[k0 + '_' + m] : null; g.visible = !!(gr && gr.length); if (!g.visible) return;
+      var r = gr[Math.floor(gr.length / 2)], q = C.H.path(r, 0.37), n = new T3.Vector3(q.x, 0, q.z); if (n.lengthSq() < 1e-6) n.set(0, 0, -1); n.normalize();
+      g.position.set(q.x + n.x * 0.012, q.y, q.z + n.z * 0.012); g.rotation.set(0, Math.atan2(n.x, n.z), 0);
+    });
+  }
+  /* 14-11-2026 (Fátima: «con números pequeños: primer mechón corté con esta elevación, segundo…; pequeñito, sin tapar»): al
+     terminar de cortar cada mechón queda junto a su punta «n · g°» (mechón de la capa · grados); solo los de la capa en curso */
+  function chapa(txt) {
+    var cv = document.createElement('canvas'); cv.width = 128; cv.height = 48; var cx = cv.getContext('2d');
+    cx.fillStyle = 'rgba(15,11,9,.78)'; cx.beginPath(); cx.moveTo(10, 4); cx.arcTo(124, 4, 124, 44, 10); cx.arcTo(124, 44, 4, 44, 10); cx.arcTo(4, 44, 4, 4, 10); cx.arcTo(4, 4, 124, 4, 10); cx.fill();
+    cx.fillStyle = '#e9d9c4'; cx.font = 'bold 26px sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(txt, 64, 25);
+    var sp = new T3.Sprite(new T3.SpriteMaterial({ map: new T3.CanvasTexture(cv), transparent: true })); sp.scale.set(0.058, 0.022, 1); sp.renderOrder = 12; return sp;   /* con profundidad: el número de un mechón de atrás no se ve a través del cuerpo */
+  }
+  function numeritos() {
+    var C = CAPA; if (!T3) return;
+    if (!C.nums) { C.nums = new T3.Group(); C.nums.name = 'Numeración de mechones'; C.H.group.add(C.nums); C.numK = {}; }
+    var cur = Math.floor(C.T), p = C.T - cur, fin = cur >= totalPasos(), K = fin ? -1 : Math.floor((cur - 1) / C.J), quiero = {};
+    if (cur >= 1 && !fin) C.ms.forEach(function (m) { var st = pasoDe(K, m); if (st < cur || (st === cur && p > 0.78)) quiero[K + '_' + m] = m; });
+    Object.keys(C.numK).forEach(function (id) { if (!(id in quiero)) { C.nums.remove(C.numK[id]); C.numK[id].material.map.dispose(); C.numK[id].material.dispose(); delete C.numK[id]; } });
+    Object.keys(quiero).forEach(function (id) {
+      var m = quiero[id], gr = C.grp[id]; if (!gr || !gr.length) return;
+      var atr = C.atras(m), pila = atr ? C.pB : C.pF, g = pila[Math.min(pila.length - 1, K)] || 0;
+      if (!C.numK[id]) { C.numK[id] = chapa((C.pos[m] + 1) + ' · ' + g + '°'); C.nums.add(C.numK[id]); }
+      var r = gr[Math.floor(gr.length / 2)], q = C.H.path(r, Math.max(0.3, r.stop == null ? 1 : r.stop)), n = new T3.Vector3(q.x, 0, q.z); if (n.lengthSq() < 1e-6) n.set(0, 0, -1); n.normalize();
+      C.numK[id].position.set(q.x + n.x * 0.03, q.y - 0.022, q.z + n.z * 0.03);          /* debajo y por fuera de la punta: no pisa tijera ni corte */
+    });
+  }
   /* 10-11-2026 (Fátima: «que cuando corte, caiga el cabello»): las puntas que corta la tijera caen desde el punto de corte y
      se desvanecen; el mechón baja después y se queda a su largo nuevo (eso ya lo hacía info()) */
   function caer(q) {
@@ -343,13 +390,13 @@
     aplicar();
     if (window.CorteMotor.hair().getLength() < 0.5) $('cutPrepare').click();        /* cabello largo inicial */
     window.CorteMotor.pause(); window.Maniqui.sentarse();
-    if (!CAPA || desde === 'nuevo') { limpiar(); CAPA = modelo(); }
+    if (!CAPA || desde === 'nuevo') { limpiar(); CAPA = modelo(); CAPA.id = IDR; }   /* con su corte: «Pausar» y volver a pulsar sigue donde iba */
     if (CAPA.T >= totalPasos()) { CAPA.T = 0; CAPA.fin = false; }
     CAPA.espera = 1.6; CAPA.camAnt = ''; CAPA.playing = true; CAPA.last = performance.now(); activo = true; reloj(); requestAnimationFrame(bucle);
   }
   function limpiar() {
     if (!CAPA) return;
-    ['lineas', 'tij', 'manos', 'regla', 'caeG'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
+    ['lineas', 'tij', 'manos', 'regla', 'caeG', 'pinzas', 'nums'].forEach(function (k) { if (CAPA[k]) { CAPA.H.group.remove(CAPA[k]); CAPA[k] = null; } });
     var S = window.CorteMotor.state(); CAPA.H.update([0, 0, 0, 0, 0], -1, 0, S.target, S.profile, false, null); CAPA = null;
   }
 
@@ -614,6 +661,10 @@
       caja.innerHTML = '<div style="font-size:11px;letter-spacing:.3em;color:#c9a36a;margin-bottom:8px">MOTORES DE GUÍAS 3D · CORTES</div>' +
         '<label for="eg3dCorte">Corte del motor (' + L.length + ')</label><select id="eg3dCorte">' +
         ord.map(function (f) { return '<optgroup label="' + esc(nom[f] || f) + '">' + fam[f].map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.n) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select>' +
+        '<div style="font-size:11px;letter-spacing:.2em;color:#a3abbd;margin:12px 0 6px">O ARMA EL CORTE · FORMA + ELEVACIONES</div>' +
+        '<div class="grid"><select id="eg3dForma" aria-label="Forma del corte"><option value="">— usar el corte de arriba —</option><option value="v">En V</option><option value="semi_v">Semi-V</option><option value="recta">Cuadrado</option><option value="semi_cuadrada">Semicuadrado</option><option value="redondeada">Redondo</option><option value="semi_redonda">Semirredondo</option><option value="u">En U</option></select>' +
+        '<select id="eg3dTipo" aria-label="Tipo de corte"><option value="capas">En capas</option><option value="recto">Recto · todo a 0°</option></select></div>' +
+        '<div class="row" style="margin-top:8px;align-items:center"><label for="eg3dElev" style="flex:none">Elevación de cada capa (0–225°)</label><input type="text" id="eg3dElev" inputmode="decimal" placeholder="de la nuca hacia arriba, con comas"></div>' +
         '<div id="eg3dFicha" class="note" style="margin:10px 0;line-height:1.55"></div>' +
         '<div style="font-size:11px;letter-spacing:.2em;color:#a3abbd;margin:12px 0 6px">LARGO DE LA GUÍA · PULGADAS</div>' +
         '<div id="eg3dChips" style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px">' + CHIPS.map(function (n) { return '<button data-p="' + n + '" style="text-align:center;padding:6px 2px;min-height:36px;font-size:13px">' + n + '″</button>'; }).join('') + '</div>' +
@@ -630,7 +681,8 @@
         '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:6px;cursor:pointer"><input type="checkbox" id="eg3dRegla" style="width:18px;height:18px;accent-color:#c9a36a"> Regla de pulgadas al lado del cabello</label>' +
         '<p id="eg3dPaso" class="note" role="status" style="margin-top:8px"></p>' +
         '<p id="eg3dNota" class="note" role="status" style="margin-top:8px"></p>';
-      $('eg3dCorte').addEventListener('change', aplicar);
+      $('eg3dCorte').addEventListener('change', function () { $('eg3dForma').value = ''; aplicar(); });
+      ['eg3dForma', 'eg3dTipo', 'eg3dElev'].forEach(function (i) { $(i).addEventListener('change', aplicar); });
       $('eg3dAplicar').addEventListener('click', aplicar);
       $('eg3dPlay').addEventListener('click', function () { limpiar(); aplicar(); window.CorteMotor.reset(); window.CorteMotor.play(); });
       $('eg3dCapas').addEventListener('click', function () { arrancar(CAPA && CAPA.playing === false && CAPA.T < totalPasos() ? '' : 'nuevo'); });

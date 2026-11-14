@@ -245,7 +245,7 @@
     var latC = fila('Capas (lateral)', ent('una cifra por línea · vacío = igual que el frente', 300));
     var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
     var alt = fila('Guía del frente', sel([['', 'Según el corte · se empareja con atrás']].concat(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; }))));
-    var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['redondeada', 'Redondeada'], ['u', 'En U'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
+    var lin = fila('Línea de atrás', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrado)'], ['semi_cuadrada', 'Semicuadrada'], ['redondeada', 'Redondeada'], ['semi_redonda', 'Semirredonda'], ['u', 'En U'], ['v', 'En V'], ['semi_v', 'En semi-V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás']]));
     alt.value = '';
     var aca = fila('Acabado', sel([['recto', 'Recto (cuadrado)'], ['v', 'En V'], ['u', 'En U'], ['desgrafilado', 'Desgrafilado']]));
     var lfr = fila('Puntas de delante', sel([['', 'Redondeadas'], ['recta', 'Rectas']]));

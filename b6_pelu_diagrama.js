@@ -221,6 +221,11 @@
     u: { n: 'en U', y: function (d) { return -130 * Math.pow(d, 1.6); }, th: function (d) { return -0.58 * Math.pow(d, 1.6); } },
     v: { n: 'en V', y: function (d) { return -110 * d; }, th: function (d) { return -0.5 * d; } },
     a: { n: 'en A (V invertida)', y: function (d) { return 62 * d - 20; }, th: function (d) { return 0.22 * d; } },
+    /* 14-11-2026 (Fátima: «está el V, el semi-V, el cuadrado, el semicuadrado, el redondo, el semirredondo y el U»): los tres «semi»
+       son la misma forma a media profundidad (el semicuadrado: recto con las esquinas un poco redondeadas). A validar por Fátima. */
+    semi_v: { n: 'en semi-V', y: function (d) { return -55 * d; }, th: function (d) { return -0.25 * d; } },
+    semi_redonda: { n: 'semirredonda', y: function (d) { return -23 * d * d; }, th: function (d) { return -0.11 * d * d; } },
+    semi_cuadrada: { n: 'semicuadrada', y: function (d) { var e = Math.max(0, (d - 0.7) / 0.3); return -30 * e * e; }, th: function (d) { var e = Math.max(0, (d - 0.7) / 0.3); return -0.14 * e * e; } },
     diag_delante: { n: 'diagonal hacia delante', lat: 1, s: 1 },
     diag_atras: { n: 'diagonal hacia atrás', lat: 1, s: -1 }
   };
@@ -741,7 +746,8 @@
      El cabello largo (antes), la tijera siguiendo la línea del corte y el cabello cortado (después) con su sombreado.
      La forma sale de la línea del corte: recta (cuadrado), redonda, en U, en V, en A o en diagonal. */
   var FORMA_Y = { recta: function () { return 0; }, redondeada: function (d) { return 0.5 * d * d; }, u: function (d) { return 1.05 * Math.pow(d, 1.6); }, v: function (d) { return 0.9 * d; },
-    a: function (d) { return -0.5 * d; }, diag_delante: function (d) { return -0.6 * d; }, diag_atras: function (d) { return 0.6 * d; } };
+    a: function (d) { return -0.5 * d; }, diag_delante: function (d) { return -0.6 * d; }, diag_atras: function (d) { return 0.6 * d; },
+    semi_v: function (d) { return 0.45 * d; }, semi_redonda: function (d) { return 0.25 * d * d; }, semi_cuadrada: function (d) { var e = Math.max(0, (d - 0.7) / 0.3); return 0.33 * e * e; } };
   function lineaDe(R) {
     if (FORMA_Y[R.linea]) return R.linea;
     var n = ' ' + String(R.n || '').toLowerCase() + ' ';
@@ -1022,7 +1028,7 @@
       tr = tr.concat(lineas(tramos(v, function (u) { return [ph0, 0.14 + u * 1.2]; }, 30), [0, 0.03], '#2C6FD1', 1.4, { d: 1 }));
     });
     if (!R.liso) tr.push(rotulo('Secciones verticales: el mechón se lleva a su elevación y se corta', '#2C6FD1', 0.02));
-    var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
+    var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás', semi_v: 'en semi-V', semi_redonda: 'semirredonda', semi_cuadrada: 'semicuadrada' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'de lado' : 'de frente') + ' · forma ' + NOM[lin], TINTA, 0),
       rotulo((lat ? 'Capas del lateral: ' : 'Capas: ') + pila.slice(0, n).map(function (g, k) { return (k + 1) + ' · ' + g + '°'; }).join('   '), TINTA, 0.93));
     return { v: v, tr: tr, banda: true, dur: Math.max(24000, totM * MS) };
@@ -1172,7 +1178,7 @@
       tr.push(rotulo('Todo a 0°: cada línea, más larga que la de abajo', TINTA, 0.8));
     }
     if (tipsL.length > 2) { tipsL.sort(function (p, q) { return p[0] - q[0]; }); tr.push(tijera(plano(tipsL), [0.5, 0.68], CORTE, false, { x: 0.7 }), linea(plano(seguida(tipsL)), [0.68, 0.8], ROJO, 6)); }   /* 26-10-2026 (Fátima): una línea roja que resalte la forma del flequillo de lado */
-    var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
+    var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás', semi_v: 'en semi-V', semi_redonda: 'semirredonda', semi_cuadrada: 'semicuadrada' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'lateral' : 'de frente') + ' · forma ' + NOM[lin], TINTA, 0),
       rotulo('Antes', '#8E847A', 0.02, { x: 0.3 }), rotulo('Se corta siguiendo la línea', CORTE, 0.3, { x: 0.5 }), rotulo('Después', VERDE, 0.5));
     if (frente && R.fleco === 'lado') tr.push(rotulo('Flequillo de lado: se saca en triángulo, más abajo de los ojos, y se peina de lado', TINTA, 0.5));
@@ -1586,8 +1592,8 @@
     if (cero) lat = 'El lateral, delante de la división de oreja a oreja. ' + (recto0 ? 'Corte recto: secciones horizontales.' : 'Secciones verticales.') + ' Cada mechón se baja a 0 grados hasta la línea de la guía, a un dedo, y se corta en esa misma línea.';
     if (cero && R.nivelar) fr = 'De frente no se saca otra guía: el cabello se peina desde la raya hacia los lados, se baja a 0 grados y se empareja con la línea que quedó atrás. ' +
       (R.fleco === 'pollina' ? 'La pollina se separa delante y se corta al ras de la ceja o un poquito más abajo, nunca más arriba. ' : R.fleco === 'lado' ? 'El flequillo de lado se saca más abajo de los ojos, colocándolo en triángulo, cortando en triángulo, y se peina de lado, sin dejar huecos. ' : 'Es un corte sin pollina: delante queda el mismo largo que atrás. ') +
-      (recto0 ? 'Es un corte recto: se corta en horizontal, en esa misma línea.' : 'Se corta siguiendo la línea ' + ({ redondeada: 'redondeada', u: 'en U', v: 'en V', a: 'en A' }[lineaDe(R)] || '') + ', en vertical.');
-    else if (cero) fr = 'De frente, la guía se saca ' + A.n + ' y se corta a un dedo. Todo va a 0 grados: cada mechón se baja hasta la línea de la guía y se corta en esa misma línea. ' + (recto0 ? 'Es un corte recto: las secciones van en horizontal y el corte se hace recto.' : 'No es un corte recto: las secciones van en vertical y el corte sigue la línea ' + ({ redondeada: 'redondeada', u: 'en U', v: 'en V', a: 'en A' }[lineaDe(R)] || '') + '.') + ' ' + txt(R.frente.texto);
+      (recto0 ? 'Es un corte recto: se corta en horizontal, en esa misma línea.' : 'Se corta siguiendo la línea ' + ({ redondeada: 'redondeada', u: 'en U', v: 'en V', a: 'en A', semi_v: 'en semi-V', semi_redonda: 'semirredonda', semi_cuadrada: 'semicuadrada' }[lineaDe(R)] || '') + ', en vertical.');
+    else if (cero) fr = 'De frente, la guía se saca ' + A.n + ' y se corta a un dedo. Todo va a 0 grados: cada mechón se baja hasta la línea de la guía y se corta en esa misma línea. ' + (recto0 ? 'Es un corte recto: las secciones van en horizontal y el corte se hace recto.' : 'No es un corte recto: las secciones van en vertical y el corte sigue la línea ' + ({ redondeada: 'redondeada', u: 'en U', v: 'en V', a: 'en A', semi_v: 'en semi-V', semi_redonda: 'semirredonda', semi_cuadrada: 'semicuadrada' }[lineaDe(R)] || '') + '.') + ' ' + txt(R.frente.texto);
     /* 30-10-2026 (Fátima: «emparejas con el que quedó atrás»): con capas también se nivela delante con atrás; el título y la voz dicen lo mismo que el dibujo */
     else if (R.nivelar) fr = 'De frente no se saca una guía a una altura fija: el cabello se peina desde la raya hacia los lados, la línea que quedó atrás es la base y cada línea se corta a su elevación: ' +
       (R.frente.pila.length ? R.frente.pila : pila).slice(0, 6).map(function (g, k) { return (k ? 'línea ' + (k + 1) : 'la del centro') + ' a ' + g + ' grados'; }).join(', ') + '. ' +
@@ -1661,7 +1667,7 @@
       qs.push({ e: 'Con estas elevaciones (' + pila.join(' · ') + '°), ¿qué forma resulta en ' + R.n.toLowerCase() + '?', o: ops, c: ops.indexOf(calc.forma), x: 'Largos calculados: ' + calc.largos.map(function (x) { return CC.fmt(x); }).join(' · ') + ' cm.' });
     }
     /* Fátima, 10-10-2026: el resultado del corte, dando la vuelta a la cabeza */
-    var nomQ = { recta: 'recta, en cuadrado', redondeada: 'en forma redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'en diagonal hacia delante', diag_atras: 'en diagonal hacia atrás' }[lineaDe(R)];
+    var nomQ = { recta: 'recta, en cuadrado', redondeada: 'en forma redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'en diagonal hacia delante', diag_atras: 'en diagonal hacia atrás', semi_v: 'en semi-V', semi_redonda: 'en forma semirredonda', semi_cuadrada: 'en semicuadrado' }[lineaDe(R)];
     [['nuca', 'atrás', 'Damos la vuelta a la cabeza para ver cómo queda el corte. Por detrás: antes, el cabello largo; la tijera sigue la línea ' + nomQ + '; después, el corte terminado.'],
      ['lateral', 'lateral', 'Ahora de lado: así cae el cabello cortado y así se ve la línea ' + nomQ + ' de perfil.'],
      ['frente', 'de frente', 'Y de frente: el cabello enmarca el rostro y se ve la forma final del corte.']].forEach(function (q, iq) {
