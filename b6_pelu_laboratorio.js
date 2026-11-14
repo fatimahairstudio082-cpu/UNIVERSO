@@ -56,7 +56,7 @@
     var cab = h('div', 'display:flex;align-items:center;gap:10px;margin-bottom:8px'); cab.appendChild(h('b', 'font-size:17px;flex:1', '🧪 Laboratorio de cortes · geometría calculada'));
     var x = h('button', EST.b, '✕ Cerrar'); x.onclick = cerrar; cab.appendChild(x); caja.appendChild(cab);
     if (!CC) { caja.appendChild(h('div', '', 'La calculadora capilar no está cargada.')); return; }
-    caja.appendChild(h('div', 'color:#a5a5c8;margin-bottom:8px', 'Pon los rangos: el laboratorio arma cortes con esas cifras, calcula los cm de cada capa con la curva de la cabeza (' + (CC.medidas().estandar ? 'maniquí estándar, a validar' : 'medidas de la clienta') + ') y dice qué forma sale. Los nombres de forma van a validar.'));
+    caja.appendChild(h('div', 'color:#a5a5c8;margin-bottom:8px', 'Pon los rangos: el laboratorio arma cortes con esas cifras, calcula los cm de cada capa con la curva de la cabeza (' + (CC.medidas().estandar ? 'maniquí estándar' : 'medidas de la clienta') + ') y dice qué forma sale. Los nombres de forma van a validar.'));
     var f = h('div', 'display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:10px');
     function campo(et, nodo) { var l = h('label', 'display:inline-flex;gap:6px;align-items:center'); l.appendChild(h('span', 'color:#a5a5c8', et)); l.appendChild(nodo); f.appendChild(l); return nodo; }
     function num(v) { var i = h('input', EST.in); i.value = v; return i; }

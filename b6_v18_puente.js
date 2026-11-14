@@ -7,7 +7,7 @@
 (function () {
   'use strict';
   var MOTORES = ['b6_cerebro.js', 'b6_divisiones.js', 'b6_cortes.js', 'b6_pelu_geometria.js', 'b6_pelu_calculo.js', 'b6_pelu_diagrama.js'];
-  var LINEA = { recta: 'recto', redondeada: 'redondo', u: 'u', v: 'v', semi_v: 'semiv', semi_redonda: 'semiredondo', semi_cuadrada: 'semicuadrado' };           /* línea de atrás del motor → contorno del V18 */
+  var LINEA = { recta: 'recto', redondeada: 'redondo', u: 'u', v: 'v', semi_v: 'semiv', semi_u: 'semiu', semi_redonda: 'semiredondo', semi_cuadrada: 'semicuadrado' };           /* línea de atrás del motor → contorno del V18 */
   var LARGO = { hombro: 0.26 };                                                      /* solo lo que el corte dice y el V18 ya nombra («Hombros») */
   var SECC = ['Nuca central', 'Posterior izquierdo', 'Posterior derecho', 'Lateral izquierdo', 'Lateral derecho'];
   var R = null, activo = false, IDR = '';
@@ -40,7 +40,7 @@
     var pa = r.capas.pila, pf = r.frente && r.frente.pila ? r.frente.pila : pa;
     return '<b>' + esc(r.n) + '</b><br>' +
       'Cabello: ' + esc(r.liso ? 'liso extremo' : r.cab) + ' · corte ' + (vertical(r) ? '<b>en vertical</b>' : '<b>en horizontal</b>') + '<br>' +
-      'Línea de atrás: ' + esc({ recta: 'recta (cuadrado)', redondeada: 'redondeada', u: 'en U', v: 'en V', semi_v: 'en semi-V · a validar', semi_redonda: 'semirredonda · a validar', semi_cuadrada: 'semicuadrada · a validar' }[r.linea] || r.linea) + ' · partición: ' + esc(r.capas.part) + '<br>' +
+      'Línea de atrás: ' + esc({ recta: 'recta (cuadrado)', redondeada: 'redondeada', u: 'en U', v: 'en V', semi_v: 'en semi-V', semi_redonda: 'semirredonda', semi_cuadrada: 'semicuadrada', semi_u: 'en semi-U' }[r.linea] || r.linea) + ' · partición: ' + esc(r.capas.part) + '<br>' +
       'Atrás Z0→Z6: <b>' + pa.map(function (v) { return v + '°'; }).join(' · ') + '</b><br>' +
       'Frente Z0→Z6: <b>' + pf.map(function (v) { return v + '°'; }).join(' · ') + '</b>';
   }
@@ -85,6 +85,7 @@
       var cam = window.Maniqui.controls && window.Maniqui.controls.object; if (!CAPA || !cam || !window.THREE || !CAPA.tij) return;   /* Maniqui.camera es la función de vistas; la cámara está en controls.object */
       var st = $('stage'), v = new window.THREE.Vector3(), h = new window.THREE.Vector3(); window.Maniqui.joints.head.getWorldPosition(h); h.project(cam);
       if (CAPA.tij.visible) { CAPA.tij.getWorldPosition(v); v.project(cam); CAPA.relIzq = v.x > h.x; }
+      var chico = st.clientWidth < 520; d.style.transform = chico ? 'scale(.68)' : ''; d.style.transformOrigin = CAPA.relIzq ? 'top left' : 'top right';   /* en el teléfono, más pequeño */
       var izq = !!CAPA.relIzq; d.style.top = izq ? '96px' : '16px'; d.style.left = izq ? '16px' : 'auto'; d.style.right = izq ? 'auto' : '16px';
     } catch (e) { }
   }
@@ -328,17 +329,19 @@
     var sp = new T3.Sprite(new T3.SpriteMaterial({ map: new T3.CanvasTexture(cv), transparent: true })); sp.scale.set(0.058, 0.022, 1); sp.renderOrder = 12; return sp;   /* con profundidad: el número de un mechón de atrás no se ve a través del cuerpo */
   }
   function numeritos() {
+    /* 14-11-2026 (Fátima: «si ya se cortó en esa área, tienen que aparecer las líneas cortadas con su etiquetica»): la etiqueta de
+       cada mechón cortado se queda en todas las capas y en el resultado; cada capa va un poco más afuera para que no se pisen */
     var C = CAPA; if (!T3) return;
     if (!C.nums) { C.nums = new T3.Group(); C.nums.name = 'Numeración de mechones'; C.H.group.add(C.nums); C.numK = {}; }
-    var cur = Math.floor(C.T), p = C.T - cur, fin = cur >= totalPasos(), K = fin ? -1 : Math.floor((cur - 1) / C.J), quiero = {};
-    if (cur >= 1 && !fin) C.ms.forEach(function (m) { var st = pasoDe(K, m); if (st < cur || (st === cur && p > 0.78)) quiero[K + '_' + m] = m; });
+    var cur = Math.floor(C.T), p = C.T - cur, quiero = {};
+    if (cur >= 1) for (var k = 0; k < C.n; k++) C.ms.forEach(function (m) { var st = pasoDe(k, m); if (st < cur || (st === cur && p > 0.78)) quiero[k + '_' + m] = [k, m]; });
     Object.keys(C.numK).forEach(function (id) { if (!(id in quiero)) { C.nums.remove(C.numK[id]); C.numK[id].material.map.dispose(); C.numK[id].material.dispose(); delete C.numK[id]; } });
     Object.keys(quiero).forEach(function (id) {
-      var m = quiero[id], gr = C.grp[id]; if (!gr || !gr.length) return;
-      var atr = C.atras(m), pila = atr ? C.pB : C.pF, g = pila[Math.min(pila.length - 1, K)] || 0;
+      var k = quiero[id][0], m = quiero[id][1], gr = C.grp[id]; if (!gr || !gr.length) return;
+      var atr = C.atras(m), pila = atr ? C.pB : C.pF, g = pila[Math.min(pila.length - 1, k)] || 0;
       if (!C.numK[id]) { C.numK[id] = chapa((C.pos[m] + 1) + ' · ' + g + '°'); C.nums.add(C.numK[id]); }
       var r = gr[Math.floor(gr.length / 2)], q = C.H.path(r, Math.max(0.3, r.stop == null ? 1 : r.stop)), n = new T3.Vector3(q.x, 0, q.z); if (n.lengthSq() < 1e-6) n.set(0, 0, -1); n.normalize();
-      C.numK[id].position.set(q.x + n.x * 0.03, q.y - 0.022, q.z + n.z * 0.03);          /* debajo y por fuera de la punta: no pisa tijera ni corte */
+      var f = 0.03 + 0.016 * k; C.numK[id].position.set(q.x + n.x * f, q.y - 0.022, q.z + n.z * f);          /* debajo y por fuera de la punta: no pisa tijera ni corte */
     });
   }
   /* 10-11-2026 (Fátima: «que cuando corte, caiga el cabello»): las puntas que corta la tijera caen desde el punto de corte y
@@ -368,7 +371,7 @@
       var l = new T3.Line(new T3.BufferGeometry().setFromPoints([new T3.Vector3(RX, q.y, -0.2), new T3.Vector3(RX + len, q.y, -0.2)]), mat); l.renderOrder = 10; l.frustumCulled = false; g.add(l);
       if (n % 4 === 0) {
         var cv = document.createElement('canvas'); cv.width = 96; cv.height = 48; var cx = cv.getContext('2d'); cx.fillStyle = '#e9d9c4'; cx.font = 'bold 34px sans-serif'; cx.textBaseline = 'middle'; cx.fillText(n + '″', 4, 26);
-        var sp = new T3.Sprite(new T3.SpriteMaterial({ map: new T3.CanvasTexture(cv), transparent: true, depthTest: false })); sp.scale.set(0.09, 0.045, 1); sp.position.set(RX + len + 0.05, q.y, -0.2); sp.renderOrder = 11; g.add(sp);
+        var sp = new T3.Sprite(new T3.SpriteMaterial({ map: new T3.CanvasTexture(cv), transparent: true, depthTest: false })); sp.scale.set(0.05, 0.025, 1); sp.position.set(RX + len + 0.03, q.y, -0.2);   /* números de la regla más pequeños: con el encuadre nuevo salían enormes */ sp.renderOrder = 11; g.add(sp);
       }
     }
     var eje = new T3.Line(new T3.BufferGeometry().setFromPoints([new T3.Vector3(RX, H.path(r, 0.38).y, -0.2), new T3.Vector3(RX, H.path(r, 1).y, -0.2)]), mat); eje.renderOrder = 10; eje.frustumCulled = false; g.add(eje);
@@ -662,7 +665,7 @@
         '<label for="eg3dCorte">Corte del motor (' + L.length + ')</label><select id="eg3dCorte">' +
         ord.map(function (f) { return '<optgroup label="' + esc(nom[f] || f) + '">' + fam[f].map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.n) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select>' +
         '<div style="font-size:11px;letter-spacing:.2em;color:#a3abbd;margin:12px 0 6px">O ARMA EL CORTE · FORMA + ELEVACIONES</div>' +
-        '<div class="grid"><select id="eg3dForma" aria-label="Forma del corte"><option value="">— usar el corte de arriba —</option><option value="v">En V</option><option value="semi_v">Semi-V</option><option value="recta">Cuadrado</option><option value="semi_cuadrada">Semicuadrado</option><option value="redondeada">Redondo</option><option value="semi_redonda">Semirredondo</option><option value="u">En U</option></select>' +
+        '<div class="grid"><select id="eg3dForma" aria-label="Forma del corte"><option value="">— usar el corte de arriba —</option><option value="v">En V</option><option value="semi_v">Semi-V</option><option value="recta">Cuadrado</option><option value="semi_cuadrada">Semicuadrado</option><option value="redondeada">Redondo</option><option value="semi_redonda">Semirredondo</option><option value="u">En U</option><option value="semi_u">Semi-U</option></select>' +
         '<select id="eg3dTipo" aria-label="Tipo de corte"><option value="capas">En capas</option><option value="recto">Recto · todo a 0°</option></select></div>' +
         '<div class="row" style="margin-top:8px;align-items:center"><label for="eg3dElev" style="flex:none">Elevación de cada capa (0–225°)</label><input type="text" id="eg3dElev" inputmode="decimal" placeholder="de la nuca hacia arriba, con comas"></div>' +
         '<div id="eg3dFicha" class="note" style="margin:10px 0;line-height:1.55"></div>' +
