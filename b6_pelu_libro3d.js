@@ -59,12 +59,15 @@
     var nc = 'el corte «' + d.c.n + '»';
     var p0 = d.g.pasos[0], fin = d.g.pasos[d.g.pasos.length - 1], m = mx(fin.elevB || d.t.elev), ops = ['horizontal', 'vertical', 'diagonal hacia atrás'];
     var p0p = part(p0.particionB); if (ops.indexOf(p0p) < 0) ops[2] = p0p;
-    var alt = [0, 45, 90, 135, 180].filter(function (x) { return x !== m; }).slice(0, 2).concat([m]).sort(function (a, b) { return a - b; });
+    /* 15-11-2026 (Fátima): opciones sacadas de los cortes reales del sistema (elevación máxima y herramienta de otros cortes), sin máquina */
+    var CO = window.EU_CORTES, otrosMx = [], otrasH = [];
+    (CO ? CO.lista() : []).forEach(function (c) { if (c.id === d.c.id) return; var t = CO.tecnica(c.id) || {}, v = mx(t.elev || [0]); if (v !== m && otrosMx.indexOf(v) < 0) otrosMx.push(v); if (t.her && t.her !== d.t.her && !/m[aá]quina/i.test(t.her) && otrasH.indexOf(t.her) < 0) otrasH.push(t.her); });
+    var alt = (otrosMx.length >= 2 ? otrosMx : [0, 45, 90, 135, 180].filter(function (x) { return x !== m; })).slice(0, 2).concat([m]).sort(function (a, b) { return a - b; });
     return [
       { e: '¿Qué partición se usa en el primer paso de ' + nc + '?', o: ops.map(function (x) { return 'Partición ' + x; }), c: ops.indexOf(p0p) },
       { e: '¿A qué elevación máxima llega ' + nc + '?', o: alt.map(function (x) { return x + '°'; }), c: alt.indexOf(m) },
-      { e: '¿Con qué herramienta se corta ' + nc + '?', o: [d.t.her, d.t.her === 'Navaja' ? 'Tijera' : 'Navaja', 'Maquinilla con peine 0'].filter(function (x, i, a) { return a.indexOf(x) === i; }), c: 0 }
-    ].map(function (q, i) { var g = i % q.o.length, o = q.o.slice(g).concat(q.o.slice(0, g)); return { e: q.e, o: o, c: o.indexOf(q.o[q.c]) }; });
+      { e: '¿Con qué herramienta se corta ' + nc + '?', o: [d.t.her].concat(otrasH.slice(0, 2)).filter(function (x, i, a) { return x && a.indexOf(x) === i; }), c: 0 }
+    ].filter(function (q) { return q.o.length >= 2 && q.c >= 0; }).map(function (q, i) { var g = i % q.o.length, o = q.o.slice(g).concat(q.o.slice(0, g)); return { e: q.e, o: o, c: o.indexOf(q.o[q.c]) }; });
   }
 
   var SCRIPT = '<script>(function(){if(window.__g3dLibro)return;window.__g3dLibro=1;var V=null,act=null;' +

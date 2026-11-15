@@ -13,6 +13,7 @@
   var ED = window.EU_EDITORIAL, CU = window.EU_CURRICULO;
   if (!ED || !CU || window.EU_MATES_PLUS) return;
   var H = ED.H, it = H.it, ent = H.ent, pick = H.pick;
+  var ORD_PELU = typeof WeakMap === 'function' ? new WeakMap() : { get: function () { return null; }, set: function () { } };   /* libro (C) → unidades de Peluquería que ya tienen su «Ordena los pasos» */
   function r2(n) { return Math.round(n * 100) / 100; }
   function r4(n) { return Math.round(n * 10000) / 10000; }
   function nm(n, C) { return H.num(r2(n), C); }
@@ -364,7 +365,10 @@
     /* ─────────── proceso genérico (unidades sin generador propio) ─────────── */
     proc_orden: function (u, C, r) {
       var f = u.f, pasos = f && (f.t === 'flujo' || f.t === 'ciclo') && f.p ? f.p.filter(Boolean) : null, v = r();
-      if (pasos && pasos.length >= 3 && v < 0.45) {
+      /* 15-11-2026 (Fátima, Peluquería): «Ordena los pasos» una sola vez por técnica en cada libro (salía cientos de veces) */
+      var pelu = u.m === 'pelu', yaOrd = pelu && ORD_PELU.get(C) && ORD_PELU.get(C)[u.id];
+      if (pasos && pasos.length >= 3 && v < 0.45 && !yaOrd) {
+        if (pelu) { var mo = ORD_PELU.get(C) || {}; mo[u.id] = 1; ORD_PELU.set(C, mo); }
         var ps = pasos.slice(0, 6).map(function (p) { return H.sub(p, C); }), LT = 'ABCDEF', mez = H.mezcla(r, ps.map(function (p, i) { return i; }));
         var enun = 'Ordena los pasos de «' + H.sub(u.t, C) + '»:<div style="display:flex;flex-wrap:wrap;gap:1mm 5mm;margin-top:1mm">' + mez.map(function (i, j) { return '<span><b>' + LT.charAt(j) + '</b>) ' + H.esc(ps[i]) + '</span>'; }).join('') + '</div>';
         var sol = ps.map(function (p, i) { return LT.charAt(mez.indexOf(i)); }).join(' → ');
@@ -377,6 +381,8 @@
         var s = pick(r, ideas || ['']), k = ks.filter(function (w) { return w.length > 3 && s && s.toLowerCase().indexOf(w.toLowerCase()) >= 0; })[0];
         if (k) { var i0 = s.toLowerCase().indexOf(k.toLowerCase()); return it('corta', 'Completa: ' + H.esc(s.slice(0, i0)) + '<span style="display:inline-block;min-width:26mm;border-bottom:1px solid currentColor">&#160;</span>' + H.esc(s.slice(i0 + k.length)), s.substr(i0, k.length), { ac: ac(s.substr(i0, k.length)), x: s }); }
       }
+      /* Peluquería: sin la plantilla genérica; una pregunta del repaso de su unidad (contenido de Fátima) */
+      if (pelu && (u.rep || []).length) { var q2 = pick(r, u.rep); return it('mc', q2.p, 'abc'.charAt(q2.c) + ') ' + q2.o[q2.c], { o: q2.o, c: q2.c, x: q2.x }); }
       return it('abierta', 'Explica con tus palabras y un ejemplo: «' + H.sub(u.t, C) + '».', ideas.slice(0, 2).join(' '), { lin: 3 });
     }
   };
