@@ -578,13 +578,13 @@
       if (c.camino) { pl = []; c.camino.forEach(function (Q) { var vx = Q[0] - c.raiz[0], vy = Q[1] - c.raiz[1]; pl.push(r1(q[0] + px * (vx * bx)), r1(q[1] + px * (vx * by - vy))); }); if (tips[0]) { pl[pl.length - 2] = tips[0][0]; pl[pl.length - 1] = tips[0][1]; } }
       tips.push(pl ? [pl[pl.length - 2], pl[pl.length - 1]] : [r1(q[0] + sx * l), r1(q[1] + sy * l)]);
       /* 8-11-2026 (Fátima, regla 7): en cortes rectos sin elevación cada línea se corta con la misma guía: todas muestran los cm de la guía */
-      var cmL = calc.capas.slice(0, z + 1).every(function (cc) { return !+cc.ang; }) ? calc.capas[0].largo : c.largo;   /* 15-11-2026: también las líneas a 0° bajo la primera elevación */
+      var cmL = calc.capas.every(function (cc) { return !+cc.ang; }) ? calc.capas[0].largo : c.largo;
       var tz = { k: 'i', x: q[0], y: q[1], dx: r1(sx * 1000) / 1000, dy: r1(sy * 1000) / 1000, l: r1(l), g: c.ang, e: c.escuadra, cm: EU_CALCULO_CAPILAR.fmt(cmL) + ' cm', cpx: r1(px), cc: bx > 0 ? 1 : 0, t: [ta, ta + d * 0.55], c: COL[z % 7], x2: z < n - 1 ? tb + 0.02 : 0 };
       if (pl) tz.pl = pl; tr.push(tz);
       /* como en el frente y el lateral: una línea cada vez; la tijera corta solo la punta (1 o 2 dedos) y aparece su número */
       var tp = tips[z], ext = z < n - 1 ? { x: tb } : {};
       tr.push(tijera(plano([[tp[0] + sy * 16, tp[1] - sx * 16], [tp[0] - sy * 16, tp[1] + sx * 16]]), [ta + d * 0.6, tb], CORTE, R.desg));
-      tr.push({ k: 'n', x: tp[0] + 30, y: tp[1] + 26, s: EU_CALCULO_CAPILAR.fmt(c.ang) + '°', ley: 'Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + EU_CALCULO_CAPILAR.fmt(cmL) + ' cm', c: z ? CORTE : VERDE, t: [ta + d * 0.6, 1], x2: z < n - 1 ? tb : 0 });
+      tr.push({ k: 'n', x: tp[0] + 30, y: tp[1] + 26, s: EU_CALCULO_CAPILAR.fmt(c.ang) + '°', ley: 'Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + EU_CALCULO_CAPILAR.fmt(cmL) + ' cm', c: z ? CORTE : VERDE, t: [ta + d * 0.6, 1] });
       tr.push(rotulo('Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + (z && c.guia === 'fija' ? 'se lleva a la guía (línea 1) y se empareja' : (z ? 'guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) + ' · se corta 1 o 2 dedos' : 'guía · ' + (+c.ang ? 'se corta 1 o 2 dedos' : 'a un dedo'))), COL[z % 7], ta, ext));
     });
     tr.push(rotulo('Forma: ' + calc.forma + (rev() ? ' (a validar)' : ''), CORTE, 0.93));
@@ -833,18 +833,10 @@
   /* 25-10-2026 · cuánto más arriba termina cada capa respecto a la guía, peinada en su caída natural: el cabello baja por el cráneo
      hasta la nuca y desde ahí cuelga (b = ángulo de la raíz en el perfil, largo en cm, de EU_CALCULO_CAPILAR); el maniquí tiene el
      radio de la cabeza como unidad. null si todo va a 0° o no hay calculadora. */
-  /* 15-11-2026 (Fátima: «elevación, posición y centímetros son cosas distintas; en cortes sin elevación con guía móvil cada línea se
-     corta a los mismos cm donde se sacó la primera guía»): si el corte no trae sus guías, las líneas a 0° que van debajo de cualquier
-     elevación se llevan a la primera guía (fija) y desde la primera línea elevada la guía es móvil */
-  function guiasDe(R, pl) {
-    if (R.guias && R.guias.length) return R.guias;
-    var g = [], i = 0; while (i < pl.length && !+pl[i]) { g.push('f'); i++; }
-    return i >= pl.length ? ['f'] : g.concat(['m']);
-  }
   function difCapas(pl, R) {
     var CC = window.EU_CALCULO_CAPILAR; if (!CC || !CC.calcular || !(pl || []).some(function (g) { return +g > 0; })) return null;
     var med = CC.medidas ? medDe(R) : null, cq = null;
-    try { cq = CC.calcular({ capas: pl, guias: guiasDe(R, pl), ref: R.ref }, med); } catch (e) { cq = null; }
+    try { cq = CC.calcular({ capas: pl, guias: R.guias, ref: R.ref }, med); } catch (e) { cq = null; }
     var cs = cq && cq.capas || []; if (cs.length < 2) return null;
     var Rc = med ? med.contorno / (2 * Math.PI) : 8.9, b0 = cs[0].b;
     function fin(c) { var arco = Rc * Math.max(0, b0 - c.b); return c.largo <= arco ? Rc * Math.cos(c.b + c.largo / Rc) : Rc * Math.cos(b0) - (c.largo - arco); }
@@ -1141,7 +1133,7 @@
     /* capas: cada mechón elevado deja su largo más arriba (calculado con EU_CALCULO_CAPILAR); se marca dónde termina, de la nuca a la coronilla */
     var pilaQ = (R.capas && R.capas.pila) || [];
     if (!frente && CC && CC.calcular && pilaQ.some(function (g) { return g > 0; })) {
-      var cq = null; try { cq = CC.calcular({ capas: pilaQ, guias: guiasDe(R, pilaQ), ref: R.ref }, medQ); } catch (e) { cq = null; }
+      var cq = null; try { cq = CC.calcular({ capas: pilaQ, guias: R.guias, ref: R.ref }, medQ); } catch (e) { cq = null; }
       var Rcm = medQ ? medQ.contorno / (2 * Math.PI) : 8.9, capQ = cq && cq.capas || [], p0y = capQ.length ? capQ[0].punta[1] : 0, yTop = P(NUCA, 0.12).y;
       var hechas = [];
       capQ.forEach(function (c, i) {
@@ -1329,7 +1321,7 @@
       var th = frente ? 0.16 + z * (0.7 / n) : thCapa(z, n), tips = [], fuerte = null, phF = null, mejor = 9, cortes = [], raices = [];
       for (var ph = -Math.PI; ph < Math.PI; ph += frente ? 0.06 : 0.055) {
         if (!dentro(ph) || !seVe(v, ph, th)) continue;
-        var a = P(ph, th, 1.04), yf = Math.min(a.y - 0.06, yFin(z, ph)), aG = !g && z ? P(ph, frente ? 0.16 : thCapa(0, n), 1.04) : a, cae = V3(aG.x * 1.03, yf, aG.z * 1.03);   /* 15-11-2026: a 0° la punta cae donde cae la guía (misma línea) */
+        var a = P(ph, th, 1.04), yf = Math.min(a.y - 0.06, yFin(z, ph)), aG = cero && z ? P(ph, frente ? 0.16 : thCapa(0, n), 1.04) : a, cae = V3(aG.x * 1.03, yf, aG.z * 1.03);   /* 15-11-2026: corte recto todo a 0° (guía fija): la punta cae donde cae la guía (misma línea) */
         /* de frente, el cabello se peina por encima del cráneo hasta el borde y de ahí cae */
         var raiz = [pr(v, a)];
         if (frente) { for (var t2 = th + 0.08; t2 <= 1.28; t2 += 0.08) { if (!seVe(v, ph, t2)) break; var q2 = P(ph, t2, 1.05); if (q2.y < yf) break; raiz.push(pr(v, q2)); } }
@@ -1633,7 +1625,7 @@
     /* 30-10-2026 (Fátima: «a 0 grados se nivela y de esa misma forma se corta»): todo a 0° → guía fija aunque el corte vaya al punto
        (Lob, Bob asimétrico, Flequillo desfilado, Blunt salían con guía móvil y cada línea 1 o 2 dedos más larga: parecían en capas) */
     var todo0 = pila.concat(R.frente.pila || [], (R.lateral && R.lateral.pila) || []).every(function (g) { return !g; });
-    try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias && R.guias.length ? R.guias : cero || todo0 ? ['f'] : guiasDe(R, pila), ref: R.ref }, medDe(R)) : null; } catch (e) { calc = null; }
+    try { calc = CC ? CC.calcular({ capas: pila, guias: R.guias && R.guias.length ? R.guias : cero || todo0 ? ['f'] : R.guias, ref: R.ref }, medDe(R)) : null; } catch (e) { calc = null; }
     var ic = L.map(function (e) { return e.tipo; }).indexOf('capas') + 1;
     if (R.coronilla) {
       L.splice(ic++, 0, { tipo: 'coronilla', vista: 'cenit', t: 'Coronilla · triángulo', texto: 'La coronilla se corta en un triángulo pequeño: la base hacia delante, sin tocar los laterales de la frente, y el vértice en la coronilla, con secciones oblicuas. Cada mechón se eleva a ' + R.coronilla.g + ' grados.', a: escCoronilla(R) });
@@ -1715,7 +1707,7 @@
     }
     var ry = by + 16, cola = [], relojes = [];
     (A.tr || []).forEach(function (T) {
-      if (RW && T.k === 'n') { if (p >= T.t[0]) lista.push(T); if (!('x2' in T)) return; }   /* 15-11-2026 (Fátima): lo cortado sin etiquetas encima (va a la lista del lado); el número pequeñito del mechón que se corta sí, y se quita al pasar al siguiente (x2) */
+      if (RW && T.k === 'n') { if (p >= T.t[0]) lista.push(T); return; }   /* 15-11-2026 (Fátima): ninguna etiqueta sobre el cabello: van a la lista del lado */
       if (p < T.t[0] || (T.k !== 'n' && T.x && p > T.x) || (T.k === 'n' && T.x2 && p > T.x2)) return;   /* en la chapa «n», x es la posición: se quita con x2 */
       var u = tr(T.t);
       x.strokeStyle = T.c; x.fillStyle = T.c; x.lineWidth = (T.w || 3) * Math.max(0.6, s * 1.4); x.lineCap = 'round'; x.lineJoin = 'round'; x.setLineDash(T.d ? [8, 6] : []);
@@ -1906,7 +1898,7 @@
     var extra = [];
     A.lado = 1;
     tr.forEach(function (T) {
-      if (T.k !== 'n' || (A.lado && !('x2' in T))) return;   /* 15-11-2026: solo el número pequeñito temporal (x2) se coloca al lado del mechón; lo demás va a la lista (pinta) */
+      if (T.k !== 'n' || A.lado) return;   /* 15-11-2026: en las escenas de corte los números van a la lista del lado (pinta) */
       T.sm = 1;   /* en las escenas de corte, círculo pequeñito */
       var hw = medio(T), hh = 7, v = vida(T), pel = !!T.p, x0 = T.x, y0 = Math.max(c[1] + 15, Math.min(c[1] + c[3] - 15, T.y)), sitio = null;
       if (libre(x0, y0, hw, hh, v, pel)) sitio = [x0, y0];
@@ -1949,7 +1941,7 @@
     A.tr.forEach(function (T) {
       if (T.k === 'm' && T.f) T.f.forEach(function (f) { cabe(f[0], f[1]); cabe(f[2], f[3]); });
       else if ((T.k === 'l' || T.k === 's') && T.p) for (var j = 0; j < T.p.length; j += 2) cabe(T.p[j], T.p[j + 1]);
-      else if (T.k === 'n' && (!A.lado || 'x2' in T)) { var hw = medio(T); cabe(T.x - hw, T.y - 7); cabe(T.x + hw, T.y + 7); }
+      else if (T.k === 'n' && !A.lado) { var hw = medio(T); cabe(T.x - hw, T.y - 7); cabe(T.x + hw, T.y + 7); }
       else if (T.k === 'i') { cabe(T.x, T.y); cabe(T.x + T.dx * T.l, T.y + T.dy * T.l); cabe(T.x + T.dx * (T.l + 40), T.y + T.dy * (T.l + 40)); if (T.pl) for (var k = 0; k < T.pl.length; k += 2) cabe(T.pl[k], T.pl[k + 1]); }
     });
     var M = 24; x1 = Math.max(c[0] - 320, x1 - M); y1 = Math.max(c[1] - 320, y1 - M); x2 = Math.min(c[0] + c[2] + 320, x2 + M); y2 = Math.min(c[1] + c[3] + 320, y2 + M);
