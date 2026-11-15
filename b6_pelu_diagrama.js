@@ -1684,15 +1684,28 @@
     if (!A) return false;
     /* A.banda (18-10-2026, Fátima: «los textos de arriba no dejan ver el maniquí»): los rótulos van en una franja propia arriba y el maniquí debajo, sin taparlo */
     var nE = (A.tr || []).filter(function (T) { return T.k === 'e' && !T.x; }).length + ((A.tr || []).some(function (T) { return T.k === 'e' && T.x; }) ? 1 : 0), bnd = A.banda || nE >= 4 ? Math.min(bh * 0.45, 16 + 32 * nE) : 0;
-    var c = A.crop || [0, 0, 1280, 720], s = Math.min(bw / c[2], (bh - bnd) / c[3]), ox = bx + (bw - c[2] * s) / 2 - c[0] * s, oy = by + bnd + (bh - bnd - c[3] * s) / 2 - c[1] * s;
+    /* 15-11-2026 (Fátima: «el reloj siempre en cada visualización, pero no pegado al maniquí ni al corte»): en las escenas de corte
+       (A.lado, lo pone encaje) el reloj/transportador va en su propia columna a la derecha y el maniquí se dibuja a su izquierda */
+    var RW = A.lado && (A.tr || []).some(function (T) { return T.k === 'r'; }) ? Math.min(bw * 0.2, 180) : 0, bwI = bw - RW;
+    var c = A.crop || [0, 0, 1280, 720], s = Math.min(bwI / c[2], (bh - bnd) / c[3]), ox = bx + (bwI - c[2] * s) / 2 - c[0] * s, oy = by + bnd + (bh - bnd - c[3] * s) / 2 - c[1] * s;
     x.save(); x.beginPath(); x.rect(bx, by, bw, bh); x.clip();
     x.fillStyle = A.bg || '#E6EAF1'; x.fillRect(bx, by, bw, bh);
+    if (RW) { x.restore(); x.save(); x.beginPath(); x.rect(bx, by, bwI, bh); x.clip(); }   /* el maniquí y el corte no entran en la columna del reloj */
     if (im && im.complete && im.naturalWidth) x.drawImage(im, ox, oy, 1280 * s, 720 * s);
     function tr(t) { return Math.max(0, Math.min(1, (p - t[0]) / Math.max(1e-6, t[1] - t[0]))); }
     function su(u) { return u * u * (3 - 2 * u); }
     function camino(q, n) { x.beginPath(); x.moveTo(ox + q[0] * s, oy + q[1] * s); for (var i = 2; i < n; i += 2) x.lineTo(ox + q[i] * s, oy + q[i + 1] * s); }
     function parcial(q, u) { return Math.max(4, Math.round(q.length / 2 * u) * 2); }
-    var ry = by + 16, cola = [];
+    /* reloj/transportador de elevación (con RW, en su columna; se pinta al final, fuera del recorte del maniquí) */
+    function reloj(T, u) {
+      x.setLineDash([]); var R = RW ? Math.max(24, Math.min(62, bh * 0.16, (RW - 64) / 2)) : Math.min(62, bh * 0.16), cx = RW ? bx + bw - RW / 2 : bx + bw - R - 46, cy = by + bh * 0.42, g = T.g[0] + (T.g[1] - T.g[0]) * su(u);
+      x.strokeStyle = '#9A8F84'; x.lineWidth = 1.5; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2 - 1.25 * Math.PI, Math.PI / 2, false); x.stroke();
+      x.fillStyle = '#6B625A'; x.font = '600 11px system-ui,sans-serif'; x.textAlign = 'center';
+      [0, 45, 90, 135, 180, 225].forEach(function (k) { var ex = -Math.sin(k * Math.PI / 180), ey = Math.cos(k * Math.PI / 180); x.beginPath(); x.moveTo(cx + ex * R * 0.88, cy + ey * R * 0.88); x.lineTo(cx + ex * R, cy + ey * R); x.stroke(); x.fillText(k + '°', cx + ex * (R + 17), cy + ey * (R + 13) + 4); });
+      x.strokeStyle = T.c; x.lineWidth = 4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - Math.sin(g * Math.PI / 180) * R, cy + Math.cos(g * Math.PI / 180) * R); x.stroke();
+      x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.fillText(Math.round(g) + '°', cx, cy - R - 30); x.fillStyle = '#1F1B18'; var fz = 12; x.font = '600 12px system-ui,sans-serif'; if (RW) while (fz > 8 && x.measureText(T.s || '').width > RW - 10) { fz -= 0.5; x.font = '600 ' + fz + 'px system-ui,sans-serif'; } x.fillText(T.s, cx, cy + R + 32); x.textAlign = 'left';
+    }
+    var ry = by + 16, cola = [], relojes = [];
     (A.tr || []).forEach(function (T) {
       if (p < T.t[0] || (T.k !== 'n' && T.x && p > T.x) || (T.k === 'n' && T.x2 && p > T.x2)) return;   /* en la chapa «n», x es la posición: se quita con x2 */
       var u = tr(T.t);
@@ -1729,7 +1742,7 @@
         x.lineWidth = 1.2; x.strokeStyle = '#1F1B18'; var cmp = (T.cpx || 10) * 2 * s;
         for (var dd = cmp; dd < ll * s; dd += cmp) { var mx2 = qx + T.dx * dd, my2 = qy + T.dy * dd; x.beginPath(); x.moveTo(mx2 - T.dy * 5, my2 + T.dx * 5); x.lineTo(mx2 + T.dy * 5, my2 - T.dx * 5); x.stroke(); }
         x.font = '700 13px system-ui,sans-serif'; x.textAlign = 'center'; x.fillStyle = T.c; if (act) x.fillText(Math.round(T.g * 10) / 10 + '°', qx + Math.cos(aD + sg * tot / 2) * (rr + 16), qy + Math.sin(aD + sg * tot / 2) * (rr + 16) + 4);
-        if (uu >= 1) { x.fillStyle = 'rgba(255,255,255,.92)'; var tw2 = x.measureText(T.cm).width + 10; x.fillRect(ex - tw2 / 2, ey - 22, tw2, 18); x.fillStyle = '#1F1B18'; x.fillText(T.cm, ex, ey - 8); }
+        if (uu >= 1 && !T.cmUno) { x.fillStyle = 'rgba(255,255,255,.92)'; var tw2 = x.measureText(T.cm).width + 10, eb = ey + (T.by || 0) * s; if (T.by) { x.strokeStyle = 'rgba(31,27,24,.45)'; x.lineWidth = 1; x.beginPath(); x.moveTo(ex, ey); x.lineTo(ex, eb - 4); x.stroke(); } x.fillRect(ex - tw2 / 2, eb - 22, tw2, 18); x.fillStyle = '#1F1B18'; x.fillText(T.cm, ex, eb - 8); }
         x.textAlign = 'left';
         if (act && T.e && uu > 0.3) { x.font = '600 12px system-ui,sans-serif'; x.fillStyle = '#2C6FD1'; x.fillText(T.e, qx + (T.cc ? -rr - 8 - x.measureText(T.e).width : rr + 10), qy - rr * 0.35); }
       }
@@ -1791,14 +1804,7 @@
         x.strokeStyle = T.c; x.lineWidth = 3.5; x.beginPath(); x.moveTo(kx, ky); x.lineTo(kx + Math.cos(ac) * Rc * 0.78, ky + Math.sin(ac) * Rc * 0.78); x.stroke();
         x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(Math.round((T.m || 0) * su(u)) + ' min', kx, ky - Rc - 14); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(T.s || 'Exposición', kx, ky + Rc + 20); x.textAlign = 'left';
       }
-      else if (T.k === 'r') {
-        x.setLineDash([]); var R = Math.min(62, bh * 0.16), cx = bx + bw - R - 46, cy = by + bh * 0.42, g = T.g[0] + (T.g[1] - T.g[0]) * su(u);
-        x.strokeStyle = '#9A8F84'; x.lineWidth = 1.5; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2 - 1.25 * Math.PI, Math.PI / 2, false); x.stroke();
-        x.fillStyle = '#6B625A'; x.font = '600 11px system-ui,sans-serif'; x.textAlign = 'center';
-        [0, 45, 90, 135, 180, 225].forEach(function (k) { var ex = -Math.sin(k * Math.PI / 180), ey = Math.cos(k * Math.PI / 180); x.beginPath(); x.moveTo(cx + ex * R * 0.88, cy + ey * R * 0.88); x.lineTo(cx + ex * R, cy + ey * R); x.stroke(); x.fillText(k + '°', cx + ex * (R + 17), cy + ey * (R + 13) + 4); });
-        x.strokeStyle = T.c; x.lineWidth = 4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - Math.sin(g * Math.PI / 180) * R, cy + Math.cos(g * Math.PI / 180) * R); x.stroke();
-        x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.fillText(Math.round(g) + '°', cx, cy - R - 30); x.fillStyle = '#1F1B18'; x.font = '600 12px system-ui,sans-serif'; x.fillText(T.s, cx, cy + R + 32); x.textAlign = 'left';
-      }
+      else if (T.k === 'r') { if (RW) relojes.push([T, u]); else reloj(T, u); }
     });
     /* la tijera va encima de todo: recorre la línea de corte y, si se desgrafila, deja cortes en punta */
     cola.forEach(function (o) {
@@ -1813,7 +1819,9 @@
       [1, -1].forEach(function (sg) { x.save(); x.rotate(sg * ab); x.beginPath(); x.moveTo(-12, 0); x.lineTo(30, 0); x.stroke(); x.beginPath(); x.arc(-20, 0, 7, 0, 7); x.stroke(); x.restore(); });
       x.beginPath(); x.arc(0, 0, 2.5, 0, 7); x.fill(); x.restore();
     });
-    x.restore(); return true;
+    x.restore();
+    if (relojes.length) { x.save(); x.beginPath(); x.rect(bx + bwI, by, RW, bh); x.clip(); x.fillStyle = 'rgba(255,255,255,.6)'; x.fillRect(bx + bwI, by + bnd, RW, bh - bnd); relojes.forEach(function (o) { reloj(o[0], o[1]); }); x.restore(); }
+    return true;
   }
 
   /* Escenas listas para pintar: { R, escenas:[{…, anim:{crop,bg,tr}, fondo:dataURL}], preguntas, fondos } */
@@ -1835,11 +1843,26 @@
       if (T.k === 'm' && T.f && T.f.length) { var f = T.f[T.f.length - 1]; seg(f[0], f[1], f[2], f[3], vida(T)); }
       else if ((T.k === 'l' || T.k === 's') && T.p) for (var j = 2; j < T.p.length; j += 2) seg(T.p[j - 2], T.p[j - 1], T.p[j], T.p[j + 1], vida(T));   /* la tijera y la línea de corte también son corte: ningún número encima */
     });
+    /* 15-11-2026 (Fátima: «las etiquetas no pueden quitar la visualización»): el cuadro «N cm» de cada instrumento se separa
+       del de los otros mechones (con una línea fina a su punta) y cuenta como zona ocupada para los números */
+    var cajas = [];
+    tr.forEach(function (T) {
+      if (T.k !== 'i' || !T.cm) return;
+      var ex = T.pl && T.pl.length ? T.pl[T.pl.length - 2] : T.x + T.dx * T.l, ey = T.pl && T.pl.length ? T.pl[T.pl.length - 1] : T.y + T.dy * T.l;
+      var w = String(T.cm).length * 13 + 20, h = 34, by = 0;
+      /* mismo largo en la misma punta (todo a 0°): basta un cuadro; los demás no se repiten encima */
+      if (cajas.some(function (o) { return o[3] === String(T.cm) && Math.abs(o[0] - ex) < 40 && Math.abs(o[4] - ey) < 40; })) { T.cmUno = 1; return; }
+      for (var it = 0; it < 30 && cajas.some(function (o) { return Math.abs(o[0] - ex) < (o[2] + w) / 2 + 6 && Math.abs(o[1] - (ey + by)) < h + 4; }); it++) by = (it % 2 ? 1 : -1) * Math.ceil((it + 1) / 2) * 38;
+      if (by) T.by = by;
+      cajas.push([ex, ey + by, w, String(T.cm), ey]);
+      var vi = [T.t[1] || T.t[0], 1];
+      for (var dx = -w / 2; dx <= w / 2; dx += 8) { poner(ex + dx, ey + by - 30, vi); poner(ex + dx, ey + by - 15, vi); poner(ex + dx, ey + by, vi); }
+    });
     /* la cabeza y la cara de esta vista también son zona prohibida para las chapas («nunca encima del cabello ni de la cabeza»);
        la silueta es la misma en todos los cortes: se calcula una vez por vista */
     var cab = vk && CAM[vk] ? (CABEZA[vk] || (CABEZA[vk] = (function () { var g = {}; for (var ph = -Math.PI; ph < Math.PI; ph += 0.06) for (var th = 0; th <= 2.4; th += 0.06) { if (seVe(vk, ph, th)) { var q = pr(vk, P(ph, th)), k = Math.floor(q[0] / CEL) + ',' + Math.floor(q[1] / CEL); (g[k] = g[k] || []).push([q[0], q[1], [0, 1]]); } } return g; })())) : {};
     function medio(T) { return T.s && String(T.s).length > 2 ? String(T.s).length * 2.9 + 5 : 7; }   /* círculos pequeñitos (pinta, T.sm) */
-    var HOL = 8;   /* aire alrededor de cada número */
+    var HOL = 13;   /* aire alrededor de cada número (15-11-2026: 8 → 13, que no quede pegado al cabello ni a la línea de corte) */
     var puestas = [];
     function libre(x, y, hw, hh, v, pel) {
       if (y - hh < c[1] + 4 || y + hh > c[1] + c[3] - 4 || x - hw < c[0] - 290 || x + hw > c[0] + c[2] + 290) return false;   /* dentro del lienzo ampliado (máx. 320) */
@@ -1860,6 +1883,12 @@
         var sg = (x0 < cx ? -1 : 1) * (lado ? -1 : 1);
         for (var d = 1; d <= 70 && !sitio; d++) for (var o = 0; o < 7 && !sitio; o++) { var x = x0 + sg * d * 10, y = y0 + [0, -12, 12, -24, 24, -36, 36][o]; if (libre(x, y, hw, hh, v, pel)) sitio = [x, y]; }
       }
+      /* 15-11-2026 (Fátima: «las etiquetas a un lado, donde no peguen con el maniquí ni con el cabello»): si no hay hueco cerca,
+         el número va al margen de su lado, fuera del cabello, con su línea fina; nunca se queda encima */
+      for (var lm = 0; lm < 2 && !sitio; lm++) {
+        var sgm = (x0 < cx ? -1 : 1) * (lm ? -1 : 1), xm = sgm < 0 ? c[0] - 290 + hw + 2 : c[0] + c[2] + 290 - hw - 2;
+        for (var om = 0; om < 40 && !sitio; om++) { var ym = y0 + (om % 2 ? 1 : -1) * Math.ceil(om / 2) * 16; if (ym - 7 < c[1] + 4 || ym + 7 > c[1] + c[3] - 4) continue; if (libre(xm, ym, hw, hh, v, pel)) sitio = [xm, ym]; }
+      }
       if (!sitio) { puestas.push([x0, y0, hw, v]); return; }
       if (sitio[0] !== T.x || sitio[1] !== T.y) {
         var sg2 = sitio[0] >= T.x ? -1 : 1, guia = { k: 'l', p: [T.x, T.y, r1(sitio[0] + sg2 * hw), sitio[1]], t: [T.t[0], T.t[0] + 0.001], c: T.c, w: 1.1 };
@@ -1867,6 +1896,8 @@
       }
       puestas.push([T.x, T.y, hw, v]);
     });
+    /* 15-11-2026: en las escenas de corte los rótulos van en la franja de arriba (no encima del maniquí) y el reloj en su columna (pinta) */
+    A.lado = 1; if (tr.some(function (T) { return T.k === 'e'; })) A.banda = 1;
     /* las líneas finas van antes y las chapas al final: ninguna línea tapa un número */
     A.tr = extra.concat(tr.filter(function (T) { return T.k !== 'n'; }), tr.filter(function (T) { return T.k === 'n'; }));
     /* el recorte: lo justo para que quepa todo lo que se dibuja (máximo 320 de margen por lado) */
