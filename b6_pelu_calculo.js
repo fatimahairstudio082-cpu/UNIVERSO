@@ -109,7 +109,7 @@
     else if (sube) forma = 'graduación · escalonado (peso abajo)';
     else if (baja) forma = 'capas en aumento (más cortas arriba)';
     else forma = 'forma combinada';
-    var texto = capas.map(function (c) { return 'Capa ' + (c.i + 1) + ' a ' + fmt(c.ang) + '°' + (c.i ? ' con guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) : ' (guía)') + ': ' + fmt(c.largo) + ' cm'; }).join('. ') + '. Forma resultante: ' + forma + ' (a validar).';
+    var texto = capas.map(function (c) { return 'Capa ' + (c.i + 1) + ' a ' + fmt(c.ang) + '°' + (c.i ? ' con guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) : ' (guía)') + ': ' + fmt(c.largo) + ' cm'; }).join('. ') + '. Forma resultante: ' + forma + ((function () { try { return localStorage.getItem('eu_revision') === 'si'; } catch (e) { return false; } })() ? ' (a validar).' : '.');   /* la nota solo en modo revisión de Fátima: el alumno no la ve */
     return { medidas: m, R: R, ref: ref, capas: capas, largos: Ls, dif: dif, forma: forma, texto: texto };
   }
 

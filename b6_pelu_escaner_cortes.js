@@ -10,6 +10,8 @@
      Al guardarlo pasa a HAY y entra solo en el libro y en el curso.
    No pone ninguna elevación por su cuenta. Lo abre el botón que añade b6_guias_3d_diagrama.js. */
 (function () {
+  /* modo revisión de Fátima (localStorage eu_revision = 'si'): las notas «a validar» solo las ve ella; el alumno nunca */
+  function REVISION() { try { return localStorage.getItem('eu_revision') === 'si'; } catch (e) { return false; } }
   'use strict';
   if (window.EU_ESCANER_CORTES) return;
 
@@ -49,8 +51,8 @@
       hay.push({ k: 'catalogo', id: c.id, n: c.n, fam: fams[c.fam] || c.fam, atras: t.elev || [], delante: t.elevF || [], tec: [t.tipo, t.dir, t.her].filter(Boolean).join(' · '), cab: (c.mejor || [])[0] || '' });
     });
     ((GC && GC.mios()) || []).forEach(function (o) { hay.push({ k: 'mio', n: o.n, fam: 'Mis cortes', atras: o.capas || [], delante: (o.frente && o.frente.length ? o.frente : o.capas) || [], tec: [o.part, o.acabado].filter(Boolean).join(' · '), o: o }); });
-    var CC = window.EU_CATALOGO_CORTES; if (CC) CC.lista().forEach(function (c) { hay.push({ k: 'tecnica', n: c.n, fam: 'Catálogo · ' + CC.familia(c.fam).n + ' · a validar por Fátima', atras: c.capas, delante: c.frente || c.capas, tec: c.texto, o: c }); });
-    ((GC && GC.TECNICAS) || []).forEach(function (t) { if (bas.indexOf(t) >= 0) return; hay.push({ k: 'tecnica', n: t.n, fam: t.validar ? 'Técnica · a validar por Fátima' : 'Técnica', atras: t.capas, delante: t.frente || t.capas, tec: t.texto, o: t }); });
+    var CC = window.EU_CATALOGO_CORTES; if (CC) CC.lista().forEach(function (c) { hay.push({ k: 'tecnica', n: c.n, fam: 'Catálogo · ' + CC.familia(c.fam).n + (REVISION() ? ' · a validar por Fátima' : ''), atras: c.capas, delante: c.frente || c.capas, tec: c.texto, o: c }); });
+    ((GC && GC.TECNICAS) || []).forEach(function (t) { if (bas.indexOf(t) >= 0) return; hay.push({ k: 'tecnica', n: t.n, fam: t.validar && REVISION() ? 'Técnica · a validar por Fátima' : 'Técnica', atras: t.capas, delante: t.frente || t.capas, tec: t.texto, o: t }); });
     return hay;
   }
   function escanear(lista) {
@@ -102,9 +104,9 @@
       caja.appendChild(ta); caja.appendChild(gl);
 
       /* FALTA */
-      var nueva = function (n, sugerencia) { return { n: n, capas: [], frente: [], part: 'vertical', altura: 'nariz', linea: '', acabado: 'recto', texto: (sugerencia ? 'Sugerencia (a validar por Fátima). ' : '') + 'Escribe la elevación de cada capa, de la nuca hacia arriba, y pulsa «▶ Ver mi corte».' }; };
+      var nueva = function (n, sugerencia) { return { n: n, capas: [], frente: [], part: 'vertical', altura: 'nariz', linea: '', acabado: 'recto', texto: (sugerencia && REVISION() ? 'Sugerencia (a validar por Fátima). ' : '') + 'Escribe la elevación de cada capa, de la nuca hacia arriba, y pulsa «▶ Ver mi corte».' }; };
       var bloque = function (titulo, filas) { if (!filas.length) return; caja.appendChild(h('b', 'display:block;margin:10px 0 4px;color:#fbbf24', titulo)); var g = h('div', 'display:grid;gap:4px'); filas.forEach(function (f) { g.appendChild(f); }); caja.appendChild(g); };
-      var filaFalta = function (n, sug) { var f = h('div', 'display:flex;gap:8px;align-items:center;background:#1e1e3c;border-radius:8px;padding:6px 10px'); f.appendChild(h('span', 'flex:1', n + (sug ? '  · sugerencia, a validar' : ''))); var b = h('button', EST.b, '✏️ Construir'); b.onclick = function () { construir(nueva(n, sug)); }; f.appendChild(b); return f; };
+      var filaFalta = function (n, sug) { var f = h('div', 'display:flex;gap:8px;align-items:center;background:#1e1e3c;border-radius:8px;padding:6px 10px'); f.appendChild(h('span', 'flex:1', n + (sug ? (REVISION() ? '  · sugerencia, a validar' : '  · sugerencia') : ''))); var b = h('button', EST.b, '✏️ Construir'); b.onclick = function () { construir(nueva(n, sug)); }; f.appendChild(b); return f; };
       bloque('FALTA · de mi lista (' + R.faltan.length + ')', R.faltan.map(function (s) { return filaFalta(s.n, false); }));
       if (R.lista.length && !R.faltan.length) caja.appendChild(h('div', 'margin:6px 0;color:#86efac', 'Todos los cortes de tu lista están en el sistema.'));
       bloque('Sugerencias · nombres habituales que no están en el catálogo (' + R.sugerencias.length + ')', R.sugerencias.map(function (n) { return filaFalta(n, true); }));
