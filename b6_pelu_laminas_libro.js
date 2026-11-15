@@ -178,9 +178,11 @@
     if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || ((cfg.acab || {}).laminasLibro === 'no')) return res;
     var quit = {}, k = {};
     res.pages.forEach(function (p, i) {
-      if (!p.u || !GEN_PG.test(p.tipo) || !(/^(pe_u_c_|cb_)/.test(p.u.id) || (p.tipo === 'ejemplo' && /^pe_u_/.test(p.u.id)))) return;   /* 19-10-2026: «Cerca de ti» inventado («Daniela vive en…») también fuera de cortes y técnicas */
+      if (!p.u || !GEN_PG.test(p.tipo) || !/^(pe_u_|cb_)/.test(p.u.id)) return;   /* 15-11-2026 (Fátima: «fuera todo lo inventado y lo genérico»): también las lecturas de las unidades de fundamentos («concurso en Zaragoza», «pregunta a una persona mayor») */   /* 19-10-2026: «Cerca de ti» inventado («Daniela vive en…») también fuera de cortes y técnicas */
       k[p.u.id] = (k[p.u.id] || 0);
-      res.pages[i] = { tipo: 'pe_salon', u: p.u, n: p.n, num: p.num, ks: k[p.u.id]++, fill2: { nada: 1 }, indice: p.indice };
+      /* 15-11-2026 (Fátima: «en vez de dibuja aquí, que el alumno suba su práctica del corte realizado con el maniquí»): la hoja «Cerca de ti» de cada unidad de corte o de técnica es «Mi práctica en el maniquí» */
+      var prac = p.tipo === 'ejemplo' && /^(pe_u_c_|cb_)/.test(p.u.id) && !p.u.regalo && (cfg.acab || {}).practica !== 'no';
+      res.pages[i] = { tipo: prac ? 'pe_practica' : 'pe_salon', u: p.u, n: p.n, num: p.num, ks: prac ? 0 : k[p.u.id]++, fill2: { nada: 1 }, indice: p.indice };
       quit[p.num] = 1;
     });
     res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return !quit[e.p]; }); });
@@ -231,11 +233,34 @@
       '<div style="font-size:.85em;opacity:.75;margin-top:1mm">Respuesta: ' + es((q.o || [])[q.c] || '') + (q.x ? ' · ' + es(q.x) : '') + '</div></div>';
     return H.cabecera(C, pg) + cab + cuerpo + H.folio(C, pg);
   }
+  /* «Mi práctica en el maniquí»: lo que el alumno practica son los cortes (o la técnica) de SU unidad, viendo la clase.
+     Solo nombres y resultados de la ficha de Fátima; el resto es texto fijo de la hoja. La foto no sale del dispositivo. */
+  function practica(pg, C, modo) {
+    var H = window.EU_EDITORIAL.H, T = C.T, u = pg.u, web = modo === 'web', corte = /^pe_u_c_/.test(u.id), L = [];
+    if (corte && window.EU_CORTES) (window.EU_CORTES.lista(u.id.slice(7)) || []).forEach(function (c) { var t = {}; try { t = window.EU_CORTES.tecnica(c.id) || {}; } catch (e) { } L.push([c.n, t.resultado || c.d || '']); });
+    else {   /* técnica: los pasos de su receta, con su título, para marcar */
+      var ps = window.EU_PELU_TESTS && window.EU_PELU_TESTS.pasosDe ? window.EU_PELU_TESTS.pasosDe(u.id.slice(3)) : [];
+      ps.forEach(function (p2, i2) { L.push([(i2 + 1) + ' · ' + p2.t, '']); });
+      if (!L.length) L.push([u.t, '']);
+    }
+    var alto = Math.max(44, Math.min(92, 150 - L.length * 9));
+    var caja = 'border:0.4mm dashed ' + T.acc + ';border-radius:' + Math.min(T.r || 4, 6) + 'px;height:' + alto + 'mm;display:flex;align-items:center;justify-content:center;text-align:center;color:' + T.acc + ';font-weight:700;overflow:hidden;position:relative';
+    var cab = '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 2mm">Mi práctica en el maniquí</div>';
+    var cuerpo = H.h1(C, H.esc(u.t)) +
+      '<p style="margin:0 0 2.5mm">Practica en tu maniquí viendo la clase. Pausa la animación en cada paso, haz ese paso en el maniquí y sigue. Marca lo que ya has practicado.</p>' +
+      L.map(function (x) { return '<div style="display:flex;gap:2.5mm;align-items:flex-start;margin:0 0 1.6mm"><span style="flex:0 0 4.2mm;height:4.2mm;border:0.35mm solid ' + T.acc + ';border-radius:1mm;margin-top:.6mm;display:inline-block">' + (web ? '<input type="checkbox" style="width:100%;height:100%;margin:0;opacity:.9">' : '') + '</span><span><b>' + es(x[0]) + '</b>' + (x[1] ? ' · ' + es(x[1]) : '') + '</span></div>'; }).join('') +
+      '<div style="font-family:' + T.tit + ';font-weight:700;color:' + T.acc + ';margin:3mm 0 1.5mm">La foto de mi práctica</div>' +
+      (web
+        ? '<div style="' + caja + '"><img alt="Mi práctica" style="display:none;max-width:100%;max-height:100%;object-fit:contain"><label style="cursor:pointer;padding:3mm 5mm;border-radius:99px;background:' + T.soft + '">📷 Subir mi práctica<input type="file" accept="image/*" style="display:none" onchange="var f=this.files&&this.files[0],c=this.parentNode.parentNode,i=c.querySelector(\'img\');if(f){var r=new FileReader();r.onload=function(){i.src=r.result;i.style.display=\'block\';c.querySelector(\'label\').style.cssText=\'position:absolute;right:2mm;bottom:2mm;cursor:pointer;padding:1.5mm 3mm;border-radius:99px;font-size:.8em;background:#fff\'};r.readAsDataURL(f)}"></label></div><div style="font-size:.82em;opacity:.75;margin-top:1.2mm">La foto se queda en tu dispositivo: no se envía a ningún sitio.</div>'
+        : '<div style="' + caja + '">Pega aquí la foto de tu práctica</div>') +
+      (corte ? '<p style="margin:2.5mm 0 0">Compara tu foto con «Cómo queda» de la clase: la línea de atrás, los laterales y el frente.</p>' : '');
+    return H.cabecera(C, pg) + cab + cuerpo + H.folio(C, pg);
+  }
   (function engancharSalon(n) {
     var ED = window.EU_EDITORIAL;
     if (!ED || !ED.registrar || !(ED.__enc || n > 80)) return setTimeout(function () { engancharSalon(n + 1); }, 300);
     if (ED.__peluSalon) return; ED.__peluSalon = 1;
-    ED.registrar({ paginas: { pe_salon: salon } });
+    ED.registrar({ paginas: { pe_salon: salon, pe_practica: practica } });
     var ens = ED.ensamblar;
     ED.ensamblar = function (cfg) { var r = ens.apply(this, arguments); try { salonCambiar(r, cfg); } catch (e) { console.warn('pelu · en el salón', e); } return r; };
   })(0);
