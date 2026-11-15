@@ -481,15 +481,11 @@
 
   var CACHE_GEN = {};
   function generico(u, C, r) {
-    var clave = u.id + ':' + C.pk + ':' + C.peque + (soloExt(C) ? ':x' : '');
+    var clave = u.id + ':' + C.pk + ':' + C.peque;
     if (!CACHE_GEN[clave]) CACHE_GEN[clave] = genericoBase(u, C);
     return mezcla(r, CACHE_GEN[clave]).map(function (x) { return Object.assign({}, x); });
   }
-  /* 15-11-2026 (Fátima: «tests de mi experiencia real; fuera lo genérico»): una materia puede dar TODAS sus preguntas
-     (QUIZ_EXT con `solo`); entonces no se usa la plantilla ni se rellena con ella. Hoy solo Peluquería. */
-  function soloExt(C) { var f = QUIZ_EXT[C.mat]; return !!(f && f.solo && f.solo(C)); }
   function genericoBase(u, C) {
-    if (soloExt(C)) { var px = []; try { px = QUIZ_EXT[C.mat](u, C, rng(hash(u.id + ':base')), 80) || []; } catch (e) { px = []; } if (px.length) return px; }
     var pool = [];
     (u.vf || []).forEach(function (v) { pool.push(it('vf', sub(v[0], C), v[1] ? 'V' : 'F')); });
     (u.rep || []).forEach(function (q) { pool.push(it('mc', q.p, 'abc'.charAt(q.c) + ') ' + q.o[q.c], { o: q.o, c: q.c, x: q.x })); });
@@ -516,7 +512,7 @@
   }
 
   function ejercicios(u, C, r, n) {
-    var g = soloExt(C) ? null : GEN[u.g], out = [], gen = generico(u, C, r), gi = 0;   /* con banco propio (Peluquería) no se usan los generadores de plantilla */
+    var g = GEN[u.g], out = [], gen = generico(u, C, r), gi = 0;
     for (var i = 0; i < n; i++) {
       if (g && (r() < 0.72 || !gen.length)) { var gx = g(u, C, r); gx.e = sub(gx.e, C); out.push(gx); }
       else if (gen.length && !(u.m === 'pelu' && gi >= gen.length)) out.push(gen[gi++ % gen.length]);
@@ -1312,7 +1308,7 @@
     var r = rng(hash(u.id + ':quiz') + (semilla || 1) * 977);
     var pool = [];
     if (QUIZ_EXT[C.mat]) pool = QUIZ_EXT[C.mat](u, C, r, n * 2) || [];
-    if (pool.length < n && !soloExt(C)) pool = pool.concat(ejercicios(u, C, r, n * 4).filter(function (x) {
+    if (pool.length < n) pool = pool.concat(ejercicios(u, C, r, n * 4).filter(function (x) {
       return x.tipo === 'vf' || x.tipo === 'mc' || (x.tipo === 'corta' && x.s && String(x.s).length < 40);
     }));
     var vistos = {}, out = [];
