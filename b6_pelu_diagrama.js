@@ -584,7 +584,7 @@
       /* como en el frente y el lateral: una línea cada vez; la tijera corta solo la punta (1 o 2 dedos) y aparece su número */
       var tp = tips[z], ext = z < n - 1 ? { x: tb } : {};
       tr.push(tijera(plano([[tp[0] + sy * 16, tp[1] - sx * 16], [tp[0] - sy * 16, tp[1] + sx * 16]]), [ta + d * 0.6, tb], CORTE, R.desg));
-      tr.push({ k: 'n', x: tp[0] + 30, y: tp[1] + 26, s: EU_CALCULO_CAPILAR.fmt(c.ang) + '°', ley: 'Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + EU_CALCULO_CAPILAR.fmt(cmL) + ' cm', c: z ? CORTE : VERDE, t: [ta + d * 0.6, 1] });
+      tr.push({ k: 'n', x: tp[0] + 30, y: tp[1] + 26, s: EU_CALCULO_CAPILAR.fmt(c.ang) + '°', ley: 'Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + EU_CALCULO_CAPILAR.fmt(cmL) + ' cm', c: z ? CORTE : VERDE, t: [ta + d * 0.6, 1], x2: z < n - 1 ? tb : 0 });
       tr.push(rotulo('Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + (z && c.guia === 'fija' ? 'se lleva a la guía (línea 1) y se empareja' : (z ? 'guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) + ' · se corta 1 o 2 dedos' : 'guía · ' + (+c.ang ? 'se corta 1 o 2 dedos' : 'a un dedo'))), COL[z % 7], ta, ext));
     });
     tr.push(rotulo('Forma: ' + calc.forma + (rev() ? ' (a validar)' : ''), CORTE, 0.93));
@@ -1715,7 +1715,7 @@
     }
     var ry = by + 16, cola = [], relojes = [];
     (A.tr || []).forEach(function (T) {
-      if (RW && T.k === 'n') { if (p >= T.t[0]) lista.push(T); return; }   /* 15-11-2026 (Fátima): ninguna etiqueta sobre el cabello: van a la lista del lado */
+      if (RW && T.k === 'n') { if (p >= T.t[0]) lista.push(T); if (!('x2' in T)) return; }   /* 15-11-2026 (Fátima): lo cortado sin etiquetas encima (va a la lista del lado); el número pequeñito del mechón que se corta sí, y se quita al pasar al siguiente (x2) */
       if (p < T.t[0] || (T.k !== 'n' && T.x && p > T.x) || (T.k === 'n' && T.x2 && p > T.x2)) return;   /* en la chapa «n», x es la posición: se quita con x2 */
       var u = tr(T.t);
       x.strokeStyle = T.c; x.fillStyle = T.c; x.lineWidth = (T.w || 3) * Math.max(0.6, s * 1.4); x.lineCap = 'round'; x.lineJoin = 'round'; x.setLineDash(T.d ? [8, 6] : []);
@@ -1906,7 +1906,7 @@
     var extra = [];
     A.lado = 1;
     tr.forEach(function (T) {
-      if (T.k !== 'n' || A.lado) return;   /* 15-11-2026: en las escenas de corte los números van a la lista del lado (pinta) */
+      if (T.k !== 'n' || (A.lado && !('x2' in T))) return;   /* 15-11-2026: solo el número pequeñito temporal (x2) se coloca al lado del mechón; lo demás va a la lista (pinta) */
       T.sm = 1;   /* en las escenas de corte, círculo pequeñito */
       var hw = medio(T), hh = 7, v = vida(T), pel = !!T.p, x0 = T.x, y0 = Math.max(c[1] + 15, Math.min(c[1] + c[3] - 15, T.y)), sitio = null;
       if (libre(x0, y0, hw, hh, v, pel)) sitio = [x0, y0];
@@ -1929,6 +1929,18 @@
     });
     /* 15-11-2026: en las escenas de corte los rótulos van en la franja de arriba (no encima del maniquí) y el reloj en su columna (pinta) */
     A.lado = 1; if (tr.some(function (T) { return T.k === 'e'; })) A.banda = 1;
+    /* 15-11-2026 (Fátima: «el reloj del transportador en cada escena del corte, al lado»): si la escena no trae reloj, uno por cada
+       línea o mechón con grados (los de su número), visible hasta que empieza el siguiente; si lo trae, el último se queda hasta el final */
+    var rel = A.tr.filter(function (T) { return T.k === 'r'; });
+    if (!rel.length) {
+      var conG = A.tr.filter(function (T) { return T.k === 'n' && /(\d+(?:[.,]\d+)?)°/.test(T.ley || T.s || ''); }).sort(function (a, b) { return a.t[0] - b.t[0]; });
+      conG.forEach(function (T, i) {
+        if (i && conG[i - 1].t[0] === T.t[0]) return;   /* dos líneas que empiezan a la vez (izquierda y derecha): un solo reloj */
+        var g = parseFloat(String(T.ley || T.s).match(/(\d+(?:[.,]\d+)?)°/)[1].replace(',', '.')), r = { k: 'r', g: [g, g], s: T.ley || T.s, c: T.c, t: [T.t[0], T.t[0] + 0.02] };
+        for (var j = i + 1; j < conG.length; j++) if (conG[j].t[0] > T.t[0]) { r.x = conG[j].t[0]; break; }
+        A.tr.push(r);
+      });
+    } else { var ultR = rel.reduce(function (a, b) { return b.t[0] >= a.t[0] ? b : a; }); delete ultR.x; }
     /* las líneas finas van antes y las chapas al final: ninguna línea tapa un número */
     A.tr = extra.concat(tr.filter(function (T) { return T.k !== 'n'; }), tr.filter(function (T) { return T.k === 'n'; }));
     /* el recorte: lo justo para que quepa todo lo que se dibuja (máximo 320 de margen por lado) */
@@ -1937,7 +1949,7 @@
     A.tr.forEach(function (T) {
       if (T.k === 'm' && T.f) T.f.forEach(function (f) { cabe(f[0], f[1]); cabe(f[2], f[3]); });
       else if ((T.k === 'l' || T.k === 's') && T.p) for (var j = 0; j < T.p.length; j += 2) cabe(T.p[j], T.p[j + 1]);
-      else if (T.k === 'n' && !A.lado) { var hw = medio(T); cabe(T.x - hw, T.y - 7); cabe(T.x + hw, T.y + 7); }
+      else if (T.k === 'n' && (!A.lado || 'x2' in T)) { var hw = medio(T); cabe(T.x - hw, T.y - 7); cabe(T.x + hw, T.y + 7); }
       else if (T.k === 'i') { cabe(T.x, T.y); cabe(T.x + T.dx * T.l, T.y + T.dy * T.l); cabe(T.x + T.dx * (T.l + 40), T.y + T.dy * (T.l + 40)); if (T.pl) for (var k = 0; k < T.pl.length; k += 2) cabe(T.pl[k], T.pl[k + 1]); }
     });
     var M = 24; x1 = Math.max(c[0] - 320, x1 - M); y1 = Math.max(c[1] - 320, y1 - M); x2 = Math.min(c[0] + c[2] + 320, x2 + M); y2 = Math.min(c[1] + c[3] + 320, y2 + M);
