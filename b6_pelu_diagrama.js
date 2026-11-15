@@ -588,7 +588,7 @@
       tr.push(rotulo('Línea ' + (z + 1) + ' · ' + EU_CALCULO_CAPILAR.fmt(c.ang) + '° · ' + (z && c.guia === 'fija' ? 'se lleva a la guía (línea 1) y se empareja' : (z ? 'guía ' + (c.guia === 'movil' ? 'móvil' : c.guia) + ' · se corta 1 o 2 dedos' : 'guía · ' + (+c.ang ? 'se corta 1 o 2 dedos' : 'a un dedo'))), COL[z % 7], ta, ext));
     });
     tr.push(rotulo('Forma: ' + calc.forma + (rev() ? ' (a validar)' : ''), CORTE, 0.93));
-    return { v: v, tr: tr };
+    return { v: v, tr: tr, propia: 1 };   /* 15-11-2026 (Fátima): «Ángulos y largos» (guía móvil) se dibuja como estaba: sus numeritos y cm en las puntas, su transportador; sin lista ni reloj al lado */
   }
   /* Coronilla en triángulo (imagen «en triángulo» de Fátima): triángulo pequeño, base delante sin tocar los laterales
      de la frente y vértice en la coronilla; secciones oblicuas paralelas a un lado */
@@ -1869,7 +1869,7 @@
        del de los otros mechones (con una línea fina a su punta) y cuenta como zona ocupada para los números */
     var cajas = [];
     tr.forEach(function (T) {
-      if (T.k !== 'i' || !T.cm) return;
+      if (T.k !== 'i' || !T.cm || A.propia) return;
       var ex = T.pl && T.pl.length ? T.pl[T.pl.length - 2] : T.x + T.dx * T.l, ey = T.pl && T.pl.length ? T.pl[T.pl.length - 1] : T.y + T.dy * T.l;
       var w = String(T.cm).length * 13 + 20, h = 34, by = 0;
       /* mismo largo en la misma punta (todo a 0°): basta un cuadro; los demás no se repiten encima */
@@ -1884,7 +1884,7 @@
        la silueta es la misma en todos los cortes: se calcula una vez por vista */
     var cab = vk && CAM[vk] ? (CABEZA[vk] || (CABEZA[vk] = (function () { var g = {}; for (var ph = -Math.PI; ph < Math.PI; ph += 0.06) for (var th = 0; th <= 2.4; th += 0.06) { if (seVe(vk, ph, th)) { var q = pr(vk, P(ph, th)), k = Math.floor(q[0] / CEL) + ',' + Math.floor(q[1] / CEL); (g[k] = g[k] || []).push([q[0], q[1], [0, 1]]); } } return g; })())) : {};
     function medio(T) { return T.s && String(T.s).length > 2 ? String(T.s).length * 2.9 + 5 : 7; }   /* círculos pequeñitos (pinta, T.sm) */
-    var HOL = 13;   /* aire alrededor de cada número (15-11-2026: 8 → 13, que no quede pegado al cabello ni a la línea de corte) */
+    var HOL = A.propia ? 8 : 13;   /* aire alrededor de cada número (15-11-2026: 8 → 13, que no quede pegado al cabello ni a la línea de corte) */
     var puestas = [];
     function libre(x, y, hw, hh, v, pel) {
       if (y - hh < c[1] + 4 || y + hh > c[1] + c[3] - 4 || x - hw < c[0] - 290 || x + hw > c[0] + c[2] + 290) return false;   /* dentro del lienzo ampliado (máx. 320) */
@@ -1896,7 +1896,7 @@
       return !puestas.some(function (o) { return Math.abs(o[0] - x) < o[2] + hw + 4 && Math.abs(o[1] - y) < 2 * hh + 4 && cruza(o[3], v); });
     }
     var extra = [];
-    A.lado = 1;
+    A.lado = A.propia ? 0 : 1;
     tr.forEach(function (T) {
       if (T.k !== 'n' || A.lado) return;   /* 15-11-2026: en las escenas de corte los números van a la lista del lado (pinta) */
       T.sm = 1;   /* en las escenas de corte, círculo pequeñito */
@@ -1920,11 +1920,12 @@
       puestas.push([T.x, T.y, hw, v]);
     });
     /* 15-11-2026: en las escenas de corte los rótulos van en la franja de arriba (no encima del maniquí) y el reloj en su columna (pinta) */
-    A.lado = 1; if (tr.some(function (T) { return T.k === 'e'; })) A.banda = 1;
+    if (!A.propia) { A.lado = 1; if (tr.some(function (T) { return T.k === 'e'; })) A.banda = 1; }
     /* 15-11-2026 (Fátima: «el reloj del transportador en cada escena del corte, al lado»): si la escena no trae reloj, uno por cada
        línea o mechón con grados (los de su número), visible hasta que empieza el siguiente; si lo trae, el último se queda hasta el final */
     var rel = A.tr.filter(function (T) { return T.k === 'r'; });
-    if (!rel.length) {
+    if (A.propia) { }
+    else if (!rel.length) {
       var conG = A.tr.filter(function (T) { return T.k === 'n' && /(\d+(?:[.,]\d+)?)°/.test(T.ley || T.s || ''); }).sort(function (a, b) { return a.t[0] - b.t[0]; });
       conG.forEach(function (T, i) {
         if (i && conG[i - 1].t[0] === T.t[0]) return;   /* dos líneas que empiezan a la vez (izquierda y derecha): un solo reloj */
@@ -1952,7 +1953,7 @@
     return fondos().then(function (F) {
       var E = escenas(id); if (!E) return null;
       E.fondos = F;
-      E.escenas.forEach(function (e) { e.anim = encaje({ crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr, banda: e.a.banda || undefined, dur: durCorte(e) }, e.vista); delete e.a; });
+      E.escenas.forEach(function (e) { e.anim = encaje({ crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr, banda: e.a.banda || undefined, dur: durCorte(e), propia: e.a.propia || undefined }, e.vista); delete e.a; });
       return E;
     });
   }
@@ -1962,7 +1963,7 @@
     var F = fondosYa(); if (!F) return null;
     var E = escenas(id); if (!E) return null;
     E.fondos = F;
-    E.escenas.forEach(function (e) { e.anim = encaje({ crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr, banda: e.a.banda || undefined, dur: durCorte(e) }, e.vista); delete e.a; });
+    E.escenas.forEach(function (e) { e.anim = encaje({ crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr, banda: e.a.banda || undefined, dur: durCorte(e), propia: e.a.propia || undefined }, e.vista); delete e.a; });
     return E;
   }
   /* Fotograma final de una escena (JPEG) para el libro impreso. */
