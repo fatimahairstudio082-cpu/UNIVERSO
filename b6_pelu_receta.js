@@ -374,7 +374,7 @@
       if (L) { L.escenas = esc; L.t = r.n; }
       else { L = { id: M0.id + r.lec, t: r.n, pag: M0.pag, escenas: esc }; M0.lecciones.splice(iL + 1, 0, L); }
       if (r.mp4 && V[r.mp4]) { L.mp4 = r.mp4; L.siguen = 1; }
-      L.receta = 1;
+      L.receta = 1; L._rk = k;
     });
     /* «que no hayan repeticiones de imágenes»: la foto que ya enseña una receta no se vuelve a poner en las lecciones «Galería» */
     D.modulos.forEach(function (M) {
@@ -409,6 +409,23 @@
           if (c[0] === 'foto') delete e.foto; else e.id = una || 'dg_frente';
         });
       });
+    }); });
+    /* 16-11-2026: en las lecciones de cada clase, en su orden, ninguna pregunta repetida (como en el libro) */
+    var vistoQ = {};
+    D.modulos.forEach(function (M) { M.lecciones.forEach(function (L) {
+      if (!L.receta || !R[L._rk]) return;
+      var Pk = pasos(L._rk), Rc = R[L._rk].k === 'corte' && Pk.E ? Pk.E.R : null, prac = false, esc = [];
+      (L.escenas || []).forEach(function (x) {
+        if (x.tipo !== 'pregunta' || !x.q) return esc.push(x);
+        if (/^Práctica · /.test(x.t || '')) prac = true;
+        var q = reponer([{ e: x.q.e, o: x.q.o, c: x.q.c, x: (String(x.sol || '').split('. ').slice(1).join('. ')) }], Rc, vistoQ)[0];
+        if (!q) return;
+        if (q.e === x.q.e) return esc.push(x);
+        esc.push({ tipo: 'pregunta', id: x.id, t: 'Pregunta', texto: 'Antes de seguir, piensa: ' + q.e, rot: [], q: { e: q.e, o: q.o, c: q.c }, sol: 'La respuesta es: ' + q.o[q.c] + '.' + (q.x ? ' ' + q.x : '') });
+      });
+      var p1 = esc.filter(function (x) { return x.tipo === 'pregunta'; });
+      p1.forEach(function (x, i) { x.t = prac && i === 0 ? 'Práctica · Pregunta' : 'Pregunta'; });
+      L.escenas = esc;
     }); });
     D._receta = 1;
     return D;
@@ -559,9 +576,37 @@
     if (pg.tipo === 'pe_tecnica' && pg.tec) return ks.filter(function (k) { return R[k].k === 'tec' && R[k].id === 'cb_' + pg.tec; })[0] || null;
     return null;
   }
+  /* 16-11-2026 (Fátima: «el sistema debe registrar cada test sin repeticiones»): una pregunta que ya salió en el libro (o en el curso)
+     no se vuelve a imprimir; en un corte se cambia por la siguiente pregunta propia de ese corte, sacada de su receta en Guías 3D
+     (EU_PELU_ORDEN.preguntasCorte). Si no queda ninguna propia, la hoja lleva una pregunta menos: nunca repetida ni inventada. */
+  function nq(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+  function reponer(Q, Rc, visto) {
+    var PO = window.EU_PELU_ORDEN, extra = null, out = [];
+    (Q || []).forEach(function (q) {
+      if (!q || !q.e) return;
+      if (!visto[nq(q.e)]) { visto[nq(q.e)] = 1; out.push(q); return; }
+      if (extra === null) { extra = []; try { extra = Rc && PO && PO.preguntasCorte ? PO.preguntasCorte(Rc) || [] : []; } catch (e) { extra = []; } }
+      for (var i = 0; i < extra.length; i++) { if (!visto[nq(extra[i].e)]) { visto[nq(extra[i].e)] = 1; out.push(extra[i]); return; } }
+    });
+    return out;
+  }
+  /* en el orden de las hojas: la práctica de cada clase (última hoja de su receta) y el «Compruébalo» de cada diagrama */
+  function sinRepetir(pages) {
+    var visto = {}, DGL = window.EU_PELU_LIBRO_DG;
+    pages.forEach(function (p) {
+      if (p.tipo === 'pe_diagrama' && DGL && DGL.datos) {
+        var d = null; try { d = DGL.datos(p.dg || {}); } catch (e) { d = null; }
+        if (d && d.E) p.qs = reponer(d.E.preguntas, d.R, visto);
+      } else if (p.tipo === 'pe_clase' && p.parte === 2 && p.ult !== false && R[p.rec]) {
+        var P = pasos(p.rec); if (!P.length) return;
+        p.qs = reponer(P.filter(function (x) { return x.q; }).map(function (x) { return x.q; }), R[p.rec].k === 'corte' && P.E ? P.E.R : null, visto);
+      }
+    });
+  }
   function libro(res) {
     var cfg = res && res.C && res.C.cfg;
-    if (!res || !res.pages || !activo(cfg) || !LIBROS.test(String(cfg.prod || 'libro'))) return res;
+    if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || !LIBROS.test(String(cfg.prod || 'libro'))) return res;
+    if (!activo(cfg)) { sinRepetir(res.pages); return res; }
     cortesAuto();
     var pages = res.pages, out = [], hecho = {}, n0 = {}, quitadas = {};
     pages.forEach(function (p) { if (p.num != null) n0[p.num] = 1; });
@@ -590,7 +635,7 @@
       }
       out.push(p);
     });
-    if (!Object.keys(hecho).length) return res;
+    if (!Object.keys(hecho).length) { sinRepetir(res.pages); return res; }
     /* una foto distinta por clase, en el orden del libro, la misma que la lección del curso cuando no se repite */
     var usadas = {}, sig = null;
     for (var i = out.length - 1; i >= 0; i--) { if (out[i].tipo === 'pe_clase') { out[i].sig = sig; if (out[i].parte === 1) sig = R[out[i].rec].n; } }
@@ -605,6 +650,7 @@
     out.forEach(function (p, i) { if (p.num != null || p.tipo === 'pe_clase') p.num = i + 1; });
     out.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return mapa[e.p]; }).map(function (e) { return Object.assign({}, e, { p: mapa[e.p] }); }); });
     res.pages = out; res.clases = Object.keys(hecho).length;
+    sinRepetir(out);
     return res;
   }
   var JS_CLASE = '<script>(function(){if(window.__rcLibro)return;window.__rcLibro=1;var act=null,V=null;' +
@@ -653,6 +699,7 @@
       var tx = p.puntos ? p.puntos.map(function (b) { return b[1]; }).join(' ') : p.texto;
       return '<li style="margin:0 0 1.6mm"><b>' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + '.</b> ' + esc(corta(tx)) + '</li>';
     }).join('') + '</ol>';
+    if (pg.qs) qs = pg.qs.map(function (q) { return { q: q }; });   /* 16-11-2026: sin las preguntas que ya salieron en el libro */
     if (!ult) qs = [];
     var prac = qs.length ? caja(T, 'Práctica', '<ol style="margin:0;padding-left:5mm">' + qs.map(function (p) { return '<li style="margin:0 0 1mm">' + esc(p.q.e) + ' <i>(' + p.q.o.map(function (o, i) { return String.fromCharCode(97 + i) + ') ' + esc(o); }).join(' · ') + ')</i></li>'; }).join('') + '</ol><div style="margin-top:1mm;opacity:.8">Respuestas: ' + qs.map(function (p, i) { return (i + 1) + String.fromCharCode(97 + p.q.c); }).join(' · ') + '</div>') : '';
     var rec = r.cer && ult ? recomTinte(r.cer, T, r.quitaRec) : '';

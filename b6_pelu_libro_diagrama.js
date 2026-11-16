@@ -112,7 +112,7 @@
     };
     var arriba = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm">' + d.vis.slice(0, 2).map(function (e, i) { return fig(e, i, 1); }).join('') + '</div>';
     var abajo = '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3mm;margin-top:3mm;align-items:start">' + (d.vis[2] ? fig(d.vis[2], 2) : '<div></div>') + ficha(d, dg, T) + '</div>';
-    var Q = d.E.preguntas || [];
+    var Q = pg.qs || d.E.preguntas || [];   /* 16-11-2026: lista ya decidida al armar el libro, sin preguntas repetidas (b6_pelu_receta.js) */
     var test = Q.length ? '<div style="margin-top:2.5mm;font-size:.74em"><b style="font-family:' + T.tit + ';color:' + T.acc + '">Compruébalo</b><div style="display:grid;grid-template-columns:repeat(' + Q.length + ',minmax(0,1fr));gap:3mm">' + Q.map(function (q, i) {
       return '<div data-dg-q="1" data-c="' + q.c + '" style="margin-top:1.5mm"><div>' + (i + 1) + '. ' + es(q.e) + '</div>' + (web ? '<div style="display:flex;flex-wrap:wrap;gap:1mm;margin-top:1mm">' + q.o.map(function (o, j) {
         return '<button data-dg-op="' + j + '" style="font:inherit;font-size:.95em;padding:.8mm 2.5mm;line-height:1.25;text-align:left;border:0.3mm solid ' + T.acc + ';background:#fff;border-radius:' + rad + 'px;cursor:pointer">' + es(o) + '</button>';

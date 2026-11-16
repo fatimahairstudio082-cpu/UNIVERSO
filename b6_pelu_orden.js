@@ -47,6 +47,75 @@
   function mezcla(r, k) { var n = r.o.length, s = k % n; r.o = r.o.slice(s).concat(r.o.slice(0, s)); r.c = (r.c - s + n) % n; return r; }
   function uni(id, t, i, k, rep, mods, f) { return { m: 'pelu', id: id, b: BANDA, t: t, i: i, k: k, rep: rep || [], err: [], f: f || null, mods: mods, fam: 'Peluquería', _ajuste: 0 }; }
 
+  /* 16-11-2026 (Fátima: «los tests desde el motor de Guías 3D, nada inventado»): preguntas de un corte leídas de su receta
+     (EU_DIAGRAMA.receta, la misma que anima el maniquí), de su ficha (EU_CORTES.tecnica) y de la calculadora capilar.
+     Las opciones falsas son datos reales de otros cortes del sistema (Biblioteca, catálogo y técnicas); un dato que no
+     distingue al corte (sin otra opción real distinta) no se pregunta. La pregunta de la forma es la misma del motor. */
+  var LIN_N = { recta: 'Recta, en cuadrado', redondeada: 'Redondeada', u: 'En U', v: 'En V', a: 'En A', diag_delante: 'Diagonal hacia delante', diag_atras: 'Diagonal hacia atrás' };
+  var FORMAS_C = ['línea sólida · un solo largo', 'capas uniformes', 'graduación · escalonado (peso abajo)', 'capas en aumento (más cortas arriba)', 'forma combinada'];
+  var BIB = null, PQ = {};
+  function biblio() {
+    if (BIB) return BIB;
+    var CO = window.EU_CORTES, DG = window.EU_DIAGRAMA; if (!CO || !DG || !DG.receta) return null;
+    var L = [], lin = [], par = [], ad = function (a, v) { if (v && a.indexOf(v) < 0) a.push(v); };
+    CO.lista().forEach(function (c) { var Rc = null; try { Rc = DG.receta(c.id); } catch (e) { } if (Rc && Rc.capas) { var T = CO.tecnica(c.id) || {}; L.push({ id: c.id, fam: c.fam, R: Rc, T: T }); ad(lin, Rc.linea); ad(par, T.part); } });
+    var K = window.EU_CATALOGO_CORTES, G = window.EU_GEOMETRIA_CAPILAR, TG = G && G.TECNICAS ? (Array.isArray(G.TECNICAS) ? G.TECNICAS : Object.keys(G.TECNICAS).map(function (k) { return G.TECNICAS[k]; })) : [];
+    (K && K.lista ? K.lista() : []).concat(TG).forEach(function (x) { ad(lin, x.linea); ad(par, x.part); });
+    return (BIB = { L: L, lin: lin, par: par });
+  }
+  function rot(q, k) { var n = q.o.length, s = k % n; return { e: q.e, o: q.o.slice(s).concat(q.o.slice(0, s)), c: (n - s) % n, x: q.x }; }
+  function alts(bien, cands, g) {
+    var L = []; cands.forEach(function (v) { if (v !== bien && L.indexOf(v) < 0) L.push(v); });
+    if (!L.length) return null;
+    var s = g % L.length; L = L.slice(s).concat(L.slice(0, s));
+    return [bien].concat(L.slice(0, 2));
+  }
+  function preguntasCorte(Rc, T) {
+    var B = biblio(), DG = window.EU_DIAGRAMA, CO = window.EU_CORTES;
+    if (!B || !Rc || !Rc.capas || !Rc.capas.pila) return null;
+    if (Rc.id && PQ[Rc.id]) return PQ[Rc.id];
+    if (!T && Rc.id && CO && CO.tecnica) T = CO.tecnica(Rc.id) || null;
+    var n = Rc.n || '', nc = '«' + n + '»', pila = Rc.capas.pila, fp = (Rc.frente && Rc.frente.pila) || [], g = 0, out = [];
+    for (var q = 0; q < n.length; q++) g += n.charCodeAt(q);
+    var grados = function (p) { return p.map(function (x) { return x + '°'; }).join(' · '); };
+    var otros = B.L.filter(function (x) { return x.id !== Rc.id; }), fam = otros.filter(function (x) { return x.fam === Rc.fam; }).concat(otros.filter(function (x) { return x.fam !== Rc.fam; }));
+    var pon = function (e, o, x) { if (o) out.push(rot({ e: e, o: o, c: 0, x: x }, g + out.length)); };
+    /* numeración de elevación de atrás y de delante (solo con otras numeraciones reales del mismo número de capas) */
+    pon('En ' + nc + ', ¿cuál es la numeración de elevación de atrás, capa por capa de abajo arriba?',
+      alts(grados(pila), fam.filter(function (x) { return x.R.capas.pila.length === pila.length; }).map(function (x) { return grados(x.R.capas.pila); }), g),
+      'Es la numeración de ' + nc + ' en Guías 3D: ' + grados(pila) + '.');
+    if (fp.length && fp.join() !== pila.join())
+      pon('En ' + nc + ', ¿cuál es la numeración de elevación de delante?',
+        alts(grados(fp), fam.filter(function (x) { return (x.R.frente.pila || []).length === fp.length; }).map(function (x) { return grados(x.R.frente.pila); }), g + 1),
+        'Delante, ' + nc + ' lleva ' + grados(fp) + '.');
+    /* una capa concreta: la de más elevación, si la numeración no es uniforme */
+    var mx = Math.max.apply(null, pila), mn = Math.min.apply(null, pila), k = pila.indexOf(mx);
+    if (mx !== mn) pon('En ' + nc + ', ¿a qué elevación se lleva la capa ' + (k + 1) + ' (de abajo arriba)?',
+      alts(mx + '°', fam.filter(function (x) { return x.R.capas.pila.length > k; }).map(function (x) { return x.R.capas.pila[k] + '°'; }), g + 2),
+      'La numeración de ' + nc + ' es ' + grados(pila) + ': la capa ' + (k + 1) + ' va a ' + mx + '°.');
+    /* la línea de atrás, solo si la receta la declara */
+    if (LIN_N[Rc.linea]) pon('¿Qué forma tiene la línea de atrás en ' + nc + '?',
+      alts(LIN_N[Rc.linea], B.lin.map(function (l) { return LIN_N[l]; }).filter(Boolean), g + 3), 'La línea de atrás de ' + nc + ' es: ' + LIN_N[Rc.linea].toLowerCase() + '.');
+    /* la ficha técnica del corte: partición, tipo de corte y acabado */
+    if (T) {
+      var pn = function (p) { return 'Partición ' + (PART[p] || String(p || '').toLowerCase()); };
+      if (T.part) pon('¿Qué partición marca la ficha técnica de ' + nc + '?', alts(pn(T.part), B.par.map(pn), g + 4), 'La ficha técnica de ' + nc + ' marca ' + pn(T.part).toLowerCase() + '.');
+      var tipos = [], acs = []; B.L.forEach(function (x) { if (x.T.tipo && tipos.indexOf(x.T.tipo) < 0) tipos.push(x.T.tipo); if (x.T.acabado && acs.indexOf(x.T.acabado) < 0) acs.push(x.T.acabado); });
+      if (T.tipo) pon('¿Qué tipo de corte lleva ' + nc + '?', alts('Corte ' + T.tipo.toLowerCase(), tipos.map(function (t) { return 'Corte ' + t.toLowerCase(); }), g + 5), 'La ficha técnica de ' + nc + ' marca corte ' + T.tipo.toLowerCase() + '.');
+      if (T.acabado && T.acabado !== T.tipo) pon('¿Con qué acabado termina ' + nc + '?', alts('Acabado ' + T.acabado.toLowerCase(), acs.map(function (t) { return 'Acabado ' + t.toLowerCase(); }), g + 6), 'La ficha técnica de ' + nc + ' marca acabado ' + T.acabado.toLowerCase() + '.');
+    }
+    /* la forma que resulta: la misma pregunta y la misma cuenta que hace el motor (b6_pelu_diagrama.js) */
+    var CC = window.EU_CALCULO_CAPILAR, calc = null;
+    var todo0 = !Rc.punto && pila.concat(fp, (Rc.lateral && Rc.lateral.pila) || []).every(function (x) { return !x; });
+    try { calc = CC && DG.medidasDe ? CC.calcular({ capas: pila, guias: Rc.guias && Rc.guias.length ? Rc.guias : todo0 ? ['f'] : Rc.guias, ref: Rc.ref }, DG.medidasDe(Rc)) : null; } catch (e) { calc = null; }
+    if (calc && FORMAS_C.indexOf(calc.forma) >= 0) {
+      var ops = FORMAS_C.filter(function (f) { return f !== calc.forma; }).slice((n.length + pila.length) % 3, (n.length + pila.length) % 3 + 2); ops.splice(pila.length % 3, 0, calc.forma);
+      out.push({ e: 'Con estas elevaciones (' + pila.join(' · ') + '°), ¿qué forma resulta en ' + n.toLowerCase() + '?', o: ops, c: ops.indexOf(calc.forma), x: 'Largos calculados: ' + calc.largos.map(function (x) { return CC.fmt(x); }).join(' · ') + ' cm.' });
+    }
+    if (Rc.id) PQ[Rc.id] = out;
+    return out;
+  }
+
   function fijas() {
     var F0 = {
       fund: uni('pe_u_fund', 'Higiene, seguridad y herramientas', [
@@ -120,14 +189,16 @@
       /* preguntas que distinguen un corte de otro (antes: herramienta y nuca en cada corte, casi siempre «Tijera» y «0°») */
       var otros = L.filter(function (o) { return o !== c; }).map(function (o) { return o.n; });
       if (c.d && otros.length >= 2) rep.push(mezcla(R('¿Qué corte es? «' + c.d + '»', [c.n, otros[g % otros.length], otros[(g + 1) % otros.length]], 0, 'Es «' + c.n + '»: ' + elev.toLowerCase() + '.'), g));
-      var nucas = []; L.forEach(function (o) { var e0 = ((CO.tecnica(o.id) || {}).elev || [0])[0]; if (nucas.indexOf(e0) < 0) nucas.push(e0); });
-      if (nucas.length > 1) rep.push(mezcla(R('En «' + c.n + '», ¿a qué elevación se corta la nuca?', [ev[0]].concat(nucas.filter(function (x) { return x !== ev[0]; }).slice(0, 2)).map(function (x) { return x + '°'; }), 0, 'La ficha técnica marca el primer mechón, en la nuca, a ' + ev[0] + '°.'), g + 1));
-      if (T.her && !/^tijera$/i.test(T.her)) rep.push(mezcla(R('¿Qué herramienta se usa en «' + c.n + '»?', [T.her, T.her === 'Navaja' ? 'Máquina' : 'Navaja', 'Tijera'], 0, T.her + ', con acabado ' + (T.acabado || 'punteado').toLowerCase() + '.'), g + 2));
+      /* 16-11-2026: las demás preguntas salen de la receta del corte en Guías 3D (antes: la nuca, una herramienta con «Máquina» y,
+         para la familia, opciones de nuca sumando 45° y 90°, que no eran de ningún corte). Sin el motor, la nuca con valores reales. */
+      var Rc = null; try { Rc = window.EU_DIAGRAMA && EU_DIAGRAMA.receta ? EU_DIAGRAMA.receta(c.id) : null; } catch (e) { Rc = null; }
+      var pq = Rc ? preguntasCorte(Rc, T) : null;
+      if (pq && pq.length) pq.forEach(function (x) { rep.push(R(x.e, x.o, x.c, x.x)); });
+      else {
+        var nucas = []; L.forEach(function (o) { var e0 = ((CO.tecnica(o.id) || {}).elev || [0])[0]; if (nucas.indexOf(e0) < 0) nucas.push(e0); });
+        if (nucas.length > 1) rep.push(mezcla(R('En «' + c.n + '», ¿a qué elevación se corta la nuca?', [ev[0]].concat(nucas.filter(function (x) { return x !== ev[0]; }).slice(0, 2)).map(function (x) { return x + '°'; }), 0, 'La ficha técnica marca el primer mechón, en la nuca, a ' + ev[0] + '°.'), g + 1));
+      }
     });
-    /* si toda la familia comparte nuca o herramienta, se pregunta una sola vez para la familia */
-    var ev0 = (CO.tecnica((L[0] || {}).id) || {}).elev || [0];
-    if (L.length && L.every(function (o) { return (((CO.tecnica(o.id) || {}).elev || [0])[0]) === ev0[0]; }))
-      rep.push(mezcla(R('En los cortes de «' + fa.n + '», ¿a qué elevación se corta la nuca?', [ev0[0], (ev0[0] + 45) % 225, (ev0[0] + 90) % 225].map(function (x) { return x + '°'; }), 0, 'En todos los cortes de esta familia la ficha marca el primer mechón, en la nuca, a ' + ev0[0] + '°.'), fa.id.length));
     return uni('pe_u_c_' + fa.id, 'Cortes · ' + fa.n, ideas, L.map(function (c) { return c.n.toLowerCase(); }), rep, mods,
       { t: 'flujo', p: ['Diagnóstico', 'Secciones', 'Mecha guía', 'Elevación', 'Corte', 'Repaso'] });
   }
@@ -306,5 +377,5 @@
   }
   (function esperar() { if (window.EU_LIBS_LISTAS) enganchar(); else setTimeout(esperar, 300); })();
 
-  window.EU_PELU_ORDEN = { MODS: M, ordenar: ordenar, diagramasCorte: diagramasCorte };
+  window.EU_PELU_ORDEN = { MODS: M, ordenar: ordenar, diagramasCorte: diagramasCorte, preguntasCorte: preguntasCorte };
 })();
