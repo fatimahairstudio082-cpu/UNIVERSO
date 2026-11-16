@@ -122,10 +122,14 @@
         return '<div style="margin:0 0 2mm;font-size:.88em;position:relative"><b style="color:' + T.acc + '">' + (i + 1) + '.</b> ' + x.e + ops + ayuda + '</div>';
       }).join('');
     }
+    /* 16-11-2026 (Fátima: «tus errores comunes»): en Peluquería, si la unidad no deja ejemplo ni práctica sin repetir, sus errores
+       comunes (u.err, textos tal cual) como aviso, sin pregunta */
+    var errc = !ej && !prac && u.m === 'pelu' && (u.err || []).length ? H.h2(C, 'Errores comunes') + '<div style="background:' + T.soft + ';border-left:1.2mm solid ' + T.acc + ';border-radius:0 ' + T.r + 'px ' + T.r + 'px 0;padding:2mm 3.5mm;font-size:.88em;line-height:1.45">' +
+      u.err.slice(0, t.nivel < 3 ? 5 : 3).map(function (e) { return '<div style="margin:0 0 1.2mm">· ' + es(sub(e, C)) + '</div>'; }).join('') + '</div>' : '';
     var esencial = (u.k || []).length ? H.h2(C, 'Lo esencial') + '<div style="display:flex;flex-wrap:wrap;gap:1.5mm">' + (u.k || []).slice(0, 8).map(function (k) { return '<span style="border:1px solid ' + T.acc + ';color:' + T.acc + ';border-radius:' + (T.r ? 99 : 0) + 'px;padding:.3mm 2.5mm;font-size:.82em">' + es(sub(k, C)) + '</span>'; }).join('') + '</div>' : '';
     var pie = !web && sol.length ? '<div style="position:absolute;left:17mm;right:17mm;bottom:14mm;font-size:.72em;line-height:1.35;border-top:1px solid ' + T.soft + ';padding-top:1mm;opacity:.9"><b>Respuestas del tutor:</b> ' + es(sol.join(' · ')) + '</div>' : '';
     var intro = !C.guia.n ? '' : '<div style="display:flex;gap:2.5mm;align-items:center;margin:-2mm 0 2.5mm;font-size:.86em">' + H.avatar(C, 9) + '<span><b style="color:' + T.acc2 + '">' + es(C.guia.n) + ':</b> ' + es(C.adulto ? 'Repasamos juntos: esquema, pasos, un ejemplo resuelto y práctica con su respuesta.' : 'Vamos a repasar juntos: mira el esquema, sigue los pasos, resuelve conmigo y comprueba.') + '</span></div>';
-    return H.cabecera(C, pg) + H.h1(C, 'Repaso con tu tutor', 'margin-bottom:3mm') + '<div data-tutor="1">' + intro + cajas + pasos + ej + prac + esencial + '</div>' + pie + H.folio(C, pg);
+    return H.cabecera(C, pg) + H.h1(C, 'Repaso con tu tutor', 'margin-bottom:3mm') + '<div data-tutor="1">' + intro + cajas + pasos + ej + prac + errc + esencial + '</div>' + pie + H.folio(C, pg);
   }
   function voz(pg, C) {
     var u = pg.u, t = pg.tut || {};
