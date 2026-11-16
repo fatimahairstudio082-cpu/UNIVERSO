@@ -147,6 +147,10 @@
     /* Fátima, 15-10-2026: la línea final sale del resultado que ya está escrito en el catálogo (antes casi todos quedaban rectos) */
     if (R && !R.linea) R.linea = lineaTexto(c.n + ' · ' + ((CO.tecnica(id) || {}).resultado || '') + ' · ' + (c.d || ''));
     /* 26-10-2026 (Fátima): largo y flequillo del catálogo; en los cortes a 0° la pollina solo si el nombre la dice */
+    /* 16-11-2026 (Fátima: «guía móvil y guía fija son motores distintos»): un corte que trae su guía por capa (los del Laboratorio)
+       la lleva a la calculadora; sin ella, como siempre (guía móvil). Su línea de atrás va escrita en la ficha. */
+    if (R && c.guias && c.guias.length) R.guias = c.guias.slice();
+    if (R && c.linea) R.linea = c.linea;
     if (R && c.largo) R.largo = c.largo;
     if (R && c.fleco) R.fleco = c.fleco;
     else if (R && R.nivel0 && (/pollina/i.test(c.n) || c.fam === 'flequillos')) R.fleco = 'pollina';   /* el flequillo recto a 0° es una pollina recta */
@@ -1973,6 +1977,16 @@
     pinta(cv.getContext('2d'), e.anim, im, 0, 0, w, h, prog == null ? 1 : prog);
     return cv.toDataURL('image/jpeg', cal || 0.8);
   }
+  /* 16-11-2026 (Fátima: «cómo queda cada corte»; eligió «las dos»): dos escenas en una sola imagen, una al lado de la otra y a la
+     misma altura (fotograma final de cada una). Lo usan el tutor y la pizarra: «Cómo queda» + «Ángulos y largos». */
+  function fotoDoble(a, b, h, cal) {
+    var L = [a, b].filter(function (e) { return e && e.anim && LIENZO[e.vista]; }); if (!L.length) return '';
+    h = h || 420; var gap = 14, ws = L.map(function (e) { var c = e.anim.crop; return Math.round(h * c[2] / c[3]); });
+    var cv = document.createElement('canvas'); cv.width = ws.reduce(function (s, w) { return s + w; }, 0) + gap * (L.length - 1); cv.height = h;
+    var ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, h);
+    var x = 0; L.forEach(function (e, i) { pinta(ctx, e.anim, LIENZO[e.vista], x, 0, ws[i], h, 1); x += ws[i] + gap; });
+    return cv.toDataURL('image/jpeg', cal || 0.8);
+  }
 
   /* Técnicas como datos (b6_pelu_particiones.js): los mismos ayudantes de dibujo y la misma salida que los cortes. */
   var KIT = { P: P, N: N, V3: V3, recta: recta, dirElev: dirElev, pr: pr, seVe: seVe, tramos: tramos, plano: plano, bezier: bezier, linea: linea, lineas: lineas, mechon: mechon, tijera: tijera, rotulo: rotulo, regla: regla, chapa: chapa, r1: r1, thCapa: thCapa, CARA: CARA, NUCA: NUCA, IZQ: IZQ, DER: DER, COL: COL, TINTA: TINTA, ROJO: ROJO, VERDE: VERDE, CORTE: CORTE };
@@ -1994,7 +2008,7 @@
     construirCon: function (fn) { return fondos().then(function (F) { return armar(fn, F); }); },
     construirConYa: function (fn) { return armar(fn, fondosYa()); },
     receta: receta, desdeGuia: desdeGuia, libre: libre, medidasDe: function (o) { return medDe(o && o.capas && o.capas.pila ? o : libre(o)); }, construir: construir, fondos: fondos, pinta: pinta,
-    construirYa: construirYa, fondosYa: fondosYa, foto: foto, divSrc: divSrc,
+    construirYa: construirYa, fondosYa: fondosYa, foto: foto, fotoDoble: fotoDoble, divSrc: divSrc,
     /* código del reproductor para el curso descargado (sin dependencias) */
     js: function () { return 'window.CURSO_ANIM={pinta:(' + pinta.toString() + ')};'; }
   };

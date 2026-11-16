@@ -80,8 +80,11 @@
     var d = null; try { d = window.EU_PELU_LIBRO_DG.datos(dg); } catch (e) { }
     if (!d || !d.E) return '';   /* el motor 3D aún no está listo: no se guarda, se reintenta al volver a armar */
     var e = d.E.escenas.filter(function (x) { return x.tipo === 'angulos'; })[0], f = '';
-    try { f = e ? window.EU_DIAGRAMA.foto(e, 560, 0.8) : ''; } catch (er) { }
-    return (FOTO[k] = f ? { src: f, t: e.titulo || e.t || 'Ángulos y centímetros' } : '');
+    /* 16-11-2026 (Fátima: «cómo queda cada corte», eligió «las dos»): «Cómo queda» (atrás o de lado, según su guía móvil o fija)
+       al lado de «Ángulos y largos», en una sola imagen; sin escena «Cómo queda», solo la de ángulos como antes */
+    var q = d.E.escenas.filter(function (x) { return /^queda_/.test(x.tipo) && x.vista !== 'frente'; })[0], DG = window.EU_DIAGRAMA;
+    try { f = q && e && DG.fotoDoble ? DG.fotoDoble(q, e, 420, 0.8) : e ? DG.foto(e, 560, 0.8) : ''; } catch (er) { }
+    return (FOTO[k] = f ? { src: f, t: q && e && DG.fotoDoble ? 'Cómo queda · Ángulos y largos' : (e.titulo || e.t || 'Ángulos y centímetros') } : '');
   }
 
   /* ─── la página ─── */
@@ -92,7 +95,7 @@
     if (conLam && (medir || lam)) figs.push('<img ' + (lam ? 'src="' + lam + '" ' : '') + 'alt="Esquema de la unidad" style="height:' + alto + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px">');
     if (t.nivel < 3 && t.dg) {
       var fm = medir ? { src: '', t: '' } : fotoManiqui(t.dg);
-      if (fm) figs.push('<figure style="margin:0;text-align:center"><img ' + (fm.src ? 'src="' + fm.src + '" ' : '') + 'alt="Maniquí" style="height:' + (alto - 6) + 'mm;width:auto;max-width:100%;display:block;border-radius:' + T.r + 'px"><figcaption style="font-size:.7em;opacity:.8;margin-top:1mm">Maniquí · ' + es(fm.t || 'ángulos y centímetros') + '</figcaption></figure>');
+      if (fm) figs.push('<figure style="margin:0;text-align:center"><img ' + (fm.src ? 'src="' + fm.src + '" ' : '') + 'alt="Maniquí" style="height:' + (alto - 6) + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px"><figcaption style="font-size:.7em;opacity:.8;margin-top:1mm">Maniquí · ' + es(fm.t || 'ángulos y centímetros') + '</figcaption></figure>');
     } else if (t.nivel < 3 && t.lams && t.lams[1] != null) {
       var l2 = medir ? '' : (window.EU_ESCANER ? window.EU_ESCANER.lamina({ u: u, lam: t.lams[1] }, C) : '');
       if (medir || l2) figs.push('<img ' + (l2 ? 'src="' + l2 + '" ' : '') + 'alt="Esquema de la unidad" style="height:' + alto + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px">');

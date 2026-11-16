@@ -67,6 +67,7 @@
   var FAMILIAS = [
     { id: 'basicos', n: 'Cortes básicos · sin elevación' },   /* Fátima, 18-10-2026: primero los básicos, luego los avanzados */
     { id: 'vu', n: 'Cortes en V y en U' },   /* Fátima, 8-11-2026: en V y en U rectos (los básicos) y con capas, organizados juntos */
+    { id: 'lab', n: 'Cortes en capas · Laboratorio' },   /* Fátima, 16-11-2026: cortes verticales del Laboratorio, cada numeración con guía móvil y fija */
     { id: 'melenas', n: 'Melenas y bob' },
     { id: 'capas', n: 'Capas y desfilados' },
     { id: 'cortos', n: 'Cortos de dama' },
@@ -300,6 +301,319 @@
           'Línea guía en la nuca a 0°, con la forma en U.',
           'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 20 · 40 · 60 · 80 · 90°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda.',
           'Delante se empareja con la línea de atrás. Elevaciones propuestas, a validar por Fátima.'
+        ] }
+    },
+    /* ── Cortes en capas · Laboratorio (16-11-2026, Fátima: «más cortes en vertical que registre el laboratorio, con variantes de elevación, sin repeticiones y de diferentes formas»). Generados con EU_LAB_CORTES.generar (7 capas en rampa, de 0 a 180° de 15 en 15, guía «mezcla», semilla 7–12, una por forma) y calculados con EU_CALCULO_CAPILAR: cada numeración va con guía móvil y con guía fija (o la guía mixta que dio el Laboratorio), que son motores distintos y dan otro «cómo queda». Ninguna numeración repite la de otro corte del catálogo. ── */
+    {
+      id: 'lab_recta_1_m', fam: 'lab', n: 'Lab · Combinado recto (cuadrado) · 0·0·45·105·120·120·180° · guía móvil', linea: 'recta', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás recta (cuadrada), capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 45, 105, 120, 120, 180), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda recta (cuadrada) · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma recta (cuadrada).',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 45 · 105 · 120 · 120 · 180°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_recta_1_f', fam: 'lab', n: 'Lab · Escalonado recto (cuadrado) · 0·0·45·105·120·120·180° · guía fija', linea: 'recta', guias: ['f', 'f', 'f', 'f', 'f', 'f', 'f'],
+      d: 'Atrás recta (cuadrada), capas verticales, guía fija: graduación · escalonado (peso abajo).',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 45, 105, 120, 120, 180), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda recta (cuadrada) · graduación · escalonado (peso abajo).',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma recta (cuadrada).',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 45 · 105 · 120 · 120 · 180°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía fija: cada capa se lleva al punto de la guía y se corta ahí.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_recta_2_m', fam: 'lab', n: 'Lab · Combinado recto (cuadrado) · 0·15·45·75·180·180·180° · guía móvil', linea: 'recta', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás recta (cuadrada), capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 45, 75, 180, 180, 180), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda recta (cuadrada) · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma recta (cuadrada).',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 45 · 75 · 180 · 180 · 180°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_recta_2_f', fam: 'lab', n: 'Lab · Combinado recto (cuadrado) · 0·15·45·75·180·180·180° · guía mixta', linea: 'recta', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'f'],
+      d: 'Atrás recta (cuadrada), capas verticales, guía mixta: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 45, 75, 180, 180, 180), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda recta (cuadrada) · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma recta (cuadrada).',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 45 · 75 · 180 · 180 · 180°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil en las capas 1, 2, 3, 4, 5 y 6; guía fija en la capa 7.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_redondeada_1_m', fam: 'lab', n: 'Lab · Combinado redondeado · 0·0·15·30·105·105·165° · guía móvil', linea: 'redondeada', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás redondeada, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 15, 30, 105, 105, 165), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda redondeada · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma redondeada.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 15 · 30 · 105 · 105 · 165°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_redondeada_1_f', fam: 'lab', n: 'Lab · Escalonado redondeado · 0·0·15·30·105·105·165° · guía fija', linea: 'redondeada', guias: ['f', 'f', 'f', 'f', 'f', 'f', 'f'],
+      d: 'Atrás redondeada, capas verticales, guía fija: graduación · escalonado (peso abajo).',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 15, 30, 105, 105, 165), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda redondeada · graduación · escalonado (peso abajo).',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma redondeada.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 15 · 30 · 105 · 105 · 165°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía fija: cada capa se lleva al punto de la guía y se corta ahí.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_redondeada_2_m', fam: 'lab', n: 'Lab · Combinado redondeado · 0·15·30·60·105·120·180° · guía móvil', linea: 'redondeada', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás redondeada, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 30, 60, 105, 120, 180), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda redondeada · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma redondeada.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 30 · 60 · 105 · 120 · 180°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_redondeada_2_f', fam: 'lab', n: 'Lab · Combinado redondeado · 0·15·30·60·105·120·180° · guía mixta', linea: 'redondeada', guias: ['m', 'f', 'm', 'f', 'f', 'm', 'm'],
+      d: 'Atrás redondeada, capas verticales, guía mixta: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 30, 60, 105, 120, 180), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda redondeada · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma redondeada.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 30 · 60 · 105 · 120 · 180°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil en las capas 1, 3, 6 y 7; guía fija en las capas 2, 4 y 5.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_u_1_m', fam: 'lab', n: 'Lab · Combinado en U · 0·0·15·45·60·90·150° · guía móvil', linea: 'u', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás en U, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 15, 45, 60, 90, 150), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en U · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en U.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 15 · 45 · 60 · 90 · 150°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_u_1_f', fam: 'lab', n: 'Lab · Escalonado en U · 0·0·15·45·60·90·150° · guía fija', linea: 'u', guias: ['f', 'f', 'f', 'f', 'f', 'f', 'f'],
+      d: 'Atrás en U, capas verticales, guía fija: graduación · escalonado (peso abajo).',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 15, 45, 60, 90, 150), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en U · graduación · escalonado (peso abajo).',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en U.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 15 · 45 · 60 · 90 · 150°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía fija: cada capa se lleva al punto de la guía y se corta ahí.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_u_2_m', fam: 'lab', n: 'Lab · Combinado en U · 0·0·15·15·105·120·180° · guía móvil', linea: 'u', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás en U, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 15, 15, 105, 120, 180), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en U · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en U.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 15 · 15 · 105 · 120 · 180°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_u_2_f', fam: 'lab', n: 'Lab · Combinado en U · 0·0·15·15·105·120·180° · guía mixta', linea: 'u', guias: ['m', 'm', 'f', 'm', 'm', 'f', 'm'],
+      d: 'Atrás en U, capas verticales, guía mixta: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 15, 15, 105, 120, 180), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en U · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en U.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 15 · 15 · 105 · 120 · 180°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil en las capas 1, 2, 4, 5 y 7; guía fija en las capas 3 y 6.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_v_1_m', fam: 'lab', n: 'Lab · Combinado en V · 0·0·60·120·120·135·165° · guía móvil', linea: 'v', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás en V, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 60, 120, 120, 135, 165), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en V · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en V.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 60 · 120 · 120 · 135 · 165°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_v_1_f', fam: 'lab', n: 'Lab · Escalonado en V · 0·0·60·120·120·135·165° · guía fija', linea: 'v', guias: ['f', 'f', 'f', 'f', 'f', 'f', 'f'],
+      d: 'Atrás en V, capas verticales, guía fija: graduación · escalonado (peso abajo).',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 0, 60, 120, 120, 135, 165), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en V · graduación · escalonado (peso abajo).',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en V.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 0 · 60 · 120 · 120 · 135 · 165°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía fija: cada capa se lleva al punto de la guía y se corta ahí.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_v_2_m', fam: 'lab', n: 'Lab · Combinado en V · 0·15·75·75·135·150·150° · guía móvil', linea: 'v', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás en V, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 75, 75, 135, 150, 150), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en V · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en V.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 75 · 75 · 135 · 150 · 150°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_v_2_f', fam: 'lab', n: 'Lab · Escalonado en V · 0·15·75·75·135·150·150° · guía mixta', linea: 'v', guias: ['m', 'f', 'f', 'm', 'f', 'f', 'f'],
+      d: 'Atrás en V, capas verticales, guía mixta: graduación · escalonado (peso abajo).',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 75, 75, 135, 150, 150), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en V · graduación · escalonado (peso abajo).',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en V.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 75 · 75 · 135 · 150 · 150°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil en las capas 1 y 4; guía fija en las capas 2, 3, 5, 6 y 7.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_a_1_m', fam: 'lab', n: 'Lab · Combinado en A · 0·15·30·90·120·165·165° · guía móvil', linea: 'a', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás en A, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 30, 90, 120, 165, 165), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en A · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en A.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 30 · 90 · 120 · 165 · 165°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_a_1_f', fam: 'lab', n: 'Lab · Escalonado en A · 0·15·30·90·120·165·165° · guía fija', linea: 'a', guias: ['f', 'f', 'f', 'f', 'f', 'f', 'f'],
+      d: 'Atrás en A, capas verticales, guía fija: graduación · escalonado (peso abajo).',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 30, 90, 120, 165, 165), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en A · graduación · escalonado (peso abajo).',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en A.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 30 · 90 · 120 · 165 · 165°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía fija: cada capa se lleva al punto de la guía y se corta ahí.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_a_2_m', fam: 'lab', n: 'Lab · Combinado en A · 0·15·15·30·90·120·135° · guía móvil', linea: 'a', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás en A, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 15, 30, 90, 120, 135), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en A · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en A.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 15 · 30 · 90 · 120 · 135°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_a_2_f', fam: 'lab', n: 'Lab · Combinado en A · 0·15·15·30·90·120·135° · guía mixta', linea: 'a', guias: ['m', 'm', 'm', 'f', 'm', 'm', 'm'],
+      d: 'Atrás en A, capas verticales, guía mixta: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 15, 15, 30, 90, 120, 135), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en A · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en A.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 15 · 15 · 30 · 90 · 120 · 135°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil en las capas 1, 2, 3, 5, 6 y 7; guía fija en la capa 4.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_diag_delante_1_m', fam: 'lab', n: 'Lab · Combinado en diagonal hacia delante · 0·30·60·75·90·120·135° · guía móvil', linea: 'diag_delante', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás en diagonal hacia delante, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 30, 60, 75, 90, 120, 135), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en diagonal hacia delante · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en diagonal hacia delante.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 30 · 60 · 75 · 90 · 120 · 135°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_diag_delante_1_f', fam: 'lab', n: 'Lab · Escalonado en diagonal hacia delante · 0·30·60·75·90·120·135° · guía fija', linea: 'diag_delante', guias: ['f', 'f', 'f', 'f', 'f', 'f', 'f'],
+      d: 'Atrás en diagonal hacia delante, capas verticales, guía fija: graduación · escalonado (peso abajo).',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 30, 60, 75, 90, 120, 135), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en diagonal hacia delante · graduación · escalonado (peso abajo).',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en diagonal hacia delante.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 30 · 60 · 75 · 90 · 120 · 135°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía fija: cada capa se lleva al punto de la guía y se corta ahí.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_diag_delante_2_m', fam: 'lab', n: 'Lab · Combinado en diagonal hacia delante · 0·45·60·60·105·120·165° · guía móvil', linea: 'diag_delante', guias: ['m', 'm', 'm', 'm', 'm', 'm', 'm'],
+      d: 'Atrás en diagonal hacia delante, capas verticales, guía móvil: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 45, 60, 60, 105, 120, 165), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en diagonal hacia delante · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en diagonal hacia delante.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 45 · 60 · 60 · 105 · 120 · 165°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil: cada capa se corta a su elevación y su largo sale de la anterior.',
+          'Delante se empareja con la línea de atrás.'
+        ] }
+    },
+    {
+      id: 'lab_diag_delante_2_f', fam: 'lab', n: 'Lab · Combinado en diagonal hacia delante · 0·45·60·60·105·120·165° · guía mixta', linea: 'diag_delante', guias: ['m', 'f', 'f', 'f', 'm', 'm', 'm'],
+      d: 'Atrás en diagonal hacia delante, capas verticales, guía mixta: forma combinada.',
+      mejor: ['ondulado', 'poblado', 'liso'],
+      g: { part: 'vertical', tipo: 'Recto', elev: pila(0, 45, 60, 60, 105, 120, 165), guiaElev: 0, dir: 'Perpendicular', acabado: 'Recto',
+        resultado: 'Atrás queda en diagonal hacia delante · forma combinada.',
+        notas: [
+          'Se lava el cabello, se seca con una toalla y se coloca la capa. Raya central y división de oreja a oreja; atrás, secciones verticales.',
+          'Línea guía en la nuca a 0°, con la forma en diagonal hacia delante.',
+          'De abajo arriba, cada capa se lleva a su elevación (0 · 45 · 60 · 60 · 105 · 120 · 165°) y se corta en la punta: el cabello cortado se queda y se ve cómo queda. Guía móvil en las capas 1, 5, 6 y 7; guía fija en las capas 2, 3 y 4.',
+          'Delante se empareja con la línea de atrás.'
         ] }
     },
     /* ── Melenas y bob ── */
@@ -939,6 +1253,8 @@
       /* 26-10-2026: `largo` y `fleco` solo si el corte los trae (cortes rectos largos) */
       var o = { id: c.id, n: c.n, fam: c.fam, d: c.d, mejor: c.mejor.slice() };
       if (c.largo) o.largo = c.largo; if (c.fleco) o.fleco = c.fleco;
+      /* 16-11-2026: los cortes del Laboratorio traen su línea de atrás y su guía por capa (m = móvil, f = fija) */
+      if (c.linea) o.linea = c.linea; if (c.guias) o.guias = c.guias.slice();
       return o;
     },
 

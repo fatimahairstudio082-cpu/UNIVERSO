@@ -200,7 +200,11 @@
         if (nucas.length > 1) rep.push(mezcla(R('En «' + c.n + '», ¿a qué elevación se corta la nuca?', [ev[0]].concat(nucas.filter(function (x) { return x !== ev[0]; }).slice(0, 2)).map(function (x) { return x + '°'; }), 0, 'La ficha técnica marca el primer mechón, en la nuca, a ' + ev[0] + '°.'), g + 1));
       }
     });
-    return uni('pe_u_c_' + fa.id, 'Cortes · ' + fa.n, ideas, L.map(function (c) { return c.n.toLowerCase(); }), rep, mods,
+    /* 16-11-2026: una familia con más de 8 cortes (la del Laboratorio, 24) no cabe en «Aprende» ni en la síntesis: 8 ideas
+       repartidas entre sus cortes (las demás familias tienen 8 o menos y no cambian) */
+    var claves = L.map(function (c) { return c.n.toLowerCase(); });
+    if (ideas.length > 8) { var ocho = [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) { return Math.round(i * ideas.length / 8); }); ideas = ocho.map(function (i) { return ideas[i]; }); claves = ocho.map(function (i) { return claves[i]; }); }
+    return uni('pe_u_c_' + fa.id, 'Cortes · ' + fa.n, ideas, claves, rep, mods,
       null /* 16-11-2026 (Fátima): sin el esquema fijo «Diagnóstico › … › Repaso», que no sale de Guías 3D */);
   }
 

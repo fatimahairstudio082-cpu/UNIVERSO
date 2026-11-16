@@ -29,7 +29,9 @@
     var DGL = window.EU_PELU_LIBRO_DG, DG = window.EU_DIAGRAMA, d = null, r = null; if (!DGL || !DG) return null;
     try { d = DGL.datos({ k: 'corte', corte: id }); } catch (e) { d = null; }
     var e = d && d.E ? d.E.escenas.filter(function (x) { return x.tipo === 'angulos'; })[0] : null;
-    try { r = e ? { img: DG.foto(e, 560, 0.8), imgT: (d.R && d.R.n ? d.R.n + ' · ' : '') + (e.t || 'Ángulos y largos') } : null; } catch (er) { r = null; }
+    /* 16-11-2026 (Fátima, «las dos»): «Cómo queda» del corte (cambia con su guía móvil o fija) al lado de «Ángulos y largos» */
+    var q = d && d.E ? d.E.escenas.filter(function (x) { return /^queda_/.test(x.tipo) && x.vista !== 'frente'; })[0] : null;
+    try { r = e ? (q && DG.fotoDoble ? { img: DG.fotoDoble(q, e, 420, 0.8), imgT: (d.R && d.R.n ? d.R.n + ' · ' : '') + 'Cómo queda · Ángulos y largos' } : { img: DG.foto(e, 560, 0.8), imgT: (d.R && d.R.n ? d.R.n + ' · ' : '') + (e.t || 'Ángulos y largos') }) : null; } catch (er) { r = null; }
     if (!d) return null;   /* el maniquí aún no está listo: no se guarda */
     return (MANI[id] = r && r.img ? r : null);
   }
