@@ -44,6 +44,21 @@
   M.reg = [];
 
   function R(p, o, c, x) { return { p: p, o: o, c: c, x: x }; }
+  /* 15-11-2026 (Fátima: «los tests desde los datos de Guías 3D, nada inventado»): pasos reales de un corte (EU_CORTES.guiaDe),
+     herramientas reales del catálogo (sin máquina) y elevaciones de nuca reales de los cortes */
+  function pasosReales(id) {
+    try { var g = window.EU_CORTES.guiaDe(id); return g && g.pasos && g.pasos.length >= 3 ? { t: 'flujo', p: g.pasos.map(function (x) { return String(x.titulo || '').replace(/^\d+\s*·\s*/, ''); }).filter(Boolean) } : null; } catch (e) { return null; }
+  }
+  function herramientasReales() {
+    var CO = window.EU_CORTES, h = [];
+    (CO ? CO.lista() : []).forEach(function (c) { var t = (CO.tecnica(c.id) || {}).her; if (t && !/m[aá]quina/i.test(t) && h.indexOf(t) < 0) h.push(t); });
+    return h;
+  }
+  function nucasReales() {
+    var CO = window.EU_CORTES, n = [];
+    (CO ? CO.lista() : []).forEach(function (c) { var e0 = ((CO.tecnica(c.id) || {}).elev || [])[0]; if (e0 != null && n.indexOf(e0) < 0) n.push(e0); });
+    return n;
+  }
   function mezcla(r, k) { var n = r.o.length, s = k % n; r.o = r.o.slice(s).concat(r.o.slice(0, s)); r.c = (r.c - s + n) % n; return r; }
   function uni(id, t, i, k, rep, mods, f) { return { m: 'pelu', id: id, b: BANDA, t: t, i: i, k: k, rep: rep || [], err: [], f: f || null, mods: mods, fam: 'Peluquería', _ajuste: 0 }; }
 
@@ -85,7 +100,7 @@
          R('¿Para qué sirve la mecha guía?', ['Para marcar el largo de referencia', 'Para sujetar el pelo', 'Para medir el color'], 0, 'Todas las mechas se cortan comparándolas con la guía.'),
          R('Cuanto más se eleva una mecha…', ['más larga queda', 'más corta queda respecto a la de abajo', 'no cambia'], 1, 'Por eso la elevación crea capas.'),
          R('¿Qué pasa si se corta sin llevar la guía?', ['Queda más parejo', 'No cambia nada', 'El corte pierde el rumbo'], 2, 'Cada mecha nueva se compara con la guía; sin ella no hay referencia.')], M.base,
-        { t: 'flujo', p: ['Diagnóstico', 'Secciones', 'Mecha guía', 'Elevación', 'Corte', 'Repaso'] }),
+        pasosReales(((window.EU_CORTES && EU_CORTES.lista()[0]) || {}).id)),   /* 15-11-2026: pasos del motor de Guías 3D, no una lista fija */
       neg: uni('pe_u_neg', 'El salón como negocio', [
         'El precio de un servicio suma el tiempo de trabajo, el producto gastado y los gastos fijos del salón.',
         'La agenda se organiza por duración real de cada servicio para no hacer esperar a nadie.',
@@ -122,14 +137,16 @@
       if (c.d && otros.length >= 2) rep.push(mezcla(R('¿Qué corte es? «' + c.d + '»', [c.n, otros[g % otros.length], otros[(g + 1) % otros.length]], 0, 'Es «' + c.n + '»: ' + elev.toLowerCase() + '.'), g));
       var nucas = []; L.forEach(function (o) { var e0 = ((CO.tecnica(o.id) || {}).elev || [0])[0]; if (nucas.indexOf(e0) < 0) nucas.push(e0); });
       if (nucas.length > 1) rep.push(mezcla(R('En «' + c.n + '», ¿a qué elevación se corta la nuca?', [ev[0]].concat(nucas.filter(function (x) { return x !== ev[0]; }).slice(0, 2)).map(function (x) { return x + '°'; }), 0, 'La ficha técnica marca el primer mechón, en la nuca, a ' + ev[0] + '°.'), g + 1));
-      if (T.her && !/^tijera$/i.test(T.her)) rep.push(mezcla(R('¿Qué herramienta se usa en «' + c.n + '»?', [T.her, T.her === 'Navaja' ? 'Máquina' : 'Navaja', 'Tijera'], 0, T.her + ', con acabado ' + (T.acabado || 'punteado').toLowerCase() + '.'), g + 2));
+      var hOtras = herramientasReales().filter(function (h) { return h !== T.her; }).slice(0, 2);
+      if (T.her && !/^tijera$/i.test(T.her) && hOtras.length) rep.push(mezcla(R('¿Qué herramienta se usa en «' + c.n + '»?', [T.her].concat(hOtras), 0, T.her + ', con acabado ' + (T.acabado || 'punteado').toLowerCase() + '.'), g + 2));
     });
     /* si toda la familia comparte nuca o herramienta, se pregunta una sola vez para la familia */
     var ev0 = (CO.tecnica((L[0] || {}).id) || {}).elev || [0];
-    if (L.length && L.every(function (o) { return (((CO.tecnica(o.id) || {}).elev || [0])[0]) === ev0[0]; }))
-      rep.push(mezcla(R('En los cortes de «' + fa.n + '», ¿a qué elevación se corta la nuca?', [ev0[0], (ev0[0] + 45) % 225, (ev0[0] + 90) % 225].map(function (x) { return x + '°'; }), 0, 'En todos los cortes de esta familia la ficha marca el primer mechón, en la nuca, a ' + ev0[0] + '°.'), fa.id.length));
+    var nOtras = nucasReales().filter(function (x) { return x !== ev0[0]; }).slice(0, 2);
+    if (L.length && nOtras.length === 2 && L.every(function (o) { return (((CO.tecnica(o.id) || {}).elev || [0])[0]) === ev0[0]; }))
+      rep.push(mezcla(R('En los cortes de «' + fa.n + '», ¿a qué elevación se corta la nuca?', [ev0[0]].concat(nOtras).map(function (x) { return x + '°'; }), 0, 'En todos los cortes de esta familia la ficha marca el primer mechón, en la nuca, a ' + ev0[0] + '°.'), fa.id.length));
     return uni('pe_u_c_' + fa.id, 'Cortes · ' + fa.n, ideas, L.map(function (c) { return c.n.toLowerCase(); }), rep, mods,
-      { t: 'flujo', p: ['Diagnóstico', 'Secciones', 'Mecha guía', 'Elevación', 'Corte', 'Repaso'] });
+      pasosReales((L[0] || {}).id));   /* 15-11-2026: los pasos del motor de Guías 3D, no una lista fija */
   }
 
   var EST = false;

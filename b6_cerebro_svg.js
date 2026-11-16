@@ -345,7 +345,7 @@
     if (mez.join() === orden.join()) mez.reverse();
     var L = 'ABCDEFG', sol = orden.map(function (i) { return L.charAt(mez.indexOf(i)); }).join(', ');
     var fig = '<div style="display:flex;flex-direction:column;gap:3mm;max-width:150mm">' + mez.map(function (i, k) { return '<div style="display:flex;gap:4mm;align-items:center;border:1px solid ' + C.T.soft + ';border-radius:' + Math.min(C.T.r, 10) + 'px;padding:3mm 4mm"><b style="flex:none;width:9mm;height:9mm;border-radius:50%;background:' + C.T.acc + ';color:#fff;display:flex;align-items:center;justify-content:center;font-family:' + C.T.tit + '">' + L.charAt(k) + '</b><span>' + esc(pasos[i]) + '</span></div>'; }).join('') + '</div>';
-    return { t: 'Ordena los pasos', intro: 'Las tarjetas de «' + S(u.t, C) + '» están desordenadas.', fig: fig, items: [it('corta', 'Escribe las letras en el orden correcto.', sol, { ac: [sol, sol.replace(/, /g, '')] }), it('abierta', 'Explica con tus palabras qué ocurre en el segundo paso.', pasos[1], { lin: 2 })] };
+    return { t: 'Ordena los pasos', intro: 'Las tarjetas de «' + S(u.t, C) + '» están desordenadas.', fig: fig, items: [it('corta', 'Escribe las letras en el orden correcto.', sol, { ac: [sol, sol.replace(/, /g, '')] }), (u.m === 'pelu' ? it('corta', '¿Qué paso va justo después de «' + pasos[0] + '»?', pasos[1]) : it('abierta', 'Explica con tus palabras qué ocurre en el segundo paso.', pasos[1], { lin: 2 }))] };   /* 15-11-2026: Peluquería, pregunta concreta de su proceso (no genérica) */
   }
   function genSopa(u, C, r) {
     var SO = window.EU_SOPA; if (!SO) return null;
