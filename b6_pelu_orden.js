@@ -73,7 +73,8 @@
   function preguntasCorte(Rc, T) {
     var B = biblio(), DG = window.EU_DIAGRAMA, CO = window.EU_CORTES;
     if (!B || !Rc || !Rc.capas || !Rc.capas.pila) return null;
-    if (Rc.id && PQ[Rc.id]) return PQ[Rc.id];
+    var kq = (Rc.id || '') + '|' + (Rc.n || '');   /* una misma receta puede llevar otro nombre en su clase («Corte redondo» = básico redondeado) */
+    if (Rc.id && PQ[kq]) return PQ[kq];
     if (!T && Rc.id && CO && CO.tecnica) T = CO.tecnica(Rc.id) || null;
     var n = Rc.n || '', nc = '«' + n + '»', pila = Rc.capas.pila, fp = (Rc.frente && Rc.frente.pila) || [], g = 0, out = [];
     for (var q = 0; q < n.length; q++) g += n.charCodeAt(q);
@@ -112,7 +113,7 @@
       var ops = FORMAS_C.filter(function (f) { return f !== calc.forma; }).slice((n.length + pila.length) % 3, (n.length + pila.length) % 3 + 2); ops.splice(pila.length % 3, 0, calc.forma);
       out.push({ e: 'Con estas elevaciones (' + pila.join(' · ') + '°), ¿qué forma resulta en ' + n.toLowerCase() + '?', o: ops, c: ops.indexOf(calc.forma), x: 'Largos calculados: ' + calc.largos.map(function (x) { return CC.fmt(x); }).join(' · ') + ' cm.' });
     }
-    if (Rc.id) PQ[Rc.id] = out;
+    if (Rc.id) PQ[kq] = out;
     return out;
   }
 
