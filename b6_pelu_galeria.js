@@ -1096,7 +1096,7 @@
           '<rect x="1" y="1" width="198" height="148" rx="5" fill="#EEF0F3"/><image href="' + src(g) + '" x="3" y="3" width="194" height="144"' + f + ' preserveAspectRatio="xMidYMid meet"/>';
       },
       rot: [], intro: DESC[g[4]],
-      q: [['¿Qué se ve en «' + g[1] + '»?', DESC[g[4]]], ['¿De qué grupo de la galería es?', CATS[g[2]] + '.'], ['¿Qué enseña la imagen y qué enseña el maniquí?', 'La imagen enseña el resultado; el maniquí y la ficha, cómo se llega a él.']],
+      q: [['¿Qué se ve en «' + g[1] + '»?', DESC[g[4]]]],   /* 16-11-2026 (Fátima: «fuera lo genérico»): solo la pregunta propia de la imagen */
       porque: DESC[g[4]]
     };
   }

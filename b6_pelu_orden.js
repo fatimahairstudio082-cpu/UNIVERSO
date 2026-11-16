@@ -155,7 +155,7 @@
          R('¿Para qué sirve la mecha guía?', ['Para marcar el largo de referencia', 'Para sujetar el pelo', 'Para medir el color'], 0, 'Todas las mechas se cortan comparándolas con la guía.'),
          R('Cuanto más se eleva una mecha…', ['más larga queda', 'más corta queda respecto a la de abajo', 'no cambia'], 1, 'Por eso la elevación crea capas.'),
          R('¿Qué pasa si se corta sin llevar la guía?', ['Queda más parejo', 'No cambia nada', 'El corte pierde el rumbo'], 2, 'Cada mecha nueva se compara con la guía; sin ella no hay referencia.')], M.base,
-        { t: 'flujo', p: ['Diagnóstico', 'Secciones', 'Mecha guía', 'Elevación', 'Corte', 'Repaso'] }),
+        null /* 16-11-2026 (Fátima): sin el esquema fijo «Diagnóstico › … › Repaso», que no sale de Guías 3D */),
       neg: uni('pe_u_neg', 'El salón como negocio', [
         'El precio de un servicio suma el tiempo de trabajo, el producto gastado y los gastos fijos del salón.',
         'La agenda se organiza por duración real de cada servicio para no hacer esperar a nadie.',
@@ -201,7 +201,7 @@
       }
     });
     return uni('pe_u_c_' + fa.id, 'Cortes · ' + fa.n, ideas, L.map(function (c) { return c.n.toLowerCase(); }), rep, mods,
-      { t: 'flujo', p: ['Diagnóstico', 'Secciones', 'Mecha guía', 'Elevación', 'Corte', 'Repaso'] });
+      null /* 16-11-2026 (Fátima): sin el esquema fijo «Diagnóstico › … › Repaso», que no sale de Guías 3D */);
   }
 
   var EST = false;

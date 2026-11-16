@@ -143,7 +143,8 @@
       cfg: cfg, P: P, pk: cfg.pais, nivel: cfg.nivel, N: N, cursoN: N.c[curso].n, bnd: bnd,
       mat: cfg.materia, matN: CU.nombreMateria(cfg.materia, cfg.pais), prod: prod, T: T,
       papel: PAPEL[papel] || PAPEL.a4, papelId: papel, fs: fs,
-      guia: { n: (cfg.guiaN || '').trim() || guiaDef, img: cfg.guiaImg || '' },
+      /* 16-11-2026 (Fátima: «fuera el personaje inventado»): en Peluquería no hay guía salvo que se escriba uno en el panel */
+      guia: { n: (cfg.guiaN || '').trim() || (cfg.materia === 'pelu' ? '' : guiaDef), img: cfg.guiaImg || '' },
       semilla: cfg.semilla || 1, usuario: cfg.usuario || 'docente',
       solucion: prod.sol && cfg.solucion !== false && cfg.usuario !== 'alumno',
       peque: bnd === 'inf' || bnd === 'pri1', adulto: bnd === 'adu' || bnd === 'fp',
@@ -499,7 +500,8 @@
       });
     });
     (u.q || []).forEach(function (q) { pool.push(it('abierta', sub(q, C), '', { lin: C.peque ? 2 : 3 })); });
-    (u.err || []).forEach(function (e) { pool.push(it('abierta', 'Error frecuente: «' + e + '». ¿Qué harías para evitarlo?', '', { lin: 2 })); });
+    /* Peluquería (16-11-2026, Fátima: «el error común, sin pregunta»): el error no es un ejercicio; sigue como aviso en sus hojas */
+    if (u.m !== 'pelu') (u.err || []).forEach(function (e) { pool.push(it('abierta', 'Error frecuente: «' + e + '». ¿Qué harías para evitarlo?', '', { lin: 2 })); });
     /* Peluquería (Fátima, 19-10-2026): sin plantillas genéricas («busca un ejemplo…», «escribe una oración…»); solo su contenido */
     if (u.m !== 'pelu') (u.k || []).forEach(function (k0) {
       var k = sub(k0, C);
@@ -557,6 +559,7 @@
     repaso: ['Mira todo lo que ya sabes.', 'Marca con sinceridad: así sabremos qué repasar.', 'Lo que marques como difícil, repásalo mañana.', 'Compara esta página con la primera de la unidad: ¡cuánto has avanzado!']
   };
   function frase(tipo, C, r, u) {
+    if (!C.guia.n) return u && u.h && tipo === 'explica' ? sub(u.h, C) : '';   /* sin guía (Peluquería): sin frases genéricas, solo la nota propia de la unidad */
     var f = u && u.h && tipo === 'explica' ? u.h : pick(r, FRASES[tipo] || FRASES.explica);
     if (C.adulto) f = f.replace('Hola, soy', 'Soy').replace('es tu libro', 'es su material de trabajo');
     return sub(f.replace('{g}', C.guia.n).replace('{t}', u ? sub(u.t, C) : ''), C);
@@ -781,6 +784,7 @@
   }
   function guia(C, texto, abajo) {
     var T = C.T;
+    if (!C.guia.n) return texto ? '<div style="' + (abajo ? 'position:absolute;left:17mm;right:17mm;bottom:15mm;' : 'margin:4mm 0;') + 'background:' + T.soft2 + ';border-radius:' + Math.max(T.r, 6) + 'px;padding:2.4mm 4mm;font-size:.92em;line-height:1.45">' + esc(texto) + '</div>' : '';   /* sin guía: el texto propio, sin nombre ni avatar */
     return '<div style="' + (abajo ? 'position:absolute;left:17mm;right:17mm;bottom:15mm;' : 'margin:4mm 0;') + 'display:flex;gap:3.5mm;align-items:center">' + avatar(C, 13) +
       '<div style="background:' + T.soft2 + ';border-radius:' + Math.max(T.r, 6) + 'px;padding:2.4mm 4mm;font-size:.92em;line-height:1.45"><b style="color:' + T.acc2 + '">' + esc(C.guia.n) + ':</b> ' + esc(texto) + '</div></div>';
   }
@@ -831,7 +835,7 @@
         h1(C, esc(C.titulo), 'font-size:' + (C.fs * (C.peque ? 3.2 : 3.4)) + 'px;margin-top:4mm') +
         '<div style="font-size:1.15em">' + sub1 + '</div>' +
         '<div style="flex:1;margin:10mm 0;display:flex;flex-direction:column;justify-content:center">' + marcoImagen(C, 'Ilustración de portada: súbela en «Imágenes» del panel', 90, img) + '</div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6mm"><div><div style="font-weight:700">' + esc(C.cfg.autor || '') + '</div><div style="font-size:.85em;opacity:.8">' + esc(C.cfg.centro || '') + '</div><div style="font-size:.8em;opacity:.7;margin-top:1mm">' + marco + '</div></div>' + (C.prod.id === 'examen' ? '' : '<div style="display:flex;align-items:center;gap:2.5mm;font-size:.85em">' + avatar(C, 14) + '<span>Con ' + esc(C.guia.n) + '</span></div>') + '</div></div>';
+        '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6mm"><div><div style="font-weight:700">' + esc(C.cfg.autor || '') + '</div><div style="font-size:.85em;opacity:.8">' + esc(C.cfg.centro || '') + '</div><div style="font-size:.8em;opacity:.7;margin-top:1mm">' + marco + '</div></div>' + (C.prod.id === 'examen' || !C.guia.n ? '' : '<div style="display:flex;align-items:center;gap:2.5mm;font-size:.85em">' + avatar(C, 14) + '<span>Con ' + esc(C.guia.n) + '</span></div>') + '</div></div>';
     },
     creditos: function (pg, C, modo, ctx) {
       var ed = C.usuario === 'editorial', y = new Date().getFullYear();
@@ -901,7 +905,7 @@
     presentacion: function (pg, C) {
       var fam = C.usuario === 'familia' || C.peque;
       return cabecera(C, pg) + h1(C, C.adulto ? 'Antes de empezar' : 'Hola, ¿empezamos?') +
-        guia(C, sub(C.adulto ? 'Soy ' + C.guia.n + '. Este material está pensado para que avances a tu ritmo, con ejemplos de la vida diaria en ' + (C.P.id === 'us' ? 'Estados Unidos' : C.P.n) + '.' : 'Soy ' + C.guia.n + ' y voy a estar contigo en cada unidad. Cuando me veas, te daré una pista o una idea.', C)) +
+        (!C.guia.n ? '' : guia(C, sub(C.adulto ? 'Soy ' + C.guia.n + '. Este material está pensado para que avances a tu ritmo, con ejemplos de la vida diaria en ' + (C.P.id === 'us' ? 'Estados Unidos' : C.P.n) + '.' : 'Soy ' + C.guia.n + ' y voy a estar contigo en cada unidad. Cuando me veas, te daré una pista o una idea.', C))) +
         h2(C, 'Cómo está organizado') +
         '<p style="margin:0 0 2mm">Cada unidad tiene cinco momentos:</p>' +
         ['<b>Apertura</b>: qué vas a aprender y por qué importa.', '<b>Explicación</b>: las ideas clave, con un esquema.', '<b>Cerca de ti</b>: un ejemplo de tu entorno.', '<b>Actividades</b>: para practicar, de lo sencillo a lo difícil.', '<b>Repaso</b>: un mapa de la unidad y tu autoevaluación.'].map(function (s) { return '<div style="margin:0 0 1.5mm 3mm">· ' + sub(s, C) + '</div>'; }).join('') +
@@ -1084,7 +1088,7 @@
     s_titulo: function (pg, C) { var T = C.T; return '<div style="height:100%;display:flex;align-items:center;gap:12mm"><div style="font-family:' + T.tit + ';font-size:180px;font-weight:' + T.peso + ';color:' + T.acc + ';line-height:.8">' + pg.n + '</div>' + h1(C, esc(sub(pg.u.t, C)), 'font-size:56px;margin:0') + '</div>'; },
     s_idea: function (pg, C) { var T = C.T, s = sub(pg.u.i[pg.k], C); return '<div style="font-size:.9em;color:' + T.acc + ';font-weight:700;letter-spacing:.1em;text-transform:uppercase">' + esc(sub(pg.u.t, C)) + '</div><div style="height:85%;display:flex;align-items:center"><div style="font-family:' + T.tit + ';font-size:' + (s.length > 110 ? 36 : 46) + 'px;line-height:1.25;font-weight:' + (T.peso - 100) + ';max-width:230mm;text-wrap:balance">' + esc(s) + '</div></div>'; },
     s_figura: function (pg, C) { var u = pg.u; return h1(C, esc(sub(u.t, C)), 'font-size:34px') + '<div style="display:flex;justify-content:center;align-items:center;height:70%"><div style="width:190mm">' + figura(u.f || { t: 'mapa', c: sub(u.t, C).slice(0, 26), r: u.k }, C) + '</div></div>'; },
-    s_pregunta: function (pg, C) { var T = C.T, u = pg.u, q = (u.q || [])[0] || ((u.vf || [])[0] ? '¿Verdadero o falso? ' + u.vf[0][0] : '¿Dónde has visto «' + (u.k || [''])[0] + '» en tu vida diaria?'); return '<div style="height:100%;display:flex;flex-direction:column;justify-content:center;gap:6mm"><div style="display:flex;gap:4mm;align-items:center">' + avatar(C, 16) + '<b style="color:' + T.acc2 + ';font-size:1.2em">' + esc(C.guia.n) + ' pregunta</b></div><div style="font-family:' + T.tit + ';font-size:44px;line-height:1.2;font-weight:' + T.peso + ';text-wrap:balance">' + esc(sub(q, C)) + '</div></div>'; },
+    s_pregunta: function (pg, C) { var T = C.T, u = pg.u, q = (u.q || [])[0] || ((u.vf || [])[0] ? '¿Verdadero o falso? ' + u.vf[0][0] : '¿Dónde has visto «' + (u.k || [''])[0] + '» en tu vida diaria?'); return '<div style="height:100%;display:flex;flex-direction:column;justify-content:center;gap:6mm"><div style="display:flex;gap:4mm;align-items:center">' + avatar(C, 16) + '<b style="color:' + T.acc2 + ';font-size:1.2em">' + esc(C.guia.n ? C.guia.n + ' pregunta' : 'Pregunta') + '</b></div><div style="font-family:' + T.tit + ';font-size:44px;line-height:1.2;font-weight:' + T.peso + ';text-wrap:balance">' + esc(sub(q, C)) + '</div></div>'; },
     s_cierre: function (pg, C) { var T = C.T; return '<div style="height:100%;display:flex;flex-direction:column;justify-content:center">' + h1(C, sub('¿Qué te llevas de hoy?', C), 'font-size:60px') + '<div style="font-size:1.3em;color:' + T.acc + '">' + esc(C.titulo) + '</div></div>'; },
     /* Trabajo del alumno */
     t_portada: function (pg, C) {
@@ -1149,7 +1153,7 @@
       case 's_idea': return sub(u.i[pg.k], C);
       case 'actividad': case 'ficha': return (pg.items || []).map(function (x, i) { return (i + 1) + '. ' + String(x.e).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' '); }).join(' ');
       case 'repaso': return 'Repaso de ' + sub(u.t, C) + '. ' + (u.k || []).map(function (k) { return sub(k, C); }).join(', ') + '.';
-      case 's_pregunta': return C.guia.n + ' pregunta: ' + sub((u.q || [])[0] || '¿Qué has aprendido?', C);
+      case 's_pregunta': return (C.guia.n ? C.guia.n + ' pregunta: ' : 'Pregunta: ') + sub((u.q || [])[0] || '¿Qué has aprendido?', C);
       default: return '';
     }
   }
