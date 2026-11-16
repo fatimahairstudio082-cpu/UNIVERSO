@@ -364,6 +364,8 @@
       cab.appendChild(el('b', 'font-size:16px', '✍️ Pizarra · ' + (dat.titulo || 'Practica con tu tutor')));
       var der = el('div', 'display:flex;gap:6px'), bv = bt(UI.voz ? '🔊 Voz' : '🔇 Sin voz', '#1e3a5f', function () { UI.voz = !UI.voz; bv.textContent = UI.voz ? '🔊 Voz' : '🔇 Sin voz'; if (!UI.voz) calla(); });
       der.appendChild(bv); der.appendChild(bt('✕ Cerrar', '#7c3aed', cerrar)); cab.appendChild(der); caja.appendChild(cab);
+      /* 16-11-2026 (Peluquería): el maniquí del corte de la pregunta, con su numeración de elevación, encima de las pizarras */
+      if (dat.img) { var fg = el('figure', 'margin:0 0 10px;display:flex;flex-direction:column;align-items:center;gap:4px;background:#0b1a2e;border:1px solid ' + COL.borde + ';border-radius:10px;padding:8px'), im = el('img', 'max-width:100%;max-height:min(46vh,420px);width:auto;height:auto;border-radius:6px;background:#fff'); im.src = dat.img; im.alt = dat.imgT || 'Maniquí'; fg.appendChild(im); if (dat.imgT) fg.appendChild(el('figcaption', 'font-size:12px;opacity:.85', dat.imgT)); caja.appendChild(fg); }
       var fila = el('div', 'display:flex;gap:12px;flex-wrap:wrap'); caja.appendChild(fila);
       fondo.appendChild(caja); D.body.appendChild(fondo);
       function cerrar() { calla(); clearTimeout(PR.t); PR.auto = 0; fondo.remove(); D.removeEventListener('keydown', tecla); }

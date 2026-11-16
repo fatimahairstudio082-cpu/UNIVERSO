@@ -86,7 +86,7 @@
 
   /* ─── la página ─── */
   function pagina(pg, C, modo) {
-    var T = C.T, u = pg.u, t = pg.tut || {}, web = modo === 'web', alto = Math.round((C.papel.h - 46) * 0.24), sol = [];
+    var T = C.T, u = pg.u, t = pg.tut || {}, web = modo === 'web', alto = t.alto || Math.round((C.papel.h - 46) * 0.24), sol = [];   /* t.alto: láminas agrandadas en Peluquería (16-11-2026) */
     var medir = !!pg._medir, lam = medir ? '' : (window.EU_ESCANER ? window.EU_ESCANER.lamina({ u: u, lam: t.lam }, C) : '');
     var figs = [], conLam = t.nivel < 4 && !t.sinLam;
     if (conLam && (medir || lam)) figs.push('<img ' + (lam ? 'src="' + lam + '" ' : '') + 'alt="Esquema de la unidad" style="height:' + alto + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px">');
@@ -173,6 +173,12 @@
       var n = { tipo: 'tutor', u: p.u, n: p.n, num: p.num, fill2: { nada: 1 } };
       try { n.tut = preparar(n, res, vistos, visto); } catch (e) { console.warn('Tutor', e); return; }
       while (n.tut.nivel < 6 && !cabe(n, res)) n.tut.nivel++;
+      /* 16-11-2026 (Fátima: «la hoja sale a la mitad»): en Peluquería, si sobra sitio, las láminas crecen de 8 en 8 mm hasta llenarlo
+         (tope: 55 % del alto útil y lo que permite el ancho de dos figuras); se queda el mayor tamaño que todavía cabe */
+      if (C.mat === 'pelu' && cabe(n, res)) {
+        var base = Math.round((C.papel.h - 46) * 0.24), tope = Math.round(Math.min((C.papel.h - 46) * 0.55, (C.papel.w - 34) * 0.46));
+        for (var a = base + 8, prev = undefined; a < tope + 8; a += 8) { var v = Math.min(a, tope); n.tut.alto = v; if (!cabe(n, res)) { n.tut.alto = prev; break; } prev = v; if (v === tope) break; }
+      }
       res.pages[i] = n; hay = true;
     });
     if (hay) res.pages.forEach(function (p) { if (p.tipo === 'presentacion') p._tutor = 1; });
