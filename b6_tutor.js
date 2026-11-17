@@ -80,19 +80,22 @@
     var d = null; try { d = window.EU_PELU_LIBRO_DG.datos(dg); } catch (e) { }
     if (!d || !d.E) return '';   /* el motor 3D aún no está listo: no se guarda, se reintenta al volver a armar */
     var e = d.E.escenas.filter(function (x) { return x.tipo === 'angulos'; })[0], f = '';
-    try { f = e ? window.EU_DIAGRAMA.foto(e, 560, 0.8) : ''; } catch (er) { }
-    return (FOTO[k] = f ? { src: f, t: e.titulo || e.t || 'Ángulos y centímetros' } : '');
+    /* 16-11-2026 (Fátima: «cómo queda cada corte», eligió «las dos»): «Cómo queda» (atrás o de lado, según su guía móvil o fija)
+       al lado de «Ángulos y largos», en una sola imagen; sin escena «Cómo queda», solo la de ángulos como antes */
+    var q = d.E.escenas.filter(function (x) { return /^queda_/.test(x.tipo) && x.vista !== 'frente'; })[0], DG = window.EU_DIAGRAMA;
+    try { f = q && e && DG.fotoDoble ? DG.fotoDoble(q, e, 420, 0.8) : e ? DG.foto(e, 560, 0.8) : ''; } catch (er) { }
+    return (FOTO[k] = f ? { src: f, t: q && e && DG.fotoDoble ? 'Cómo queda · Ángulos y largos' : (e.titulo || e.t || 'Ángulos y centímetros') } : '');
   }
 
   /* ─── la página ─── */
   function pagina(pg, C, modo) {
-    var T = C.T, u = pg.u, t = pg.tut || {}, web = modo === 'web', alto = Math.round((C.papel.h - 46) * 0.24), sol = [];
+    var T = C.T, u = pg.u, t = pg.tut || {}, web = modo === 'web', alto = t.alto || Math.round((C.papel.h - 46) * 0.24), sol = [];   /* t.alto: láminas agrandadas en Peluquería (16-11-2026) */
     var medir = !!pg._medir, lam = medir ? '' : (window.EU_ESCANER ? window.EU_ESCANER.lamina({ u: u, lam: t.lam }, C) : '');
     var figs = [], conLam = t.nivel < 4 && !t.sinLam;
     if (conLam && (medir || lam)) figs.push('<img ' + (lam ? 'src="' + lam + '" ' : '') + 'alt="Esquema de la unidad" style="height:' + alto + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px">');
     if (t.nivel < 3 && t.dg) {
       var fm = medir ? { src: '', t: '' } : fotoManiqui(t.dg);
-      if (fm) figs.push('<figure style="margin:0;text-align:center"><img ' + (fm.src ? 'src="' + fm.src + '" ' : '') + 'alt="Maniquí" style="height:' + (alto - 6) + 'mm;width:auto;max-width:100%;display:block;border-radius:' + T.r + 'px"><figcaption style="font-size:.7em;opacity:.8;margin-top:1mm">Maniquí · ' + es(fm.t || 'ángulos y centímetros') + '</figcaption></figure>');
+      if (fm) figs.push('<figure style="margin:0;text-align:center"><img ' + (fm.src ? 'src="' + fm.src + '" ' : '') + 'alt="Maniquí" style="height:' + (alto - 6) + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px"><figcaption style="font-size:.7em;opacity:.8;margin-top:1mm">Maniquí · ' + es(fm.t || 'ángulos y centímetros') + '</figcaption></figure>');
     } else if (t.nivel < 3 && t.lams && t.lams[1] != null) {
       var l2 = medir ? '' : (window.EU_ESCANER ? window.EU_ESCANER.lamina({ u: u, lam: t.lams[1] }, C) : '');
       if (medir || l2) figs.push('<img ' + (l2 ? 'src="' + l2 + '" ' : '') + 'alt="Esquema de la unidad" style="height:' + alto + 'mm;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + T.r + 'px">');
@@ -122,10 +125,14 @@
         return '<div style="margin:0 0 2mm;font-size:.88em;position:relative"><b style="color:' + T.acc + '">' + (i + 1) + '.</b> ' + x.e + ops + ayuda + '</div>';
       }).join('');
     }
+    /* 16-11-2026 (Fátima: «tus errores comunes»): en Peluquería, si la unidad no deja ejemplo ni práctica sin repetir, sus errores
+       comunes (u.err, textos tal cual) como aviso, sin pregunta */
+    var errc = !ej && !prac && u.m === 'pelu' && (u.err || []).length ? H.h2(C, 'Errores comunes') + '<div style="background:' + T.soft + ';border-left:1.2mm solid ' + T.acc + ';border-radius:0 ' + T.r + 'px ' + T.r + 'px 0;padding:2mm 3.5mm;font-size:.88em;line-height:1.45">' +
+      u.err.slice(0, t.nivel < 3 ? 5 : 3).map(function (e) { return '<div style="margin:0 0 1.2mm">· ' + es(sub(e, C)) + '</div>'; }).join('') + '</div>' : '';
     var esencial = (u.k || []).length ? H.h2(C, 'Lo esencial') + '<div style="display:flex;flex-wrap:wrap;gap:1.5mm">' + (u.k || []).slice(0, 8).map(function (k) { return '<span style="border:1px solid ' + T.acc + ';color:' + T.acc + ';border-radius:' + (T.r ? 99 : 0) + 'px;padding:.3mm 2.5mm;font-size:.82em">' + es(sub(k, C)) + '</span>'; }).join('') + '</div>' : '';
     var pie = !web && sol.length ? '<div style="position:absolute;left:17mm;right:17mm;bottom:14mm;font-size:.72em;line-height:1.35;border-top:1px solid ' + T.soft + ';padding-top:1mm;opacity:.9"><b>Respuestas del tutor:</b> ' + es(sol.join(' · ')) + '</div>' : '';
-    var intro = '<div style="display:flex;gap:2.5mm;align-items:center;margin:-2mm 0 2.5mm;font-size:.86em">' + H.avatar(C, 9) + '<span><b style="color:' + T.acc2 + '">' + es(C.guia.n) + ':</b> ' + es(C.adulto ? 'Repasamos juntos: esquema, pasos, un ejemplo resuelto y práctica con su respuesta.' : 'Vamos a repasar juntos: mira el esquema, sigue los pasos, resuelve conmigo y comprueba.') + '</span></div>';
-    return H.cabecera(C, pg) + H.h1(C, 'Repaso con tu tutor', 'margin-bottom:3mm') + '<div data-tutor="1">' + intro + cajas + pasos + ej + prac + esencial + '</div>' + pie + H.folio(C, pg);
+    var intro = !C.guia.n ? '' : '<div style="display:flex;gap:2.5mm;align-items:center;margin:-2mm 0 2.5mm;font-size:.86em">' + H.avatar(C, 9) + '<span><b style="color:' + T.acc2 + '">' + es(C.guia.n) + ':</b> ' + es(C.adulto ? 'Repasamos juntos: esquema, pasos, un ejemplo resuelto y práctica con su respuesta.' : 'Vamos a repasar juntos: mira el esquema, sigue los pasos, resuelve conmigo y comprueba.') + '</span></div>';
+    return H.cabecera(C, pg) + H.h1(C, 'Repaso con tu tutor', 'margin-bottom:3mm') + '<div data-tutor="1">' + intro + cajas + pasos + ej + prac + errc + esencial + '</div>' + pie + H.folio(C, pg);
   }
   function voz(pg, C) {
     var u = pg.u, t = pg.tut || {};
@@ -169,6 +176,12 @@
       var n = { tipo: 'tutor', u: p.u, n: p.n, num: p.num, fill2: { nada: 1 } };
       try { n.tut = preparar(n, res, vistos, visto); } catch (e) { console.warn('Tutor', e); return; }
       while (n.tut.nivel < 6 && !cabe(n, res)) n.tut.nivel++;
+      /* 16-11-2026 (Fátima: «la hoja sale a la mitad»): en Peluquería, si sobra sitio, las láminas crecen de 8 en 8 mm hasta llenarlo
+         (tope: 55 % del alto útil y lo que permite el ancho de dos figuras); se queda el mayor tamaño que todavía cabe */
+      if (C.mat === 'pelu' && cabe(n, res)) {
+        var base = Math.round((C.papel.h - 46) * 0.24), tope = Math.round(Math.min((C.papel.h - 46) * 0.55, (C.papel.w - 34) * 0.46));
+        for (var a = base + 8, prev = undefined; a < tope + 8; a += 8) { var v = Math.min(a, tope); n.tut.alto = v; if (!cabe(n, res)) { n.tut.alto = prev; break; } prev = v; if (v === tope) break; }
+      }
       res.pages[i] = n; hay = true;
     });
     if (hay) res.pages.forEach(function (p) { if (p.tipo === 'presentacion') p._tutor = 1; });

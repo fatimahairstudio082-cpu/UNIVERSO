@@ -196,8 +196,9 @@
       lead: this.nueva(LEAD, D, 'lead'),
       que: [def, this.nueva(LENTE[g], D, 'lente')].filter(Boolean),
       como: [extra && !this.usado[extra] ? (this.usado[extra] = 1, cone[ki % cone.length] + minus1(extra)) : '', this.nueva(REL, D, 'rel')].filter(Boolean),
-      ej: [this.nueva(ESCENA[g], D, 'esc'), this.nueva(CIERRE_ESC, D, 'cie')].filter(Boolean),
-      err: err, dato: dato, inv: dato ? '' : this.nueva(INVESTIGA, D, 'inv'),
+      /* 16-11-2026 (Fátima: «el alumno aprende con lo que ve»): en Peluquería sin «Un ejemplo cercano» inventado ni «Investiga» */
+      ej: this.C.mat === 'pelu' ? [] : [this.nueva(ESCENA[g], D, 'esc'), this.nueva(CIERRE_ESC, D, 'cie')].filter(Boolean),
+      err: err, dato: dato, inv: dato || this.C.mat === 'pelu' ? '' : this.nueva(INVESTIGA, D, 'inv'),
       fig: this.pie(fig),
       items: fig ? this.itemsDe(fig.V.items, C.peque ? 2 : 3) : []
     });
@@ -234,7 +235,7 @@
     var ds = []; for (var i = 0; i < 3; i++) { var d = this.dato(); if (d) ds.push(d); }
     if (ds.length < 2) { this.si -= ds.length; return null; }
     var fig = this.figura(u, 'amp', ['mapa_ruta', 'mapa_compara', 'linea_pais']);
-    var D = this.datos(u, 4), pg = Object.assign({ tipo: 'lec_amplia', ds: ds, inv: this.nueva(INVESTIGA, D, 'inv'), fig: this.pie(fig), items: fig ? this.itemsDe(fig.V.items, 2) : [] }, base);
+    var D = this.datos(u, 4), pg = Object.assign({ tipo: 'lec_amplia', ds: ds, inv: this.C.mat === 'pelu' ? '' : this.nueva(INVESTIGA, D, 'inv'), fig: this.pie(fig), items: fig ? this.itemsDe(fig.V.items, 2) : [] }, base);
     pg.voz = ds.map(function (d) { return d[0] + '. ' + d[1]; }).join(' ');
     return pg;
   };
@@ -249,6 +250,7 @@
     var VERB = ['Explicar qué es «{k}» y dar un ejemplo propio.', 'Reconocer «{k}» en una situación de la vida diaria.', 'Distinguir «{k}» de «{k2}».', 'Usar «{k}» para resolver un problema nuevo.', 'Enseñar «{k}» a otra persona con un dibujo o un esquema.'];
     var ks = (u.k || []).map(function (k) { return H.sub(k, C); });
     var ideas = ks.map(function (k, i) { return H.sub(llena(VERB[i % VERB.length], { k: k, k2: ks[(i + 1) % ks.length] }), C); });
+    if (C.mat === 'pelu' && (u.i || []).length) ideas = u.i.map(function (s) { return H.sub(s, C); });   /* 16-11-2026: Peluquería, las ideas de la unidad (no los objetivos de plantilla) */
     var pg = Object.assign({ tipo: 'lec_sintesis', ideas: ideas, glos: ks.map(function (k) { return [k, null]; }), fig: this.pie(fig) }, base);
     pg.voz = 'Al terminar la unidad sabrás: ' + pg.ideas.join(' ');
     return pg;
@@ -276,7 +278,7 @@
   var paginas = {
     lec_concepto: function (pg, C, modo) {
       var T = C.T, n = pg.n + '.' + (pg.ki + 1);
-      var cuerpo = h3(C, 'Qué es') + pg.que.map(function (s) { return par(s); }).join('') + (C.peque ? '' : h3(C, 'Cómo se trabaja') + pg.como.map(function (s) { return par(s); }).join('')) + h3(C, 'Un ejemplo cercano') + pg.ej.map(function (s) { return par(s); }).join('');
+      var cuerpo = h3(C, 'Qué es') + pg.que.map(function (s) { return par(s); }).join('') + (C.peque ? '' : h3(C, 'Cómo se trabaja') + pg.como.map(function (s) { return par(s); }).join('')) + (pg.ej.length ? h3(C, 'Un ejemplo cercano') + pg.ej.map(function (s) { return par(s); }).join('') : '');
       var cajas = [pg.err ? caja(C, 'Error frecuente', esc(pg.err)) : '', pg.dato ? caja(C, '¿Sabías que…? · ' + esc(pg.dato[0]), esc(pg.dato[1]), true) : pg.inv ? caja(C, 'Investiga', esc(pg.inv), true) : ''].filter(Boolean);
       return H.cabecera(C, pg) + kicker(C, 'Unidad ' + pg.n + ' · Concepto ' + (pg.ki + 1)) + H.h1(C, esc(H.may(pg.k)), 'margin-bottom:2mm') +
         (pg.lead ? '<p style="font-size:1.12em;font-style:italic;line-height:1.45;margin:0 0 4mm;color:' + T.ink + '">' + esc(pg.lead) + '</p>' : '') +

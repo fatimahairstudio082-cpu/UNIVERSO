@@ -374,7 +374,8 @@
       if (L) { L.escenas = esc; L.t = r.n; }
       else { L = { id: M0.id + r.lec, t: r.n, pag: M0.pag, escenas: esc }; M0.lecciones.splice(iL + 1, 0, L); }
       if (r.mp4 && V[r.mp4]) { L.mp4 = r.mp4; L.siguen = 1; }
-      L.receta = 1;
+      L.receta = 1; L._rk = k;
+      if (r.k === 'corte' && D._practicas) { L.practica = k; D.galeria = '(' + galeriaRuntime.toString() + ')();'; }   /* 16-11-2026: «Mis prácticas» en cada lección de corte */
     });
     /* «que no hayan repeticiones de imágenes»: la foto que ya enseña una receta no se vuelve a poner en las lecciones «Galería» */
     D.modulos.forEach(function (M) {
@@ -409,6 +410,23 @@
           if (c[0] === 'foto') delete e.foto; else e.id = una || 'dg_frente';
         });
       });
+    }); });
+    /* 16-11-2026: en las lecciones de cada clase, en su orden, ninguna pregunta repetida (como en el libro) */
+    var vistoQ = {};
+    D.modulos.forEach(function (M) { M.lecciones.forEach(function (L) {
+      if (!L.receta || !R[L._rk]) return;
+      var Pk = pasos(L._rk), Rc = R[L._rk].k === 'corte' && Pk.E ? Pk.E.R : null, prac = false, esc = [];
+      (L.escenas || []).forEach(function (x) {
+        if (x.tipo !== 'pregunta' || !x.q) return esc.push(x);
+        if (/^Práctica · /.test(x.t || '')) prac = true;
+        var q = reponer([{ e: x.q.e, o: x.q.o, c: x.q.c, x: (String(x.sol || '').split('. ').slice(1).join('. ')) }], Rc, vistoQ)[0];
+        if (!q) return;
+        if (q.e === x.q.e) return esc.push(x);
+        esc.push({ tipo: 'pregunta', id: x.id, t: 'Pregunta', texto: 'Antes de seguir, piensa: ' + q.e, rot: [], q: { e: q.e, o: q.o, c: q.c }, sol: 'La respuesta es: ' + q.o[q.c] + '.' + (q.x ? ' ' + q.x : '') });
+      });
+      var p1 = esc.filter(function (x) { return x.tipo === 'pregunta'; });
+      p1.forEach(function (x, i) { x.t = prac && i === 0 ? 'Práctica · Pregunta' : 'Pregunta'; });
+      L.escenas = esc;
     }); });
     D._receta = 1;
     return D;
@@ -449,6 +467,7 @@
            fotos que ya enseña y la lámina «A continuación» nombra la lección que de verdad viene después */
         var GW = window.EU_PELU_GALERIA;
         if (activo(cfg) && GW && GW.ponerCurso && /^(si|huecos)$/.test(String((cfg.acab || {}).galeria || ''))) { try { GW.ponerCurso(X); } catch (e) { console.warn('Receta · galería', e); } }
+        if (activo(cfg)) X._practicas = ((cfg.acab || {}).practicas) !== 'no';   /* 16-11-2026: «Mis prácticas» en el curso */
         return activo(cfg) ? transiciones(curso(X)) : X;
       });
     };
@@ -559,9 +578,37 @@
     if (pg.tipo === 'pe_tecnica' && pg.tec) return ks.filter(function (k) { return R[k].k === 'tec' && R[k].id === 'cb_' + pg.tec; })[0] || null;
     return null;
   }
+  /* 16-11-2026 (Fátima: «el sistema debe registrar cada test sin repeticiones»): una pregunta que ya salió en el libro (o en el curso)
+     no se vuelve a imprimir; en un corte se cambia por la siguiente pregunta propia de ese corte, sacada de su receta en Guías 3D
+     (EU_PELU_ORDEN.preguntasCorte). Si no queda ninguna propia, la hoja lleva una pregunta menos: nunca repetida ni inventada. */
+  function nq(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+  function reponer(Q, Rc, visto) {
+    var PO = window.EU_PELU_ORDEN, extra = null, out = [];
+    (Q || []).forEach(function (q) {
+      if (!q || !q.e) return;
+      if (!visto[nq(q.e)]) { visto[nq(q.e)] = 1; out.push(q); return; }
+      if (extra === null) { extra = []; try { extra = Rc && PO && PO.preguntasCorte ? PO.preguntasCorte(Rc) || [] : []; } catch (e) { extra = []; } }
+      for (var i = 0; i < extra.length; i++) { if (!visto[nq(extra[i].e)]) { visto[nq(extra[i].e)] = 1; out.push(extra[i]); return; } }
+    });
+    return out;
+  }
+  /* en el orden de las hojas: la práctica de cada clase (última hoja de su receta) y el «Compruébalo» de cada diagrama */
+  function sinRepetir(pages) {
+    var visto = {}, DGL = window.EU_PELU_LIBRO_DG;
+    pages.forEach(function (p) {
+      if (p.tipo === 'pe_diagrama' && DGL && DGL.datos) {
+        var d = null; try { d = DGL.datos(p.dg || {}); } catch (e) { d = null; }
+        if (d && d.E) p.qs = reponer(d.E.preguntas, d.R, visto);
+      } else if (p.tipo === 'pe_clase' && p.parte === 2 && p.ult !== false && R[p.rec]) {
+        var P = pasos(p.rec); if (!P.length) return;
+        p.qs = reponer(P.filter(function (x) { return x.q; }).map(function (x) { return x.q; }), R[p.rec].k === 'corte' && P.E ? P.E.R : null, visto);
+      }
+    });
+  }
   function libro(res) {
     var cfg = res && res.C && res.C.cfg;
-    if (!res || !res.pages || !activo(cfg) || !LIBROS.test(String(cfg.prod || 'libro'))) return res;
+    if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || !LIBROS.test(String(cfg.prod || 'libro'))) return res;
+    if (!activo(cfg)) { sinRepetir(res.pages); return res; }
     cortesAuto();
     var pages = res.pages, out = [], hecho = {}, n0 = {}, quitadas = {};
     pages.forEach(function (p) { if (p.num != null) n0[p.num] = 1; });
@@ -590,7 +637,7 @@
       }
       out.push(p);
     });
-    if (!Object.keys(hecho).length) return res;
+    if (!Object.keys(hecho).length) { sinRepetir(res.pages); return res; }
     /* una foto distinta por clase, en el orden del libro, la misma que la lección del curso cuando no se repite */
     var usadas = {}, sig = null;
     for (var i = out.length - 1; i >= 0; i--) { if (out[i].tipo === 'pe_clase') { out[i].sig = sig; if (out[i].parte === 1) sig = R[out[i].rec].n; } }
@@ -605,6 +652,7 @@
     out.forEach(function (p, i) { if (p.num != null || p.tipo === 'pe_clase') p.num = i + 1; });
     out.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return mapa[e.p]; }).map(function (e) { return Object.assign({}, e, { p: mapa[e.p] }); }); });
     res.pages = out; res.clases = Object.keys(hecho).length;
+    sinRepetir(out);
     return res;
   }
   var JS_CLASE = '<script>(function(){if(window.__rcLibro)return;window.__rcLibro=1;var act=null,V=null;' +
@@ -617,6 +665,101 @@
     'function fin(){if(hab&&acabo&&act===me)setTimeout(sig,400)}' +
     '(function cuadro(){if(act!==me)return;var p=Math.min(1,(performance.now()-t0)/dur);DG_PINTA(x,a.a,im,0,0,cv.width,cv.height,p);if(p<1)requestAnimationFrame(cuadro);else{acabo=1;fin()}})();' +
     'if(V&&window.speechSynthesis){var u=new SpeechSynthesisUtterance(a.t+". "+a.s);u.voice=V;u.lang="es-ES";u.onend=u.onerror=function(){hab=1;fin()};speechSynthesis.speak(u)}else hab=1})()})})();<\/script>';
+  /* ─────────── 16-11-2026 (Fátima: «que el alumno registre sus propias imágenes de cada práctica de cualquier corte») ───────────
+     Galería «Mis prácticas»: franja pequeña en la hoja de cada corte del libro interactivo y en cada lección de corte del curso
+     premium. El alumno añade fotos (cámara o galería), las ve grandes, las selecciona, las borra y las guarda en su dispositivo.
+     Se guardan SOLO en su navegador (IndexedDB; si no se puede, localStorage), reducidas a 1280 px en JPEG; nada se sube a
+     internet. Un solo código (galeriaRuntime) para el libro y el curso. cfg.acab.practicas = 'no' la apaga. */
+  function galeriaRuntime() {
+    if (window.EU_PRACT) return;
+    var DBN = 'eu_practicas', ST = 'fotos', dbp = null;
+    var st = document.createElement('style'); st.textContent = '@media print{[data-practicas],#eu-practicas{display:none!important}}'; document.head.appendChild(st);
+    function db() {
+      if (dbp) return dbp;
+      dbp = new Promise(function (ok, ko) {
+        try { var r = indexedDB.open(DBN, 1); r.onupgradeneeded = function () { var d = r.result; if (!d.objectStoreNames.contains(ST)) d.createObjectStore(ST, { keyPath: 'id' }).createIndex('clave', 'clave'); }; r.onsuccess = function () { ok(r.result); }; r.onerror = function () { ko(r.error); }; } catch (e) { ko(e); }
+      });
+      return dbp;
+    }
+    function lsGet(c) { try { return JSON.parse(localStorage.getItem('eu_pract_' + c) || '[]'); } catch (e) { return []; } }
+    function lsSet(c, a) { try { localStorage.setItem('eu_pract_' + c, JSON.stringify(a)); return true; } catch (e) { return false; } }
+    function lista(c) {
+      return db().then(function (d) { return new Promise(function (ok) { var out = [], q = d.transaction(ST).objectStore(ST).index('clave').openCursor(IDBKeyRange.only(c)); q.onsuccess = function (ev) { var cu = ev.target.result; if (cu) { out.push(cu.value); cu.continue(); } else ok(out.sort(function (a, b) { return a.t - b.t; })); }; q.onerror = function () { ok(lsGet(c)); }; }); }).catch(function () { return lsGet(c); });
+    }
+    function poner(c, rec) {
+      return db().then(function (d) { return new Promise(function (ok, ko) { var tx = d.transaction(ST, 'readwrite'); tx.objectStore(ST).put(rec); tx.oncomplete = function () { ok(true); }; tx.onerror = function () { ko(tx.error); }; }); }).catch(function () { var a = lsGet(c); a.push(rec); return lsSet(c, a); });
+    }
+    function quitar(c, id) {
+      return db().then(function (d) { return new Promise(function (ok) { var tx = d.transaction(ST, 'readwrite'); tx.objectStore(ST).delete(id); tx.oncomplete = function () { ok(true); }; tx.onerror = function () { ok(false); }; }); }).catch(function () { lsSet(c, lsGet(c).filter(function (x) { return x.id !== id; })); });
+    }
+    function reducir(file) {
+      return new Promise(function (ok, ko) {
+        var fr = new FileReader(); fr.onerror = ko;
+        fr.onload = function () { var im = new Image(); im.onerror = ko; im.onload = function () { var k = Math.min(1, 1280 / Math.max(im.width, im.height)), cv = document.createElement('canvas'); cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k); cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); ok(cv.toDataURL('image/jpeg', 0.82)); }; im.src = fr.result; };
+        fr.readAsDataURL(file);
+      });
+    }
+    function slug(s) { return String(s || 'practica').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'practica'; }
+    function bajar(rec, tit, n) { var a = document.createElement('a'); a.href = rec.src; a.download = 'mi-practica-' + slug(tit) + '-' + new Date(rec.t).toISOString().slice(0, 10) + (n ? '-' + n : '') + '.jpg'; document.body.appendChild(a); a.click(); a.remove(); }
+    function el(t, css, txt) { var e = document.createElement(t); if (css) e.style.cssText = css; if (txt != null) e.textContent = txt; return e; }
+    var BTN = 'font:600 12px system-ui,sans-serif;padding:4px 10px;border-radius:99px;border:1px solid #B08D57;background:#fff;color:#16223A;cursor:pointer;white-space:nowrap';
+    function montar(box, clave, titulo) {
+      box.innerHTML = ''; box.style.cssText = 'margin:3mm 0 0;padding:6px 8px;border:1px solid #E3D3B5;border-radius:8px;background:#FBF8F2;font:13px system-ui,sans-serif;color:#16223A';
+      var sel = false, marcadas = {}, fotos = [];
+      var cab = el('div', 'display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between');
+      cab.appendChild(el('b', 'font-size:13px', '📸 Mis prácticas · ' + titulo));
+      var bts = el('div', 'display:flex;flex-wrap:wrap;gap:5px'), lab = el('label', BTN, '＋ Añadir foto'), inp = el('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; inp.style.display = 'none'; lab.appendChild(inp);
+      var bSel = el('button', BTN, 'Seleccionar'), bBor = el('button', BTN, '🗑 Borrar'), bBaj = el('button', BTN, '⬇ Guardar en mi dispositivo');
+      [lab, bSel, bBor, bBaj].forEach(function (b) { if (b.tagName === 'BUTTON') b.type = 'button'; bts.appendChild(b); });
+      cab.appendChild(bts); box.appendChild(cab);
+      var fila = el('div', 'display:flex;gap:6px;overflow-x:auto;padding:6px 0 2px;min-height:60px;align-items:center'); box.appendChild(fila);
+      box.appendChild(el('div', 'font-size:11px;opacity:.7', 'Se guardan solo en este dispositivo (no se suben a internet). Si borras los datos del navegador, se pierden: guárdalas antes con «⬇ Guardar».'));
+      function pinta() {
+        fila.innerHTML = '';
+        if (!fotos.length) fila.appendChild(el('span', 'font-size:12px;opacity:.7', 'Aún no hay fotos de tu práctica de este corte.'));
+        fotos.forEach(function (f) {
+          var im = el('img', 'height:56px;width:56px;object-fit:cover;border-radius:6px;cursor:pointer;flex:none;border:3px solid ' + (marcadas[f.id] ? '#B08D57' : 'transparent'));
+          im.src = f.src; im.alt = 'Mi práctica'; im.onclick = function () { if (sel) { marcadas[f.id] = !marcadas[f.id]; pinta(); } else ver(f); }; fila.appendChild(im);
+        });
+        bSel.textContent = sel ? 'Listo' : 'Seleccionar';
+        var n = Object.keys(marcadas).filter(function (k) { return marcadas[k]; }).length;
+        bBor.style.display = fotos.length ? '' : 'none'; bBaj.style.display = fotos.length ? '' : 'none'; bSel.style.display = fotos.length ? '' : 'none';
+        bBor.textContent = '🗑 Borrar' + (n ? ' (' + n + ')' : ''); bBaj.textContent = '⬇ Guardar' + (n ? ' (' + n + ')' : ' todas') + ' en mi dispositivo';
+      }
+      function elegidas() { var e = fotos.filter(function (f) { return marcadas[f.id]; }); return e; }
+      function carga() { return lista(clave).then(function (l) { fotos = l || []; pinta(); }); }
+      function ver(f) {
+        var fon = el('div', 'position:fixed;inset:0;z-index:2147483001;background:rgba(3,8,18,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;box-sizing:border-box');
+        var im = el('img', 'max-width:100%;max-height:78vh;border-radius:8px;background:#fff'); im.src = f.src; fon.appendChild(im);
+        var b = el('div', 'display:flex;gap:8px;flex-wrap:wrap;justify-content:center'), cerrar = function () { fon.remove(); };
+        var b1 = el('button', BTN, '⬇ Guardar en mi dispositivo'), b2 = el('button', BTN, '🗑 Borrar'), b3 = el('button', BTN, '✕ Cerrar');
+        b1.onclick = function () { bajar(f, titulo); }; b2.onclick = function () { if (confirm('¿Borrar esta foto de tu práctica?')) quitar(clave, f.id).then(function () { cerrar(); carga(); }); }; b3.onclick = cerrar;
+        [b1, b2, b3].forEach(function (x) { x.type = 'button'; b.appendChild(x); }); fon.appendChild(b); fon.onclick = function (e) { if (e.target === fon) cerrar(); }; document.body.appendChild(fon);
+      }
+      inp.onchange = function () {
+        var fs = [].slice.call(inp.files || []); inp.value = '';
+        fs.reduce(function (p, file, i) { return p.then(function () { return reducir(file).then(function (src) { return poner(clave, { id: clave + '|' + Date.now() + '|' + i, clave: clave, t: Date.now(), src: src }); }); }); }, Promise.resolve())
+          .then(carga, function () { alert('No se pudo guardar la foto en este dispositivo.'); carga(); });
+      };
+      bSel.onclick = function () { sel = !sel; if (!sel) marcadas = {}; pinta(); };
+      bBor.onclick = function () { var e = elegidas(); if (!e.length) { sel = true; pinta(); return; } if (!confirm('¿Borrar ' + e.length + (e.length > 1 ? ' fotos' : ' foto') + '?')) return; e.reduce(function (p, f) { return p.then(function () { return quitar(clave, f.id); }); }, Promise.resolve()).then(function () { marcadas = {}; sel = false; carga(); }); };
+      bBaj.onclick = function () { var e = elegidas(); if (!e.length) e = fotos; e.forEach(function (f, i) { setTimeout(function () { bajar(f, titulo, e.length > 1 ? i + 1 : 0); }, i * 400); }); };
+      carga();
+    }
+    function todas() { [].slice.call(document.querySelectorAll('[data-practicas]')).forEach(function (b) { if (!b._ok) { b._ok = 1; montar(b, b.getAttribute('data-clave'), b.getAttribute('data-titulo')); } }); }
+    /* curso premium: la franja va bajo el reproductor solo en las lecciones de corte (el curso avisa con «eu-leccion») */
+    function leccion(d) {
+      var host = document.getElementById('eu-practicas'), rp = document.getElementById('reproductor');
+      if (!d || !d.practica) { if (host) { host.style.display = 'none'; host.innerHTML = ''; } return; }
+      if (!host) { host = document.createElement('div'); host.id = 'eu-practicas'; (rp || document.body).appendChild(host); }
+      host.style.display = ''; montar(host, ((window.CURSO && window.CURSO.titulo) || document.title) + '|' + d.practica, d.t || '');
+    }
+    document.addEventListener('eu-leccion', function (ev) { leccion(ev.detail); });
+    window.EU_PRACT = { montar: montar };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', todas); else todas();
+    if (window.__euLec) leccion(window.__euLec);
+  }
+  function practicasActivo(C) { return C && C.mat === 'pelu' && (((C.cfg && C.cfg.acab) || {}).practicas !== 'no'); }
   function paginaClase(pg, C, modo) {
     var H = ED.H, T0 = C.T || {}, r = R[pg.rec], P = pasos(pg.rec), web = modo === 'web';
     if (!r || !P.length) return H.cabecera(C, pg) + H.folio(C, pg);
@@ -642,7 +785,8 @@
       var hF = alto ? (ver ? 62 : 76) : 46;
       return H.cabecera(C, pg) + kick((pg.u && pg.u.t ? pg.u.t + ' · ' : '') + 'Clase') + H.h1(C, esc(r.n)) +
         (f ? img(f.src, f.t, hF) : '') +
-        '<div style="font-size:.98em;line-height:1.55;margin-top:3mm">' + esc(texto) + '</div>' + ficha + resul + ver + H.folio(C, pg);
+        '<div style="font-size:.98em;line-height:1.55;margin-top:3mm">' + esc(texto) + '</div>' + ficha + resul + ver +
+        (web && r.k === 'corte' && practicasActivo(C) ? '<div data-practicas="1" data-clave="' + esc((C.titulo || '') + '|' + pg.rec) + '" data-titulo="' + esc(r.n) + '"></div>' : '') + H.folio(C, pg);   /* 16-11-2026: «Mis prácticas» (solo web) */
     }
     /* hoja 2: la receta paso a paso, la práctica y lo que viene después */
     vis = clase.slice(1).concat(vis);   /* lo demás de la clase (el oxidante, la cuenta…) abre la receta */
@@ -653,6 +797,7 @@
       var tx = p.puntos ? p.puntos.map(function (b) { return b[1]; }).join(' ') : p.texto;
       return '<li style="margin:0 0 1.6mm"><b>' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + '.</b> ' + esc(corta(tx)) + '</li>';
     }).join('') + '</ol>';
+    if (pg.qs) qs = pg.qs.map(function (q) { return { q: q }; });   /* 16-11-2026: sin las preguntas que ya salieron en el libro */
     if (!ult) qs = [];
     var prac = qs.length ? caja(T, 'Práctica', '<ol style="margin:0;padding-left:5mm">' + qs.map(function (p) { return '<li style="margin:0 0 1mm">' + esc(p.q.e) + ' <i>(' + p.q.o.map(function (o, i) { return String.fromCharCode(97 + i) + ') ' + esc(o); }).join(' · ') + ')</i></li>'; }).join('') + '</ol><div style="margin-top:1mm;opacity:.8">Respuestas: ' + qs.map(function (p, i) { return (i + 1) + String.fromCharCode(97 + p.q.c); }).join(' · ') + '</div>') : '';
     var rec = r.cer && ult ? recomTinte(r.cer, T, r.quitaRec) : '';
@@ -663,6 +808,15 @@
     paginas: { pe_clase: paginaClase },
     voz: { pe_clase: function (pg) { var P = pasos(pg.rec), r = R[pg.rec]; if (!r) return ''; return pg.parte === 1 ? r.n + '. ' + P.filter(function (p) { return p.etapa === 'clase' && !p.q; }).map(function (p) { return p.texto; }).join(' ') : (function () { var cl = P.filter(function (p) { return p.etapa === 'clase' && !p.q; }), v = cl.slice(1).concat(P.filter(function (p) { return p.etapa === 'vis' && !p.q; })); if (pg.a != null) v = v.slice(pg.de || 0, pg.a); return v.map(function (p) { return p.t + '. ' + p.texto; }).join(' '); })(); } }
   });
+  /* 16-11-2026: el código de «Mis prácticas» va una sola vez al final del libro web que lleva alguna franja */
+  if (ED && ED.documento && !ED.__peluPract) {
+    ED.__peluPract = 1; var docP = ED.documento;
+    ED.documento = function (res, modo) {
+      var h = docP.apply(this, arguments);
+      try { if (modo === 'web' && typeof h === 'string' && h.indexOf('data-practicas="1"') >= 0) { var k = h.lastIndexOf('</body>'); if (k > 0) h = h.slice(0, k) + '<script>(' + galeriaRuntime.toString() + ')();<\/script>' + h.slice(k); } } catch (e) { console.warn('Mis prácticas', e); }
+      return h;
+    };
+  }
   /* se engancha al final, después de la galería, las técnicas animadas, las guías 3D y los diagramas */
   function engancharLibro() {
     if (!ED || ED.__peluReceta) return true;

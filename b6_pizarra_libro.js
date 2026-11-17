@@ -21,6 +21,34 @@
   function tarea(x, C) { return x ? { e: sub(x.e, C), s: String(x.sol != null ? x.sol : x.s), x: x.porque != null ? x.porque : (x.x || ''), tipo: x.tipo, o: x.o, c: x.c, pista: x.pista || '' } : null; }
 
   /* ─── libro: datos de la pizarra en la página del tutor ─── */
+  /* 16-11-2026 (Fátima: «en la pizarra se tiene que ver la técnica de corte y las elevaciones de Guías 3D»): en Peluquería cada
+     pizarra lleva el maniquí del corte que nombra la pregunta (o el de la unidad), en su escena «Ángulos y largos» */
+  var MANI = {};
+  function maniqui(id) {
+    if (!id) return null; if (MANI[id] !== undefined) return MANI[id];
+    var DGL = window.EU_PELU_LIBRO_DG, DG = window.EU_DIAGRAMA, d = null, r = null; if (!DGL || !DG) return null;
+    try { d = DGL.datos({ k: 'corte', corte: id }); } catch (e) { d = null; }
+    var e = d && d.E ? d.E.escenas.filter(function (x) { return x.tipo === 'angulos'; })[0] : null;
+    /* 16-11-2026 (Fátima, «las dos»): «Cómo queda» del corte (cambia con su guía móvil o fija) al lado de «Ángulos y largos» */
+    var q = d && d.E ? d.E.escenas.filter(function (x) { return /^queda_/.test(x.tipo) && x.vista !== 'frente'; })[0] : null;
+    try { r = e ? (q && DG.fotoDoble ? { img: DG.fotoDoble(q, e, 420, 0.8), imgT: (d.R && d.R.n ? d.R.n + ' · ' : '') + 'Cómo queda · Ángulos y largos' } : { img: DG.foto(e, 560, 0.8), imgT: (d.R && d.R.n ? d.R.n + ' · ' : '') + (e.t || 'Ángulos y largos') }) : null; } catch (er) { r = null; }
+    if (!d) return null;   /* el maniquí aún no está listo: no se guarda */
+    return (MANI[id] = r && r.img ? r : null);
+  }
+  function corteDe(e, def) {
+    /* el nombre de corte más largo que aparece en la pregunta (con o sin comillas: «… con pollina» antes que «…») */
+    var CO = window.EU_CORTES, t = String(e || '').toLowerCase(), L = CO && CO.lista ? CO.lista() : [], mejor = null;
+    L.forEach(function (x) { var n = String(x.n || '').toLowerCase(); if (n && t.indexOf(n) >= 0 && (!mejor || n.length > mejor.n.length)) mejor = { id: x.id, n: n }; });
+    return mejor ? mejor.id : def || null;
+  }
+  function conManiqui(o, C, t) {
+    if (!C || C.mat !== 'pelu' || !t || !t.dg) return o;
+    var q = o.reto || (o.otros && o.otros[0]) || o.prof || {}, id = corteDe(q.e, null), oculto = false;   /* el ejercicio que hace el alumno */
+    /* «¿Qué corte es?»: el corte es la respuesta → su maniquí, sin su nombre en el pie (no se regala la respuesta) */
+    if (!id) { var resp = q.s != null ? q.s : (q.o && q.c != null ? q.o[q.c] : ''); id = corteDe(resp, null); oculto = !!id; }
+    var mq = maniqui(id || t.dg.corte); if (mq) { o.img = mq.img; o.imgT = oculto ? 'Mira el maniquí: ¿qué corte es?' : mq.imgT; }
+    return o;
+  }
   var FILA = '<div style="display:flex;gap:3mm;margin-top:.8mm;font-size:.85em">';
   ED.registrar({
     post: function (h, pg, C, modo) {
@@ -29,11 +57,11 @@
       var prof = t.ej ? { e: sub(t.ej.e, C), s: t.ej.s, x: t.ej.x } : null, i = 0;
       h = h.split(FILA).map(function (trozo, k) {
         if (!k) return trozo;
-        var r = its[i++]; return r ? json({ titulo: tit, prof: prof, reto: r, otros: its.filter(function (o) { return o !== r; }) }) + trozo : trozo;
+        var r = its[i++]; return r ? json(conManiqui({ titulo: tit, prof: prof, reto: r, otros: its.filter(function (o) { return o !== r; }) }, C, t)) + trozo : trozo;
       }).join(FILA);
       if (prof && t.nivel < 5) {
         var m = '→ ' + H(t.ej.s) + '</div>', k = h.indexOf(m);
-        if (k >= 0) h = h.slice(0, k + m.length - 6) + json({ titulo: tit, prof: prof, otros: its }) + h.slice(k + m.length - 6);
+        if (k >= 0) h = h.slice(0, k + m.length - 6) + json(conManiqui({ titulo: tit, prof: prof, otros: its }, C, t)) + h.slice(k + m.length - 6);
       }
       return h;
     }

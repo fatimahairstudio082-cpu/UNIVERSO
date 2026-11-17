@@ -310,7 +310,7 @@
     function textoBajo(e) { $('#bajo').textContent = e.tipo === 'pregunta' && cur.rev ? e.sol : e.texto; }
     function abre(L) {
       para(); cur.L = L; cur.k = 0; cur.pos = 0; cur.fin = false; cur.ad = 0;
-      $('#tl').textContent = L.t; var ix = LEC.indexOf(L); $('#pos').textContent = 'Módulo ' + (L.mi + 1) + ' · Lección ' + (L.li + 1) + ' de ' + D.modulos[L.mi].lecciones.length + ' · ' + (ix + 1) + '/' + LEC.length;
+      $('#tl').textContent = L.t; try { window.__euLec = { id: L.id, practica: L.practica || '', t: L.t }; document.dispatchEvent(new CustomEvent('eu-leccion', { detail: window.__euLec })); } catch (er) { } var ix = LEC.indexOf(L);   /* 16-11-2026: aviso de lección (Mis prácticas) */ $('#pos').textContent = 'Módulo ' + (L.mi + 1) + ' · Lección ' + (L.li + 1) + ' de ' + D.modulos[L.mi].lecciones.length + ' · ' + (ix + 1) + '/' + LEC.length;
       $('#ant').disabled = ix <= 0; $('#sig').disabled = ix >= LEC.length - 1; document.body.classList.remove('verMenu'); $('#pag').innerHTML = L.pag ? '📖 En el libro: <a href="../libro/libro-interactivo.html" target="_blank">página ' + L.pag + '</a>' : '';
       $('#reproductor').style.display = ''; $('#zonaTest').style.display = 'none'; textoBajo(L.escenas[0]); pintaPregunta(L.escenas[0]);
       /* (12-10-2026) vídeo propio de la lección (p. ej. presentacion.mp4 junto a index.html): si no está, no se ve nada */
@@ -567,7 +567,7 @@
       '<div id="autora" style="display:none;flex-direction:column;gap:8px"><div class="bar"><button id="grabV">⏺ Grabar vídeo de la lección</button><button id="grabA">🎙 Grabar audio</button><button id="grabT">⏺ Grabar todos los vídeos</button></div>' +
       '<small>Para grabar con la voz «Google español», usa Chrome de escritorio y comparte «Esta pestaña» con su audio. Los vídeos salen en MP4 si el navegador lo permite (si no, WebM) y el audio en M4A o WebM.</small></div>' +
       '<p><b>Descargas</b> · <a href="../libro/libro-imprimible.html" target="_blank">Libro para imprimir o guardar en PDF</a> · <a href="../libro/libro-interactivo.html" target="_blank">Libro interactivo</a> · <a href="../laminas/" target="_blank">Láminas</a> · <a href="../guion-voz.txt" target="_blank">Guion de voz</a></p></div>' +
-      '<div id="zonaTest" style="display:none"></div></main></div><button id="cerrarMenu" class="cta" style="position:fixed;top:10px;right:10px;z-index:21">✕ Cerrar</button><script>(' + REPRODUCTOR.toString() + ')();<\/script></body></html>';
+      '<div id="zonaTest" style="display:none"></div></main></div><button id="cerrarMenu" class="cta" style="position:fixed;top:10px;right:10px;z-index:21">✕ Cerrar</button><script>(' + REPRODUCTOR.toString() + ')();<\/script>' + (D.galeria ? '<script>' + String(D.galeria).replace(/<\/script/gi, '<\\/script') + '<\/script>' : '') + '</body></html>';   /* 16-11-2026: «Mis prácticas» (Peluquería) */
   }
 
   /* 18-10-2026 (Fátima: «cuenta el audio de todo el libro y del curso, son veintipico módulos»): duración total en minutos =
