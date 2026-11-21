@@ -1288,5 +1288,7 @@
 
   window.EU_PELU_GALERIA = { G: G, CATS: CATS, id: idDe, destino: destino, repartir: repartir, ponerCurso: ponerCurso, listas: function () { return Object.keys(DATA); },
     /* 25-10-2026: la imagen tal cual (data URL o ruta) y su título, para las lecciones «receta» (b6_pelu_receta.js) */
-    dato: function (id) { return DATA[id] || null; }, titulo: function (n) { var g = porId(idDe(n)); return g ? g[1] : ''; } };
+    dato: function (id) { return DATA[id] || null; }, titulo: function (n) { var g = porId(idDe(n)); return g ? g[1] : ''; },
+    /* 21-11-2026: la descripción de su index.html, tal cual (b6_pelu_llenar.js) */
+    desc: function (n) { var g = porId(idDe(n)); return g ? DESC[g[4]] || '' : ''; } };
 })();

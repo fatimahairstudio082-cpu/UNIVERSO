@@ -395,7 +395,8 @@
     if (u && u.mods && MO && MO.modelo) t = t.filter(function (x) { return !MO.modelo(x) || u.mods.indexOf(x) >= 0; });
     /* Peluquería (Fátima, 19-10-2026): sin «Encuesta de la clase» con votos inventados; en las unidades de corte, nada de
        láminas de otros temas (diluciones, pH…): solo sus dibujos */
-    if (m === 'pelu') t = t.filter(function (x) { return x !== 'datos' && (!u || !/^pe_u_c_/.test(u.id) || UNICOS[x] || (MO && MO.modelo && MO.modelo(x))); });
+    /* 21-11-2026 (Fátima: «no es un libro infantil»): sin «Mapa mental» ni «Mapa conceptual» (ejercicios escolares) en ninguna unidad */
+    if (m === 'pelu') t = t.filter(function (x) { return x !== 'datos' && x !== 'mental' && x !== 'conceptual' &&(!u || !/^pe_u_c_/.test(u.id) || UNICOS[x] || (MO && MO.modelo && MO.modelo(x))); });
     /* 22-10-2026 (Fátima): las unidades de regalo (cejas y pestañas, b6_pelu_orden) sin láminas de cabello ni de color */
     if (m === 'pelu' && u && u.regalo) t = t.filter(function (x) { return !/^(tonos$|pel_)/.test(x); });
     return t;

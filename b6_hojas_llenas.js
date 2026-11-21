@@ -253,5 +253,5 @@
   }
   /* el último de la cadena: después del tutor, la enciclopedia y el inglés bilingüe */
   (function esperar(n) { if (ED.__bil || n > 90) enganchar(); else setTimeout(function () { esperar(n + 1); }, 300); })(0);
-  window.EU_HOJAS_LLENAS = { llenar: llenar, llenarLibro: llenarLibro, antiCorte: antiCorte, bloque: bloque };
+  window.EU_HOJAS_LLENAS = { llenar: llenar, llenarLibro: llenarLibro, antiCorte: antiCorte, bloque: bloque, medidor: medidor };   /* 21-11-2026: medidor para b6_pelu_llenar.js */
 })();

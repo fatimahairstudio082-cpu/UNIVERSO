@@ -828,5 +828,5 @@
   }
   if (!engancharLibro()) (function espera(n) { if (!engancharLibro() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
 
-  window.EU_PELU_RECETA = { R: R, curso: curso, pasos: pasos, hojas: hojas, transiciones: transiciones, libro: libro };
+  window.EU_PELU_RECETA = { R: R, curso: curso, pasos: pasos, hojas: hojas, transiciones: transiciones, libro: libro, maniqui: maniquí, esHerr: esHerr };   /* 21-11-2026: maniqui y esHerr para b6_pelu_llenar.js */
 })();

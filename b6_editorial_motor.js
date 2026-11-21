@@ -845,7 +845,9 @@
          (sus secciones del índice) y un recuadro para dibujarse. Si el libro está «Autorizado», se deja abajo el sitio del sello. */
       var vistos = {}, uds = [], secs = [], AC = Object.assign({}, (C.cfg && C.cfg.acab) || {}, C.acab || {});
       ((ctx && ctx.pages) || []).forEach(function (p) {
-        if (p.u && p.u.id && !vistos[p.u.id] && (p.tipo === 'apertura' || p.tipo === 's_titulo')) { vistos[p.u.id] = 1; uds.push([p.n, p.u]); }
+        /* 21-11-2026 (Fátima): en Peluquería el Libro profesional abre sus capítulos con `pro_capitulo`; se cuentan como unidades
+           para que la hoja 2 diga «Lo que vas a aprender» y no «Este libro es de / Dibújate aquí» (no es un libro infantil) */
+        if (p.u && p.u.id && !vistos[p.u.id] && (p.tipo === 'apertura' || p.tipo === 's_titulo' || (C.mat === 'pelu' && p.tipo === 'pro_capitulo'))) { vistos[p.u.id] = 1; uds.push([p.n, p.u]); }
         else if (p.indice && !vistos['i:' + p.indice]) { vistos['i:' + p.indice] = 1; secs.push(p.indice); }
       });
       var px = 25.4 / 96, esp = C.cfg.facil || C.cfg.dislexia ? 1.8 : 1.5, chr = C.cfg.dislexia ? 0.6 : 0.53, ancho = C.papel.w - 34;

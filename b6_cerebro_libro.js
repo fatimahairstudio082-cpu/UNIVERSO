@@ -246,7 +246,7 @@
     return pg;
   };
   Libro.prototype.sintesis = function (u, base) {
-    var C = this.C, yo = this, fig = this.figura(u, 'sin', ['conceptual', 'mental']);
+    var C = this.C, yo = this, fig = this.figura(u, 'sin', C.mat === 'pelu' ? [] : ['conceptual', 'mental']);   /* 21-11-2026: Peluquería sin mapas mentales (Fátima: «no es un libro infantil») */
     var VERB = ['Explicar qué es «{k}» y dar un ejemplo propio.', 'Reconocer «{k}» en una situación de la vida diaria.', 'Distinguir «{k}» de «{k2}».', 'Usar «{k}» para resolver un problema nuevo.', 'Enseñar «{k}» a otra persona con un dibujo o un esquema.'];
     var ks = (u.k || []).map(function (k) { return H.sub(k, C); });
     var ideas = ks.map(function (k, i) { return H.sub(llena(VERB[i % VERB.length], { k: k, k2: ks[(i + 1) % ks.length] }), C); });
