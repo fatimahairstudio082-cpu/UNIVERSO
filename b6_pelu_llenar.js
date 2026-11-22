@@ -57,11 +57,11 @@
     /* a. galería */
     var anim = pg.tipo === 'pe_animada' && pg.tec;   /* técnica animada: solo lo de ESA técnica, nunca otra de su unidad */
     var ids = r ? imagenes(idGal(r)) : anim ? imagenes(pg.tec) : imagenes('', pg.u && pg.u.id);
-    /* 22-11-2026 (Fátima: «cómo se saca la cuenta, un ejemplo básico y un esquema pequeño debajo»): en las hojas de matizar,
-       neutralizar, corregir o mezclar, la cuenta de su clase «sumar y dividir» (fat_p02) calculada con sus ejemplos y, si es de
-       neutralizar, los opuestos de su estrella (fat_i01). Cada ejemplo una vez en el libro. */
+    /* 22-11-2026 (Fátima: «cada clase es un proceso; en esa clase, la nomenclatura de los colores fríos»): SOLO en «Matizadores
+       más usados», el ejercicio de los fríos de su estrella de neutralización (EU_COLOR_CEREBRO.calc.estrella): niveles sumados y
+       divididos, el número frío que corresponde y el color que neutraliza. Ninguna otra clase lleva esta cuenta. */
     var tit = anim ? tituloAnim(pg.tec) : r ? r.n : '';
-    if (/matiz|neutraliz|correc|mezcl|liga/i.test(tit)) { var cu = cuentaLibre(usado, /matiz|neutraliz|correc/i.test(tit)); if (cu) out.push(cu); }
+    if (/matizadores m[aá]s usados/i.test(tit) && !usado.txt['frios']) { var fr = friosEstrella(); if (fr) out.push(fr); }
     ids.forEach(function (n) {
       var gid = g.id(n); if (usado.img[gid]) return;
       if (!g.dato(gid)) return;   /* la imagen aún no ha llegado: no se pone una ruta que no viaja con el libro */
@@ -117,35 +117,35 @@
   }
 
   function tituloAnim(tec) { var LA = window.EU_PELU_LIBRO_ANIM, d = null; try { d = LA && LA.datos ? LA.datos(tec) : null; } catch (e) { d = null; } return d && d.E && d.E.R ? String(d.E.R.n || '') : ''; }
-  function claseColor(id) { var B = window.EU_COLOR_CEREBRO, c = null; (B && B.clases || []).some(function (x) { if (x.id === id) { c = x; return true; } return false; }); return c; }
-  function limpio(t) { return String(t || '').replace(/^[^\wÁÉÍÓÚÑáéíóúñ¿¡]+/, ''); }
-  /* sus ejemplos de fat_p02, con los números de su texto: «Seis más nueve» y «7.22 más 7.25» */
-  var CUENTAS = [{ nums: [6, 9], et: ['base', 'tinte'], vol: '20 vol', de: /clienta tiene un 6/ }, { nums: [7.22, 7.25], et: ['color 1', 'color 2'], de: /7\.22 más 7\.25/ }];
-  function tres(v) { var t = String(+v.toFixed(4)), o = '', d = 0; for (var i = 0; i < t.length && d < 3; i++) { o += t[i]; if (/\d/.test(t[i])) d++; } return o.replace(/\.$/, ''); }
-  function cuentaLibre(usado, neutral) {
-    var c = claseColor('fat_p02'); if (!c) return null;
-    for (var i = 0; i < CUENTAS.length; i++) {
-      var K = CUENTAS[i], key = 'cuenta:' + i; if (usado.txt[key]) continue;
-      var ej = (c.b || []).filter(function (b) { return K.de.test(b[1]); })[0]; if (!ej) continue;
-      var suma = K.nums.reduce(function (a, b) { return a + b; }, 0), div = suma / K.nums.length;
-      var est = neutral ? claseColor('fat_i01') : null, regla = est ? ((est.b || []).filter(function (b) { return /opuestos se anulan/.test(b[1]); })[0] || [])[1] : '';
-      return { k: 'cuenta', keys: [key], t: 'Cómo se saca la cuenta', nums: K.nums, et: K.et, suma: suma, div: div, tres: tres(div), vol: K.vol || '', ej: limpio(ej[1]), regla: limpio(regla || '') };
-    }
-    return null;
+  /* los fríos de su estrella: [nivel a, nivel b, color que sale, su color, número frío, nombre, su color] */
+  function friosEstrella() {
+    var B = window.EU_COLOR_CEREBRO, E = B && B.calc && B.calc.estrella; if (!E || !E.length) return null;
+    var filas = [];
+    E.forEach(function (e) {
+      var m = /(\d+)\s*-\s*(\d+)/.exec(e.r || ''), c = /^([\d.]+)\s+(.*)$/.exec(e.c || ''); if (!m || !c) return;
+      if (!/irisad|violet|ceniza|azul|verde/i.test(c[2])) return;   /* solo los fríos (el dorado es cálido) */
+      var a = +m[1], b = +m[2];
+      filas.push({ a: a, b: b, suma: a + b, mid: (a + b) / 2, p: e.p, ph: e.ph, num: c[1], nom: c[2], ch: e.ch });
+    });
+    return filas.length ? { k: 'frios', keys: ['frios'], t: 'Cómo se saca la cuenta · colores fríos', filas: filas } : null;
   }
-  function esquemaCuenta(x, T) {
+  function esquemaFrios(x, T) {
     var acc = T.acc || '#16223A', acc2 = T.acc2 || '#B08D57', soft = T.soft || '#EEF1F6', ink = T.ink || '#16223A';
-    var caja = function (v, e, fuerte) { return '<span style="display:inline-flex;flex-direction:column;align-items:center;min-width:12mm;padding:1.2mm 2.5mm;border-radius:1.5mm;background:' + (fuerte ? acc : soft) + ';color:' + (fuerte ? '#fff' : ink) + ';border:.3mm solid ' + acc2 + '"><b style="font-size:1.05em">' + esc(String(v).replace('.', ',')) + '</b>' + (e ? '<span style="font-size:.62em;opacity:.85">' + esc(e) + '</span>' : '') + '</span>'; };
-    var op = function (t) { return '<span style="font-weight:700;color:' + acc2 + ';padding:0 1.2mm">' + t + '</span>'; };
-    var fila = x.nums.map(function (n, i) { return caja(n, (x.et || [])[i] || ''); }).join(op('+')) + op('=') + caja(+x.suma.toFixed(2), 'suma') + op('÷ ' + x.nums.length) + op('=') + caja(+x.div.toFixed(3), 'resultado') + op('→') + caja(x.tres, 'tres primeros números', 1) + (x.vol ? op('·') + caja(x.vol.replace(' vol', ''), 'vol') : '');
-    var opuestos = x.regla ? '<div style="display:flex;flex-wrap:wrap;gap:2mm;margin-top:2mm;font-size:.74em">' + [['Naranja', '#E67E22', 'Azul', '#2E6FD8'], ['Amarillo', '#F1C40F', 'Violeta', '#8E44AD'], ['Rojo', '#C0392B', 'Verde', '#27AE60']].map(function (p) {
-      var pt = function (n, c) { return '<span style="display:inline-flex;align-items:center;gap:1mm"><span style="width:3.2mm;height:3.2mm;border-radius:50%;background:' + c + '"></span>' + n + '</span>'; };
-      return '<span style="display:inline-flex;align-items:center;gap:1.5mm;padding:.8mm 2mm;border-radius:99px;background:' + soft + '">' + pt(p[0], p[1]) + op('↔') + pt(p[2], p[3]) + '</span>';
-    }).join('') + '</div><div style="font-size:.74em;margin-top:1mm">' + esc(x.regla) + '</div>' : '';
-    return '<div style="margin-top:3mm;padding:2.5mm 3.5mm;border-left:1.2mm solid ' + acc2 + ';background:#fff;border-radius:0 2mm 2mm 0;box-shadow:0 .4mm 1.6mm rgba(22,34,58,.08)">' +
-      '<div style="font-weight:700;color:' + acc + ';margin:0 0 1.8mm">' + esc(x.t) + ' · sumar y dividir</div>' +
-      '<div style="display:flex;flex-wrap:wrap;align-items:center;row-gap:1.5mm;font-size:.82em">' + fila + '</div>' +
-      '<div style="font-size:.74em;margin-top:1.8mm;opacity:.9"><b>Ejemplo.</b> ' + esc(x.ej.replace(/^Ejemplo:\s*/, '')) + '</div>' + opuestos + '</div>';
+    var dec = function (v) { return String(v).replace('.', ','); };
+    var pt = function (c) { return '<span style="display:inline-block;width:3.2mm;height:3.2mm;border-radius:50%;background:' + c + ';vertical-align:-0.5mm;margin-right:1mm"></span>'; };
+    var td = 'padding:.6mm 1.5mm;border-bottom:.3mm solid ' + soft + ';vertical-align:middle;line-height:1.25';
+    var filas = x.filas.map(function (f) {
+      return '<tr><td style="' + td + '">Nivel ' + f.a + '–' + f.b + '</td>' +
+        '<td style="' + td + '">' + f.a + ' + ' + f.b + ' = ' + f.suma + ' ÷ 2 = <b>' + dec(f.mid) + '</b></td>' +
+        '<td style="' + td + '">' + pt(f.ph) + esc(f.p) + '</td>' +
+        '<td style="' + td + '">' + pt(f.ch) + '<b>' + esc(f.num) + '</b> ' + esc(f.nom.toLowerCase()) + '</td>' +
+        '<td style="' + td + '"><b>' + dec(f.mid) + ' + ' + esc(f.num) + '</b></td></tr>';
+    }).join('');
+    var th = 'text-align:left;padding:.6mm 1.5mm;font-size:.92em;color:' + acc + ';border-bottom:.5mm solid ' + acc2;
+    return '<div style="margin-top:2mm;padding:2mm 3mm;border-left:1.2mm solid ' + acc2 + ';background:#fff;border-radius:0 2mm 2mm 0;box-shadow:0 .4mm 1.6mm rgba(22,34,58,.08)">' +
+      '<div style="font-weight:700;color:' + acc + ';margin:0 0 1mm;font-size:.9em">' + esc(x.t) + '</div>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:.68em;color:' + ink + '"><thead><tr><th style="' + th + '">Nivel</th><th style="' + th + '">Sumar y dividir</th><th style="' + th + '">Lo que sale</th><th style="' + th + '">Se neutraliza con</th><th style="' + th + '">Fórmula</th></tr></thead><tbody>' + filas + '</tbody></table>' +
+      '<div style="font-size:.66em;margin-top:1mm;opacity:.85">Los fríos (violeta, ceniza, verde) neutralizan los cálidos que suelta cada nivel: los opuestos se anulan.</div></div>';
   }
   var VISTAS = ['queda_nuca', 'queda_lateral', 'queda_frente', 'angulos'],   /* cómo queda (atrás, lado, frente) y sus ángulos: el mismo corte */ NOESC = /preparacion|cierre|aclarad|lavado/i;
   function escenasUnidad(u) {
@@ -166,7 +166,7 @@
   function bloque(pg, C) {
     var L = pg.llenaPelu; if (!L || !L.its || !L.its.length) return '';
     var T = C.T || {}, acc = T.acc || '#B08D57', soft = T.soft || '#EEF0F3', ink = T.ink || '#16223A', h = L.h || 52, g = GW(), rc = RC();
-    var vis = L.its.filter(function (x) { return x.k === 'img' || x.k === 'esc'; }), txt = L.its.filter(function (x) { return x.k === 'lista'; }), cts = L.its.filter(function (x) { return x.k === 'cuenta'; });
+    var vis = L.its.filter(function (x) { return x.k === 'img' || x.k === 'esc'; }), txt = L.its.filter(function (x) { return x.k === 'lista'; }), cts = L.its.filter(function (x) { return x.k === 'frios'; });
     var fig = function (x) {
       var src = x.k === 'img' ? (g && g.dato(x.id)) : x.src ? (x._s != null ? x._s : (x._s = x.src() || '')) : (rc && rc.maniqui ? rc.maniqui(x.p, pg.rec) : '');
       if (!src) return '';
@@ -183,7 +183,7 @@
       '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + acc + ';margin:0 0 2mm">En la práctica</div>';
     /* impares: la última imagen ocupa el ancho y va centrada (no queda sola a un lado) */
     if (vis.length) html += '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:4mm;row-gap:4mm;align-items:start">' + vis.map(function (x, i) { var f0 = fig(x); return (vis.length % 2) && i === vis.length - 1 ?   /* impar (también una sola): media columna centrada */ '<div style="grid-column:1 / -1;width:calc(50% - 1.5mm);justify-self:center">' + f0 + '</div>' : f0; }).join('') + '</div>';
-    cts.forEach(function (x) { html += esquemaCuenta(x, T); });
+    cts.forEach(function (x) { html += esquemaFrios(x, T); });
     txt.forEach(function (x) {
       html += '<div style="margin-top:3mm;font-size:.84em;line-height:1.45;color:' + ink + '"><div style="font-weight:700;color:' + acc + ';margin:0 0 1mm">' + esc(x.t) + '</div><ul style="margin:0;padding-left:5mm">' +
         x.its.map(function (s) { return '<li style="margin:0 0 .8mm">' + esc(s) + '</li>'; }).join('') + '</ul></div>';
