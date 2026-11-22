@@ -117,54 +117,38 @@
   }
 
   function tituloAnim(tec) { var LA = window.EU_PELU_LIBRO_ANIM, d = null; try { d = LA && LA.datos ? LA.datos(tec) : null; } catch (e) { d = null; } return d && d.E && d.E.R ? String(d.E.R.n || '') : ''; }
-  /* 22-11-2026 (Fátima: «cómo se formula cada color de ESA clase y con qué número se neutraliza»): solo «Matizadores más usados».
-     Los cuatro matizadores de su clase (mat_p02). Para cada uno el sistema busca en SU carta (EU_COLOR_CEREBRO.calc.colores) dos
-     tonos de su MISMA familia que, sumados y divididos entre dos, dan exactamente el número de ese matizador (a la altura 8), y
-     al lado el número del color que neutraliza (también de la carta, a la misma altura) con el texto de su clase. */
-  var MAT = [['Violeta', /violet/i, /dorad/i, /violeta/i], ['Azul · ceniza', /ceniza/i, /^cobre|castaño cobre|^rubio cobre(?! dorado)/i, /azul|ceniza/i],
-    ['Beige · arena', /beige/i, /ceniza/i, /beige|arena/i], ['Bronce · dorado', /dorad/i, /ceniza/i, /bronce|dorado/i]];
-  function cartaColores() {
-    var B = window.EU_COLOR_CEREBRO, C = B && B.calc && B.calc.colores, out = {}; if (!C) return null;
-    Object.keys(C).forEach(function (g) { (C[g] || []).forEach(function (t) { if (t && t.c && !(t.c in out) && +t.c >= 1) out[t.c] = t; }); });
-    return out;
-  }
-  function decs(c) { return (String(c).split('.')[1] || '').length; }
+  /* 22-11-2026 (Fátima: «los tonos fríos se crean con los colores primarios»): solo «Matizadores más usados». Cada frío se
+     crea mezclando dos primarios mitad y mitad (1 + 1 = 2 partes ÷ 2), con los números REALES de su carta de correctores
+     (EU_COLOR_CEREBRO.calc.colores.Correctores: amarillo, rojo, azul, verde, violeta); el azul es primario y no se crea. Al lado,
+     lo que neutraliza cada frío según su estrella (calc.estrella). */
+  var MEZ = [['Verde', /^verde/i, [/^amarillo/i, /^azul/i], /verde/i], ['Violeta', /^violeta/i, [/^rojo/i, /^azul/i], /violeta/i], ['Azul', /^azul/i, null, /ceniza$/i]];
   function friosEstrella() {
-    var T = cartaColores(), B = window.EU_COLOR_CEREBRO; if (!T) return null;
-    var cl = (B.clases || []).filter(function (c) { return c.id === 'mat_p02'; })[0], dice = (cl && cl.b || []).map(function (b) { return String(b[1] || ''); });
-    var cods = Object.keys(T), ALT = 8, filas = [];
-    MAT.forEach(function (M) {
-      var fam = cods.filter(function (c) { return M[1].test(T[c].n); });
-      var t = fam.filter(function (c) { return Math.floor(+c) === ALT; })[0] || null, par = null;
-      if (t) fam.forEach(function (a) { fam.forEach(function (b) {
-        if (+a >= +b || a === t || b === t) return;
-        if (Math.abs((+a + +b) / 2 - +t) > 1e-9 || Math.max(decs(a), decs(b)) !== decs(t)) return;
-        if (!par || Math.abs(+a - +b) < Math.abs(+par[0] - +par[1])) par = [a, b];
-      }); });
-      var p = cods.filter(function (c) { return M[2].test(T[c].n) && Math.floor(+c) === ALT; })[0] || null;
-      var txt = dice.filter(function (d) { return M[3].test(d.split(':')[0]); })[0] || '';
-      filas.push({ fam: M[0], t: t, tn: t ? T[t].n : '', th: t ? T[t].h : '', a: par && par[0], an: par ? T[par[0]].n : '', ah: par ? T[par[0]].h : '', b: par && par[1], bn: par ? T[par[1]].n : '', bh: par ? T[par[1]].h : '',
-        suma: par ? +(+par[0] + +par[1]).toFixed(4) : 0, p: p, pn: p ? T[p].n : '', ph: p ? T[p].h : '', dice: txt.split(':').slice(1).join(':').trim() });
+    var B = window.EU_COLOR_CEREBRO, C = B && B.calc && B.calc.colores, K = C && C.Correctores, E = (B && B.calc && B.calc.estrella) || []; if (!K) return null;
+    var de = function (re) { return K.filter(function (t) { return re.test(t.n || ''); })[0] || null; };
+    var filas = [];
+    MEZ.forEach(function (M) {
+      var t = de(M[1]); if (!t) return;
+      var p = M[2] ? M[2].map(de) : null; if (M[2] && (!p[0] || !p[1])) return;
+      var es = E.filter(function (e) { return M[3].test(String(e.c || '').replace(/\s+intenso$/i, '')); })[0];
+      filas.push({ fam: M[0], t: t, p: p, neu: es ? es.p : '', neuh: es ? es.ph : '' });
     });
-    return filas.some(function (f) { return f.t; }) ? { k: 'frios', keys: ['frios'], t: 'Cómo se formula cada matizador · sumar y dividir', filas: filas } : null;
+    return filas.length ? { k: 'frios', keys: ['frios'], t: 'Cómo se crea cada color frío · con los colores primarios', filas: filas } : null;
   }
   function esquemaFrios(x, T) {
     var acc = T.acc || '#16223A', acc2 = T.acc2 || '#B08D57', soft = T.soft || '#EEF1F6', ink = T.ink || '#16223A';
-    var dec = function (v) { return String(v).replace('.', ','); };
     var pt = function (c) { return '<span style="display:inline-block;width:3.2mm;height:3.2mm;border-radius:50%;background:' + c + ';border:.2mm solid rgba(0,0,0,.15);vertical-align:-0.5mm;margin-right:1mm"></span>'; };
-    var td = 'padding:.6mm 1.5mm;border-bottom:.3mm solid ' + soft + ';vertical-align:middle;line-height:1.25';
+    var nom = function (t) { return esc(String(t.n).replace(/\s*[\d.]+$/, '')); };
+    var td = 'padding:.8mm 1.5mm;border-bottom:.3mm solid ' + soft + ';vertical-align:middle;line-height:1.3';
     var th = 'text-align:left;padding:.6mm 1.5mm;font-size:.92em;color:' + acc + ';border-bottom:.5mm solid ' + acc2;
     var filas = x.filas.map(function (f) {
-      var form = f.a ? pt(f.ah) + esc(f.a) + ' + ' + pt(f.bh) + esc(f.b) + ' = ' + dec(f.suma) + ' ÷ 2 = <b>' + esc(f.t) + '</b>' : '<span style="opacity:.75">En la carta no hay dos tonos de esta familia que den ' + esc(f.t || '') + '</span>';
-      return '<tr><td style="' + td + '"><b>' + esc(f.fam) + '</b></td>' +
-        '<td style="' + td + '">' + form + '</td>' +
-        '<td style="' + td + '">' + (f.t ? pt(f.th) + '<b>' + esc(f.tn) + '</b>' : '') + '</td>' +
-        '<td style="' + td + '">' + (f.p ? pt(f.ph) + esc(f.p) + ' <span style="opacity:.7">' + esc(f.pn.replace(/\s*[\d.]+$/, '')) + '</span>' : '') + '</td></tr>';
+      var mezcla = f.p ? pt(f.p[0].h) + nom(f.p[0]) + ' <b>' + esc(f.p[0].c) + '</b> + ' + pt(f.p[1].h) + nom(f.p[1]) + ' <b>' + esc(f.p[1].c) + '</b>' : '<span style="opacity:.8">Es primario: no se crea, de él salen los demás</span>';
+      var cuenta = f.p ? '1 + 1 = 2 partes ÷ 2 = mitad y mitad' : '—';
+      return '<tr><td style="' + td + '"><b>' + esc(f.fam) + '</b></td><td style="' + td + '">' + mezcla + '</td><td style="' + td + '">' + cuenta + '</td>' +
+        '<td style="' + td + '">' + pt(f.t.h) + '<b>' + nom(f.t) + ' ' + esc(f.t.c) + '</b></td><td style="' + td + '">' + (f.neu ? pt(f.neuh) + esc(f.neu) : '') + '</td></tr>';
     }).join('');
     return '<div style="margin-top:2mm;padding:2mm 3mm;border-left:1.2mm solid ' + acc2 + ';background:#fff;border-radius:0 2mm 2mm 0;box-shadow:0 .4mm 1.6mm rgba(22,34,58,.08)">' +
       '<div style="font-weight:700;color:' + acc + ';margin:0 0 1mm;font-size:.9em">' + esc(x.t) + '</div>' +
-      '<table style="width:100%;border-collapse:collapse;font-size:.68em;color:' + ink + '"><thead><tr><th style="' + th + '">Matizador</th><th style="' + th + '">Se formula (sumar y dividir)</th><th style="' + th + '">Queda</th><th style="' + th + '">Neutraliza</th></tr></thead><tbody>' + filas + '</tbody></table>' +
-      '</div>';
+      '<table style="width:100%;border-collapse:collapse;font-size:.7em;color:' + ink + '"><thead><tr><th style="' + th + '">Color frío</th><th style="' + th + '">Se mezclan (primarios)</th><th style="' + th + '">Cuenta</th><th style="' + th + '">Queda</th><th style="' + th + '">Neutraliza</th></tr></thead><tbody>' + filas + '</tbody></table></div>';
   }
   var VISTAS = ['queda_nuca', 'queda_lateral', 'queda_frente', 'angulos'],   /* cómo queda (atrás, lado, frente) y sus ángulos: el mismo corte */ NOESC = /preparacion|cierre|aclarad|lavado/i;
   function escenasUnidad(u) {
