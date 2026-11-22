@@ -59,8 +59,7 @@
     document.body.appendChild(host);
     return {
       libre: function (p, res) {
-        host.innerHTML = ED.paginaHTML(p, C, 'print', res); if (ED.tamImgs) ED.tamImgs(host);   /* 22-11-2026: fotos con su tamaño al medir */
-        var el = host.firstChild; if (!el || !el.getBoundingClientRect) return 0;
+        host.innerHTML = ED.paginaHTML(p, C, 'print', res); var el = host.firstChild; if (!el || !el.getBoundingClientRect) return 0;
         var r = el.getBoundingClientRect(), fondo = 16 * MM, techo = r.height - 20 * MM;
         var mete = function (nn) {
           for (var i = 0; i < nn.children.length; i++) {
@@ -242,7 +241,7 @@
       try {
         var A = (cfg && cfg.acab) || {}, inf = PRODS.test(cfg && cfg.prod || ''), lib = LIBROS.test(cfg && cfg.prod || 'libro') && window.EU_RELLENO !== undefined;
         if (cfg && (inf || lib) && A.llenas !== 'no' && res && res.C && res.C.papel && res.C.papelId !== 'slide' && document.body) {
-          var key = JSON.stringify(cfg) + '|' + (ED.firmaPaginas ? ED.firmaPaginas(res.pages) : ''), M = MEMO[key];   /* 22-11-2026: solo si las páginas son las mismas */
+          var key = JSON.stringify(cfg), M = MEMO[key];
           if (M) res.pages.forEach(function (p) { if (M[p.num]) { if (inf) p.llena = JSON.parse(JSON.stringify(M[p.num])); else p.fill2 = Object.assign({}, M[p.num]); } });
           else { var listas = fuentesListas(res.C), hecho = inf ? llenar(res) : llenarLibro(res); if (listas) { MEMO[key] = hecho; memoK.push(key); if (memoK.length > 6) delete MEMO[memoK.shift()]; } }
         }

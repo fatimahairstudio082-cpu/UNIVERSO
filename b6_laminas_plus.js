@@ -300,7 +300,7 @@
     try {
       var C = res.C;
       if (!LIBROS.test(C.prod.id) || ((cfg.acab || {}).relleno === 'no') || !document.body) return res;
-      var key = JSON.stringify(cfg) + '|' + (ED.firmaPaginas ? ED.firmaPaginas(res.pages) : '');   /* 22-11-2026: solo si las páginas son las mismas */
+      var key = JSON.stringify(cfg);
       if (MEMO[key]) { var m = MEMO[key]; res.pages.forEach(function (p) { if (m[p.num]) p.extra = Object.assign({}, m[p.num], { u: p.u || (res.unidades || [])[0] }); }); return res; }
       medir(res);
       var guard = {}; res.pages.forEach(function (p) { if (p.extra) guard[p.num] = { ty: p.extra.ty, sem: p.extra.sem, w: p.extra.w, ni: p.extra.ni }; });
