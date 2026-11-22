@@ -204,6 +204,29 @@
     }
     porPg.salon = r; R.pg.set(pg, porPg); return r;
   }
+  /* 22-11-2026 (Fátima: «escanear cada hoja y llenarla con el contenido real del sistema»): las hojas «En el salón» del Regalo
+     (cejas y pestañas) no tienen maniquí y solo repetían las ideas de la unidad. Cada una lleva ahora un bloque distinto de SU
+     técnica, tal cual está en el sistema: su lámina de divisiones (EU_DIVISIONES), su ficha, sus pasos, los errores comunes de
+     sus pasos y sus recomendaciones (EU_CEREBRO). Cuando se acaban, la hoja queda como antes. */
+  var LAM_REG = {};
+  function regaloBloque(pg, C) {
+    var B = window.EU_CEREBRO, t = null, id = String(pg.u.id || '').replace(/^cb_/, ''); try { t = B && B.obtener ? B.obtener(id) : null; } catch (e) { t = null; }
+    if (!t) return '';
+    var T = C.T, F = t.ficha || {}, bl = [], lista = function (tit, its) { its = (its || []).filter(Boolean); return its.length ? '<div style="margin-top:3mm"><div style="font-family:' + T.tit + ';font-weight:700;color:' + T.acc + ';margin:0 0 1mm">' + es(tit) + '</div><ul style="margin:0;padding-left:5mm">' + its.map(function (x) { return '<li style="margin:0 0 1mm">' + es(x) + '</li>'; }).join('') + '</ul></div>' : ''; };
+    var DV = window.EU_DIVISIONES;
+    ((DV && DV.laminasDe) ? DV.laminasDe(id) : []).forEach(function (L) {
+      bl.push(function () {
+        var src = LAM_REG[L.id]; if (src == null) { try { var cv = document.createElement('canvas'); cv.width = 900; cv.height = 620; var x = cv.getContext('2d'); x.fillStyle = '#FBF8F2'; x.fillRect(0, 0, 900, 620); DV.dibujarUna(x, L.id, 450, 300, 250, 1, {}); src = cv.toDataURL('image/jpeg', 0.82); } catch (e) { src = ''; } LAM_REG[L.id] = src; }
+        return src ? '<div style="margin-top:3mm"><img src="' + src + '" alt="' + es(L.n) + '" style="display:block;width:100%;height:auto;aspect-ratio:900/620;max-height:105mm;object-fit:contain;border-radius:' + Math.min(T.r || 4, 6) + 'px"><div style="font-family:' + T.tit + ';font-weight:700;color:' + T.acc + ';margin:2mm 0 .5mm">' + es(L.n) + '</div><p style="margin:0">' + es(L.d || '') + '</p></div>' : '';
+      });
+    });
+    var fil = function (k, v) { v = [].concat(v || []).filter(function (y) { return y && y !== '—'; }); return v.length ? k + ': ' + v.join(' · ') : ''; };
+    bl.push(function () { return lista('Ficha de la técnica · ' + t.n, [fil('Fórmula', F.formula), fil('Proporciones', F.proporciones), fil('Productos', F.productos), fil('Tiempo', F.tiempos), fil('Herramientas', F.herramientas)]); });
+    bl.push(function () { return lista('Paso a paso · ' + t.n, (t.pasos || []).map(function (p) { return p.t && p.n ? p.t + ': ' + p.n : ''; })); });
+    bl.push(function () { return lista('Errores comunes', (t.pasos || []).map(function (p) { return p.e ? (p.t ? p.t + ': ' : '') + p.e : ''; })); });
+    bl.push(function () { return lista('Recomendaciones', F.recomendaciones) + lista('Lo que no se hace', F.errores); });
+    var f = bl[pg.ks || 0]; return f ? f() : '';
+  }
   function salon(pg, C) {
     var H = window.EU_EDITORIAL.H, T = C.T, u = pg.u, corte = /^pe_u_c_/.test(u.id), r = null, t = '', intro = '', ficha = '';
     if (corte) {
@@ -225,7 +248,7 @@
     var cuerpo = H.h1(C, H.esc(t || u.t)) + (intro ? '<p style="margin:0 0 2mm">' + es(intro) + '</p>' : '') + (ficha ? '<div style="margin:0 0 2.5mm">' + ficha + '</div>' : '');
     if (r) cuerpo += '<div style="height:' + (ficha ? 112 : 122) + 'mm;display:flex;justify-content:center;align-items:center"><img src="' + r.src + '" alt="' + es(r.e.t) + '" style="height:100%;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:' + Math.min(T.r || 4, 6) + 'px"></div>' +
       '<div style="font-family:' + T.tit + ';font-weight:700;color:' + T.acc + ';margin:2.5mm 0 1mm">' + es(r.e.t) + '</div><p style="max-width:170mm;margin:0">' + es(r.e.texto || '') + '</p>';
-    else cuerpo += (u.i || []).map(function (s) { return '<p style="margin:0 0 2mm">' + es(s) + '</p>'; }).join('');
+    else cuerpo += (u.i || []).map(function (s) { return '<p style="margin:0 0 2mm">' + es(s) + '</p>'; }).join('') + (u.regalo ? regaloBloque(pg, C) : '');
     if (q) cuerpo += '<div style="margin:3mm 0 0;font-size:.92em"><b style="color:' + T.acc + '">Compruébalo.</b> ' + es(q.p) +
       '<div style="margin-top:1mm">' + (q.o || []).map(function (o, i) { return '<span style="display:inline-block;margin:0 2mm 1mm 0;padding:.4mm 2.5mm;border:0.3mm solid ' + T.soft + ';border-radius:4px">' + 'abc'.charAt(i) + ') ' + es(o) + '</span>'; }).join('') + '</div>' +
       '<div style="font-size:.85em;opacity:.75;margin-top:1mm">Respuesta: ' + es((q.o || [])[q.c] || '') + (q.x ? ' · ' + es(q.x) : '') + '</div></div>';

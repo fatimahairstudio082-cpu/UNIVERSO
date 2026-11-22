@@ -56,7 +56,9 @@
     if (!src) return H.cabecera(C, pg) + H.h1(C, 'Mis apuntes') + H.lineas(Math.floor(H.presupuesto(C, 90) / 1.05), C) + H.folio(C, pg);
     return H.cabecera(C, pg) + '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">Unidad ' + pg.n + ' · Lámina</div>' +
       H.h1(C, V.de === 'i' ? 'Las ideas de un vistazo' : 'Mapa de la unidad', 'margin-bottom:3mm') +
-      '<img src="' + src + '" alt="' + es(sub(u.t, C)) + '" style="width:100%;max-height:200mm;object-fit:contain;display:block;margin:0 auto">' +
+      /* 22-11-2026 (Fátima, Peluquería): la lámina lleva su proporción (1400×1560) para que el medidor vea su alto; sin ella el
+         relleno le añadía renglones y «Mis notas» que pisaban el número de página */
+      '<img src="' + src + '" alt="' + es(sub(u.t, C)) + '" style="width:100%;max-height:200mm;object-fit:contain;display:block;margin:0 auto' + (C.mat === 'pelu' ? ';aspect-ratio:1400/1560;height:auto' : '') + '">' +
       '<p style="font-size:.8em;opacity:.8;margin:3mm 0 0">' + (V.de === 'i' ? 'Las ideas de la unidad «' : 'Las palabras clave de la unidad «') + es(sub(u.t, C)) + '». Explica en voz alta cómo se relacionan.</p>' + H.lineas(4, C) + H.folio(C, pg);
   }
   ED.registrar({ paginas: { esc_lamina: paginaLamina }, voz: { esc_lamina: function (pg, C) { var u = pg.u; return u ? 'Mapa de la unidad: ' + sub(u.t, C) + '. ' + (u.k || []).map(function (x) { return sub(x, C); }).join(', ') + '.' : ''; } } });

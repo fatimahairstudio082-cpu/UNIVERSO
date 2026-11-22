@@ -143,19 +143,43 @@
       PA.catalogo(cfg).forEach(function (t) { if (!hay[t.unidad] && !ya[t.id] && pool[t.unidad]) fuera.push(t); });
     }
     if ((solo.length || fuera.length) && ((cfg.acab || {}).anexo) !== 'no') {
-      solo.forEach(function (t) { var ref = unidad[t.unidad]; anexo.push({ tipo: 'pe_animada', u: ref.u, n: ref.n, tec: t.id, titulo: t.n, anexo: 1, fill2: { nada: 1 } }); ya[t.id] = 1; });
+      /* 22-11-2026 (Fátima: «cada clase es una unidad, sincronizada con el curso»): las técnicas y clases de una unidad que el
+         libro SÍ lleva van dentro de esa unidad, en el orden del catálogo (el mismo del curso), junto a las que ya tenían hueco;
+         antes iban a un anexo al final del libro. Son las mismas hojas: solo cambian de sitio. El anexo queda para las de otros
+         temas (anexo con otros temas: Sí). */
+      var catU = {}; PA.catalogo(cfg).forEach(function (t) { (catU[t.unidad] = catU[t.unidad] || []).push(t); });
+      var soloU = {}; solo.forEach(function (t) { (soloU[t.unidad] = soloU[t.unidad] || {})[t.id] = t; });
+      Object.keys(soloU).forEach(function (uid) {
+        var ref = unidad[uid], ancla = null, mete = function (q) {
+          var i;
+          if (ancla) i = res.pages.indexOf(ancla) + 1;
+          else {
+            i = -1; res.pages.some(function (p, k) { if (p.u && p.u.id === uid && (p.tipo === 'pe_animada' || p.tipo === 'actividad' || p.tipo === 'tutor')) { i = k; return true; } return false; });
+            if (i < 0) res.pages.forEach(function (p, k) { if (p.u && p.u.id === uid) i = k + 1; });
+          }
+          res.pages.splice(i, 0, q); ancla = q;
+        };
+        (catU[uid] || []).forEach(function (t) {
+          var ex = res.pages.filter(function (p) { return p.tipo === 'pe_animada' && p.tec === t.id && p.u && p.u.id === uid; })[0];
+          if (ex) { ancla = ex; return; }
+          if (!soloU[uid][t.id]) return;
+          mete({ tipo: 'pe_animada', u: ref.u, n: ref.n, tec: t.id, titulo: t.n, fill2: { nada: 1 } }); ya[t.id] = 1; n++;
+        });
+      });
       fuera.forEach(function (t) { var u = pool[t.unidad]; anexo.push({ tipo: 'pe_animada', u: u, cab: 'Anexo · ' + u.t, tec: t.id, titulo: t.n, anexo: 1, fuera: 1, fill2: { nada: 1 } }); ya[t.id] = 1; });
-      var tipos = res.pages.map(function (p) { return p.tipo; }), pos = tipos.indexOf('solucion');
-      if (pos < 0) pos = tipos.indexOf('bibliografia'); if (pos < 0) pos = tipos.indexOf('contra'); if (pos < 0) pos = res.pages.length;
-      anexo[0].indice = 'Anexo · Técnicas y clases animadas';   /* entrada en el índice */
-      res.pages.splice.apply(res.pages, [pos, 0].concat(anexo));
+      if (anexo.length) {
+        var tipos = res.pages.map(function (p) { return p.tipo; }), pos = tipos.indexOf('solucion');
+        if (pos < 0) pos = tipos.indexOf('bibliografia'); if (pos < 0) pos = tipos.indexOf('contra'); if (pos < 0) pos = res.pages.length;
+        anexo[0].indice = 'Anexo · Técnicas y clases animadas';   /* entrada en el índice */
+        res.pages.splice.apply(res.pages, [pos, 0].concat(anexo));
+      }
       /* nueva numeración; el solucionario sigue apuntando a sus páginas */
       var nueva = {};
       res.pages.forEach(function (p, i) { if (p.num != null) nueva[p.num] = i + 1; });
       res.pages.forEach(function (p, i) { p.num = i + 1; });
       res.pages.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas.forEach(function (e) { if (nueva[e.p]) e.p = nueva[e.p]; }); });
     }
-    res.animadas = { libro: n, anexo: anexo.length, fuera: fuera.length, soloCurso: anexo.length ? [] : solo.map(function (t) { return t.id; }) };
+    res.animadas = { libro: n, anexo: anexo.length, fuera: fuera.length, soloCurso: (solo.length || fuera.length) && ((cfg.acab || {}).anexo) !== 'no' ? [] : solo.map(function (t) { return t.id; }) };
     return res;
   }
   function enganchar() {

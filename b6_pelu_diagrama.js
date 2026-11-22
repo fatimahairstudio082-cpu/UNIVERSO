@@ -1687,11 +1687,27 @@
   function pinta(x, A, im, bx, by, bw, bh, p) {
     if (!A) return false;
     /* A.banda (18-10-2026, Fátima: «los textos de arriba no dejan ver el maniquí»): los rótulos van en una franja propia arriba y el maniquí debajo, sin taparlo */
-    var nE = (A.tr || []).filter(function (T) { return T.k === 'e' && !T.x; }).length + ((A.tr || []).some(function (T) { return T.k === 'e' && T.x; }) ? 1 : 0), bnd = A.banda || nE >= 4 ? Math.min(bh * 0.45, 16 + 32 * nE) : 0;
+    var nE = (A.tr || []).filter(function (T) { return T.k === 'e' && !T.x; }).length + ((A.tr || []).some(function (T) { return T.k === 'e' && T.x; }) ? 1 : 0);
+    /* 22-11-2026 (Fátima: «nada de texto encima del maniquí; el maniquí limpio y profesional y el texto abajo bien organizado»):
+       todos los rótulos van en una franja DEBAJO del maniquí, en filas (dos columnas si son más de tres). «Ángulos y largos»
+       (A.propia, su escena aprobada el 15-11) se queda como estaba */
+    var abajo = nE > 0 && !A.propia, labs = [], hueco = [], filE = 0, bwE = bw - (A.lado && (A.tr || []).some(function (T) { return T.k === 'r' || T.k === 'n' || T.k === 'i'; }) ? Math.min(bw * 0.22, 200) : 0), cw2 = (bwE - 36) / 2;
+    if (abajo) {   /* dos por fila si caben en media columna; el que no cabe, en su fila entera (nunca cortado) */
+      x.font = '700 14px system-ui,sans-serif'; var colx = 0, uno = null;
+      (A.tr || []).forEach(function (T) {
+        if (T.k !== 'e') return; if (T.x && uno) { hueco.push([T, uno[1], uno[2], uno[3]]); return; }
+        var w = x.measureText(T.s).width + 18, sl;
+        if (nE <= 3 || w > cw2) { if (colx) { filE++; colx = 0; } sl = [T, 0, filE, bwE - 24]; filE++; }
+        else { sl = [T, colx, filE, cw2]; if (colx) { filE++; colx = 0; } else colx = 1; }
+        hueco.push(sl); if (T.x && !uno) uno = sl;
+      });
+      if (colx) filE++;
+    }
+    var bnd = abajo ? Math.min(bh * 0.45, 12 + 30 * filE) : A.banda || nE >= 4 ? Math.min(bh * 0.45, 16 + 32 * nE) : 0;
     /* 15-11-2026 (Fátima: «el reloj siempre en cada visualización, pero no pegado al maniquí ni al corte»): en las escenas de corte
        (A.lado, lo pone encaje) el reloj/transportador va en su propia columna a la derecha y el maniquí se dibuja a su izquierda */
     var RW = A.lado && (A.tr || []).some(function (T) { return T.k === 'r' || T.k === 'n' || T.k === 'i'; }) ? Math.min(bw * 0.22, 200) : 0, bwI = bw - RW, lista = [];
-    var c = A.crop || [0, 0, 1280, 720], s = Math.min(bwI / c[2], (bh - bnd) / c[3]), ox = bx + (bwI - c[2] * s) / 2 - c[0] * s, oy = by + bnd + (bh - bnd - c[3] * s) / 2 - c[1] * s;
+    var c = A.crop || [0, 0, 1280, 720], s = Math.min(bwI / c[2], (bh - bnd) / c[3]), ox = bx + (bwI - c[2] * s) / 2 - c[0] * s, oy = by + (abajo ? 0 : bnd) + (bh - bnd - c[3] * s) / 2 - c[1] * s;
     x.save(); x.beginPath(); x.rect(bx, by, bw, bh); x.clip();
     x.fillStyle = A.bg || '#E6EAF1'; x.fillRect(bx, by, bw, bh);
     if (RW) { x.restore(); x.save(); x.beginPath(); x.rect(bx, by, bwI, bh); x.clip(); }   /* el maniquí y el corte no entran en la columna del reloj */
@@ -1726,6 +1742,7 @@
         /* 8-11-2026 (Fátima: «los números en pequeñitos círculos; el corte limpio y profesional»): radio 7 y letra de 10 */
         var RN = T.sm ? 7 : 11, FN = T.sm ? '700 10px system-ui,sans-serif' : '700 13px system-ui,sans-serif';   /* sm: la pone encaje en las escenas de corte; las técnicas de color no cambian */
         x.beginPath(); if (T.s && T.s.length > 2) { x.font = FN; var nw = Math.max(RN, x.measureText(T.s).width / 2 + (T.sm ? 5 : 9)), nx = ox + T.x * s, ny = oy + T.y * s; x.moveTo(nx - nw + RN, ny - RN); x.arc(nx + nw - RN, ny, RN, -1.5708, 1.5708); x.arc(nx - nw + RN, ny, RN, 1.5708, 4.7124); x.closePath(); } else x.arc(ox + T.x * s, oy + T.y * s, RN, 0, 7); x.fill(); if (T.s) { x.fillStyle = '#fff'; x.font = FN; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(T.s, ox + T.x * s, oy + T.y * s + 0.5); x.textAlign = 'left'; x.textBaseline = 'alphabetic'; } }
+      else if (T.k === 'e' && abajo) labs.push(T);
       else if (T.k === 'e') { x.setLineDash([]); x.font = '700 15px system-ui,sans-serif'; var tw = x.measureText(T.s).width + 18; x.fillStyle = 'rgba(255,255,255,.93)'; x.fillRect(bx + 12, ry, tw, 26); x.fillStyle = T.c; x.fillRect(bx + 12, ry, 4, 26); x.fillStyle = '#1F1B18'; x.fillText(T.s, bx + 24, ry + 18); ry += 32; }
       else if (T.k === 'i') {
         /* instrumento: transportador en la raíz, arco hasta el ángulo, escuadra/cartabón, mechón con regla en cm */
@@ -1824,16 +1841,29 @@
       [1, -1].forEach(function (sg) { x.save(); x.rotate(sg * ab); x.beginPath(); x.moveTo(-12, 0); x.lineTo(30, 0); x.stroke(); x.beginPath(); x.arc(-20, 0, 7, 0, 7); x.stroke(); x.restore(); });
       x.beginPath(); x.arc(0, 0, 2.5, 0, 7); x.fill(); x.restore();
     });
+    /* la franja de los rótulos, debajo del maniquí (tapa lo que la imagen de fondo dibujaba fuera de su recorte) */
+    if (abajo) {
+      var yb = by + bh - bnd, paso = Math.min(30, (bnd - 10) / Math.max(1, filE));
+      x.setLineDash([]); x.fillStyle = A.bg || '#E6EAF1'; x.fillRect(bx, yb, bwI, bnd); x.fillStyle = 'rgba(31,27,24,.12)'; x.fillRect(bx + 12, yb + 3, bwI - 24, 1);
+      labs.forEach(function (T) {
+        var sl = hueco.filter(function (h) { return h[0] === T; })[0]; if (!sl) return;
+        var cwE = sl[3], lx = bx + 12 + sl[1] * (cw2 + 12), ly = yb + 8 + sl[2] * paso, fz = 15;
+        x.font = '700 ' + fz + 'px system-ui,sans-serif'; while (fz > 10 && x.measureText(T.s).width + 18 > cwE) { fz -= 0.5; x.font = '700 ' + fz + 'px system-ui,sans-serif'; }
+        var tw = Math.min(cwE, x.measureText(T.s).width + 18);
+        x.fillStyle = 'rgba(255,255,255,.93)'; x.fillRect(lx, ly, tw, 26); x.fillStyle = T.c; x.fillRect(lx, ly, 4, 26);
+        x.save(); x.beginPath(); x.rect(lx, ly, tw, 26); x.clip(); x.fillStyle = '#1F1B18'; x.textAlign = 'left'; x.fillText(T.s, lx + 12, ly + 18); x.restore();
+      });
+    }
     x.restore();
     if (RW) {
-      x.save(); x.beginPath(); x.rect(bx + bwI, by, RW, bh); x.clip(); x.fillStyle = 'rgba(255,255,255,.6)'; x.fillRect(bx + bwI, by + bnd, RW, bh - bnd);
+      x.save(); x.beginPath(); x.rect(bx + bwI, by, RW, bh); x.clip(); x.fillStyle = 'rgba(255,255,255,.6)'; x.fillRect(bx + bwI, by + (abajo ? 0 : bnd), RW, bh - (abajo ? 0 : bnd));
       relojes.forEach(function (o) { reloj(o[0], o[1]); });
       /* lista del lado: cada número con su texto (mechón/línea/capa · grados), en el orden en que se corta, de abajo arriba;
          la última que aparece es la que se está cortando y va marcada */
       var vistos = {}, fil = [];
       lista.sort(function (a, b) { return a.t[0] - b.t[0]; }).forEach(function (T) { var tx = T.ley || T.s || ''; if (!tx) return; if (vistos[tx] != null) fil[vistos[tx]] = T; else { vistos[tx] = fil.length; fil.push(T); } });
       if (fil.length) {
-        var y0 = relojes.length ? by + bh * 0.42 + Math.min(62, bh * 0.16) + 50 : by + bnd + 14, hF = Math.max(11, Math.min(17, (by + bh - 6 - y0) / fil.length)), fz2 = Math.max(8, Math.min(11.5, hF - 4));
+        var y0 = relojes.length ? by + bh * 0.42 + Math.min(62, bh * 0.16) + 50 : by + (abajo ? 0 : bnd) + 14, hF = Math.max(11, Math.min(17, (by + bh - 6 - y0) / fil.length)), fz2 = Math.max(8, Math.min(11.5, hF - 4));
         if (y0 + hF * fil.length > by + bh - 4) { fil = fil.slice(fil.length - Math.floor((by + bh - 4 - y0) / hF)); }
         x.textBaseline = 'middle'; x.textAlign = 'left';
         fil.forEach(function (T, i) {

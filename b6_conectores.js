@@ -203,6 +203,29 @@
     }
     return out;
   }
+  /* 22-11-2026 (Fátima: «Dibuja aquí ocupa mucho espacio; sustitúyelo por otra cosa del mismo sistema»): en Peluquería, en lugar
+     de «Tu versión · Redibújalo…» con renglones, una escena del maniquí de esa unidad (un corte de la unidad o su técnica) con su
+     título y su explicación; si no hay, los errores comunes de la unidad (textos de Fátima). */
+  function peluManiqui(pg, C) {
+    var u = pg.u, T = C.T, x = null, k = pg.k || 0;
+    try {
+      if (/^pe_u_c_/.test(u.id) && window.EU_CORTES && window.EU_PELU_LIBRO_DG) {
+        var L = EU_CORTES.lista(u.id.slice(7)) || [], LD = EU_PELU_LIBRO_DG;
+        for (var i = 0; i < L.length && !x; i++) {
+          var c = L[(k + i) % L.length], dg = { k: 'corte', corte: c.id }, d = LD.datos(dg); if (!d || !d.E) continue;
+          ['queda_lateral', 'queda_frente', 'queda_nuca'].some(function (t) { var e = d.E.escenas.filter(function (s) { return s.tipo === t; })[0], src = e ? LD.fotoEscena(dg, t) : ''; if (src) x = { src: src, e: e, n: c.n }; return !!x; });
+        }
+      } else if (/^cb_/.test(u.id) && window.EU_PELU_LIBRO_ANIM) {
+        var LA = EU_PELU_LIBRO_ANIM, dA = LA.datos(u.id), es2 = dA && dA.E ? dA.E.escenas : [], ok = [];
+        es2.forEach(function (e, j) { if (!/preparacion|cierre|aclarad|lavado/i.test(e.tipo || '')) ok.push(j); });
+        if (ok.length) { var j0 = ok[k % ok.length], s2 = LA.foto(u.id, j0, 640); if (s2) x = { src: s2, e: es2[j0], n: '' }; }
+      }
+    } catch (er) { x = null; }
+    if (x) return H.h2(C, 'En el maniquí' + (x.n ? ' · ' + esc(x.n) : '')) + '<img src="' + x.src + '" alt="' + esc(x.e.t || '') + '" style="display:block;max-width:100%;max-height:92mm;width:auto;height:auto;' + (x.e.anim && x.e.anim.crop ? 'aspect-ratio:' + x.e.anim.crop[2] + '/' + x.e.anim.crop[3] + ';' : '') + 'margin:0 auto 2mm;border-radius:' + Math.min(T.r || 4, 6) + 'px">' +
+      '<p style="margin:0;max-width:150mm"><b>' + esc(x.e.t || '') + '.</b> ' + esc(x.e.texto || '') + '</p>';
+    var err = (u.err || []).map(function (y) { return Array.isArray(y) ? y.join(': ') : String(y); }).filter(Boolean);
+    return err.length ? H.h2(C, 'Errores comunes') + '<ul style="margin:0;padding-left:5mm">' + err.map(function (y) { return '<li style="margin:0 0 1.5mm">' + esc(y) + '</li>'; }).join('') + '</ul>' : '';
+  }
   var paginas = {
     pro_ejecutivo: function (pg, C, modo, ctx) {
       var T = C.T, caps = (ctx && ctx.pages || []).filter(function (p) { return p.tipo === 'pro_capitulo'; });
@@ -236,7 +259,7 @@
       return H.cabecera(C, pg) + kicker(C, 'Diagrama') + H.h1(C, esc(d.n)) +
         '<div style="margin:4mm 0 6mm">' + H.figura(d.f, C) + '</div>' +
         H.h2(C, 'Cómo leerlo') + '<p style="max-width:150mm">' + esc(d.c) + '</p>' +
-        H.h2(C, 'Tu versión') + '<p style="font-size:.9em;opacity:.8;margin:0 0 3mm">Redibújalo con tus palabras o añade un ejemplo de tu entorno.</p>' + H.lineas(5, C) + H.folio(C, pg);
+        (C.mat === 'pelu' ? peluManiqui(pg, C) : H.h2(C, 'Tu versión') + '<p style="font-size:.9em;opacity:.8;margin:0 0 3mm">Redibújalo con tus palabras o añade un ejemplo de tu entorno.</p>' + H.lineas(5, C)) + H.folio(C, pg);
     },
     pro_caso: function (pg, C) {
       var T = C.T, u = pg.u, r = H.rng(H.hash(u.id + 'caso') + C.semilla), nom = H.pick(r, C.P.nombres || ['Ana']), k = claves(u, C);
