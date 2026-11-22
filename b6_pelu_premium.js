@@ -30,11 +30,13 @@
   /* cabecera en banda y figuras con filo dorado: se retoca el HTML ya pintado de cada página */
   var CAB = 'border-bottom:1px solid ' + PAL.soft + ';font-size:.7em;letter-spacing:.08em;text-transform:uppercase;color:' + PAL.acc + ';';
   var CAB2 = 'border-bottom:0.7mm solid ' + ORO + ';background:' + PAL.acc + ';padding:1.8mm 4mm;font-size:.7em;letter-spacing:.08em;text-transform:uppercase;color:' + ORO + ';';
+  var CAB_ED = 'border-bottom:0.4mm solid ' + PAL.ink + ';font-size:.7em;letter-spacing:.08em;text-transform:uppercase;color:' + PAL.acc + ';';
   var FIG = '<figure style="margin:0;background:' + PAL.soft + ';';
   var FIG2 = '<figure style="margin:0;background:#FFFFFF;border:0.3mm solid ' + ORO + ';box-shadow:0 0.8mm 2.4mm rgba(22,34,58,.12);';
   function post(h, pg, C) {
     if (!C || !C.T || C.T.premium !== 'medianoche' || typeof h !== 'string') return h;
     if (h.indexOf(CAB) >= 0) h = h.replace(CAB, CAB2);
+    else if (h.indexOf(CAB_ED) >= 0) h = h.replace(CAB_ED, CAB2);   /* 22-11-2026: la plantilla Editorial (la automática de Peluquería) dibuja la raya con la tinta */
     if (h.indexOf(FIG) >= 0) h = h.split(FIG).join(FIG2);
     return h;
   }

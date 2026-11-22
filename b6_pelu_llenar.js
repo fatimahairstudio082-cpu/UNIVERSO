@@ -20,8 +20,9 @@
   if (window.EU_PELU_LLENAR) return;
   var ED = window.EU_EDITORIAL; if (!ED) return;
   var LIBROS = /^(libro|libro_pro|ebook|cuaderno|unidad|trabajo)$/;
-  var TIPOS = /^(pe_clase|pe_salon|pe_tecnica|pe_diagrama|pe_escena)$/;   /* pe_animada no: ya va llena y el medidor no ve su altura real */
+  var TIPOS = /^(pe_clase|pe_salon|pe_tecnica|pe_diagrama|pe_escena|esc_lamina|pe_animada)$/;   /* pe_animada: sus imágenes llevan ya su proporción (22-11-2026) */
   var HUECO = 28;   /* mm libres a partir de los cuales se añade algo */
+  var SEG = 6;      /* margen de seguridad: el medidor y la hoja impresa difieren unos milímetros */
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function activo(cfg) { return cfg && cfg.materia === 'pelu' && LIBROS.test(String(cfg.prod || 'libro')) && ((cfg.acab || {}).llenarPelu) !== 'no'; }
@@ -54,7 +55,8 @@
   function piezas(pg, usado) {
     var out = [], r = claseDe(pg), rc = RC(), g = GW();
     /* a. galería */
-    var ids = r ? imagenes(idGal(r)) : imagenes('', pg.u && pg.u.id);
+    var anim = pg.tipo === 'pe_animada' && pg.tec;   /* técnica animada: solo lo de ESA técnica, nunca otra de su unidad */
+    var ids = r ? imagenes(idGal(r)) : anim ? imagenes(pg.tec) : imagenes('', pg.u && pg.u.id);
     ids.forEach(function (n) {
       var gid = g.id(n); if (usado.img[gid]) return;
       if (!g.dato(gid)) return;   /* la imagen aún no ha llegado: no se pone una ruta que no viaja con el libro */
@@ -68,6 +70,22 @@
         var key = pg.rec + '|' + p.e.tipo + '|' + (p.e.t || ''); if (usado.esc[key]) return;
         out.push({ k: 'esc', key: key, p: p, t: String(p.t || '').replace(/^(Visualización|Clase|Práctica|Cómo queda) · /, ''), d: p.texto || '' });
       });
+    }
+    /* b2. hojas de unidad (lámina, en el salón, escena): escenas del maniquí de los cortes o de la técnica de esa unidad
+       (las mismas que ya da la galería: EU_PELU_LIBRO_DG para cortes, EU_PELU_LIBRO_ANIM para técnicas) */
+    /* 22-11-2026 (Fátima: «cada escena con su respectivo corte»): un solo corte por hoja, con sus vistas seguidas; nunca se
+       mezclan escenas de cortes distintos */
+    if (anim) {
+      var LA = window.EU_PELU_LIBRO_ANIM, dA = null; try { dA = LA && LA.datos ? LA.datos(pg.tec) : null; } catch (er) { dA = null; }
+      if (dA && dA.E) dA.E.escenas.forEach(function (e, i) {
+        if ((dA.sel || []).indexOf(i) >= 0 || NOESC.test(e.tipo || '')) return;
+        var key = 'an|' + pg.tec + '|' + i; if (usado.esc[key]) return;
+        out.push({ k: 'esc', g: pg.tec, key: key, src: function () { return LA.foto(pg.tec, i, 640); }, t: (i + 1) + ' · ' + (e.t || ''), d: e.texto || '' });
+      });
+    } else if (!r && pg.u) {
+      var grupos = {}, orden = [];
+      escenasUnidad(pg.u).forEach(function (x) { if (usado.esc[x.key]) return; if (!grupos[x.g]) { grupos[x.g] = []; orden.push(x.g); } grupos[x.g].push(x); });
+      if (orden.length) grupos[orden[0]].forEach(function (x) { out.push(x); });
     }
     /* c. información del sistema */
     var T = cerebro(r, pg);
@@ -88,26 +106,47 @@
         if (fe.length) out.push({ k: 'lista', t: 'Lo que no se hace', its: fe, keys: fe.map(nq) });
       }
     }
-    var err = ((pg.u && pg.u.err) || []).map(function (x) { return Array.isArray(x) ? x.join(': ') : String(x); }).filter(function (x) { return x && !usado.txt[nq(x)]; });
+    var err = anim ? [] : ((pg.u && pg.u.err) || []).map(function (x) { return Array.isArray(x) ? x.join(': ') : String(x); }).filter(function (x) { return x && !usado.txt[nq(x)]; });
     if (err.length) out.push({ k: 'lista', t: 'Errores comunes de la unidad', its: err, keys: err.map(nq) });
     return out;
   }
 
+  var VISTAS = ['queda_nuca', 'queda_lateral', 'queda_frente', 'angulos'],   /* cómo queda (atrás, lado, frente) y sus ángulos: el mismo corte */ NOESC = /preparacion|cierre|aclarad|lavado/i;
+  function escenasUnidad(u) {
+    var out = [], CO = window.EU_CORTES, LD = window.EU_PELU_LIBRO_DG, LA = window.EU_PELU_LIBRO_ANIM;
+    try {
+      if (/^pe_u_c_/.test(u.id) && CO && CO.lista && LD && LD.datos) {
+        CO.lista(u.id.slice(7)).forEach(function (c) {
+          var dg = { k: 'corte', corte: c.id }, d = LD.datos(dg); if (!d || !d.E) return;
+          VISTAS.forEach(function (t) { var e = d.E.escenas.filter(function (x) { return x.tipo === t; })[0]; if (e) out.push({ k: 'esc', g: c.id, key: 'dg|' + c.id + '|' + t, src: function () { return LD.fotoEscena(dg, t); }, t: c.n + ' · ' + String(e.t || '').replace(/^Cómo queda · [^·]+ · /, ''), d: e.texto || '' }); });
+        });
+      } else if (/^cb_/.test(u.id) && LA && LA.datos) {
+        var tec = u.id, d2 = LA.datos(tec); if (d2 && d2.E) d2.E.escenas.forEach(function (e, i) { if (!NOESC.test(e.tipo || '')) out.push({ k: 'esc', g: tec, key: 'an|' + tec + '|' + i, src: function () { return LA.foto(tec, i, 640); }, t: e.t || '', d: e.texto || '' }); });
+      }
+    } catch (er) { console.warn('pelu llenar · escenas de la unidad', er); }
+    return out;
+  }
   /* ─────────── el bloque «En la práctica» ─────────── */
   function bloque(pg, C) {
     var L = pg.llenaPelu; if (!L || !L.its || !L.its.length) return '';
     var T = C.T || {}, acc = T.acc || '#B08D57', soft = T.soft || '#EEF0F3', ink = T.ink || '#16223A', h = L.h || 52, g = GW(), rc = RC();
     var vis = L.its.filter(function (x) { return x.k === 'img' || x.k === 'esc'; }), txt = L.its.filter(function (x) { return x.k === 'lista'; });
     var fig = function (x) {
-      var src = x.k === 'img' ? (g && g.dato(x.id)) : (rc && rc.maniqui ? rc.maniqui(x.p, pg.rec) : '');
+      var src = x.k === 'img' ? (g && g.dato(x.id)) : x.src ? (x._s != null ? x._s : (x._s = x.src() || '')) : (rc && rc.maniqui ? rc.maniqui(x.p, pg.rec) : '');
       if (!src) return '';
-      var uno = vis.length === 1;   /* una sola imagen: el fondo se ciñe a ella, centrada */
-      return '<figure style="margin:0;break-inside:avoid' + (uno ? ';display:flex;flex-direction:column;align-items:center' : '') + '"><div style="display:flex;justify-content:center;background:' + soft + ';border-radius:2mm;overflow:hidden' + (uno ? ';max-width:100%' : '') + '"><img src="' + src + '" alt="' + esc(x.t) + '" ' + (x.k === 'img' ? 'data-gw="' + esc(x.id) + '" ' : '') + 'style="display:block;max-width:100%;width:auto;height:' + h + 'mm;object-fit:contain"></div>' +
-        '<figcaption style="font-size:.74em;line-height:1.35;margin-top:1.2mm"><b>' + esc(x.t) + '.</b> ' + esc(x.d) + '</figcaption></figure>';
+      /* 22-11-2026 (diseño): todas las imágenes en recuadros iguales, el fondo del maniquí igual al de su escena (sin bandas),
+         y el pie con el título en su línea y la explicación debajo */
+      var fondo = x.k === 'img' ? 'transparent' : '#E6EAF1';   /* foto: sin fondo, la foto limpia y centrada; maniquí: el gris de su escena */
+      return '<figure style="margin:0;break-inside:avoid;display:flex;flex-direction:column">' +
+        '<div style="height:' + h + 'mm;background:' + fondo + ';border-radius:2mm;overflow:hidden;display:flex;align-items:center;justify-content:center">' +
+        '<img src="' + src + '" alt="' + esc(x.t) + '" ' + (x.k === 'img' ? 'data-gw="' + esc(x.id) + '" ' : '') + 'style="display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain' + (x.k === 'img' ? ';border-radius:2mm' : '') + '"></div>' +
+        '<figcaption style="margin-top:1.6mm;line-height:1.35"><div style="font-size:.78em;font-weight:700;color:' + ink + ';margin:0 0 .6mm">' + esc(x.t) + '</div>' +
+        '<div style="font-size:.72em;opacity:.82">' + esc(x.d) + '</div></figcaption></figure>';
     };
     var html = '<div data-llena-pelu="1" style="margin-top:4mm;padding-top:2.5mm;border-top:0.5mm solid ' + acc + '">' +
       '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + acc + ';margin:0 0 2mm">En la práctica</div>';
-    if (vis.length) html += '<div style="display:grid;grid-template-columns:repeat(' + Math.min(2, vis.length) + ',minmax(0,1fr));gap:3mm">' + vis.map(fig).join('') + '</div>';
+    /* impares: la última imagen ocupa el ancho y va centrada (no queda sola a un lado) */
+    if (vis.length) html += '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:4mm;row-gap:4mm;align-items:start">' + vis.map(function (x, i) { var f0 = fig(x); return (vis.length % 2) && i === vis.length - 1 ?   /* impar (también una sola): media columna centrada */ '<div style="grid-column:1 / -1;width:calc(50% - 1.5mm);justify-self:center">' + f0 + '</div>' : f0; }).join('') + '</div>';
     txt.forEach(function (x) {
       html += '<div style="margin-top:3mm;font-size:.84em;line-height:1.45;color:' + ink + '"><div style="font-weight:700;color:' + acc + ';margin:0 0 1mm">' + esc(x.t) + '</div><ul style="margin:0;padding-left:5mm">' +
         x.its.map(function (s) { return '<li style="margin:0 0 .8mm">' + esc(s) + '</li>'; }).join('') + '</ul></div>';
@@ -125,18 +164,29 @@
       if (a.tipo !== 'pe_clase' || a.parte !== 2 || a.rec !== b.rec || a.hoja !== b.hoja - 1) continue;
       var a0 = { a: a.a, ult: a.ult, qs: a.qs };
       a.a = b.a; a.ult = b.ult; if (b.qs) a.qs = b.qs;
-      if (Md.libre(a, res) >= 4) {   /* margen: el medidor y la hoja real difieren unos milímetros */
+      if (Md.libre(a, res) >= SEG) {   /* margen: el medidor y la hoja real difieren unos milímetros */
         quitar.push(b);
         P.forEach(function (q) { if (q.tipo === 'pe_clase' && q.parte === 2 && q.rec === b.rec) q.hojas = b.hojas - 1; });
       } else { a.a = a0.a; a.ult = a0.ult; if (a0.qs) a.qs = a0.qs; else delete a.qs; }
     }
+    return quitarPaginas(res, quitar);
+  }
+  /* quita hojas y renumera páginas y solucionario */
+  function quitarPaginas(res, quitar) {
     if (!quitar.length) return 0;
-    var mapa = {}, out = P.filter(function (p) { return quitar.indexOf(p) < 0; });
+    var mapa = {}, out = res.pages.filter(function (p) { return quitar.indexOf(p) < 0; });
     out.forEach(function (p, i) { if (p.num != null) mapa[p.num] = i + 1; });
     out.forEach(function (p, i) { if (p.num != null) p.num = i + 1; });
     out.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return mapa[e.p]; }).map(function (e) { return Object.assign({}, e, { p: mapa[e.p] }); }); });
     res.pages = out;
     return quitar.length;
+  }
+  /* 22-11-2026 (Fátima: «menos hojas de Regalo»): cejas y pestañas llevan una sola hoja «En el salón» por técnica; las demás
+     repetían las mismas ideas */
+  function regaloUnico(res) {
+    var visto = {}, quitar = [];
+    res.pages.forEach(function (p) { if (!/^(pe_salon|esc_lamina)$/.test(p.tipo) || !p.u || !p.u.regalo) return; var k = p.tipo + '|' + p.u.id; if (visto[k]) quitar.push(p); else visto[k] = 1; });   /* también una sola lámina por técnica de regalo */
+    return quitarPaginas(res, quitar);
   }
 
   /* ─────────── 2 y 3. medir y llenar ─────────── */
@@ -145,6 +195,15 @@
     res.pages.forEach(function (p) {
       ['foto', 'mod', 'portMod', 'gw'].forEach(function (k) { if (p[k] && /^pe_gw_/.test(String(p[k]))) u.img[p[k]] = 1; });
       var f = p.fill2 && p.fill2.fig; if (f) { var re = /pe_gw_\d+/g, m; while ((m = re.exec(String(f)))) u.img[m[0]] = 1; }
+      /* vistas del maniquí que ya enseñan el diagrama y la clase de cada corte: no se repiten en «En la práctica» */
+      try {
+        var LD = window.EU_PELU_LIBRO_DG, rc = RC();
+        if (p.tipo === 'pe_diagrama' && p.dg && p.dg.k === 'corte' && LD && LD.datos) { var d = LD.datos(p.dg); (d && d.vis || []).forEach(function (e) { u.esc['dg|' + p.dg.corte + '|' + e.tipo] = 1; }); }
+        if (p.tipo === 'pe_clase' && p.parte === 1 && rc && rc.R && rc.R[p.rec] && rc.R[p.rec].k === 'corte') {
+          var cid = String(rc.R[p.rec].lec || '').replace(/^__/, '');
+          (rc.pasos(p.rec) || []).filter(function (x) { return x.etapa === 'queda' && x.e; }).slice(0, 2).forEach(function (x) { u.esc['dg|' + cid + '|' + x.e.tipo] = 1; });
+        }
+      } catch (er) { }
     });
     return u;
   }
@@ -153,9 +212,12 @@
        «Observa / Practica más» con dibujos de la biblioteca, que además hacían salirse las hojas del diagrama */
     if (!p.fill2) p.fill2 = { nada: 1 };
     var libre = Md.libre(p, res);
-    if (libre < -1 && p.fill2 && !p.fill2.nada) { p.fill2 = { nada: 1 }; libre = Md.libre(p, res); }   /* lo opcional antes que bajar la letra */
-    if (libre < -1) {   /* se sale: baja la letra hasta que cabe */
-      [0.94, 0.88, 0.84].some(function (f) { p.encaje = f; return Md.libre(p, res) >= -1; });
+    if (libre < SEG && p.fill2 && !p.fill2.nada) { p.fill2 = { nada: 1 }; libre = Md.libre(p, res); }   /* lo opcional antes que bajar la letra */
+    if (libre < SEG && p.tipo === 'pe_diagrama') {   /* el diagrama baja la altura de sus figuras antes que la letra */
+      [78, 70, 62, 55, 48].some(function (mm) { p.figMax = mm; return Md.libre(p, res) >= SEG; }); libre = Md.libre(p, res);
+    }
+    if (libre < SEG) {   /* se sale: baja la letra hasta que cabe */
+      [0.97, 0.94, 0.9, 0.86].some(function (f) { p.encaje = f; return Md.libre(p, res) >= SEG; });
       return 0;
     }
     if (libre < HUECO) return 0;
@@ -168,8 +230,8 @@
       var x = cand[i], vis = x.k !== 'lista';
       /* imágenes de dos en dos: una sola fila con hueco para dos */
       L.its.push(x);
-      var ok = Md.libre(p, res) >= 3;
-      if (!ok && vis) { [44, 36, 30].some(function (hh) { if (hh >= L.h) return false; L.h = hh; ok = Md.libre(p, res) >= 3; return ok; }); }
+      var ok = Md.libre(p, res) >= SEG;
+      if (!ok && vis) { [44, 36, 30].some(function (hh) { if (hh >= L.h) return false; L.h = hh; ok = Md.libre(p, res) >= SEG; return ok; }); }
       if (!ok) { L.its.pop(); continue; }
       puestas++;
       if (x.k === 'img') usado.img[x.id] = 1; else if (x.k === 'esc') usado.esc[x.key] = 1; else x.keys.forEach(function (k) { usado.txt[k] = 1; });
@@ -178,7 +240,7 @@
     if (!L.its.length) { delete p.llenaPelu; return puestas; }
     /* no quedan más piezas de la clase y aún sobra sitio: las imágenes se ven más grandes */
     if (L.its.some(function (x) { return x.k !== 'lista'; })) {
-      for (var hh = L.h + 8; hh <= 110 && Md.libre(p, res) > 12; hh += 8) { var h0 = L.h; L.h = hh; if (Md.libre(p, res) < 3) { L.h = h0; break; } }
+      for (var hh = L.h + 8; hh <= 110 && Md.libre(p, res) > 12; hh += 8) { var h0 = L.h; L.h = hh; if (Md.libre(p, res) < SEG) { L.h = h0; break; } }
     }
     return puestas;
   }
@@ -188,7 +250,7 @@
     var HL = window.EU_HOJAS_LLENAS; if (!HL || !HL.medidor) return res;
     var Md = HL.medidor(res.C), n = 0, juntas = 0, porClase = {};
     try {
-      juntas = juntarRecetas(res, Md);
+      juntas = juntarRecetas(res, Md); var regalo = regaloUnico(res);
       var usado = usadoDe(res);
       var resta = {}, clave = function (p) { return (p.u && p.u.id) + '|' + p.tipo + '|' + (p.rec || ''); };
       res.pages.forEach(function (p) { if (TIPOS.test(p.tipo || '')) resta[clave(p)] = (resta[clave(p)] || 0) + 1; });
@@ -199,7 +261,7 @@
         p.llenaPelu.its.forEach(function (x) { if (x.k === 'img') (porClase[k] = porClase[k] || []).push({ id: x.id, t: x.t, d: x.d }); });
       });
     } finally { Md.fin(); }
-    res._peluLlenar = { piezas: n, juntas: juntas, porClase: porClase };
+    res._peluLlenar = { piezas: n, juntas: juntas, regalo: regalo, porClase: porClase };
     return res;
   }
 

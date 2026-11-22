@@ -35,7 +35,7 @@
   function lamina(pg, C) {
     var LM = window.LAMINAS_MOTOR, u = pg.u; if (!LM || !u) return '';
     var V = VARIANTES[pg.lam || 0], clave = C.mat + '|' + u.id + '|' + (pg.lam || 0) + '|' + C.T.acc; if (IMG[clave]) return IMG[clave];
-    var lam = especie(pg, C), W = 1400, Hh = 1560; if (!lam) return '';
+    var lam = especie(pg, C), W = 1400, Hh = C.mat === 'pelu' ? 1050 : 1560; if (!lam) return '';   /* Peluquería: lámina más baja, sin aire vacío debajo */
     try {
       var cv = document.createElement('canvas'); cv.width = W; cv.height = Hh;
       LM.pintar(cv.getContext('2d'), W, Hh, lam, { prog: 1, modo: 'aparecer' });
@@ -54,6 +54,17 @@
   function paginaLamina(pg, C) {
     var H = ED.H, T = C.T, u = pg.u, src = lamina(pg, C), V = VARIANTES[pg.lam || 0];
     if (!src) return H.cabecera(C, pg) + H.h1(C, 'Mis apuntes') + H.lineas(Math.floor(H.presupuesto(C, 90) / 1.05), C) + H.folio(C, pg);
+    /* 22-11-2026 (Fátima: «la lámina y mi texto ordenados en la misma hoja, sin que se corte»): en Peluquería la lámina va a un
+       lado con su proporción fija (1400×1560) y al otro las ideas de la unidad, su texto; sin «Explica en voz alta» ni renglones */
+    if (C.mat === 'pelu') {
+      var ideas = (u.i || []).map(function (x) { return sub(x, C); }).filter(Boolean);
+      return H.cabecera(C, pg) + '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">Unidad ' + pg.n + ' · Lámina</div>' +
+        H.h1(C, es(sub(u.t, C)), 'margin-bottom:3mm') +
+        '<div style="display:grid;grid-template-columns:' + (ideas.length ? '48fr 52fr' : '1fr') + ';gap:6mm;align-items:center">' +
+        '<figure style="margin:0"><img src="' + src + '" alt="' + es(sub(u.t, C)) + '" style="display:block;width:100%;height:auto;aspect-ratio:1400/1050;border-radius:2mm"><figcaption style="font-size:.72em;opacity:.75;margin-top:1.2mm">' + (V.de === 'i' ? 'Las ideas de la unidad de un vistazo.' : 'Mapa de la unidad: sus palabras clave.') + '</figcaption></figure>' +
+        (ideas.length ? '<div style="font-size:.9em;line-height:1.5">' + ideas.map(function (t) { return '<p style="margin:0 0 2.4mm;padding-left:3mm;border-left:.8mm solid ' + T.acc + '">' + es(t) + '</p>'; }).join('') + '</div>' : '') +
+        '</div>' + H.folio(C, pg);
+    }
     return H.cabecera(C, pg) + '<div style="font-size:.74em;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">Unidad ' + pg.n + ' · Lámina</div>' +
       H.h1(C, V.de === 'i' ? 'Las ideas de un vistazo' : 'Mapa de la unidad', 'margin-bottom:3mm') +
       '<img src="' + src + '" alt="' + es(sub(u.t, C)) + '" style="width:100%;max-height:200mm;object-fit:contain;display:block;margin:0 auto">' +

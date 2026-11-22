@@ -1687,11 +1687,11 @@
   function pinta(x, A, im, bx, by, bw, bh, p) {
     if (!A) return false;
     /* A.banda (18-10-2026, Fátima: «los textos de arriba no dejan ver el maniquí»): los rótulos van en una franja propia arriba y el maniquí debajo, sin taparlo */
-    var nE = (A.tr || []).filter(function (T) { return T.k === 'e' && !T.x; }).length + ((A.tr || []).some(function (T) { return T.k === 'e' && T.x; }) ? 1 : 0), bnd = A.banda || nE >= 4 ? Math.min(bh * 0.45, 16 + 32 * nE) : 0;
+    var nE = (A.tr || []).filter(function (T) { return T.k === 'e' && !T.x; }).length + ((A.tr || []).some(function (T) { return T.k === 'e' && T.x; }) ? 1 : 0), abajo = A.banda === 'abajo' && nE > 0, bnd = abajo || A.banda || nE >= 4 ? Math.min(bh * 0.45, 16 + 32 * nE) : 0;
     /* 15-11-2026 (Fátima: «el reloj siempre en cada visualización, pero no pegado al maniquí ni al corte»): en las escenas de corte
        (A.lado, lo pone encaje) el reloj/transportador va en su propia columna a la derecha y el maniquí se dibuja a su izquierda */
     var RW = A.lado && (A.tr || []).some(function (T) { return T.k === 'r' || T.k === 'n' || T.k === 'i'; }) ? Math.min(bw * 0.22, 200) : 0, bwI = bw - RW, lista = [];
-    var c = A.crop || [0, 0, 1280, 720], s = Math.min(bwI / c[2], (bh - bnd) / c[3]), ox = bx + (bwI - c[2] * s) / 2 - c[0] * s, oy = by + bnd + (bh - bnd - c[3] * s) / 2 - c[1] * s;
+    var c = A.crop || [0, 0, 1280, 720], s = Math.min(bwI / c[2], (bh - bnd) / c[3]), ox = bx + (bwI - c[2] * s) / 2 - c[0] * s, oy = by + (abajo ? 0 : bnd) + (bh - bnd - c[3] * s) / 2 - c[1] * s;
     x.save(); x.beginPath(); x.rect(bx, by, bw, bh); x.clip();
     x.fillStyle = A.bg || '#E6EAF1'; x.fillRect(bx, by, bw, bh);
     if (RW) { x.restore(); x.save(); x.beginPath(); x.rect(bx, by, bwI, bh); x.clip(); }   /* el maniquí y el corte no entran en la columna del reloj */
@@ -1709,7 +1709,7 @@
       x.strokeStyle = T.c; x.lineWidth = 4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - Math.sin(g * Math.PI / 180) * R, cy + Math.cos(g * Math.PI / 180) * R); x.stroke();
       x.fillStyle = T.c; x.font = '800 22px system-ui,sans-serif'; x.fillText(Math.round(g) + '°', cx, cy - R - 30); x.fillStyle = '#1F1B18'; var fz = 12; x.font = '600 12px system-ui,sans-serif'; if (RW) while (fz > 8 && x.measureText(T.s || '').width > RW - 10) { fz -= 0.5; x.font = '600 ' + fz + 'px system-ui,sans-serif'; } x.fillText(T.s, cx, cy + R + 32); x.textAlign = 'left';
     }
-    var ry = by + 16, cola = [], relojes = [];
+    var ry = abajo ? by + bh - bnd + 10 : by + 16, cola = [], relojes = [];   /* «abajo»: la franja de textos va debajo del maniquí */
     (A.tr || []).forEach(function (T) {
       if (RW && T.k === 'n') { if (p >= T.t[0]) lista.push(T); return; }   /* 15-11-2026 (Fátima): ninguna etiqueta sobre el cabello: van a la lista del lado */
       if (p < T.t[0] || (T.k !== 'n' && T.x && p > T.x) || (T.k === 'n' && T.x2 && p > T.x2)) return;   /* en la chapa «n», x es la posición: se quita con x2 */
@@ -1990,7 +1990,7 @@
 
   /* Técnicas como datos (b6_pelu_particiones.js): los mismos ayudantes de dibujo y la misma salida que los cortes. */
   var KIT = { P: P, N: N, V3: V3, recta: recta, dirElev: dirElev, pr: pr, seVe: seVe, tramos: tramos, plano: plano, bezier: bezier, linea: linea, lineas: lineas, mechon: mechon, tijera: tijera, rotulo: rotulo, regla: regla, chapa: chapa, r1: r1, thCapa: thCapa, CARA: CARA, NUCA: NUCA, IZQ: IZQ, DER: DER, COL: COL, TINTA: TINTA, ROJO: ROJO, VERDE: VERDE, CORTE: CORTE };
-  function armar(fn, F) { if (!F) return null; var E = fn(KIT); if (!E) return null; E.fondos = F; E.escenas.forEach(function (e) { e.anim = { crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr, banda: e.a.banda || undefined, dur: e.a.dur || undefined }; delete e.a; }); return E; }
+  function armar(fn, F) { if (!F) return null; var E = fn(KIT); if (!E) return null; E.fondos = F; E.escenas.forEach(function (e) { e.anim = { crop: e.a.crop || RECORTE, bg: FONDO, tr: e.a.tr, banda: (e.a.tr || []).some(function (T) { return T.k === 'e'; }) ? 'abajo' : (e.a.banda || undefined), dur: e.a.dur || undefined }; delete e.a; }); return E; }   /* 22-11-2026 (Fátima): en colorimetría y técnicas los textos van debajo del maniquí, nunca encima */
 
   /* 18-10-2026 · las láminas de divisiones (trazo 'dv') necesitan b6_divisiones.js en el libro web y en el curso descargado:
      se guarda su código tal cual (se pide al servidor una vez) para copiarlo allí */

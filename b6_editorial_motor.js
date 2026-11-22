@@ -95,6 +95,9 @@
   function plantillaAuto(bnd, materia) {
     var mm = window.EU_CURRICULO && EU_CURRICULO.materia(materia);
     if (mm && mm.plantilla) return typeof mm.plantilla === 'function' ? mm.plantilla(bnd) : mm.plantilla;
+    /* 22-11-2026 (Fátima: «Peluquería no tiene que salir con hojas de matemáticas»): en automático, sin cuadrícula ni pauta
+       de cuaderno; las demás plantillas y diseños se eligen en el panel */
+    if (materia === 'pelu') return 'editorial';
     if (materia === 'conta' || materia === 'tecno') return bnd === 'inf' || bnd.indexOf('pri') === 0 ? 'cuaderno' : 'tecnica';
     if (bnd === 'inf' || bnd === 'pri1') return 'juego';
     if (bnd.indexOf('pri') === 0) return 'cuaderno';

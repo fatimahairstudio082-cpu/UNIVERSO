@@ -40,6 +40,8 @@
     /* Fátima, 15-10-2026: a 0° no hay elevación (todas las capas iguales): en lugar de «capas» se ve cómo queda atrás,
        con su línea (recta, U, V, en punta…), que es lo que enseña ese corte */
     else if (por.queda_nuca && E.R && E.R.capas && (E.R.capas.pila || []).every(function (g) { return !g; })) vis[2] = por.queda_nuca;
+    /* 22-11-2026 (Fátima: «no se ve cómo queda el corte que se está realizando»): cuarta figura, «Cómo queda» atrás del mismo corte */
+    if (por.queda_nuca && vis.indexOf(por.queda_nuca) < 0 && vis.length === 3) vis.push(por.queda_nuca);
     var d = { R: E.R, E: E, vis: vis, fotos: vis.map(function (e) { return DG.foto(e, 640, 0.8); }) };
     return (CACHE[k] = d);
   }
@@ -107,11 +109,13 @@
       : '<div style="font-size:.76em;opacity:.8;margin:0 0 2.5mm">Animación con voz de esta diagramación en el libro interactivo y en el curso premium.</div>';
     var fig = function (e, i, gr) {
       return '<figure data-dg-fig="' + i + '" style="margin:0;background:' + T.soft + ';border-radius:' + rad + 'px;padding:1.5mm' + (gr ? '' : ';font-size:.92em') + '">' +
-        '<img src="' + d.fotos[i] + '" alt="' + es(e.t) + '" style="width:100%;height:auto;' + (e.anim && e.anim.crop ? 'aspect-ratio:' + e.anim.crop[2] + '/' + e.anim.crop[3] + ';' : '') + 'display:block;border-radius:' + rad + 'px">' +   /* 21-11-2026: proporción fija para que el medidor cuente su alto antes de que cargue */
+        '<img src="' + d.fotos[i] + '" alt="' + es(e.t) + '" style="width:100%;height:auto;' + (e.anim && e.anim.crop ? 'aspect-ratio:' + e.anim.crop[2] + '/' + e.anim.crop[3] + ';' : '') + (pg.figMax ? 'max-height:' + pg.figMax + 'mm;width:auto;max-width:100%;margin:0 auto;' : '') + 'display:block;border-radius:' + rad + 'px">' +   /* 22-11-2026: pg.figMax (b6_pelu_llenar.js) baja las figuras si la hoja no cabe */   /* 21-11-2026: proporción fija para que el medidor cuente su alto antes de que cargue */
         '<figcaption style="font-size:.66em;line-height:1.3;margin-top:1.2mm"><b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (i + 1) + ' · ' + es(e.t) + '</b>' + es(leyenda(e, d, dg)) + '</figcaption></figure>';
     };
     var arriba = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm">' + d.vis.slice(0, 2).map(function (e, i) { return fig(e, i, 1); }).join('') + '</div>';
-    var abajo = '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3mm;margin-top:3mm;align-items:start">' + (d.vis[2] ? fig(d.vis[2], 2) : '<div></div>') + ficha(d, dg, T) + '</div>';
+    var abajo = d.vis[3]   /* con «Cómo queda»: capas y cómo queda en una fila y la ficha debajo, a todo el ancho */
+      ? '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm;margin-top:3mm;align-items:start">' + fig(d.vis[2], 2) + fig(d.vis[3], 3) + '</div><div style="margin-top:3mm">' + ficha(d, dg, T) + '</div>'
+      : '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3mm;margin-top:3mm;align-items:start">' + (d.vis[2] ? fig(d.vis[2], 2) : '<div></div>') + ficha(d, dg, T) + '</div>';
     var Q = pg.qs || d.E.preguntas || [];   /* 16-11-2026: lista ya decidida al armar el libro, sin preguntas repetidas (b6_pelu_receta.js) */
     var test = Q.length ? '<div style="margin-top:2.5mm;font-size:.74em"><b style="font-family:' + T.tit + ';color:' + T.acc + '">Compruébalo</b><div style="display:grid;grid-template-columns:repeat(' + Q.length + ',minmax(0,1fr));gap:3mm">' + Q.map(function (q, i) {
       return '<div data-dg-q="1" data-c="' + q.c + '" style="margin-top:1.5mm"><div>' + (i + 1) + '. ' + es(q.e) + '</div>' + (web ? '<div style="display:flex;flex-wrap:wrap;gap:1mm;margin-top:1mm">' + q.o.map(function (o, j) {
