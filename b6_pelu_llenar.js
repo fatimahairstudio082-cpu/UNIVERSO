@@ -117,12 +117,12 @@
   }
 
   function tituloAnim(tec) { var LA = window.EU_PELU_LIBRO_ANIM, d = null; try { d = LA && LA.datos ? LA.datos(tec) : null; } catch (e) { d = null; } return d && d.E && d.E.R ? String(d.E.R.n || '') : ''; }
-  /* 22-11-2026 (Fátima: «¿qué colores sumo para llegar a un morado, a un azul…? la misma cuenta, con la nomenclatura»):
-     con los colores de SU carta (EU_COLOR_CEREBRO.calc.colores) el sistema busca qué dos tintes, sumados y divididos entre dos,
-     dan exactamente cada color frío de la carta. Solo se ligan fríos o naturales (con un cálido el número cuadra pero el tono
-     no), y al lado va lo que ese frío neutraliza según su estrella (calc.estrella). */
-  var FRIO = /irisad|violet|lila|ceniza|gris|perla|platino/i;
-  var FAM = [['Morado', /lila|violet|irisad/i, /violet|irisad/i], ['Azul · ceniza', /ceniza|platino/i, /^0\.1\s/], ['Gris perla', /gris|perla/i, /ceniza intenso/i]];
+  /* 22-11-2026 (Fátima: «cómo se formula cada color de ESA clase y con qué número se neutraliza»): solo «Matizadores más usados».
+     Los cuatro matizadores de su clase (mat_p02). Para cada uno el sistema busca en SU carta (EU_COLOR_CEREBRO.calc.colores) dos
+     tonos de su MISMA familia que, sumados y divididos entre dos, dan exactamente el número de ese matizador (a la altura 8), y
+     al lado el número del color que neutraliza (también de la carta, a la misma altura) con el texto de su clase. */
+  var MAT = [['Violeta', /violet/i, /dorad/i, /violeta/i], ['Azul · ceniza', /ceniza/i, /^cobre|castaño cobre|^rubio cobre(?! dorado)/i, /azul|ceniza/i],
+    ['Beige · arena', /beige/i, /ceniza/i, /beige|arena/i], ['Bronce · dorado', /dorad/i, /ceniza/i, /bronce|dorado/i]];
   function cartaColores() {
     var B = window.EU_COLOR_CEREBRO, C = B && B.calc && B.calc.colores, out = {}; if (!C) return null;
     Object.keys(C).forEach(function (g) { (C[g] || []).forEach(function (t) { if (t && t.c && !(t.c in out) && +t.c >= 1) out[t.c] = t; }); });
@@ -130,30 +130,23 @@
   }
   function decs(c) { return (String(c).split('.')[1] || '').length; }
   function friosEstrella() {
-    var T = cartaColores(); if (!T) return null;
-    var B = window.EU_COLOR_CEREBRO, E = (B.calc && B.calc.estrella) || [];
-    var cods = Object.keys(T), apto = function (c) { return FRIO.test(T[c].n) || /^\d+\.0+$/.test(c); };
-    var filas = [];
-    FAM.forEach(function (F) {
-      var cand = [];
-      cods.forEach(function (t) {
-        if (!F[1].test(T[t].n)) return;
-        for (var i = 0; i < cods.length; i++) for (var j = i + 1; j < cods.length; j++) {
-          var a = cods[i], b = cods[j]; if (a === t || b === t || !apto(a) || !apto(b)) continue;
-          if (Math.abs((+a + +b) / 2 - +t) > 1e-9 || Math.max(decs(a), decs(b)) !== decs(t)) continue;
-          var frios = (FRIO.test(T[a].n) ? 1 : 0) + (FRIO.test(T[b].n) ? 1 : 0);
-          cand.push({ t: t, a: a, b: b, pt: frios * 10 - Math.abs(+a - +b) });
-        }
-      });
-      cand.sort(function (x, y) { return y.pt - x.pt; });
-      var vistos = {}, n = 0;
-      cand.forEach(function (c) {
-        if (n >= 1 || vistos[c.t]) return; vistos[c.t] = 1; n++;   /* una fila por color frío */
-        var es = E.filter(function (e) { return F[2].test(e.c || ''); })[0];
-        filas.push({ fam: F[0], a: c.a, an: T[c.a].n, ah: T[c.a].h, b: c.b, bn: T[c.b].n, bh: T[c.b].h, suma: +(+c.a + +c.b).toFixed(4), t: c.t, tn: T[c.t].n, th: T[c.t].h, neu: es ? es.p : '', neuh: es ? es.ph : '' });
-      });
+    var T = cartaColores(), B = window.EU_COLOR_CEREBRO; if (!T) return null;
+    var cl = (B.clases || []).filter(function (c) { return c.id === 'mat_p02'; })[0], dice = (cl && cl.b || []).map(function (b) { return String(b[1] || ''); });
+    var cods = Object.keys(T), ALT = 8, filas = [];
+    MAT.forEach(function (M) {
+      var fam = cods.filter(function (c) { return M[1].test(T[c].n); });
+      var t = fam.filter(function (c) { return Math.floor(+c) === ALT; })[0] || null, par = null;
+      if (t) fam.forEach(function (a) { fam.forEach(function (b) {
+        if (+a >= +b || a === t || b === t) return;
+        if (Math.abs((+a + +b) / 2 - +t) > 1e-9 || Math.max(decs(a), decs(b)) !== decs(t)) return;
+        if (!par || Math.abs(+a - +b) < Math.abs(+par[0] - +par[1])) par = [a, b];
+      }); });
+      var p = cods.filter(function (c) { return M[2].test(T[c].n) && Math.floor(+c) === ALT; })[0] || null;
+      var txt = dice.filter(function (d) { return M[3].test(d.split(':')[0]); })[0] || '';
+      filas.push({ fam: M[0], t: t, tn: t ? T[t].n : '', th: t ? T[t].h : '', a: par && par[0], an: par ? T[par[0]].n : '', ah: par ? T[par[0]].h : '', b: par && par[1], bn: par ? T[par[1]].n : '', bh: par ? T[par[1]].h : '',
+        suma: par ? +(+par[0] + +par[1]).toFixed(4) : 0, p: p, pn: p ? T[p].n : '', ph: p ? T[p].h : '', dice: txt.split(':').slice(1).join(':').trim() });
     });
-    return filas.length ? { k: 'frios', keys: ['frios'], t: 'Cómo se formula un color frío · sumar y dividir', filas: filas } : null;
+    return filas.some(function (f) { return f.t; }) ? { k: 'frios', keys: ['frios'], t: 'Cómo se formula cada matizador · sumar y dividir', filas: filas } : null;
   }
   function esquemaFrios(x, T) {
     var acc = T.acc || '#16223A', acc2 = T.acc2 || '#B08D57', soft = T.soft || '#EEF1F6', ink = T.ink || '#16223A';
@@ -162,16 +155,16 @@
     var td = 'padding:.6mm 1.5mm;border-bottom:.3mm solid ' + soft + ';vertical-align:middle;line-height:1.25';
     var th = 'text-align:left;padding:.6mm 1.5mm;font-size:.92em;color:' + acc + ';border-bottom:.5mm solid ' + acc2;
     var filas = x.filas.map(function (f) {
+      var form = f.a ? pt(f.ah) + esc(f.a) + ' + ' + pt(f.bh) + esc(f.b) + ' = ' + dec(f.suma) + ' ÷ 2 = <b>' + esc(f.t) + '</b>' : '<span style="opacity:.75">En la carta no hay dos tonos de esta familia que den ' + esc(f.t || '') + '</span>';
       return '<tr><td style="' + td + '"><b>' + esc(f.fam) + '</b></td>' +
-        '<td style="' + td + '">' + pt(f.ah) + esc(f.a) + ' <span style="opacity:.7">' + esc(f.an.replace(/\s*[\d.]+$/, '')) + '</span> + ' + pt(f.bh) + esc(f.b) + ' <span style="opacity:.7">' + esc(f.bn.replace(/\s*[\d.]+$/, '')) + '</span></td>' +
-        '<td style="' + td + '">' + dec(f.suma) + ' ÷ 2 = <b>' + esc(f.t) + '</b></td>' +
-        '<td style="' + td + '">' + pt(f.th) + '<b>' + esc(f.tn) + '</b></td>' +
-        '<td style="' + td + '">' + (f.neu ? pt(f.neuh) + esc(f.neu) : '') + '</td></tr>';
+        '<td style="' + td + '">' + form + '</td>' +
+        '<td style="' + td + '">' + (f.t ? pt(f.th) + '<b>' + esc(f.tn) + '</b>' : '') + '</td>' +
+        '<td style="' + td + '">' + (f.p ? pt(f.ph) + esc(f.p) + ' <span style="opacity:.7">' + esc(f.pn.replace(/\s*[\d.]+$/, '')) + '</span>' : '') + '</td></tr>';
     }).join('');
     return '<div style="margin-top:2mm;padding:2mm 3mm;border-left:1.2mm solid ' + acc2 + ';background:#fff;border-radius:0 2mm 2mm 0;box-shadow:0 .4mm 1.6mm rgba(22,34,58,.08)">' +
       '<div style="font-weight:700;color:' + acc + ';margin:0 0 1mm;font-size:.9em">' + esc(x.t) + '</div>' +
-      '<table style="width:100%;border-collapse:collapse;font-size:.68em;color:' + ink + '"><thead><tr><th style="' + th + '">Color</th><th style="' + th + '">Se ligan</th><th style="' + th + '">Sumar y dividir</th><th style="' + th + '">Queda</th><th style="' + th + '">Neutraliza</th></tr></thead><tbody>' + filas + '</tbody></table>' +
-      '<div style="font-size:.66em;margin-top:1mm;opacity:.85">Se ligan dos tintes fríos de la carta, se suman y se dividen entre dos: el resultado es el número del color que queda. El verde no tiene tinte con altura en la carta: se usa el corrector 0.07.</div></div>';
+      '<table style="width:100%;border-collapse:collapse;font-size:.68em;color:' + ink + '"><thead><tr><th style="' + th + '">Matizador</th><th style="' + th + '">Se formula (sumar y dividir)</th><th style="' + th + '">Queda</th><th style="' + th + '">Neutraliza</th></tr></thead><tbody>' + filas + '</tbody></table>' +
+      '</div>';
   }
   var VISTAS = ['queda_nuca', 'queda_lateral', 'queda_frente', 'angulos'],   /* cómo queda (atrás, lado, frente) y sus ángulos: el mismo corte */ NOESC = /preparacion|cierre|aclarad|lavado/i;
   function escenasUnidad(u) {
