@@ -121,7 +121,7 @@
      crea mezclando dos primarios mitad y mitad (1 + 1 = 2 partes ÷ 2), con los números REALES de su carta de correctores
      (EU_COLOR_CEREBRO.calc.colores.Correctores: amarillo, rojo, azul, verde, violeta); el azul es primario y no se crea. Al lado,
      lo que neutraliza cada frío según su estrella (calc.estrella). */
-  var MEZ = [['Verde', /^verde/i, [/^amarillo/i, /^azul/i], /verde/i], ['Violeta', /^violeta/i, [/^rojo/i, /^azul/i], /violeta/i], ['Azul', /^azul/i, null, /ceniza$/i]];
+  var MEZ = [['Verde', /^verde/i, [/^amarillo/i, /^azul/i], /verde/i], ['Violeta', /^violeta/i, [/^rojo/i, /^azul/i], /violeta/i], ['Naranja', /^naranja/i, [/^rojo/i, /^amarillo/i], null, 'Lo neutraliza el azul'], ['Azul', /^azul/i, null, /ceniza$/i]];
   function friosEstrella() {
     var B = window.EU_COLOR_CEREBRO, C = B && B.calc && B.calc.colores, K = C && C.Correctores, E = (B && B.calc && B.calc.estrella) || []; if (!K) return null;
     var de = function (re) { return K.filter(function (t) { return re.test(t.n || ''); })[0] || null; };
@@ -129,10 +129,10 @@
     MEZ.forEach(function (M) {
       var t = de(M[1]); if (!t) return;
       var p = M[2] ? M[2].map(de) : null; if (M[2] && (!p[0] || !p[1])) return;
-      var es = E.filter(function (e) { return M[3].test(String(e.c || '').replace(/\s+intenso$/i, '')); })[0];
-      filas.push({ fam: M[0], t: t, p: p, neu: es ? es.p : '', neuh: es ? es.ph : '' });
+      var es = M[3] ? E.filter(function (e) { return M[3].test(String(e.c || '').replace(/\s+intenso$/i, '')); })[0] : null;
+      filas.push({ fam: M[0], t: t, p: p, neu: es ? es.p : (M[4] || ''), neuh: es ? es.ph : '' });
     });
-    return filas.length ? { k: 'frios', keys: ['frios'], t: 'Cómo se crea cada color frío · con los colores primarios', filas: filas } : null;
+    return filas.length ? { k: 'frios', keys: ['frios'], t: 'Cómo se crea cada color · con los colores primarios', filas: filas } : null;
   }
   function esquemaFrios(x, T) {
     var acc = T.acc || '#16223A', acc2 = T.acc2 || '#B08D57', soft = T.soft || '#EEF1F6', ink = T.ink || '#16223A';
@@ -142,13 +142,14 @@
     var th = 'text-align:left;padding:.6mm 1.5mm;font-size:.92em;color:' + acc + ';border-bottom:.5mm solid ' + acc2;
     var filas = x.filas.map(function (f) {
       var mezcla = f.p ? pt(f.p[0].h) + nom(f.p[0]) + ' <b>' + esc(f.p[0].c) + '</b> + ' + pt(f.p[1].h) + nom(f.p[1]) + ' <b>' + esc(f.p[1].c) + '</b>' : '<span style="opacity:.8">Es primario: no se crea, de él salen los demás</span>';
-      var cuenta = f.p ? '1 + 1 = 2 partes ÷ 2 = mitad y mitad' : '—';
+      /* 22-11-2026 (Fátima eligió «cuenta + número de la carta»): la suma y la división de los dos números, tal cual, y en «Queda» el número real del color en su carta */
+      var sum = f.p ? +(+f.p[0].c + +f.p[1].c).toFixed(4) : 0, cuenta = f.p ? esc(f.p[0].c) + ' + ' + esc(f.p[1].c) + ' = ' + String(sum) + ' ÷ 2 = <b>' + String(+(sum / 2).toFixed(4)) + '</b>' : '—';
       return '<tr><td style="' + td + '"><b>' + esc(f.fam) + '</b></td><td style="' + td + '">' + mezcla + '</td><td style="' + td + '">' + cuenta + '</td>' +
-        '<td style="' + td + '">' + pt(f.t.h) + '<b>' + nom(f.t) + ' ' + esc(f.t.c) + '</b></td><td style="' + td + '">' + (f.neu ? pt(f.neuh) + esc(f.neu) : '') + '</td></tr>';
+        '<td style="' + td + '">' + pt(f.t.h) + '<b>' + nom(f.t) + ' ' + esc(f.t.c) + '</b></td><td style="' + td + '">' + (f.neu ? (f.neuh ? pt(f.neuh) : '') + esc(f.neu) : '') + '</td></tr>';
     }).join('');
     return '<div style="margin-top:2mm;padding:2mm 3mm;border-left:1.2mm solid ' + acc2 + ';background:#fff;border-radius:0 2mm 2mm 0;box-shadow:0 .4mm 1.6mm rgba(22,34,58,.08)">' +
       '<div style="font-weight:700;color:' + acc + ';margin:0 0 1mm;font-size:.9em">' + esc(x.t) + '</div>' +
-      '<table style="width:100%;border-collapse:collapse;font-size:.7em;color:' + ink + '"><thead><tr><th style="' + th + '">Color frío</th><th style="' + th + '">Se mezclan (primarios)</th><th style="' + th + '">Cuenta</th><th style="' + th + '">Queda</th><th style="' + th + '">Neutraliza</th></tr></thead><tbody>' + filas + '</tbody></table></div>';
+      '<table style="width:100%;border-collapse:collapse;font-size:.7em;color:' + ink + '"><thead><tr><th style="' + th + '">Color</th><th style="' + th + '">Se mezclan (primarios)</th><th style="' + th + '">Sumar y dividir</th><th style="' + th + '">Queda (número de la carta)</th><th style="' + th + '">Neutraliza</th></tr></thead><tbody>' + filas + '</tbody></table></div>';
   }
   var VISTAS = ['queda_nuca', 'queda_lateral', 'queda_frente', 'angulos'],   /* cómo queda (atrás, lado, frente) y sus ángulos: el mismo corte */ NOESC = /preparacion|cierre|aclarad|lavado/i;
   function escenasUnidad(u) {
