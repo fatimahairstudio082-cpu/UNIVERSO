@@ -1338,10 +1338,56 @@
     it: it, ejercicios: ejercicios, llenar: llenar, envolver: envolver, limpio: limpio, armarLibro: armarLibro
   };
 
+  /* 22-11-2026 (Fátima: «hay hojas muy full y a otras les falta; que se sincronice»): firma de la lista de páginas. Las
+     memorias del relleno (b6_relleno_total.js, b6_hojas_llenas.js, b6_laminas_plus.js, b6_comercio_electronico.js) guardaban
+     lo puesto en cada NÚMERO de página con la clave de la cfg; al volver a armar (p. ej. cuando el maniquí queda listo) las
+     páginas son otras y el relleno de la hoja N caía en otra hoja: «Observa» de otra clase y hojas que se salen. Con la
+     firma en la clave, la memoria solo se usa si las páginas son las mismas. */
+  function firmaPaginas(pages) {
+    var h = 5381, i, j, p, s;
+    for (i = 0; i < (pages || []).length; i++) {
+      p = pages[i] || {};
+      s = (p.tipo || '') + '|' + (p.u && p.u.id || '') + '|' + (p.rec || '') + '|' + (p.dg ? String(p.dg.corte || p.dg.id || p.dg.k || '') : '') + '|' + (p.tec || '') + '|' + (p.parte || '') + '|' + (p.hoja || '') + ';';
+      for (j = 0; j < s.length; j++) h = ((h << 5) + h + s.charCodeAt(j)) | 0;
+    }
+    return (pages || []).length + ':' + (h >>> 0).toString(36);
+  }
+
+  /* 22-11-2026: al MEDIR una hoja (b6_hojas_llenas.js, b6_comercio_electronico.js) las fotos que el navegador aún no ha
+     decodificado medían 0 mm y el relleno creía que sobraba sitio; luego la hoja impresa se salía. tamImgs(raiz) lee el
+     ancho y el alto de cada foto JPEG/PNG de su propia cabecera y se los pone como atributos width/height, solo en la copia
+     que se mide (la hoja que se imprime no cambia). */
+  var DIMS_IMG = {};
+  function dimsDataURL(src) {
+    var m = /^data:image\/(png|jpe?g);base64,/.exec(src || ''); if (!m) return null;
+    var b = src.slice(m[0].length, m[0].length + 87400), bin; b = b.slice(0, b.length - b.length % 4);
+    try { bin = atob(b); } catch (e) { return null; }
+    var u = function (i) { return bin.charCodeAt(i) & 255; };
+    if (m[1] === 'png') return bin.length < 24 ? null : [((u(16) << 24) | (u(17) << 16) | (u(18) << 8) | u(19)) >>> 0, ((u(20) << 24) | (u(21) << 16) | (u(22) << 8) | u(23)) >>> 0];
+    for (var i = 2; i + 9 < bin.length;) {
+      if (u(i) !== 0xFF) { i++; continue; }
+      var mk = u(i + 1); if (mk === 0xD8 || mk === 0x01 || mk === 0xFF || (mk >= 0xD0 && mk <= 0xD7)) { i += mk === 0xFF ? 1 : 2; continue; }
+      if (mk >= 0xC0 && mk <= 0xCF && mk !== 0xC4 && mk !== 0xC8 && mk !== 0xCC) return [(u(i + 7) << 8) | u(i + 8), (u(i + 5) << 8) | u(i + 6)];
+      i += 2 + ((u(i + 2) << 8) | u(i + 3));
+    }
+    return null;
+  }
+  function tamImgs(raiz) {
+    if (!raiz || !raiz.querySelectorAll) return;
+    [].forEach.call(raiz.querySelectorAll('img'), function (im) {
+      if ((im.complete && im.naturalWidth) || (im.hasAttribute('width') && im.hasAttribute('height'))) return;
+      var s = im.getAttribute('src') || '', k = s.length + s.slice(-48), d = DIMS_IMG[k];
+      if (d === undefined) d = DIMS_IMG[k] = dimsDataURL(s);
+      if (d && d[0] && d[1]) { im.setAttribute('width', d[0]); im.setAttribute('height', d[1]); }
+    });
+  }
+
   window.EU_EDITORIAL = {
+    tamImgs: tamImgs,
     registrar: registrar, H: H, escenas: escenas, quiz: quiz, acierta: acierta, EXTRA_FUENTES: EXTRA_FUENTES,
     PLANTILLAS: PLANTILLAS, PRODUCTOS: PRODUCTOS, PAPEL: PAPEL, FUENTES: FUENTES,
     ensamblar: ensamblar, paginaHTML: paginaHTML, textoVoz: textoVoz, plantillaAuto: plantillaAuto,
-    documento: documento, imprimir: imprimir, epub: epub, blobHTML: blobHTML, nombreArchivo: nombreArchivo, sub: sub
+    documento: documento, imprimir: imprimir, epub: epub, blobHTML: blobHTML, nombreArchivo: nombreArchivo, sub: sub,
+    firmaPaginas: firmaPaginas
   };
 })();

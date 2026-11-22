@@ -352,5 +352,104 @@
   }
   (function espera(k) { if (!engancharCurso() && k < 2000) setTimeout(function () { espera(k + 1); }, 300); })(0);
 
-  window.EU_PELU_LLENAR = { llenarLibro: llenarLibro, ponerCurso: ponerCurso, bloque: bloque };
+  /* ─────────── 4. ajuste final, cuando el relleno por tandas ha terminado ─────────── */
+  /* 22-11-2026 (Fátima: «hojas muy full y otras a las que les falta; bien organizado, profesional»): el relleno general
+     (b6_relleno_total.js) llega por tandas DESPUÉS de armar, y la red de seguridad (EU_HOJAS_LLENAS.antiCorte) y este módulo
+     medían antes: las hojas que ya no cabían salían cortadas al imprimir. Al terminar las tandas (y antes de cada descarga,
+     que llama a terminarTandas) se vuelve a medir cada hoja con todo puesto:
+       1. lo opcional del relleno general que no cabe se quita (la misma antiCorte de siempre);
+       2. en las hojas de Peluquería que aún se salen: el bloque «En la práctica» achica sus imágenes y, si hace falta,
+          deja fuera lo último que puso; el diagrama baja la altura de sus figuras; y por último la letra (pg.encaje).
+     El contenido propio de cada clase no se quita. */
+  function cabe(p, res, Md) { return Md.libre(p, res) >= 0; }
+  /* mete una hoja nueva detrás de otra y renumera páginas y solucionario */
+  function insertarTras(res, p, q) {
+    var P = res.pages, i = P.indexOf(p); if (i < 0) return false;
+    P.splice(i + 1, 0, q);
+    var mapa = {};
+    P.forEach(function (x, j) { if (x !== q && x.num != null) mapa[x.num] = j + 1; });
+    P.forEach(function (x, j) { if (x.num != null || x === q) x.num = j + 1; });
+    P.forEach(function (x) { if (x.tipo === 'solucion' && x.entradas) x.entradas = x.entradas.filter(function (e) { return mapa[e.p]; }).map(function (e) { return Object.assign({}, e, { p: mapa[e.p] }); }); });
+    return true;
+  }
+  /* «La receta, paso a paso» que no cabe con la letra normal sigue en otra hoja de la MISMA clase, justo detrás
+     (sus últimos pasos y, si es la última hoja, la práctica y «A continuación»); antes se achicaba la letra y aun así se salía */
+  function partirReceta(res, p, Md) {
+    if (p.tipo !== 'pe_clase' || p.parte !== 2 || p.a == null) return null;
+    var a0 = p.a, ult0 = p.ult, qs0 = p.qs, enc0 = p.encaje;
+    delete p.encaje;
+    if (cabe(p, res, Md)) return null;   /* con la letra normal ya cabe */
+    p.ult = false; delete p.qs;
+    while (p.a - (p.de || 0) > 1 && !cabe(p, res, Md)) p.a--;
+    if (p.a >= a0 && p.a - (p.de || 0) > 1) p.a--;   /* la práctica no se queda sola: pasa con el último paso */
+    if (!cabe(p, res, Md) || p.a >= a0) { p.a = a0; p.ult = ult0; if (qs0) p.qs = qs0; if (enc0) p.encaje = enc0; return null; }
+    var q = Object.assign({}, p, { de: p.a, a: a0, ult: ult0, fill2: { nada: 1 } });
+    delete q.llenaPelu; delete q.encaje; delete q.figMax; if (qs0) q.qs = qs0; else delete q.qs;
+    insertarTras(res, p, q);
+    var mias = res.pages.filter(function (x) { return x.tipo === 'pe_clase' && x.parte === 2 && x.rec === p.rec; });
+    mias.forEach(function (x, j) { x.hoja = j + 1; x.hojas = mias.length; });
+    return q;
+  }
+  function ajusteFinal(res) {
+    var cfg = res && res.C && res.C.cfg; if (!res || !res.pages || !activo(cfg) || !document.body) return 0;
+    var HL = window.EU_HOJAS_LLENAS; if (!HL || !HL.medidor) return 0;
+    try { if (HL.antiCorte) HL.antiCorte(res); } catch (e) { console.warn('pelu llenar · antiCorte', e); }
+    var Md = HL.medidor(res.C), n = 0, nuevas = [];
+    try {
+      for (var i = 0; i < res.pages.length; i++) {
+        var q = partirReceta(res, res.pages[i], Md);
+        if (q) { nuevas.push(q); n++; }
+      }
+      if (nuevas.length) {   /* la hoja nueva se completa solo con lo de su clase, sin repetir lo que ya está en el libro */
+        var usado = usadoDe(res);
+        res.pages.forEach(function (x) { ((x.llenaPelu && x.llenaPelu.its) || []).forEach(function (it) { if (it.k === 'img') usado.img[it.id] = 1; else if (it.k === 'esc') usado.esc[it.key] = 1; else (it.keys || []).forEach(function (k) { usado.txt[k] = 1; }); }); });
+        nuevas.forEach(function (q) { try { llenarHoja(q, res, Md, usado, 1); } catch (e) { console.warn('pelu llenar · hoja nueva', e); } });
+      }
+      res.pages.forEach(function (p) {
+        if (!TIPOS.test(p.tipo || '') || cabe(p, res, Md)) return;
+        n++;
+        var L = p.llenaPelu;
+        if (L && L.its && L.its.length) {
+          [44, 36, 30].some(function (hh) { if (hh >= (L.h || 52)) return false; L.h = hh; return cabe(p, res, Md); });
+          while (!cabe(p, res, Md) && L.its.length) L.its.pop();
+          if (!L.its.length) delete p.llenaPelu;
+        }
+        if (!cabe(p, res, Md) && p.tipo === 'pe_diagrama') [78, 70, 62, 55, 48].some(function (mm) { p.figMax = mm; return cabe(p, res, Md); });
+        if (!cabe(p, res, Md)) [0.97, 0.94, 0.9, 0.86].some(function (f) { if (p.encaje && p.encaje <= f) return false; p.encaje = f; return cabe(p, res, Md); });
+      });
+    } finally { Md.fin(); }
+    res._peluAjuste = n;
+    return n;
+  }
+  function engancharTandas() {
+    var R = window.EU_RELLENO; if (!R || !R.porTandas) return false;
+    if (R.porTandas._llenarPelu) return true;
+    var pt = R.porTandas;
+    R.porTandas = function (res, cfg) {
+      var T = pt.apply(this, arguments);
+      if (!activo(cfg)) return T;
+      var hecho = 0, fin = function () { if (hecho) return; hecho = 1; try { ajusteFinal(res); } catch (e) { console.warn('pelu llenar · ajuste final', e); } };
+      return { p: T.p.then(function (ok) { if (ok) fin(); return ok; }), terminar: function () { T.terminar(); fin(); } };
+    };
+    R.porTandas._llenarPelu = 1;
+    return true;
+  }
+  (function espera(k) { if (!engancharTandas() && k < 2000) setTimeout(function () { espera(k + 1); }, 300); })(0);
+  /* antes de cada descarga (libro, PDF, EPUB, curso, Hotmart y el escáner llaman a terminarTandas) se vuelve a medir: para
+     entonces las fotos del maniquí ya están dibujadas y la medida es la de la hoja que se imprime */
+  function engancharEditorial() {
+    var K = window.customElements && window.customElements.get('editorial-escolar'); if (!K) return false;
+    var pr = K.prototype; if (!pr.terminarTandas || pr.terminarTandas._llenarPelu) return !!pr.terminarTandas;
+    var t0 = pr.terminarTandas;
+    pr.terminarTandas = function () {
+      var r = t0.apply(this, arguments);
+      try { if (this.res && this.res.C && activo(this.res.C.cfg)) ajusteFinal(this.res); } catch (e) { console.warn('pelu llenar · antes de descargar', e); }
+      return r;
+    };
+    pr.terminarTandas._llenarPelu = 1;
+    return true;
+  }
+  (function espera(k) { if (!engancharEditorial() && k < 2000) setTimeout(function () { espera(k + 1); }, 300); })(0);
+
+  window.EU_PELU_LLENAR = { llenarLibro: llenarLibro, ponerCurso: ponerCurso, bloque: bloque, ajusteFinal: ajusteFinal };
 })();

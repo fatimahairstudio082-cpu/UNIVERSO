@@ -306,3 +306,21 @@ y abrir `http://localhost:8000/Estudio%20Universal%20Pro.dc.html`.
   - **Medición:** Profesional 600 → < 60 %: de 109 en producción a 6, la mayoría láminas del Regalo sin más contenido; ninguna hoja cortada.
   - **Informes:** `informes/medicion_400_600_pelu_2026-11-22.md`; capturas en `screenshots/diseno_pelu_22-11-2026_*`.
 - 22-11-2026 (Fátima: «los tonos fríos se crean con los colores primarios»; eligió «cuenta + número de la carta»): `b6_pelu_llenar.js` · pieza `frios` SOLO en la hoja de «Matizadores más usados — Guía práctica» (`pe_animada`, por título): «Cómo se crea cada color · con los colores primarios». Verde = amarillo + azul, violeta = rojo + azul, naranja = rojo + amarillo; columna «Sumar y dividir» con la cuenta tal cual de los números de su carta de correctores (`EU_COLOR_CEREBRO.calc.colores.Correctores`, p. ej. 0.03 + 0.08 = 0.11 ÷ 2 = 0.055) y «Queda» con el número real del color en la carta (verde 0.07, violeta 0.02, naranja 0.04); el azul es primario. «Neutraliza» de su estrella (`calc.estrella`). Ninguna otra clase lleva esta cuenta.
+- 22-11-2026 (Fátima: «no se quita nada; que el escáner sincronice y nivele las hojas: unas salen muy full y a otras les falta»; PR 63, paso 1, sin archivos nuevos):
+  - **Causa:** las memorias del relleno (`b6_relleno_total.js`, `b6_hojas_llenas.js`, `b6_laminas_plus.js`, `b6_comercio_electronico.js`) guardaban lo puesto en cada NÚMERO de página con la clave de la cfg. Al volver a armar el libro (cuando el maniquí queda listo) las páginas eran otras: el «Observa / Practica más» de la hoja N caía en otra clase («Observa · En U con capas» en «Básico escalonado») y en hojas que ya estaban llenas, y salían cortadas.
+  - **`b6_editorial_motor.js`:** `firmaPaginas(pages)` (tipo, unidad, clase, corte, técnica, parte y hoja de cada página). Las cuatro memorias llevan la firma en su clave: solo se usan si las páginas son las mismas. `tamImgs(raiz)`: al medir, cada foto JPEG/PNG aún sin decodificar recibe su ancho y alto leídos de su cabecera (solo en la copia que se mide); lo usan los medidores de `b6_hojas_llenas.js` y `b6_comercio_electronico.js`.
+  - **`b6_pelu_llenar.js` · `ajusteFinal`:** se ejecuta al terminar el relleno por tandas y antes de cada descarga (envuelve `EU_RELLENO.porTandas` y `terminarTandas` de `<editorial-escolar>`). Hace tres cosas:
+    1. `antiCorte` de siempre;
+    2. «La receta, paso a paso» que no cabe con la letra normal sigue en otra hoja de la MISMA clase, justo detrás, con sus últimos pasos y la práctica (`partirReceta`); renumera páginas y solucionario, y la hoja nueva se completa solo con lo de su clase;
+    3. en las demás hojas de Peluquería que aún se salen: «En la práctica» achica sus imágenes o deja lo último, el diagrama baja sus figuras (`figMax`) y por último la letra.
+    No se quita contenido de ninguna clase.
+  - **Medido** (Profesional, A4, letra real, fotos cargadas; el arnés no se guarda en el repositorio):
+
+    | Libro | Se salen | A mitad | Vacías |
+    |---|---|---|---|
+    | 500 | 299 → 1 | 37 → 5 | 10 → 0 |
+    | 700 | 408 → 3 | 51 → 8 | 21 → 0 |
+
+    Sin errores de JS. Las 29 recetas largas (500) continúan en su hoja.
+  - **Comparación:** `screenshots/nivelar_pelu_22-11-2026_antes_despues.jpg`.
+  - **Pendiente (paso 2):** escenas de otro corte dentro de diagramas y de «En el salón» (`escenasUnidad`), e imágenes de la unidad en la primera lección del curso (`ponerCurso`).

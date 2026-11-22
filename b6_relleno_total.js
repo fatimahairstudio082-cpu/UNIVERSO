@@ -168,7 +168,7 @@
     try {
       var modoR = (cfg && cfg.acab || {}).relleno;
       if (cfg && ADU.test(cfg.materia) && modoR !== 'tandas' && res && res.C && res.C.papel && res.C.papel.id !== 'slide' && document.body && !/^(pitch)$/.test(cfg.prod)) {
-        var kA = 'A' + JSON.stringify(cfg);
+        var kA = 'A' + JSON.stringify(cfg) + '|' + (ED.firmaPaginas ? ED.firmaPaginas(res.pages) : '');   /* 22-11-2026: solo si las páginas son las mismas */
         if (!MEMO[kA]) {
           var ajA = ajustar(res), fA = {};
           /* las páginas recortadas por desborde pueden quedar cortas: se vuelven a rellenar con EU_ECOM */
@@ -182,7 +182,7 @@
         } else { ajustar(res, MEMO[kA].aj); var fM = MEMO[kA].f || {}; res.pages.forEach(function (p) { if (fM[p.num]) p.fill = Object.assign({}, fM[p.num]); }); }
       }
       if (cfg && !ADU.test(cfg.materia) && PRODS.test(cfg.prod || 'libro') && res && res.C && res.C.papel && res.C.papel.id !== 'slide' && modoR !== 'no' && modoR !== 'tandas' && document.body) {
-        var key = JSON.stringify(cfg), M = MEMO[key];
+        var key = JSON.stringify(cfg) + '|' + (ED.firmaPaginas ? ED.firmaPaginas(res.pages) : ''), M = MEMO[key];   /* 22-11-2026: solo si las páginas son las mismas */
         if (M) { ajustar(res, M.aj); res.pages.forEach(function (p) { if (M.f[p.num]) p.fill2 = M.f[p.num]; }); }
         else {
           var aj = ajustar(res); llenar(res); var g = {}; res.pages.forEach(function (p) { if (p.fill2) g[p.num] = p.fill2; });
@@ -203,7 +203,7 @@
     var nada = function (v) { return { p: Promise.resolve(v), terminar: function () { } }; };
     if (!cfg || !C || !C.papel || C.papel.id === 'slide' || !document.body) return nada(false);
     if (adu ? /^(pitch)$/.test(cfg.prod) : (A.relleno === 'no' || !PRODS.test(cfg.prod || 'libro'))) return nada(false);
-    var key = JSON.stringify(cfg), kA = 'A' + key, porNum = {};
+    var key = JSON.stringify(cfg) + '|' + (ED.firmaPaginas ? ED.firmaPaginas(res.pages) : ''), kA = 'A' + key, porNum = {};   /* 22-11-2026: solo si las páginas son las mismas */
     res.pages.forEach(function (p) { porNum[p.num] = p; });
     if (adu) {
       var MA = MEMO[kA], ME = EC.MEMO && EC.MEMO[key], conE = A.relleno !== 'no';
