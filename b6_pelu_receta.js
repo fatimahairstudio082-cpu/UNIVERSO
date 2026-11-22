@@ -737,7 +737,7 @@
       /* 5. diagramas que no caben: las figuras bajan (la letra no) */
       out.forEach(function (p) {
         if (p.tipo !== 'pe_diagrama' || cabe(p)) return;
-        if (![84, 76, 68, 62, 56, 50, 45].some(function (mm) { p.figMax = mm; return cabe(p); })) p.figMax = 45;
+        if (![64, 58, 52, 46, 40].some(function (mm) { p.figMax = mm; return cabe(p); })) p.figMax = 40;   /* altura fija (pg.figMax): el medidor la ve antes de que cargue la imagen */
       });
     } finally { Md.fin(); }
   }

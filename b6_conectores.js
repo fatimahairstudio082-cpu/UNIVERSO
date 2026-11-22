@@ -221,8 +221,10 @@
         if (ok.length) { var j0 = ok[k % ok.length], s2 = LA.foto(u.id, j0, 640); if (s2) x = { src: s2, e: es2[j0], n: '' }; }
       }
     } catch (er) { x = null; }
-    if (x) return H.h2(C, 'En el maniquí' + (x.n ? ' · ' + esc(x.n) : '')) + '<img src="' + x.src + '" alt="' + esc(x.e.t || '') + '" style="display:block;max-width:100%;max-height:92mm;width:auto;height:auto;' + (x.e.anim && x.e.anim.crop ? 'aspect-ratio:' + x.e.anim.crop[2] + '/' + x.e.anim.crop[3] + ';' : '') + 'margin:0 auto 2mm;border-radius:' + Math.min(T.r || 4, 6) + 'px">' +
-      '<p style="margin:0;max-width:150mm"><b>' + esc(x.e.t || '') + '.</b> ' + esc(x.e.texto || '') + '</p>';
+    /* imagen a un lado (alto fijo, lo que ocupaban los renglones) y su explicación al otro */
+    if (x) return H.h2(C, 'En el maniquí' + (x.n ? ' · ' + esc(x.n) : '')) + '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4mm;align-items:start">' +
+      '<img src="' + x.src + '" alt="' + esc(x.e.t || '') + '" style="display:block;width:100%;height:42mm;object-fit:contain;background:#E6EAF1;border-radius:' + Math.min(T.r || 4, 6) + 'px">' +
+      '<p style="margin:0;font-size:.86em;line-height:1.45"><b>' + esc(x.e.t || '') + '.</b> ' + esc(x.e.texto || '') + '</p></div>';
     var err = (u.err || []).map(function (y) { return Array.isArray(y) ? y.join(': ') : String(y); }).filter(Boolean);
     return err.length ? H.h2(C, 'Errores comunes') + '<ul style="margin:0;padding-left:5mm">' + err.map(function (y) { return '<li style="margin:0 0 1.5mm">' + esc(y) + '</li>'; }).join('') + '</ul>' : '';
   }

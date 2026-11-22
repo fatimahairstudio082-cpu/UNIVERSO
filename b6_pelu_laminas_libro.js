@@ -225,6 +225,7 @@
     bl.push(function () { return lista('Paso a paso · ' + t.n, (t.pasos || []).map(function (p) { return p.t && p.n ? p.t + ': ' + p.n : ''; })); });
     bl.push(function () { return lista('Errores comunes', (t.pasos || []).map(function (p) { return p.e ? (p.t ? p.t + ': ' : '') + p.e : ''; })); });
     bl.push(function () { return lista('Recomendaciones', F.recomendaciones) + lista('Lo que no se hace', F.errores); });
+    bl.push(function () { return lista('Repaso · ' + t.n, (t.repaso || []).map(function (q) { return q.p && q.o ? q.p + ' → ' + q.o[q.c] + (q.x ? '. ' + q.x : '') : ''; })); });
     var f = bl[pg.ks || 0]; return f ? f() : '';
   }
   function salon(pg, C) {
