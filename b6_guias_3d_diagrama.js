@@ -246,6 +246,7 @@
     /* 24-11-2026 (Fátima: «hay personas que no tienen pollina y se saca en forma triangular; a cero o con elevación»): el flequillo y
        la elevación de cada fila del triángulo (de delante hacia atrás); vacío = 0° */
     var flq = fila('Flequillo', sel([['', 'Sin flequillo'], ['pollina', 'Pollina recta · al ras de la ceja'], ['lado', 'De lado · en triángulo, más abajo de los ojos'], ['cortina', 'Cortina · corto en el centro, largo hacia los lados']]));
+    var flqA = fila('Largo del flequillo', sel([['', 'Según la forma'], ['cejas', 'Bajo las cejas'], ['ojo', 'Bajo los ojos'], ['nariz', 'Bajo la nariz · pómulo'], ['labio', 'Bajo el labio'], ['barbilla', 'En la barbilla'], ['rostro', 'Donde termina el rostro']]));
     var flqC = fila('Capas del flequillo', ent('una cifra por fila, de delante hacia atrás · vacío = 0°', 300));
     var par = fila('Partición', sel([['vertical', 'Vertical'], ['horizontal', 'Horizontal (liso extremo)'], ['oblicua', 'Oblicua · box universal']]));
     var alt = fila('Guía del frente', sel([['', 'Según el corte · se empareja con atrás']].concat(Object.keys(DG.ALTURAS).map(function (k) { return [k, 'A 0° ' + DG.ALTURAS[k].n]; }))));
@@ -270,12 +271,12 @@
     function leer() {
       var o = { n: nom.value.trim() || 'Mi corte', capas: nums(cap.value), frente: nums(fre.value), lateral: nums(latC.value), part: par.value, altura: alt.value, linea: /^[uv]$/.test(aca.value) ? aca.value : lin.value, acabado: /^[uv]$/.test(aca.value) ? 'recto' : aca.value,
         medidas: { guia: +mg.value || (med0.estandar ? undefined : med0.guia), contorno: +mc.value || med0.contorno, nucaCoronilla: +mn.value || med0.nucaCoronilla },
-        fleco: flq.value, flecoCapas: nums(flqC.value),
+        fleco: flq.value, flecoAltura: flqA.value, flecoCapas: nums(flqC.value),
         lineaFrente: lfr.value, emparejar: emp.value, guias: String(gui.value || '').split(/[^a-zA-Z]+/).filter(Boolean).map(function (x) { return /^f/i.test(x) ? 'f' : 'm'; }), ref: ref.value };
       if (cor.checked) { o.coronilla = true; var cg = nums(corG.value)[0]; if (cg != null) o.coronillaG = cg; }
       return o;
     }
-    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); latC.value = (o.lateral || []).join(', '); flq.value = o.fleco || ''; flqC.value = (o.flecoCapas || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || ''; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
+    function poner(o) { nom.value = o.n || ''; cap.value = (o.capas || []).join(', '); fre.value = (o.frente || []).join(', '); latC.value = (o.lateral || []).join(', '); flq.value = o.fleco || ''; flqA.value = o.flecoAltura || ''; flqC.value = (o.flecoCapas || []).join(', '); par.value = o.part || 'vertical'; alt.value = o.altura || ''; lin.value = o.linea || ''; aca.value = o.acabado || 'recto';
       lfr.value = o.lineaFrente || ''; emp.value = o.emparejar || 'delante'; gui.value = (o.guias || []).join(', '); ref.value = o.ref || 'craneo'; cor.checked = !!o.coronilla; corG.value = o.coronillaG != null ? o.coronillaG : ''; nota.textContent = o.validar ? 'Elevaciones propuestas: a validar por Fátima. Cámbialas capa a capa si hace falta.' : (o.texto || ''); }
     tec.onchange = function () { var v = tec.value; if (!v) return; var o = v.slice(0, 2) === 't:' ? GC.tecnica(v.slice(2)) : v.slice(0, 2) === 'c:' ? (window.EU_CATALOGO_CORTES && EU_CATALOGO_CORTES.corte(v.slice(2))) : GC.mios().filter(function (m) { return m.n === v.slice(2); })[0]; if (o) poner(o); };
     var bar = document.createElement('div'); bar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px';
