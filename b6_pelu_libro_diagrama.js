@@ -107,7 +107,7 @@
       : '<div style="font-size:.76em;opacity:.8;margin:0 0 2.5mm">Animación con voz de esta diagramación en el libro interactivo y en el curso premium.</div>';
     var fig = function (e, i, gr) {
       return '<figure data-dg-fig="' + i + '" style="margin:0;background:' + T.soft + ';border-radius:' + rad + 'px;padding:1.5mm' + (gr ? '' : ';font-size:.92em') + '">' +
-        '<img src="' + d.fotos[i] + '" alt="' + es(e.t) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px">' +
+        '<img src="' + d.fotos[i] + '" alt="' + es(e.t) + '" style="width:100%;height:auto;' + (e.anim && e.anim.crop ? 'aspect-ratio:' + e.anim.crop[2] + '/' + e.anim.crop[3] + ';' : '') + 'display:block;border-radius:' + rad + 'px">' +
         '<figcaption style="font-size:.66em;line-height:1.3;margin-top:1.2mm"><b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (i + 1) + ' · ' + es(e.t) + '</b>' + es(leyenda(e, d, dg)) + '</figcaption></figure>';
     };
     var arriba = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm">' + d.vis.slice(0, 2).map(function (e, i) { return fig(e, i, 1); }).join('') + '</div>';
