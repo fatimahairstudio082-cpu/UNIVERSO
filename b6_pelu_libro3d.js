@@ -117,7 +117,7 @@
       var dgi = imgDg(k), im = dgi || imgPaso(c.id, d.cab, k), tx = k === 0 ? txt(p.texto).replace(c.n + '. ' + txt(c.d), '').trim() : txt(p.texto), e = p.elevB || [];
       var zon = e.map(function (v, i) { return v ? '<b style="color:' + T.acc + '">' + (i + 1) + '</b> ' + v + '°' : ''; }).filter(Boolean).join(' · ') || '0° en todas';
       return '<div data-g3d-paso="' + k + '" style="background:' + T.soft + ';border-radius:' + rad + 'px;padding:1.5mm;font-size:.64em;line-height:1.28;transition:opacity .3s">' +
-        (dgi ? '<img src="' + im + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:30mm;object-fit:contain;background:#E6EAF1;display:block;border-radius:' + rad + 'px;margin-bottom:1.5mm">' :
+        (dgi ? '<img src="' + im + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:30mm;object-fit:contain;background:#F3ECDF;display:block;border-radius:' + rad + 'px;margin-bottom:1.5mm">' :
           im ? '<img src="' + im + '" alt="Paso ' + (k + 1) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px;margin-bottom:1.5mm">' : '') +
         '<b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (k + 1) + ' · ' + es(txt(p.titulo).replace(/^\d+\s*·\s*/, '')) + '</b>' +
         '<div style="margin:1mm 0">Partición ' + es(part(p.particionB)) + ' · ' + es(p.herramienta || t.her) + '</div>' + (e.length && !(e.every(function (v) { return !v; }) && (t.elev || []).some(function (v) { return v; })) ? '<div style="margin:0 0 1mm">Zonas: ' + zon + '</div>' : '') + (tx ? '<div>' + es(tx) + '</div>' : '') + '</div>';
@@ -142,10 +142,10 @@
       /* Fátima, 18-10-2026: en lugar del esquema «Grados del corte terminado», el maniquí con el resultado de ESTE corte
          (motor de Guías 3D); los grados de cada zona siguen en la lista de al lado. La vista que va arriba no se repite abajo. */
       var lado = fq.length ? fq.shift() : todas[0];
-      if (lado) izq = '<figure style="margin:0"><img src="' + lado[0] + '" alt="Cómo queda el corte · ' + lado[1] + '" style="width:100%;height:auto;max-height:62mm;object-fit:contain;background:#E6EAF1;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.74em;text-align:center;opacity:.75;margin-top:1mm">Cómo queda el corte · ' + lado[1] + '</figcaption></figure>';
+      if (lado) izq = '<figure style="margin:0"><img src="' + lado[0] + '" alt="Cómo queda el corte · ' + lado[1] + '" style="width:100%;height:auto;max-height:62mm;object-fit:contain;background:#F3ECDF;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.74em;text-align:center;opacity:.75;margin-top:1mm">Cómo queda el corte · ' + lado[1] + '</figcaption></figure>';
       if (!fq.length && ref) qd = '<div style="margin-top:3mm;font-size:.74em"><b style="color:' + T.acc + '">Cómo queda el corte:</b> la línea final es como la de «' + es(ref.n) + '»' + (ref.num ? ', pág. ' + ref.num : '') + '.</div>';
       if (fq.length) qd = '<div style="margin-top:3mm"><div style="font-size:.74em;font-weight:700;color:' + T.acc + ';margin:0 0 1mm">Cómo queda el corte</div><div style="display:grid;grid-template-columns:repeat(' + fq.length + ',minmax(0,1fr));gap:2mm">' +
-        fq.map(function (v) { return '<figure style="margin:0"><img src="' + v[0] + '" alt="Cómo queda · ' + v[1] + '" style="width:100%;height:38mm;object-fit:contain;background:#E6EAF1;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.66em;text-align:center;margin-top:.6mm">' + v[1] + '</figcaption></figure>'; }).join('') + '</div></div>';
+        fq.map(function (v) { return '<figure style="margin:0"><img src="' + v[0] + '" alt="Cómo queda · ' + v[1] + '" style="width:100%;height:38mm;object-fit:contain;background:#F3ECDF;display:block;border-radius:' + rad + 'px"><figcaption style="font-size:.66em;text-align:center;margin-top:.6mm">' + v[1] + '</figcaption></figure>'; }).join('') + '</div></div>';
     }
     return H.cabecera(C, pg) + '<div data-g3d-pg="1"' + attrs + ' style="display:contents">' + cab + ctrl +
       '<div style="display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);gap:4mm;align-items:start"><div>' + izq + '</div><div style="display:grid;gap:3mm">' + leyenda + ficha + '</div></div>' +

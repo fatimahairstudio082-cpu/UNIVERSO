@@ -19,7 +19,7 @@
   var CARA = Math.PI / 2, NUCA = -Math.PI / 2, IZQ = 0, DER = Math.PI;
   var COL = ['#B01E45', '#C96A1E', '#D9920E', '#18906A', '#2C6FD1', '#7A4BD1', '#8A1C6B'];
   /* Fondo del maniquí: gris perla (Fátima, 10-10-2026: premium «Medianoche y oro»; antes beis #F3EDE4) */
-  var TINTA = '#1F1B18', ROJO = '#C0392B', VERDE = '#7CB342', CORTE = '#8A1C6B', FONDO = '#E6EAF1';
+  var TINTA = '#1F1B18', ROJO = '#C0392B', VERDE = '#7CB342', CORTE = '#8A1C6B', FONDO = '#F3ECDF';   /* 24-11-2026 (Fátima eligió «champán»; antes perla #E6EAF1) */
 
   /* Alturas de la guía del frente, medidas sobre el maniquí (ojos y = -0.06, cejas 0.13, boca -0.56). */
   var ALTURAS = {
@@ -1876,7 +1876,7 @@
     var RW = A.lado && (A.tr || []).some(function (T) { return T.k === 'r' || T.k === 'n' || T.k === 'i'; }) ? Math.min(bw * 0.22, 200) : 0, bwI = bw - RW, lista = [];
     var c = A.crop || [0, 0, 1280, 720], s = Math.min(bwI / c[2], (bh - bnd) / c[3]), ox = bx + (bwI - c[2] * s) / 2 - c[0] * s, oy = by + bnd + (bh - bnd - c[3] * s) / 2 - c[1] * s;
     x.save(); x.beginPath(); x.rect(bx, by, bw, bh); x.clip();
-    x.fillStyle = A.bg || '#E6EAF1'; x.fillRect(bx, by, bw, bh);
+    x.fillStyle = A.bg || FONDO; x.fillRect(bx, by, bw, bh);
     if (RW) { x.restore(); x.save(); x.beginPath(); x.rect(bx, by, bwI, bh); x.clip(); }   /* el maniquí y el corte no entran en la columna del reloj */
     if (im && im.complete && im.naturalWidth) x.drawImage(im, ox, oy, 1280 * s, 720 * s);
     function tr(t) { return Math.max(0, Math.min(1, (p - t[0]) / Math.max(1e-6, t[1] - t[0]))); }
