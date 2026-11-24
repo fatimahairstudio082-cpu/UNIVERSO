@@ -739,6 +739,7 @@
       guias: (o.guias || []).slice(), ref: o.ref === 'suelo' ? 'suelo' : 'craneo', medidas: o.medidas || null,
       fleco: o.fleco === 'lado' || o.fleco === 'pollina' ? o.fleco : '',
       flecoForma: o.fleco === 'cortina' ? 'cortina' : '',
+      flecoAltura: ALTURAS[o.flecoAltura] ? o.flecoAltura : '',
       flecoPila: (o.flecoCapas || []).map(function (g) { return Math.max(0, Math.min(225, +g || 0)); }),
       coronilla: o.coronilla ? { g: Math.max(0, Math.min(225, +o.coronillaG || Math.max.apply(null, capas))) } : null
     };
@@ -1106,8 +1107,17 @@
       var o = Object.assign({}, T); if (o.t) o.t = [o.t[0] * F, o.t[1] * F]; if (o.x) o.x = o.x * F; if (o.x2) o.x2 = o.x2 * F; return o;
     });
     var TH_V = 0.55, TH_B = 1.0, W0 = 0.55, yC = ALTURAS.cejas.y - 0.06;   /* triángulo frontal: vértice arriba, base en el nacimiento, de sien a sien */
+    /* 24-11-2026 (Fátima: «bajo la ceja, bajo los ojos, bajo el pómulo o donde termina el rostro: como quiera la clienta»): con un largo
+       elegido (`R.flecoAltura`, una de las alturas del sistema) la pollina cae a esa altura, el de lado llega a ella por el lado largo y
+       la cortina por los lados (el centro, a la ceja, como su ficha) */
+    var HF = R.flecoAltura && ALTURAS[R.flecoAltura] ? ALTURAS[R.flecoAltura].y - 0.06 : null;
     function yFin(ph, k) {
       var dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), y;
+      if (HF != null) {
+        var uu = Math.max(0, Math.min(1, (dC + 0.55) / 1.1)), corto = Math.min(HF + 0.25, yC);
+        y = forma === 'lado' ? corto + (HF - corto) * uu : forma === 'cortina' ? yC + (HF - yC) * Math.min(1, Math.abs(dC) / W0) : HF;
+        return y + ((dif[k] && dif[k].t) || 0);
+      }
       if (forma === 'lado') { var u = Math.max(0, Math.min(1, (dC + 0.55) / 1.1)); y = ALTURAS.ojo.y - 0.06 + (ALTURAS.nariz.y - ALTURAS.ojo.y + 0.06) * u; }
       else if (forma === 'cortina') y = yC + (ALTURAS.nariz.y - yC) * Math.min(1, Math.abs(dC) / W0);
       else y = yC;
@@ -1116,9 +1126,20 @@
     function lado(ph) { return Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)) >= 0 ? 1 : -1; }
     function camino(ph, th, k, yE) {   /* el cabello del flequillo peinado hacia delante y hacia abajo por la frente hasta su largo */
       var o = [], dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), q;
+      var ult = null;
       for (var t2 = th; t2 <= 1.6; t2 += 0.04) {
         var ph2 = forma === 'cortina' ? CARA + lado(ph) * Math.min(W0 + 0.1, Math.abs(dC) + (t2 - th) * 0.35) : forma === 'lado' ? ph - (t2 - th) * 0.3 : ph;
-        q = P(ph2, t2, 1.05 + 0.006 * k); if (q.y < yE) break; if (seVe(v, ph2, t2)) o.push(pr(v, q));
+        q = P(ph2, t2, 1.05 + 0.006 * k); if (q.y < yE) break; if (seVe(v, ph2, t2)) { o.push(pr(v, q)); ult = q; }
+      }
+      /* un flequillo largo (por debajo de la frente) cae recto por delante del rostro hasta su largo */
+      /* de lado y cortina, al caer se va hacia su lado y termina junto al rostro (no lo tapa) */
+      if (ult && ult.y - yE > 0.04) {
+        var sd = forma === 'lado' ? -1 : forma === 'cortina' ? lado(ph) : 0, Q = sd ? P(CARA + sd * (W0 + 0.42), 1.3, 1.1) : null, tot = ult.y - yE;
+        for (var yy = ult.y - 0.08; ; yy -= 0.08) {
+          var yb = Math.max(yE, yy), fr = Math.min(1, (ult.y - yb) / Math.max(0.2, Math.min(tot, 0.9))), fs = fr * fr * (3 - 2 * fr);
+          var xb = Q ? ult.x * 1.04 + (Q.x - ult.x * 1.04) * fs : ult.x * 1.04, zb = Q ? ult.z * 1.04 + 0.03 + (Q.z - ult.z * 1.04 - 0.03) * fs : ult.z * 1.04 + 0.03;
+          o.push(pr(v, V3(xb, yb, zb))); if (yb <= yE) break;
+        }
       }
       return o;
     }
@@ -1188,7 +1209,7 @@
         tr.push(linea(plano(pun.map(function (o) { return [o[0], o[1] + 4]; })), [t0 + 0.01, t0 + 0.03], '#2A170C', 5.5), linea(plano(pun), [t0 + 0.01, t0 + 0.03], COL[k % 7], 2.6));
       });
     });
-    var NOMF = { pollina: 'pollina al ras de la ceja', lado: 'flequillo de lado, en triángulo, más abajo de los ojos', cortina: 'flequillo cortina, corto en el centro y largo hacia los lados' }[forma] || 'flequillo';
+    var NOMF0 = { pollina: 'pollina al ras de la ceja', lado: 'flequillo de lado, en triángulo, más abajo de los ojos', cortina: 'flequillo cortina, corto en el centro y largo hacia los lados' }[forma] || 'flequillo', NOMF = HF != null ? NOMF0.split(',')[0].replace(/ al ras de la ceja| más abajo de los ojos/, '') + ', largo ' + ALTURAS[R.flecoAltura].n : NOMF0;
     tr.push(rotulo('Flequillo: ' + NOMF + ' · ' + pila.join('° · ') + '°', CORTE, T0));
     return Object.assign({}, A, { tr: tr, dur: Math.max(Math.round((A.dur || 18000) / F), Math.round(nM * 2200 / (T1 - T0))) });
   }
