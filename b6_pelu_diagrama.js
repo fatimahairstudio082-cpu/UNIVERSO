@@ -912,6 +912,11 @@
       if (grupos.length) CAPAS.push({ z: z0, th: th0, grupos: grupos });
     }
     var dt0 = 0.88 / Math.max(1, CAPAS.length), puestasQ = [];
+    /* 24-11-2026 (Fátima: «atrás el corte debe verse limpio, sin números arriba, como capitas, con el contorno de cada capa donde cae
+       el cabello cortado, como se ve de frente»): en la vista de atrás (secciones verticales), al terminar de cortar se quitan la raya y
+       las secciones y el cabello queda en capas, cada una encima de la de abajo y terminando en su línea de color. El corte mechón a
+       mechón, el reloj y la lista del lado no cambian. */
+    var limpia = v === 'nuca' && !R.liso, T_LIMPIO = 0.93, capaPts = {};
     /* las líneas se cortan donde hay un salto (no se unen por encima de la cara) */
     function tramosDe(q, gap) { q.sort(function (p, r) { return p[0] - r[0]; }); var o = [], t = []; q.forEach(function (x) { if (t.length && x[0] - t[t.length - 1][0] > gap) { o.push(t); t = []; } t.push(x); }); if (t.length) o.push(t); return o.filter(function (x) { return x.length > 1; }); }
     CAPAS.forEach(function (CP, ic) {
@@ -963,6 +968,7 @@
           if (ult.y > yf) pts.push(pr(v, cae));
           tr.push(linea(plano(pts), tCae, PELO, 1.3));
           cortes.push(pts[pts.length - 1]);
+          if (limpia) (capaPts[z] = capaPts[z] || []).push(pts.slice());
           /* el mechón, largo, se agarra y sube a su elevación; la tijera lo corta al largo de la capa y después cae
              (liso extremo: fila horizontal; las demás, la columna vertical de arriba) */
           if (!vert) subeMechon(ph, th, a, yf);
@@ -1008,7 +1014,8 @@
       tr.push(rotulo('Atrás ya cortado · delante de la línea de oreja a oreja se corta el lateral', '#2C6FD1', 0.01));
     }
     /* la raya y las secciones: en vertical (en liso extremo, en horizontal entre capas) */
-    tr = tr.concat(lineas(tramos(v, frente ? function (u) { return [CARA, u * 0.16]; } : function (u) { return [NUCA, 0.12 + u * 1.86]; }, 30), [0, 0.03], TINTA, 2.4));
+    var xL = limpia ? { x: T_LIMPIO } : undefined;
+    tr = tr.concat(lineas(tramos(v, frente ? function (u) { return [CARA, u * 0.16]; } : function (u) { return [NUCA, 0.12 + u * 1.86]; }, 30), [0, 0.03], TINTA, 2.4, xL));
     /* 26-10-2026 (Fátima: «resalta la línea que divide, desde la nariz corrida hasta el cuello, más en negro»): de frente, la raya
        sigue por el centro de la cara hasta el cuello, en negro y más gruesa, encima de todo */
     /* 26-10-2026 (Fátima, «paracludes»: «bájala hasta donde termina el cuello, ahí también hay cabello; en la parte de atrás»):
@@ -1016,15 +1023,33 @@
     var Y_FIN_CUELLO = FIN_CUELLO;
     if (frente || v === 'nuca') { var phR = frente ? CARA : NUCA, rC = []; for (var tR = 0; tR <= (frente ? 1.62 : 1.98); tR += 0.04) { if (seVe(v, phR, tR)) rC.push(pr(v, P(phR, tR, 1.06))); }
       var fR = P(phR, frente ? 1.62 : 1.98, 1.06); rC.push(pr(v, V3(fR.x, Y_FIN_CUELLO, fR.z)));
-      tr.push(linea(plano(rC), [0, 0.03], '#000000', 3.4)); }
+      tr.push(linea(plano(rC), [0, 0.03], '#000000', 3.4, xL)); }
     if (R.liso) for (var zp = 0; zp < n - 1; zp++) {
       var thp = frente ? 0.16 + (zp + 0.5) * (0.7 / n) : (thCapa(zp, n) + thCapa(zp + 1, n)) / 2;
       tr = tr.concat(lineas(tramos(v, frente ? function (u) { return [IZQ - 0.12 + u * (Math.PI + 0.24), thp]; } : function (u) { return [NUCA - 1.45 + u * 2.9, thp]; }, 50), [0, 0.03], '#2C6FD1', 1.4, { d: 1 }));
     }
     else (frente ? [-1.05, -0.7, -0.35, 0.35, 0.7, 1.05] : [-2.8, -2.45, -2.1, -1.75, -1.4, -1.05, -0.7, -0.35, 0.35, 0.7, 1.05, 1.4, 1.75, 2.1, 2.45, 2.8]).forEach(function (o) {
       var ph0 = (frente ? CARA : NUCA) + o; if (!frente && Math.abs(Math.atan2(Math.sin(ph0 - CARA), Math.cos(ph0 - CARA))) < 0.5) return;
-      tr = tr.concat(lineas(tramos(v, function (u) { return [ph0, 0.14 + u * 1.2]; }, 30), [0, 0.03], '#2C6FD1', 1.4, { d: 1 }));
+      tr = tr.concat(lineas(tramos(v, function (u) { return [ph0, 0.14 + u * 1.2]; }, 30), [0, 0.03], '#2C6FD1', 1.4, Object.assign({ d: 1 }, xL || {})));
     });
+    if (limpia) {
+      var TONO = ['#4A2E1C', '#54361F', '#5E3D24', '#684429', '#714B2E', '#7A5233', '#835938'];
+      Object.keys(capaPts).map(Number).sort(function (p, q) { return p - q; }).forEach(function (z, k) {
+        var L = capaPts[z].filter(function (q) { return q.length > 1; }).sort(function (p, q) { return p[0][0] - q[0][0]; }); if (L.length < 2) return;
+        var t0 = T_LIMPIO + 0.005 * k, izq = L[0], der = L[L.length - 1], poly = [];
+        L.forEach(function (q) { poly.push(q[0]); });                                     /* raíces, de izquierda a derecha */
+        der.forEach(function (q) { poly.push(q); });                                      /* baja por el borde derecho */
+        L.slice().reverse().forEach(function (q) { poly.push(q[q.length - 1]); });        /* las puntas: donde cae la capa */
+        izq.slice().reverse().forEach(function (q) { poly.push(q); });                    /* sube por el borde izquierdo */
+        tr.push({ k: 'z', p: plano(poly), t: [t0, t0 + 0.02], c: TONO[z % 7], a: 1 });
+        L.forEach(function (q, i) { tr.push(linea(plano(q), [t0 + 0.01, t0 + 0.03], ['#3A2214', '#9A7150', '#4A2C19', '#7E5A3C'][i % 4], i % 2 ? 0.7 : 1)); });   /* hebras finas encima */
+        var pun = L.map(function (q) { return q[q.length - 1]; });
+        tramosDe(pun, 50).forEach(function (q) {
+          tr.push(linea(plano(q.map(function (o) { return [o[0], o[1] + 4]; })), [t0 + 0.02, t0 + 0.04], '#2A170C', 5.5));   /* sombra bajo la capa */
+          tr.push(linea(plano(q), [t0 + 0.02, t0 + 0.04], COL[z % 7], 2.6));                                                  /* contorno de la capa */
+        });
+      });
+    }
     if (!R.liso) tr.push(rotulo('Secciones verticales: el mechón se lleva a su elevación y se corta', '#2C6FD1', 0.02));
     var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'de lado' : 'de frente') + ' · forma ' + NOM[lin], TINTA, 0),
