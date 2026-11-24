@@ -916,7 +916,17 @@
        el cabello cortado, como se ve de frente»): en la vista de atrás (secciones verticales), al terminar de cortar se quitan la raya y
        las secciones y el cabello queda en capas, cada una encima de la de abajo y terminando en su línea de color. El corte mechón a
        mechón, el reloj y la lista del lado no cambian. */
-    var limpia = v === 'nuca' && !R.liso, T_LIMPIO = 0.93, capaPts = {};
+    /* 24-11-2026 (Fátima: «ponlo así de lado y de frente; el cabello debe empezar recogido, sacar el mechón, cortar con el transportador
+       y que caiga; no dos tipos de cabello»): el resultado limpio en capitas va también de lado y de frente; el cabello que aún no se ha
+       cortado está recogido hacia la coronilla con una pinza y cada mechón se suelta cuando le toca; el mechón que se lleva a su
+       elevación es cabello (castaño, con el borde del color de su capa), el mismo que después cae y se queda. */
+    var limpia = !R.liso, T_LIMPIO = 0.93, capaPts = {}, capaPtsB = {}, tSuelta = 0;
+    function hebra(f, t, ex) { tr.push(mechon(f, t, c0, 2.8, ex), mechon(f, t, PELO, 1.9, ex)); }
+    var c0 = TINTA;
+    function recogido(ph, thR, z, hasta) {   /* cabello peinado hacia arriba, recogido en la coronilla hasta que se suelta su mechón */
+      var q = []; for (var t3 = thR; t3 >= 0.1; t3 -= 0.07) { if (seVe(v, ph, t3)) q.push(pr(v, P(ph, t3, 1.05 + 0.004 * z))); }
+      if (q.length > 1) tr.unshift(linea(plano(q), [0, 0.02], '#6B4A33', 1.2, { x: hasta }));
+    }
     /* las líneas se cortan donde hay un salto (no se unen por encima de la cara) */
     function tramosDe(q, gap) { q.sort(function (p, r) { return p[0] - r[0]; }); var o = [], t = []; q.forEach(function (x) { if (t.length && x[0] - t[t.length - 1][0] > gap) { o.push(t); t = []; } t.push(x); }); if (t.length) o.push(t); return o.filter(function (x) { return x.length > 1; }); }
     CAPAS.forEach(function (CP, ic) {
@@ -944,12 +954,12 @@
           var D = vert ? function (gg) { return dirV(a, gg); } : function (gg) { return dirElev(ph, thR, gg); };
           for (var m = 0; m <= 5; m++) { var dm = D(g * m / 5); sube.push([].concat(pr(v, a), pr(v, a.clone().add(dm.multiplyScalar(Llar))))); }
           var dg = D(g), corte1 = [].concat(pr(v, a), pr(v, a.clone().add(dg.clone().multiplyScalar(Lcor))));
-          tr.push(mechon(sube, tSube, c, 1.6, { x: tCorta[1] }));
-          tr.push(mechon([corte1, corte1], [tCorta[1], tCorta[1] + 0.001], c, 1.8, { x: tCae[0] }));
+          c0 = c; hebra(sube, tSube, { x: tCorta[1] });
+          hebra([corte1, corte1], [tCorta[1], tCorta[1] + 0.001], { x: tCae[0] });
           /* 30-10-2026 (Fátima: «los mechones comienzan a desaparecer; el mechón que cortaste tiene que caer hacia la cara»): el mechón
              ya cortado baja desde su elevación hasta caer (de frente, hacia la cara) y ahí lo sigue el cabello que queda */
           var baja = []; for (var mb = 0; mb <= 5; mb++) { var db = D(g * (1 - mb / 5)); baja.push([].concat(pr(v, a), pr(v, a.clone().add(db.multiplyScalar(Lcor))))); }
-          tr.push(mechon(baja, tCae, c, 1.8, { x: tCae[1] }));
+          hebra(baja, tCae, { x: tCae[1] });
           puntas.push(corte1.slice(2));
         }
         /* la línea de la sección vertical, marcada en el cráneo con el color de la capa mientras se agarra y se corta */
@@ -968,7 +978,7 @@
           if (ult.y > yf) pts.push(pr(v, cae));
           tr.push(linea(plano(pts), tCae, PELO, 1.3));
           cortes.push(pts[pts.length - 1]);
-          if (limpia) (capaPts[z] = capaPts[z] || []).push(pts.slice());
+          if (limpia) { (capaPts[z] = capaPts[z] || []).push({ q: pts.slice(), l: frente ? lado : 0 }); recogido(ph, th, z, s0); tSuelta = Math.max(tSuelta, s0); }
           /* el mechón, largo, se agarra y sube a su elevación; la tijera lo corta al largo de la capa y después cae
              (liso extremo: fila horizontal; las demás, la columna vertical de arriba) */
           if (!vert) subeMechon(ph, th, a, yf);
@@ -1002,14 +1012,15 @@
           for (var tB = thB + 0.07; tB <= 1.36; tB += 0.07) { if (!seVe(v, phB, tB)) break; var qB = P(phB, tB, 1.05 + 0.004 * zB); if (qB.y < yfB) break; ptsB.push(pr(v, qB)); uB = qB; }
           if (uB.y > yfB) ptsB.push(pr(v, V3(uB.x * 1.03, yfB, uB.z * 1.03)));
           tr.unshift(linea(plano(ptsB), [0, 0.001], PELO, 1.3)); cortB.push(ptsB[ptsB.length - 1]);
+          if (limpia) (capaPtsB[zB] = capaPtsB[zB] || []).push({ q: ptsB.slice(), l: 0 });
         }
-        tramosDe(cortB, 50).forEach(function (q) { tr.push(linea(plano(q), [0, 0.001], COL[zB % 7], 3)); });
+        tramosDe(cortB, 50).forEach(function (q) { tr.push(linea(plano(q), [0, 0.001], COL[zB % 7], 3, limpia ? { x: T_LIMPIO } : undefined)); });
       }
       /* la división de oreja a oreja, encima de todo, toda la escena */
       [DER + 0.12, IZQ - 0.12].forEach(function (phD) {
-        tr = tr.concat(lineas(tramos(v, function (u) { return [phD, u * 1.62]; }, 30), [0, 0.03], '#2C6FD1', 4));
+        tr = tr.concat(lineas(tramos(v, function (u) { return [phD, u * 1.62]; }, 30), [0, 0.03], '#2C6FD1', 4, limpia ? { x: T_LIMPIO } : undefined));
         /* y sigue recta hasta donde termina el cabello: atrás y delante quedan separados también abajo */
-        if (seVe(v, phD, 1.62)) { var aD = P(phD, 1.62, 1.07); tr.push(linea(plano([pr(v, aD), pr(v, V3(aD.x * 1.03, yRecta(phD, y0(phD) + ((difB[0] && difB[0].t) || 0)), aD.z * 1.03))]), [0, 0.03], '#2C6FD1', 3)); }
+        if (seVe(v, phD, 1.62)) { var aD = P(phD, 1.62, 1.07); tr.push(linea(plano([pr(v, aD), pr(v, V3(aD.x * 1.03, yRecta(phD, y0(phD) + ((difB[0] && difB[0].t) || 0)), aD.z * 1.03))]), [0, 0.03], '#2C6FD1', 3, limpia ? { x: T_LIMPIO } : undefined)); }
       });
       tr.push(rotulo('Atrás ya cortado · delante de la línea de oreja a oreja se corta el lateral', '#2C6FD1', 0.01));
     }
@@ -1033,20 +1044,39 @@
       tr = tr.concat(lineas(tramos(v, function (u) { return [ph0, 0.14 + u * 1.2]; }, 30), [0, 0.03], '#2C6FD1', 1.4, Object.assign({ d: 1 }, xL || {})));
     });
     if (limpia) {
-      var TONO = ['#4A2E1C', '#54361F', '#5E3D24', '#684429', '#714B2E', '#7A5233', '#835938'];
-      Object.keys(capaPts).map(Number).sort(function (p, q) { return p - q; }).forEach(function (z, k) {
-        var L = capaPts[z].filter(function (q) { return q.length > 1; }).sort(function (p, q) { return p[0][0] - q[0][0]; }); if (L.length < 2) return;
-        var t0 = T_LIMPIO + 0.005 * k, izq = L[0], der = L[L.length - 1], poly = [];
-        L.forEach(function (q) { poly.push(q[0]); });                                     /* raíces, de izquierda a derecha */
-        der.forEach(function (q) { poly.push(q); });                                      /* baja por el borde derecho */
-        L.slice().reverse().forEach(function (q) { poly.push(q[q.length - 1]); });        /* las puntas: donde cae la capa */
-        izq.slice().reverse().forEach(function (q) { poly.push(q); });                    /* sube por el borde izquierdo */
-        tr.push({ k: 'z', p: plano(poly), t: [t0, t0 + 0.02], c: TONO[z % 7], a: 1 });
-        L.forEach(function (q, i) { tr.push(linea(plano(q), [t0 + 0.01, t0 + 0.03], ['#3A2214', '#9A7150', '#4A2C19', '#7E5A3C'][i % 4], i % 2 ? 0.7 : 1)); });   /* hebras finas encima */
-        var pun = L.map(function (q) { return q[q.length - 1]; });
-        tramosDe(pun, 50).forEach(function (q) {
-          tr.push(linea(plano(q.map(function (o) { return [o[0], o[1] + 4]; })), [t0 + 0.02, t0 + 0.04], '#2A170C', 5.5));   /* sombra bajo la capa */
-          tr.push(linea(plano(q), [t0 + 0.02, t0 + 0.04], COL[z % 7], 2.6));                                                  /* contorno de la capa */
+      /* la pinza de la coronilla: sujeta el cabello recogido hasta que se suelta el último mechón */
+      var phP = frente ? CARA : lat ? (seVe(v, DER, 0.5) ? DER : IZQ) : NUCA, pz = [];
+      [-0.3, 0.3].forEach(function (o) { pz.push(pr(v, P(phP + o, 0.3, 1.1))); });
+      if (seVe(v, phP, 0.3)) tr.push(linea(plano(pz), [0, 0.02], '#2E2A28', 9, { x: tSuelta + 0.002 }));
+      var TONO = ['#4A2E1C', '#54361F', '#5E3D24', '#684429', '#714B2E', '#7A5233', '#835938'], kk = 0;
+      /* de lado, la raya de oreja a oreja queda cubierta de cabello (sin hueco entre atrás y el lateral) */
+      if (lat) [DER + 0.12, IZQ - 0.12].forEach(function (phD) {
+        tr = tr.concat(lineas(tramos(v, function (u) { return [phD, u * 1.62]; }, 30), [T_LIMPIO, T_LIMPIO + 0.02], '#5E3D24', 9));
+        if (seVe(v, phD, 1.62)) { var aG = P(phD, 1.62, 1.07); tr.push(linea(plano([pr(v, aG), pr(v, V3(aG.x * 1.03, yRecta(phD, y0(phD) + ((difB[0] && difB[0].t) || 0)) + 0.02, aG.z * 1.03))]), [T_LIMPIO, T_LIMPIO + 0.02], '#5E3D24', 12)); }
+      });
+      [[capaPtsB, 0], [capaPts, 1]].forEach(function (par) {
+        var CP2 = par[0];
+        Object.keys(CP2).map(Number).sort(function (p, q) { return p - q; }).forEach(function (z) {
+          var t0 = T_LIMPIO + Math.min(0.035, 0.004 * kk++), porLado = {};
+          CP2[z].forEach(function (o) { if (o.q.length > 1) (porLado[o.l] = porLado[o.l] || []).push(o.q); });
+          Object.keys(porLado).forEach(function (lk) {
+            var L0 = porLado[lk].sort(function (p, q) { return p[0][0] - q[0][0]; }), grupos2 = [], gA = [];
+            L0.forEach(function (q) { if (gA.length && q[0][0] - gA[gA.length - 1][0][0] > 60) { grupos2.push(gA); gA = []; } gA.push(q); }); if (gA.length) grupos2.push(gA);
+            grupos2.forEach(function (L) {
+              if (L.length < 2) return;
+              var izq = L[0], der = L[L.length - 1], poly = [];
+              L.forEach(function (q) { poly.push(q[0]); });                                     /* raíces, de izquierda a derecha */
+              der.forEach(function (q) { poly.push(q); });                                      /* baja por el borde derecho */
+              L.slice().reverse().forEach(function (q) { poly.push(q[q.length - 1]); });        /* las puntas: donde cae la capa */
+              izq.slice().reverse().forEach(function (q) { poly.push(q); });                    /* sube por el borde izquierdo */
+              tr.push({ k: 'z', p: plano(poly), t: [t0, t0 + 0.02], c: TONO[z % 7], a: 1 });
+              L.forEach(function (q, i) { tr.push(linea(plano(q), [t0 + 0.01, t0 + 0.03], ['#3A2214', '#9A7150', '#4A2C19', '#7E5A3C'][i % 4], i % 2 ? 0.7 : 1)); });   /* hebras finas encima */
+              tramosDe(L.map(function (q) { return q[q.length - 1]; }), 50).forEach(function (q) {
+                tr.push(linea(plano(q.map(function (o) { return [o[0], o[1] + 4]; })), [t0 + 0.02, t0 + 0.04], '#2A170C', 5.5));   /* sombra bajo la capa */
+                tr.push(linea(plano(q), [t0 + 0.02, t0 + 0.04], COL[z % 7], 2.6));                                                  /* contorno de la capa */
+              });
+            });
+          });
         });
       });
     }
