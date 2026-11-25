@@ -15,7 +15,7 @@
   function tit(C, t) { return '<div style="font-weight:700;color:' + C.T.acc + ';margin:2mm 0 1.5mm">' + esc(t) + '</div>'; }
   function caja(C, t, html) { var T = C.T; return '<div style="border:0.4mm solid ' + T.soft + ';border-radius:' + (T.r || 0) + 'px;padding:3mm 4mm;margin:0 0 3mm;break-inside:avoid"><div style="font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">' + esc(t) + '</div><div style="line-height:1.45">' + html + '</div></div>'; }
   function figura(X) {
-    return X.fig.replace(/<svg\b[^>]*>/, function (m) { return m.replace(/\sstyle="[^"]*"/g, '').replace('<svg', '<svg style="display:block;height:100%;width:auto;max-width:100%"'); });
+    return X.fig.replace(/<svg\b[^>]*>/, function (m) { return m.replace(/\sstyle="[^"]*"/g, '').replace('<svg', '<svg style="display:block;height:100%;width:auto;max-width:100%"'); }).replace(/^<div style="/, '<div style="height:100%;');   /* 25-11-2026: la figura que llega envuelta en un div ocupa solo su hueco (antes se salía de la hoja) */
   }
   var REV = ['Anota cada ejercicio que hayas fallado, la respuesta correcta y qué vas a repasar. Repetirlo dentro de unos días fija lo aprendido.', 'Apunta los fallos de esta parte: qué respondiste, qué era lo correcto y dónde está la explicación en el libro.', 'Un error anotado es un error que no se repite. Escribe el número del ejercicio y la idea que te faltó.', 'Revisa tus respuestas con este solucionario y deja aquí registro de lo que debes volver a estudiar.', 'Marca los aciertos y los fallos. Si fallas dos del mismo tipo, vuelve a la página de explicación de la unidad.'];
   function revision(C, n, k) {

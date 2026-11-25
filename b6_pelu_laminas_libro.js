@@ -171,14 +171,14 @@
      «Un ejemplo cercano») pasan a ser «En el salón»: un corte de la unidad (o la técnica) en el maniquí, con su descripción,
      sus elevaciones de la ficha técnica, la escena con su título y su explicación, y una pregunta del repaso de la unidad.
      No añade hojas; las soluciones de las páginas sustituidas salen del solucionario. */
-  var GEN_PG = /^(ejemplo|lec_concepto|lec_lectura|lec_caso|lec_amplia|lec_proyecto)$/;
+  var GEN_PG = /^(ejemplo|lec_concepto|lec_lectura|lec_caso|lec_amplia|lec_proyecto|pro_caso)$/;
   var PREF_CORTE = ['angulos', 'coronilla', 'emparejar', 'particion', 'seccion', 'guia', 'pulir', 'queda_frente', 'queda_lateral', 'queda_nuca', 'capas', 'lateral', 'frente'];
   var ZN = ['nuca', 'nuca alta', 'occipital', 'parietal', 'lateral', 'coronilla', 'flequillo'];
   function salonCambiar(res, cfg) {
     if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || ((cfg.acab || {}).laminasLibro === 'no')) return res;
     var quit = {}, k = {};
     res.pages.forEach(function (p, i) {
-      if (!p.u || !GEN_PG.test(p.tipo) || !(/^(pe_u_c_|cb_)/.test(p.u.id) || (p.tipo === 'ejemplo' && /^pe_u_/.test(p.u.id)))) return;   /* 19-10-2026: «Cerca de ti» inventado («Daniela vive en…») también fuera de cortes y técnicas */
+      if (!p.u || !GEN_PG.test(p.tipo) || !(/^(pe_u_c_|cb_)/.test(p.u.id) || (/^(ejemplo|pro_caso)$/.test(p.tipo) && /^pe_u_/.test(p.u.id)))) return;   /* 19-10-2026: «Cerca de ti» inventado («Daniela vive en…») también fuera de cortes y técnicas */
       k[p.u.id] = (k[p.u.id] || 0);
       res.pages[i] = { tipo: 'pe_salon', u: p.u, n: p.n, num: p.num, ks: k[p.u.id]++, fill2: { nada: 1 }, indice: p.indice };
       quit[p.num] = 1;

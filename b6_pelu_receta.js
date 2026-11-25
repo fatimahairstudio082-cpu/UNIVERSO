@@ -760,7 +760,21 @@
     if (window.__euLec) leccion(window.__euLec);
   }
   function practicasActivo(C) { return C && C.mat === 'pelu' && (((C.cfg && C.cfg.acab) || {}).practicas !== 'no'); }
-  function paginaClase(pg, C, modo) {
+  /* (25-11-2026, Fátima aprobó «remitir a la primera vez») un paso que ya salió entero en una receta anterior del libro se nombra
+     y remite a esa página, en lugar de repetir el mismo texto; la primera vez va siempre entero */
+  var KEY_PASO = function (p) { var tx = p.puntos ? p.puntos.map(function (b) { return b[1]; }).join(' ') : p.texto; return String(p.t).replace(/^(Visualización|Clase) · /, '').toLowerCase() + '|' + String(tx || '').replace(/\s+/g, ' ').trim().toLowerCase(); };
+  function pasosHoja(pg) {
+    var P = pasos(pg.rec), clase = P.filter(function (p) { return p.etapa === 'clase' && !p.q; }), vis = P.filter(function (p) { return p.etapa === 'vis' && !p.q; });
+    vis = clase.slice(1).concat(vis); return pg.a != null ? vis.slice(pg.de || 0, pg.a) : vis;
+  }
+  var PRIMERA = new WeakMap();
+  function primeraVez(ctx) {
+    var L = ctx && ctx.pages; if (!L) return null;
+    var m = PRIMERA.get(L); if (m) return m; m = {};
+    L.forEach(function (q) { if (q.tipo === 'pe_clase' && q.parte === 2 && R[q.rec]) pasosHoja(q).forEach(function (p) { var k = KEY_PASO(p); if (m[k] == null) m[k] = q.num; }); });
+    PRIMERA.set(L, m); return m;
+  }
+  function paginaClase(pg, C, modo, ctx) {
     var H = ED.H, T0 = C.T || {}, r = R[pg.rec], P = pasos(pg.rec), web = modo === 'web';
     if (!r || !P.length) return H.cabecera(C, pg) + H.folio(C, pg);
     var T = { acc: T0.acc || '#B08D57', soft: T0.soft || '#EEF0F3' }, rad = Math.min(T0.r || 4, 6), alto = ((C.papel && C.papel.h) || 297) >= 250;
@@ -793,8 +807,11 @@
     var largo = vis.length > 12, de = pg.de || 0, ult = pg.ult !== false;
     if (pg.a != null) vis = vis.slice(de, pg.a);
     var corta = function (t) { t = String(t || ''); if (!largo) return t; var m = /^(.{40,220}?[.!?])(\s|$)/.exec(t); return m ? m[1] : t.slice(0, 220); };
+    var PV = primeraVez(ctx);
     var lista = '<ol start="' + (de + 1) + '" style="margin:0;padding-left:6mm;font-size:' + (largo ? '.82em' : '.9em') + ';line-height:1.42">' + vis.map(function (p) {
       var tx = p.puntos ? p.puntos.map(function (b) { return b[1]; }).join(' ') : p.texto;
+      var n1 = PV && PV[KEY_PASO(p)];
+      if (n1 && n1 < pg.num) return '<li style="margin:0 0 1.6mm"><b>' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + ':</b> <i style="opacity:.8">igual que en la pág. ' + n1 + '.</i></li>';
       return '<li style="margin:0 0 1.6mm"><b>' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + '.</b> ' + esc(corta(tx)) + '</li>';
     }).join('') + '</ol>';
     if (pg.qs) qs = pg.qs.map(function (q) { return { q: q }; });   /* 16-11-2026: sin las preguntas que ya salieron en el libro */

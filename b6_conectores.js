@@ -208,12 +208,17 @@
       var T = C.T, caps = (ctx && ctx.pages || []).filter(function (p) { return p.tipo === 'pro_capitulo'; });
       return H.cabecera(C, pg) + H.h1(C, 'Resumen ejecutivo') +
         '<p style="max-width:150mm">' + esc('Este libro reúne ' + caps.length + (caps.length === 1 ? ' capítulo' : ' capítulos') + ' sobre ' + C.matN.replace(/^.*·\s*/, '').toLowerCase() + '. Cada capítulo abre con sus ideas clave, las explica, las lleva a un diagrama y termina con un caso práctico y una lista de comprobación.') + '</p>' +
+        (caps.length > 10 ? '<div style="display:grid;grid-template-columns:1fr 1fr;column-gap:8mm;margin-top:6mm">' + caps.map(function (p) {   /* 25-11-2026: con muchos capítulos, dos columnas sin la idea, para que salgan todos en la hoja */
+          return '<div style="display:grid;grid-template-columns:9mm minmax(0,1fr) 9mm;gap:2mm;align-items:baseline;padding:1.4mm 0;border-bottom:1px solid ' + T.soft + ';font-size:.88em;line-height:1.25;break-inside:avoid">' +
+            '<b style="font-family:' + T.tit + ';color:' + T.acc + '">' + String(p.n).padStart(2, '0') + '</b><span>' + esc(S(C, p.u.t)) + '</span>' +
+            '<span style="text-align:right;font-variant-numeric:tabular-nums;opacity:.7">' + p.num + '</span></div>';
+        }).join('') + '</div>' + H.folio(C, pg) :
         '<div style="display:flex;flex-direction:column;gap:4mm;margin-top:6mm">' + caps.map(function (p) {
           return '<div style="display:grid;grid-template-columns:16mm minmax(0,1fr) 10mm;gap:4mm;align-items:baseline;padding-bottom:3mm;border-bottom:1px solid ' + T.soft + '">' +
             '<div style="font-family:' + T.tit + ';font-weight:' + T.peso + ';font-size:1.8em;color:' + T.acc + ';line-height:1">' + String(p.n).padStart(2, '0') + '</div>' +
             '<div><b style="font-family:' + T.tit + ';font-size:1.1em">' + esc(S(C, p.u.t)) + '</b><div style="font-size:.88em;opacity:.8;margin-top:1mm">' + esc(S(C, (p.u.i || [])[0] || '')) + '</div></div>' +
             '<div style="text-align:right;font-variant-numeric:tabular-nums;opacity:.7">' + p.num + '</div></div>';
-        }).join('') + '</div>' + H.folio(C, pg);
+        }).join('') + '</div>' + H.folio(C, pg));
     },
     pro_capitulo: function (pg, C) {
       var T = C.T, u = pg.u, im = C.cfg.imagenes || [];
@@ -236,7 +241,7 @@
       return H.cabecera(C, pg) + kicker(C, 'Diagrama') + H.h1(C, esc(d.n)) +
         '<div style="margin:4mm 0 6mm">' + H.figura(d.f, C) + '</div>' +
         H.h2(C, 'Cómo leerlo') + '<p style="max-width:150mm">' + esc(d.c) + '</p>' +
-        H.h2(C, 'Tu versión') + '<p style="font-size:.9em;opacity:.8;margin:0 0 3mm">Redibújalo con tus palabras o añade un ejemplo de tu entorno.</p>' + H.lineas(5, C) + H.folio(C, pg);
+        (C.cfg.materia === 'pelu' ? '' : H.h2(C, 'Tu versión') + '<p style="font-size:.9em;opacity:.8;margin:0 0 3mm">Redibújalo con tus palabras o añade un ejemplo de tu entorno.</p>' + H.lineas(5, C)) + H.folio(C, pg);   /* Peluquería: sin la consigna genérica */
     },
     pro_caso: function (pg, C) {
       var T = C.T, u = pg.u, r = H.rng(H.hash(u.id + 'caso') + C.semilla), nom = H.pick(r, C.P.nombres || ['Ana']), k = claves(u, C);
