@@ -89,7 +89,17 @@
         var bs = h('div', 'display:flex;gap:4px'), v = h('button', EST.b, '▶ Ver'), s = h('button', EST.b2, '💾 Guardar');
         v.onclick = function () { cerrar(); el._dg = { on: true, modo: 'angulos', t0: 0, libre: o }; if (el._dgCrear) el._dgCrear.sincro(); };
         s.onclick = function () { if (GC && GC.guardar(o)) { s.textContent = '✓ Guardado'; s.disabled = true; } };
-        bs.appendChild(v); bs.appendChild(s); row.appendChild(bs); g.appendChild(row);
+        /* 25-11-2026 (Fátima): eliminar un corte incorrecto del Laboratorio */
+        var d = h('button', EST.b2 + ';color:#fca5a5;border-color:#7f1d1d', '🗑 Eliminar');
+        d.onclick = function () {
+          var guardado = GC && GC.mios && GC.mios().some(function (x) { return x.n === o.n; });
+          if (!confirm('¿Eliminar «' + o.n + '» del Laboratorio?' + (guardado ? '\nTambién se quita de «mis cortes».' : ''))) return;
+          var i = R.cortes.indexOf(o); if (i >= 0) R.cortes.splice(i, 1);
+          if (R.formas[o.forma] > 1) R.formas[o.forma]--; else delete R.formas[o.forma];
+          if (guardado && GC.quitar) GC.quitar(o.n);
+          lista();
+        };
+        bs.appendChild(v); bs.appendChild(s); bs.appendChild(d); row.appendChild(bs); g.appendChild(row);
       });
       if (L.length > 120) g.appendChild(h('div', 'color:#a5a5c8', '… y ' + (L.length - 120) + ' más. Filtra por forma o cambia los rangos.'));
       res.appendChild(g);
