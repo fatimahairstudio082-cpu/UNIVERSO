@@ -508,7 +508,8 @@
           var sg = d === 0 ? 1 : d > 0 ? 1 : -1, kF = Math.abs(i - (m - 1)), yT = Math.min(a.y - 0.1, yN + ((dfF[kF] && dfF[kF].t) || 0));
           /* 31-10-2026 (Fátima: «líneas disparejas y enrolladas»): con capas, cada línea baja recta desde su raíz como antes (sin arcos
              hacia fuera); solo cambia hasta dónde llega, que sale de su elevación */
-          tip = dfF.length ? V3(a.x * 1.22, yT, Math.max(a.z, 0.2) + 0.55) : V3(sg * Math.max(Math.abs(a.x) * 1.22, 1.22), yT, Math.max(a.z, 0.2) + 0.3);
+          tip = dfF.length ? V3(a.x * 1.04, Math.min(yT, a.y - 0.3), Math.max(a.z, 0.2) + 0.12) :   /* 25-11-2026 (Fátima: «la línea se levanta de lado; debe ir vertical, pegada al rostro»): recta hacia abajo desde su raíz */
+             V3(sg * Math.max(Math.abs(a.x) * 1.22, 1.22), yT, Math.max(a.z, 0.2) + 0.3);
           /* 8-11-2026 (Fátima: «rectas, como cabello bien prensado con el peine»): con capas, cada línea va recta desde su raíz
              hasta donde se corta, sin curva */
           if (dfF.length) dRe = 1;
