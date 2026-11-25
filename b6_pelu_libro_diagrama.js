@@ -96,9 +96,25 @@
     'var q=ev.target.closest("[data-dg-op]");if(q){var box=q.closest("[data-dg-q]"),c=+box.dataset.c,acc=box.closest("[data-dg-pg]").dataset.acc;box.querySelectorAll("[data-dg-op]").forEach(function(x){x.disabled=true;if(+x.dataset.dgOp===c){x.style.background=acc;x.style.color="#fff"}});if(+q.dataset.dgOp!==c)q.style.background="#F3D3D3"}' +
     '})})();<\/script>';
 
-  function pagina(pg, C, modo) {
+  /* 25-11-2026 (Fátima: «arregla las hojas que se salen, sin quitar contenido»): si con los textos largos (pies de figura y
+     «Compruébalo») la hoja no cabe, las dos figuras de arriba se hacen un poco más pequeñas (pg.sh, de 10 en 10 %, hasta un 40 %)
+     hasta que todo entra; se mide una vez al pintar, en una hoja oculta del mismo ancho del papel */
+  var HOSTD = null;
+  function cabeDg(pg, C, ctx) {
+    if (typeof document === 'undefined' || !document.body) return true;
+    var MMp = 96 / 25.4;
+    if (!HOSTD) { HOSTD = document.createElement('div'); HOSTD.style.cssText = 'position:fixed;left:-30000px;top:0;visibility:hidden;pointer-events:none'; document.body.appendChild(HOSTD); }
+    HOSTD.style.width = (C.papel.w * MMp) + 'px';
+    HOSTD.innerHTML = ED.paginaHTML(pg, C, 'print', ctx); var el = HOSTD.firstChild; if (!el || !el.getBoundingClientRect) return true;
+    var r = el.getBoundingClientRect(), fondo = 0;
+    (function mete(nn) { [].forEach.call(nn.children, function (c) { var cs = getComputedStyle(c); if (cs.display === 'contents') return mete(c); if (cs.position === 'absolute' || cs.position === 'fixed') return; var b = c.getBoundingClientRect(); if (b.height) fondo = Math.max(fondo, b.bottom - r.top); }); })(el);
+    HOSTD.innerHTML = '';
+    return !r.height || fondo <= r.height - 14 * MMp;
+  }
+  function pagina(pg, C, modo, ctx) {
     var H = ED.H, T = C.T, dg = pg.dg || {}, d = datos(dg), web = modo === 'web', rad = Math.min(T.r || 4, 6);
     if (!d) return H.cabecera(C, pg) + H.h1(C, es(pg.titulo || 'Técnica del corte')) + '<p style="font-size:.85em">La diagramación se prepara con el maniquí de Guías 3D: vuelve a abrir esta página en un momento.</p>' + H.folio(C, pg);
+    if (pg.sh == null && pg.tipo === 'pe_diagrama') { pg.sh = 0; try { while (pg.sh < 0.4 && !cabeDg(pg, C, ctx)) pg.sh = Math.round((pg.sh + 0.1) * 10) / 10; } catch (e) { } }
     /* una vista igual a otra ya impresa en el libro se cambia por otra escena del mismo corte (pg.alt, lo fija el escáner) */
     if (pg.alt) { d = Object.assign({}, d, { vis: d.vis.slice(), fotos: d.fotos.slice() }); Object.keys(pg.alt).forEach(function (i) { var e = escena(d, pg.alt[i]); if (e) { d.vis[i] = e; d.fotos[i] = fotoEscena(dg, pg.alt[i]); } }); }
     var R = d.R, tipo = dg.k === 'corte' ? 'Técnica del corte · paso a paso' : dg.k === 'mio' ? 'Mi corte · paso a paso' : dg.k === 'var' ? 'Técnica del corte · otra elevación' : 'Técnica del corte · paso a paso';
@@ -107,7 +123,7 @@
       : '<div style="font-size:.76em;opacity:.8;margin:0 0 2.5mm">Animación con voz de esta diagramación en el libro interactivo y en el curso premium.</div>';
     var fig = function (e, i, gr) {
       return '<figure data-dg-fig="' + i + '" style="margin:0;background:' + T.soft + ';border-radius:' + rad + 'px;padding:1.5mm' + (gr ? '' : ';font-size:.92em') + '">' +
-        '<img src="' + d.fotos[i] + '" alt="' + es(e.t) + '" style="width:100%;height:auto;' + (e.anim && e.anim.crop ? 'aspect-ratio:' + e.anim.crop[2] + '/' + e.anim.crop[3] + ';' : '') + 'display:block;border-radius:' + rad + 'px">' +
+        '<img src="' + d.fotos[i] + '" alt="' + es(e.t) + '" style="width:' + (gr && pg.sh ? Math.round(100 * (1 - pg.sh)) + '%;margin:0 auto' : '100%') + ';height:auto;' + (e.anim && e.anim.crop ? 'aspect-ratio:' + e.anim.crop[2] + '/' + e.anim.crop[3] + ';' : '') + 'display:block;border-radius:' + rad + 'px">' +
         '<figcaption style="font-size:.66em;line-height:1.3;margin-top:1.2mm"><b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (i + 1) + ' · ' + es(e.t) + '</b>' + es(leyenda(e, d, dg)) + '</figcaption></figure>';
     };
     var arriba = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm">' + d.vis.slice(0, 2).map(function (e, i) { return fig(e, i, 1); }).join('') + '</div>';
