@@ -517,7 +517,14 @@
         if (fleco || !dfF.length) c = V3((a.x + tip.x) / 2 * 1.1, (a.y + tip.y) / 2 + 0.25, a.z + 0.5);
         else c = V3(a.x * 1.1, (a.y + tip.y) / 2 + Math.min(0.25, Math.max(0, a.y - tip.y) * 0.2), a.z + 0.55);   /* corto: sin rizo */
       }
-      if (dRe) tr.push(linea(plano([pr(v, a), pr(v, tip)]), [0.32 + i * 0.03, 0.55 + i * 0.03], ROJO, 2.6, { fl: 1 }));   /* recta */
+      /* 25-11-2026 (Fátima: «que caigan las líneas completas, hasta debajo del cuello; cabello cortado, cabello que se queda»): con capas,
+         cada línea cae primero con todo su largo, hasta donde termina el cuello; cuando la tijera llega, se corta a su elevación y queda
+         a ese largo */
+      if (dRe) {
+        var tcF = 0.72 + 0.25 * i / Math.max(1, n - 1), largo = V3(tip.x, Math.min(tip.y, FIN_CUELLO), tip.z);
+        tr.push(linea(plano([pr(v, a), pr(v, largo)]), [0.32 + i * 0.03, 0.55 + i * 0.03], ROJO, 2.6, { x: tcF }));
+        tr.push(linea(plano([pr(v, a), pr(v, tip)]), [tcF, tcF + 0.002], ROJO, 2.6, { fl: 1 }));
+      }
       else tr.push(linea(bezier(v, a, c, tip, 22), [0.32 + i * 0.03, 0.55 + i * 0.03], fleco ? CORTE : ROJO, 2.6, { fl: 1 }));
       (fleco ? tipsF : tips).push(pr(v, tip));
     }
