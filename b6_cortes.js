@@ -1224,10 +1224,20 @@
   }
 
   var OCULTOS = { nino_escolar: 1, nino_flequillo: 1, afro_capas: 1 };
+  /* 25-11-2026 (Fátima: «en el laboratorio y en el escáner, un botón para eliminar un corte incorrecto»): los cortes que ella
+     elimina desde el Escáner de cortes se guardan en localStorage `eu_cortes_eliminados` (clave nueva) y dejan de salir en
+     la Biblioteca de Guías 3D, el libro y el curso. No se borra nada del catálogo: «↩ Restaurar» lo devuelve. */
+  var ELIM_K = 'eu_cortes_eliminados', ELIM = null;
+  function elim() { if (!ELIM) { ELIM = {}; try { (JSON.parse(localStorage.getItem(ELIM_K) || '[]') || []).forEach(function (id) { ELIM[id] = 1; }); } catch (e) { } } return ELIM; }
+  function elimGuarda() { try { localStorage.setItem(ELIM_K, JSON.stringify(Object.keys(elim()))); } catch (e) { } }
   var API = {
     /* 19-10-2026 (Fátima: «en el sistema no van cortes de caballero, es muy distinto»): las familias de caballero (cab_*) quedan
        ocultas en todo el sistema (Guías 3D, Escáner, biblioteca, libro y curso). Siguen en el código: window.EU_PELU_CABALLERO = true. */
-    familias: function () { return FAMILIAS.filter(function (f) { return window.EU_PELU_CABALLERO || !/^cab_/.test(f.id); }); },
+    familias: function () { return FAMILIAS.filter(function (f) { return (window.EU_PELU_CABALLERO || !/^cab_/.test(f.id)) && (!Object.keys(elim()).length || API.lista(f.id).length); }); },
+    /* eliminar / restaurar un corte (Escáner de cortes) y la lista de eliminados */
+    eliminar: function (id) { if (!PORID[id]) return false; elim()[id] = 1; elimGuarda(); return true; },
+    restaurar: function (id) { delete elim()[id]; elimGuarda(); return true; },
+    eliminados: function () { return Object.keys(elim()).filter(function (id) { return PORID[id]; }).map(function (id) { var c = PORID[id]; return { id: id, n: c.n, fam: c.fam }; }); },
 
     /* Datos técnicos del corte para las fichas dibujadas (b6_pelu_fichas.js). */
     tecnica: function (id) {
@@ -1241,7 +1251,8 @@
 
     lista: function (fam) {
       /* (19-10-2026, Fátima, auditoría) en niños solo cortes a 0°: «Niño escolar» (máquina, 90°) y «Niño con flequillo» (90°) se ocultan */
-      return C.filter(function (c) { return (!fam || c.fam === fam) && (window.EU_PELU_CABALLERO || (!/^cab_/.test(c.fam) && !OCULTOS[c.id])); })
+      var E = elim();
+      return C.filter(function (c) { return (!fam || c.fam === fam) && !E[c.id] && (window.EU_PELU_CABALLERO || (!/^cab_/.test(c.fam) && !OCULTOS[c.id])); })
         .map(function (c) {
           return { id: c.id, n: c.n, fam: c.fam, d: c.d, mejor: c.mejor.slice() };
         });

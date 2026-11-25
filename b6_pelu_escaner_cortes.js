@@ -117,9 +117,26 @@
         var bs = h('div', 'display:flex;gap:4px'), v = h('button', EST.b, '▶ Ver'), o = h('button', EST.b2, '✏️ Otra numeración');
         v.onclick = function () { ver(it); };
         o.onclick = function () { construir({ n: it.n + ' · otra versión', capas: (it.atras || []).slice(), frente: (it.delante || []).slice(), part: (it.o && it.o.part) || 'vertical', altura: (it.o && it.o.altura) || 'nariz', linea: (it.o && it.o.linea) || '', acabado: (it.o && it.o.acabado) || 'recto', texto: 'Numeración de «' + it.n + '» como punto de partida: cambia las cifras y guárdala como otra versión.' }); };
-        bs.appendChild(v); bs.appendChild(o); f.appendChild(bs); return f;
+        bs.appendChild(v); bs.appendChild(o);
+        /* 25-11-2026 (Fátima): eliminar un corte incorrecto (del catálogo se puede restaurar; de «mis cortes» se borra) */
+        if (it.k === 'catalogo' || it.k === 'mio') {
+          var del = h('button', EST.b2 + ';color:#fca5a5;border-color:#7f1d1d', '🗑 Eliminar');
+          del.onclick = function () {
+            var CO = window.EU_CORTES, GC = window.EU_GEOMETRIA_CAPILAR;
+            if (it.k === 'catalogo') { if (!confirm('¿Eliminar «' + it.n + '»?\nDeja de salir en Guías 3D, el libro y el curso. Se puede restaurar abajo, en «Eliminados».')) return; if (CO && CO.eliminar) CO.eliminar(it.id); }
+            else { if (!confirm('¿Eliminar «' + it.n + '» de mis cortes?\nNo se puede deshacer.')) return; if (GC && GC.quitar) GC.quitar(it.n); }
+            pintar();
+          };
+          bs.appendChild(del);
+        }
+        f.appendChild(bs); return f;
       };
       bloque('HAY · en el sistema (' + R.hay.length + ')', R.hay.map(filaHay));
+      var COe = window.EU_CORTES, EL = (COe && COe.eliminados) ? COe.eliminados() : [];
+      bloque('Eliminados (' + EL.length + ') · no salen en Guías 3D, el libro ni el curso', EL.map(function (c) {
+        var f = h('div', 'display:flex;gap:8px;align-items:center;background:#1e1e3c;border-radius:8px;padding:6px 10px;opacity:.85'); f.appendChild(h('span', 'flex:1', c.n));
+        var b = h('button', EST.b2, '↩ Restaurar'); b.onclick = function () { COe.restaurar(c.id); pintar(); }; f.appendChild(b); return f;
+      }));
     }
     pintar();
   }
