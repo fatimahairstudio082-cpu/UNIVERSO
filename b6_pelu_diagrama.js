@@ -549,6 +549,15 @@
     tips.sort(function (p, q) { return p[0] - q[0]; });
     tr.push(tijera(plano(tips), [0.6, 0.95], CORTE, false));
     tr.push(rotulo('Atrás y delante, nada más en la punta', TINTA, 0.08), rotulo('Pulir puntas para nivelar el cabello', CORTE, 0.6));
+    /* 25-11-2026 (Fátima: «a pulir puntas agrégale más cabello; donde ya se cortó no se vuelve a cortar»): debajo, el corte ya terminado
+       de lado (las capitas de «Cómo queda»), quieto desde el principio; encima solo se pulen las puntas */
+    try {
+      if (!R.liso && !cortoDe(R) && difCapas(R.capas.pila, R)) {
+        var Q = escQuedaLineas(R, 'lateral');
+        var fin = (Q.base || []).concat((Q.tr || []).filter(function (T) { return T.t && T.t[0] >= 0.93 && (T.k === 'z' || T.k === 'l'); }));
+        tr = fin.map(function (T) { var o = Object.assign({}, T, { t: [0, 0.001] }); delete o.x; return o; }).concat(tr);
+      }
+    } catch (e) { }
     return { v: v, tr: tr };
   }
 
@@ -1883,6 +1892,17 @@
       ['nuca', 'atrás', 'Y atrás: la nuca baja recta sobre el cuello y termina en forma cuadrada, con las puntas emparejadas en las orillas.']].forEach(function (q) {
       L.push({ tipo: 'queda_corto_' + q[0], vista: q[0], t: 'Cómo queda el corto · ' + q[1], texto: q[2], a: escQuedaCorto(R, q[0], cortoDe(R)) });
     });
+    /* 25-11-2026 (Fátima: «las escenas de las capitas en vertical se entienden: ahí se ve la elevación, cómo se sujeta y se corta cada
+       mechón y cómo cae»): en los cortes con elevación en secciones verticales (no a 0°, no liso extremo, no cortos), en el sitio de
+       «Línea por línea · de lado» va el corte en capitas de lado y en el de «Línea por línea · de frente», el de frente (las mismas
+       escenas de «Cómo queda», que siguen también al final con la de atrás) */
+    if (!R.liso && !cero && !cortoDe(R)) {
+      var QQ = {}; L.forEach(function (e) { if (/^queda_(lateral|frente)$/.test(e.tipo)) QQ[e.tipo] = e; });
+      L = L.map(function (e) {
+        var q = e.tipo === 'peinado_lateral' ? QQ.queda_lateral : e.tipo === 'peinado_frente' ? QQ.queda_frente : null;
+        return q ? { tipo: 'capitas_' + q.vista, vista: q.vista, t: (q.vista === 'lateral' ? 'De lado' : 'De frente') + ' · capas en vertical, mechón a mechón', texto: (q.vista === 'lateral' ? 'De lado, delante de la línea de oreja a oreja' : 'De frente') + ', por secciones verticales, mechón a mechón: cada mechón se lleva a su elevación, se corta y cae. Lo que ya está cortado no se vuelve a tocar.', a: q.a } : e;
+      });
+    }
     return { R: R, escenas: L, preguntas: qs, calculo: calc };
   }
 
