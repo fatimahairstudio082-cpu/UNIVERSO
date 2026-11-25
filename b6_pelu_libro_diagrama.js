@@ -142,6 +142,7 @@
     res.pages.forEach(function (p, i) {
       if (!p.u || p.u.id !== uid) return;
       if (p.tipo === 'lec_amplia' && !p.ds) return c.push([-1, i]);
+      if (p.relleno && /^pro_(notas|diagrama)$/.test(p.tipo)) return c.push([p.tipo === 'pro_notas' ? -1 : 1, i]);   /* libro profesional: «Notas» en blanco y diagramas repetidos de relleno */
       var m = p.tipo === 'vis' && /^pe_g3d_(.+)_\d+$/.exec(p.gen || '');
       if (m && g3d[m[1]]) return c.push([0, i]);
       if (p.relleno && (p.tipo === 'actividad' || p.tipo === 'ficha')) return c.push([1, i]);

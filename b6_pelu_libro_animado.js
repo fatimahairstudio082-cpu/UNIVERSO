@@ -94,6 +94,7 @@
     res.pages.forEach(function (p, i) {
       if (!p.u || p.u.id !== uid) return;
       if (p.tipo === 'lec_amplia' && !p.ds) return c.push([-1, i]);
+      if (p.relleno && /^pro_(notas|diagrama)$/.test(p.tipo)) return c.push([p.tipo === 'pro_notas' ? -1 : 1, i]);   /* libro profesional: «Notas» en blanco y diagramas repetidos de relleno */
       if (p.relleno && (p.tipo === 'actividad' || p.tipo === 'ficha')) return c.push([1, i]);
       if (p.relleno && p.tipo === 'vis') return c.push([2, i]);
       if (/^lec_(amplia|concepto|lectura|caso|proyecto)$/.test(p.tipo) && ++lec > 1) c.push([3, i]);
