@@ -925,7 +925,7 @@
        y que caiga; no dos tipos de cabello»): el resultado limpio en capitas va también de lado y de frente; el cabello que aún no se ha
        cortado está recogido hacia la coronilla con una pinza y cada mechón se suelta cuando le toca; el mechón que se lleva a su
        elevación es cabello (castaño, con el borde del color de su capa), el mismo que después cae y se queda. */
-    var limpia = !R.liso, T_LIMPIO = 0.93, capaPts = {}, capaPtsB = {}, tSuelta = 0;
+    var limpia = !R.liso, T_LIMPIO = 0.93, capaPts = {}, capaPtsB = {}, tSuelta = 0, BASE = [];
     function hebra(f, t, ex) { tr.push(mechon(f, t, c0, 2.8, ex), mechon(f, t, PELO, 1.9, ex)); }
     var c0 = TINTA;
     function recogido(ph, thR, z, hasta) {   /* cabello peinado hacia arriba, recogido en la coronilla hasta que se suelta su mechón */
@@ -983,7 +983,7 @@
           if (ult.y > yf) pts.push(pr(v, cae));
           tr.push(linea(plano(pts), tCae, PELO, 1.3));
           cortes.push(pts[pts.length - 1]);
-          if (limpia) { (capaPts[z] = capaPts[z] || []).push({ q: pts.slice(), l: frente ? lado : 0 }); recogido(ph, th, z, s0); tSuelta = Math.max(tSuelta, s0); }
+          if (limpia) { (capaPts[z] = capaPts[z] || []).push({ q: pts.slice(), l: frente ? lado : 0, ph: ph, th: th, r: 1.05 + 0.004 * z }); recogido(ph, th, z, s0); tSuelta = Math.max(tSuelta, s0); }
           /* el mechón, largo, se agarra y sube a su elevación; la tijera lo corta al largo de la capa y después cae
              (liso extremo: fila horizontal; las demás, la columna vertical de arriba) */
           if (!vert) subeMechon(ph, th, a, yf);
@@ -1017,7 +1017,7 @@
           for (var tB = thB + 0.07; tB <= 1.36; tB += 0.07) { if (!seVe(v, phB, tB)) break; var qB = P(phB, tB, 1.05 + 0.004 * zB); if (qB.y < yfB) break; ptsB.push(pr(v, qB)); uB = qB; }
           if (uB.y > yfB) ptsB.push(pr(v, V3(uB.x * 1.03, yfB, uB.z * 1.03)));
           tr.unshift(linea(plano(ptsB), [0, 0.001], PELO, 1.3)); cortB.push(ptsB[ptsB.length - 1]);
-          if (limpia) (capaPtsB[zB] = capaPtsB[zB] || []).push({ q: ptsB.slice(), l: 0 });
+          if (limpia) (capaPtsB[zB] = capaPtsB[zB] || []).push({ q: ptsB.slice(), l: 0, ph: phB, th: thB, r: 1.05 + 0.004 * zB });
         }
         tramosDe(cortB, 50).forEach(function (q) { tr.push(linea(plano(q), [0, 0.001], COL[zB % 7], 3, limpia ? { x: T_LIMPIO } : undefined)); });
       }
@@ -1057,13 +1057,23 @@
       /* de lado, la raya de oreja a oreja queda cubierta de cabello (sin hueco entre atrás y el lateral) */
       if (lat) [DER + 0.12, IZQ - 0.12].forEach(function (phD) {
         tr = tr.concat(lineas(tramos(v, function (u) { return [phD, u * 1.62]; }, 30), [T_LIMPIO, T_LIMPIO + 0.02], '#5E3D24', 9));
-        if (seVe(v, phD, 1.62)) { var aG = P(phD, 1.62, 1.07); tr.push(linea(plano([pr(v, aG), pr(v, V3(aG.x * 1.03, yRecta(phD, y0(phD) + ((difB[0] && difB[0].t) || 0)) + 0.02, aG.z * 1.03))]), [T_LIMPIO, T_LIMPIO + 0.02], '#5E3D24', 12)); }
+        BASE = BASE.concat(lineas(tramos(v, function (u) { return [phD, u * 1.62]; }, 30), [0, 0.001], '#4E3220', 9));   /* 25-11-2026: sin hueco desde el principio */
+        if (seVe(v, phD, 1.62)) { var aG = P(phD, 1.62, 1.07); tr.push(linea(plano([pr(v, aG), pr(v, V3(aG.x * 1.03, yRecta(phD, y0(phD) + ((difB[0] && difB[0].t) || 0)) + 0.02, aG.z * 1.03))]), [T_LIMPIO, T_LIMPIO + 0.02], '#5E3D24', 12)); BASE.push(Object.assign({}, tr[tr.length - 1], { t: [0, 0.001], c: '#4E3220' })); }
       });
       [[capaPtsB, 0], [capaPts, 1]].forEach(function (par) {
         var CP2 = par[0];
+        /* 25-11-2026 (Fátima: «las capas se ven, pero la cabeza queda pelona»): el cabello de cada capa nace en toda su franja, desde su
+           raíz hasta la raíz de la capa de encima (la de más arriba, desde la coronilla); antes solo nacía en su fila y, con elevaciones
+           altas (capas cortas), entre una fila y otra y en la coronilla se veía el cráneo */
+        var ths = []; Object.keys(CP2).forEach(function (z) { CP2[z].forEach(function (o) { if (ths.indexOf(o.th) < 0) ths.push(o.th); }); });
+        function arriba(o) {
+          var up = 0.04; ths.forEach(function (t) { if (t < o.th - 1e-6 && t > up) up = t; });
+          var ex = []; for (var tu = up; tu < o.th - 0.01; tu += 0.07) { if (seVe(v, o.ph, tu)) ex.push(pr(v, P(o.ph, tu, o.r))); }
+          return ex.concat(o.q);
+        }
         Object.keys(CP2).map(Number).sort(function (p, q) { return p - q; }).forEach(function (z) {
           var t0 = T_LIMPIO + Math.min(0.035, 0.004 * kk++), porLado = {};
-          CP2[z].forEach(function (o) { if (o.q.length > 1) (porLado[o.l] = porLado[o.l] || []).push(o.q); });
+          CP2[z].forEach(function (o) { var q = o.ph != null && !frente ? arriba(o) : o.q; if (q.length > 1) (porLado[o.l] = porLado[o.l] || []).push(q); });
           Object.keys(porLado).forEach(function (lk) {
             var L0 = porLado[lk].sort(function (p, q) { return p[0][0] - q[0][0]; }), grupos2 = [], gA = [];
             L0.forEach(function (q) { if (gA.length && q[0][0] - gA[gA.length - 1][0][0] > 60) { grupos2.push(gA); gA = []; } gA.push(q); }); if (gA.length) grupos2.push(gA);
@@ -1075,6 +1085,7 @@
               L.slice().reverse().forEach(function (q) { poly.push(q[q.length - 1]); });        /* las puntas: donde cae la capa */
               izq.slice().reverse().forEach(function (q) { poly.push(q); });                    /* sube por el borde izquierdo */
               tr.push({ k: 'z', p: plano(poly), t: [t0, t0 + 0.02], c: TONO[z % 7], a: 1 });
+              BASE.push({ k: 'z', p: plano(poly), t: [0, 0.001], c: '#4E3220', a: 1 });
               L.forEach(function (q, i) { tr.push(linea(plano(q), [t0 + 0.01, t0 + 0.03], ['#3A2214', '#9A7150', '#4A2C19', '#7E5A3C'][i % 4], i % 2 ? 0.7 : 1)); });   /* hebras finas encima */
               tramosDe(L.map(function (q) { return q[q.length - 1]; }), 50).forEach(function (q) {
                 tr.push(linea(plano(q.map(function (o) { return [o[0], o[1] + 4]; })), [t0 + 0.02, t0 + 0.04], '#2A170C', 5.5));   /* sombra bajo la capa */
@@ -1089,7 +1100,11 @@
     var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'de lado' : 'de frente') + ' · forma ' + NOM[lin], TINTA, 0),
       rotulo((lat ? 'Capas del lateral: ' : 'Capas: ') + pila.slice(0, n).map(function (g, k) { return (k + 1) + ' · ' + g + '°'; }).join('   '), TINTA, 0.93));
-    return { v: v, tr: tr, banda: true, dur: Math.max(24000, totM * MS) };
+    /* 25-11-2026 (Fátima: «atrás y de lado deja vacío el cráneo, como si no hubiera pelo»): debajo de todo, desde el principio, el
+       cabello cubre la cabeza con la misma forma que tendrán las capitas al final (BASE); encima siguen el recogido, los mechones que
+       se cortan y las capitas, sin cambios */
+    if (!frente) tr = BASE.concat(tr);   /* de frente no cambia (Fátima: «el frente ya quedaba perfecto») */
+    return { v: v, tr: tr, banda: true, dur: Math.max(24000, totM * MS), base: BASE };
   }
   /* 24-11-2026 (Fátima: «en la pollina y en el flequillo también así»; «que se pueda de diferentes técnicas, no nada más a cero: al
      ritmo de la elevación, sin inventar; si no tiene elevación se corta tal cual como dice el motor; basado en el largo y en la
@@ -1398,7 +1413,9 @@
       var n0 = N(ph0, th0); n0.y = 0; if (n0.lengthSq() > 1e-6) f.add(n0.normalize().multiplyScalar(0.25)).normalize();
       var an = gg * Math.PI / 180; return V3(0, -1, 0).multiplyScalar(Math.cos(an)).add(f.multiplyScalar(Math.sin(an))).normalize();
     }
-    if (vertP) return peinadoVertical();
+    /* 25-11-2026 (Fátima: «cuando uno crea un corte, la cabeza del maniquí va quedando pelona; el cabello no puede desaparecer»):
+       debajo de «Línea por línea» en vertical, el cabello cubre la cabeza con la forma del corte terminado (la misma base de «Cómo queda») */
+    if (vertP) { var A0 = peinadoVertical(); if (frente) return A0; try { var bq = escQuedaLineas(R, v).base; if (bq && bq.length) A0.tr = bq.concat(A0.tr); } catch (e) { } return A0; }
     /* 30-10-2026 (Fátima: «si el corte es vertical, representa solo el vertical; no mezcles el mixto con el liso extremo»; «de lado, el
        cabello se resalta solo en la zona que vas a cortar, delante de la línea azul; lo de atrás ya cortado no se toca»): en cabello
        mixto u ondulado el corte va SECCIÓN VERTICAL POR SECCIÓN VERTICAL. Cada sección, de abajo arriba, sujeta cada mechón a la elevación
@@ -1827,7 +1844,10 @@
       'Línea por línea, de abajo arriba: ' + pila.slice(0, 7).map(function (g, k) { return 'línea ' + (k + 1) + ' a ' + g + ' grados'; }).join(', ') + '. Cada mechón se lleva a su elevación, se corta en la punta y después cae a su largo.';
     /* 26-10-2026 (Fátima: «estás creando muchas animaciones»): en los cortes a 0° no hay elevación que ver de lado y el frente ya
        tiene su escena («El frente»): «Línea por línea» solo atrás. Con elevación, las tres vistas como antes. */
-    [['nuca', 'atrás', txP], ['lateral', 'de lado', 'De lado se ve mejor la elevación: ' + txP], ['frente', 'de frente', 'De frente, el cabello se peina en líneas finas y se corta ' + (recto0 || R.forma === 'recto' ? 'recto, ' : 'siguiendo la línea, ') + (R.nivelar ? 'emparejado con la línea de atrás.' : 'con la guía ' + A.n + '.')]].filter(function (q) { return !cero || q[0] === 'nuca'; }).forEach(function (q, j) {
+    /* 25-11-2026 (Fátima: «esta escena no se entiende, confunde; dejamos la de las capitas»): sin «Línea por línea · atrás» cuando se
+       corta en secciones verticales (la de atrás se ve en «Cómo queda», mechón a mechón); en liso extremo y en el recto a 0° se queda */
+    var vertN = !R.liso && !(!!R.cero && lineaDe(R) === 'recta');
+    [['nuca', 'atrás', txP], ['lateral', 'de lado', 'De lado se ve mejor la elevación: ' + txP], ['frente', 'de frente', 'De frente, el cabello se peina en líneas finas y se corta ' + (recto0 || R.forma === 'recto' ? 'recto, ' : 'siguiendo la línea, ') + (R.nivelar ? 'emparejado con la línea de atrás.' : 'con la guía ' + A.n + '.')]].filter(function (q) { return (!cero || q[0] === 'nuca') && !(q[0] === 'nuca' && vertN); }).forEach(function (q, j) {
       /* 30-10-2026 (Fátima: «no perderse entre lo de atrás y lo de adelante»): cada zona se cierra entera antes de pasar a la otra:
          atrás antes del lateral, de lado después del lateral, de frente después del frente (antes las tres iban antes del lateral) */
       var tps = L.map(function (e) { return e.tipo; }), at = q[0] === 'nuca' ? tps.indexOf('lateral') : tps.indexOf(q[0]) + 1;
