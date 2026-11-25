@@ -181,6 +181,8 @@
       var oE = st.on && (recetaDe(el) || {}).E;
       chips.forEach(function (b) { if (oE && /\*$/.test(b._m) && !oE.escenas.some(function (z) { return z.tipo.indexOf(b._m.slice(0, -1)) === 0; })) b.style.display = 'none'; });
       chips.forEach(function (b) { if (oE && b._m === 'tres' && !oE.escenas.some(function (z) { return z.tipo.indexOf('queda_') === 0; })) b.style.display = 'none'; });
+      /* 25-11-2026: un botón de escena que el corte no tiene (p. ej. «Frente · guía» o «Pulir puntas» en los cortes en vertical con elevación) no sale */
+      chips.forEach(function (b) { if (oE && !/\*$/.test(b._m) && !/^(todo|dos|tres|recorrido)$/.test(b._m) && !oE.escenas.some(function (z) { return z.tipo === b._m; })) b.style.display = 'none'; });
     }
     on.onclick = function () { el._dg = el._dg || { modo: 'todo' }; el._dg.on = !el._dg.on; el._dg.t0 = 0; sincro(); };
     fila.appendChild(on);
