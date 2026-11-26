@@ -230,6 +230,11 @@
     diag_delante: { n: 'diagonal hacia delante', lat: 1, s: 1 },
     diag_atras: { n: 'diagonal hacia atrás', lat: 1, s: -1 }
   };
+  /* 26-11-2026 (Fátima: «no todo el mundo quiere la misma forma: semi-U, semi-V, semirredondo; lo que cambia es la variable»):
+     cada «semi» es la misma forma a la mitad de su profundidad */
+  [['semi_u', 'u', 'en semi-U'], ['semi_v', 'v', 'en semi-V'], ['semirredondo', 'redondeada', 'semirredonda']].forEach(function (s) {
+    var B = FORMAS_ATRAS[s[1]]; FORMAS_ATRAS[s[0]] = { n: s[2], y: function (d) { return 0.5 * B.y(d); }, th: function (d) { return 0.5 * B.th(d); } };
+  });
   function formaTh(linea, d) { var F = FORMAS_ATRAS[linea]; return F && F.th ? F.th(Math.abs(d)) : 0; }
   /* Guía de perfil para las diagonales: secciones diagonales, el cabello cae natural (0°) y las puntas siguen la diagonal */
   function escGuiaDiag(R) {
@@ -486,8 +491,11 @@
     if (niv) {
       tr.push(linea(plano([pr(v, V3(-1.5, yN, 1.0)), pr(v, V3(1.5, yN, 1.0))]), [0.18, 0.26], VERDE, 2.5, { d: 1 }));
       tr.push(rotulo(R.cero ? 'Línea de atrás: delante se empareja con ella' : 'Línea de atrás: la base; cada línea a su elevación', VERDE, 0.18), rotulo('Espiga diagonal arriba', TINTA, 0.04));
-      if (R.fleco === 'pollina') tr.push(rotulo('Pollina al ras de la ceja', CORTE, 0.5));
-      if (R.fleco === 'lado') tr.push(rotulo('Flequillo de lado: más abajo de los ojos, en triángulo', CORTE, 0.5));
+      /* 26-11-2026: con largo o forma elegidos (o cortina), el flequillo va a su largo y con su forma (flecoFin, el mismo de «Cómo queda») */
+      var flE = !!(R.flecoAltura || R.flecoLinea || R.flecoForma);
+      if (flE && (R.fleco || R.flecoForma)) tr.push(rotulo('Flequillo: ' + nomFleco(R), CORTE, 0.5));
+      else if (R.fleco === 'pollina') tr.push(rotulo('Pollina al ras de la ceja', CORTE, 0.5));
+      else if (R.fleco === 'lado') tr.push(rotulo('Flequillo de lado: más abajo de los ojos, en triángulo', CORTE, 0.5));
     } else {
     /* la altura de la guía: línea de referencia sobre el rostro */
     tr.push(linea(plano([pr(v, V3(-1.15, A.y, 1.25)), pr(v, V3(1.15, A.y, 1.25))]), [0.18, 0.26], VERDE, 2.5, { d: 1 }));
@@ -500,8 +508,8 @@
       else tr = tr.concat(lineas(tramos(v, function (u) { return [ph, 0.86 + u * 0.42]; }, 12), [0.2 + i * 0.015, 0.3 + i * 0.015], ROJO, 2.6));
       var a = P(ph, 1.28), tip = V3(a.x * 1.22, A.y - caida * Math.pow(ad, 1.35), Math.max(a.z, 0.2) + 0.55), c = V3(a.x * 1.1, (a.y + tip.y) / 2 + 0.25, a.z + 0.55), fleco = false, dRe = null;
       if (niv) {
-        fleco = !!R.fleco && Math.abs(d) < 0.5;
-        if (fleco) tip = V3(a.x * 1.1, R.fleco === 'lado' ? ALTURAS.ojo.y - 0.06 + (ALTURAS.nariz.y - ALTURAS.ojo.y + 0.06) * (0.5 - d) : ALTURAS.cejas.y - 0.06, Math.max(a.z, 0.2) + 0.5);
+        fleco = !!(R.fleco || R.flecoForma) && Math.abs(d) < 0.5;
+        if (fleco) tip = V3(a.x * 1.1, flE ? flecoFin(R, ph) : R.fleco === 'lado' ? ALTURAS.ojo.y - 0.06 + (ALTURAS.nariz.y - ALTURAS.ojo.y + 0.06) * (0.5 - d) : ALTURAS.cejas.y - 0.06, Math.max(a.z, 0.2) + 0.5);
         else {
           /* 31-10-2026: el largo de cada línea sale de su elevación; si llega más abajo de la nariz rodea la cara (abierto un poco por
              línea para que no se pisen los números); si queda corto, cae delante de la frente desde su raíz */
@@ -757,6 +765,7 @@
       fleco: o.fleco === 'lado' || o.fleco === 'pollina' ? o.fleco : '',
       flecoForma: o.fleco === 'cortina' ? 'cortina' : '',
       flecoAltura: ALTURAS[o.flecoAltura] ? o.flecoAltura : '',
+      flecoLinea: FORMA_Y[o.flecoLinea] ? o.flecoLinea : '',
       flecoPila: (o.flecoCapas || []).map(function (g) { return Math.max(0, Math.min(225, +g || 0)); }),
       coronilla: o.coronilla ? { g: Math.max(0, Math.min(225, +o.coronillaG || Math.max.apply(null, capas))) } : null
     };
@@ -768,6 +777,7 @@
      La forma sale de la línea del corte: recta (cuadrado), redonda, en U, en V, en A o en diagonal. */
   var FORMA_Y = { recta: function () { return 0; }, redondeada: function (d) { return 0.5 * d * d; }, u: function (d) { return 1.05 * Math.pow(d, 1.6); }, v: function (d) { return 0.9 * d; },
     a: function (d) { return -0.5 * d; }, diag_delante: function (d) { return -0.6 * d; }, diag_atras: function (d) { return 0.6 * d; } };
+  FORMA_Y.semi_u = function (d) { return 0.5 * FORMA_Y.u(d); }; FORMA_Y.semi_v = function (d) { return 0.5 * FORMA_Y.v(d); }; FORMA_Y.semirredondo = function (d) { return 0.5 * FORMA_Y.redondeada(d); };   /* 26-11-2026: semi = la mitad de honda */
   function lineaDe(R) {
     if (FORMA_Y[R.linea]) return R.linea;
     var n = ' ' + String(R.n || '').toLowerCase() + ' ';
@@ -886,7 +896,16 @@
     function y0(ph) {
       var dd = Math.abs(Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA))) / Math.PI, y = YB + FY(dd);
       /* de frente: la guía se nivela con el largo de atrás (R.nivelar) o se saca a su altura, más larga hacia atrás */
-      if (frente && !R.nivelar) { var ad = Math.min(1, Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) / 1.2); y = Math.max(y, A.y - (R.forma === 'recto' ? 0 : 0.95 * Math.pow(ad, 1.35))); }
+      /* 26-11-2026 (Fátima): con la guía del frente a una altura, «Cómo queda» de frente y de lado (delante de la línea de oreja a oreja)
+         termina en esa altura y con su forma, igual que «El frente» y «Línea por línea» (antes se recortaba a la línea de atrás y de
+         frente el cabello quedaba más corto que la guía) */
+      if ((frente || (lat && delante(ph))) && !R.nivelar) {
+        var ad = Math.min(1, Math.abs(Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA))) / 1.2), yF = A.y - (R.forma === 'recto' ? 0 : 0.95 * Math.pow(ad, 1.35));
+        /* de lado (Fátima: «adelante queda más largo, pero emparejado hacia atrás: una forma como en triángulo»): de la línea de oreja a
+           oreja (largo de atrás) a la cara (largo de la guía), en diagonal, sin escalón */
+        if (lat) { var sF = Math.max(0, Math.min(1, (Math.abs(Math.atan2(Math.sin(ph - NUCA), Math.cos(ph - NUCA))) - Math.PI / 2) / (Math.PI / 2))); yF = y + (yF - y) * sF; }
+        y = yF;
+      }
       return y;
     }
     /* 26-10-2026 (Fátima: «ese corte es redondo, no cuadrado»): en línea recta, atrás y de lado, donde termina cada capa se ve una
@@ -1114,7 +1133,7 @@
       });
     }
     if (!R.liso) tr.push(rotulo('Secciones verticales: el mechón se lleva a su elevación y se corta', '#2C6FD1', 0.02));
-    var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
+    var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás', semi_u: 'en semi-U', semi_v: 'en semi-V', semirredondo: 'semirredonda' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'de lado' : 'de frente') + ' · forma ' + NOM[lin], TINTA, 0),
       rotulo((lat ? 'Capas del lateral: ' : 'Capas: ') + pila.slice(0, n).map(function (g, k) { return (k + 1) + ' · ' + g + '°'; }).join('   '), TINTA, 0.93));
     /* 25-11-2026 (Fátima: «atrás y de lado deja vacío el cráneo, como si no hubiera pelo»): debajo de todo, desde el principio, el
@@ -1132,6 +1151,68 @@
      que se escriba en «Crear mi corte»); sin dato, 0° (todas las filas terminan en la misma línea: un solo largo). Largo: la forma del
      flequillo (pollina a la ceja, de lado en diagonal bajo los ojos, cortina corta en el centro a la ceja y larga hacia el pómulo) y,
      con elevación, la diferencia de largos del mismo calculador del corte (`difCapas`). */
+  /* 26-11-2026 (Fátima: «la forma en U, en V, cuadrada… adelante es la forma donde llega el cabello de la pollina, con elevación o sin
+     elevación»; «en la parte del lado hay que visualizar también»): el largo y la forma del flequillo salen de un solo sitio, para que
+     «El frente», «Cómo queda · de frente» y «Cómo queda · de lado» lo dibujen igual. Forma de la pollina (`R.flecoLinea`): las mismas
+     curvas de la línea de atrás (FORMA_Y) a la anchura del flequillo; los lados se quedan en el largo elegido (la pollina nunca más
+     arriba de la ceja) y el centro baja: en V en punta, en U en curva, semi a la mitad; recta = cuadrada (como antes). */
+  var FL_W0 = 0.55, FL_K = FL_W0 / Math.PI;
+  function flLado(ph) { return Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)) >= 0 ? 1 : -1; }
+  function flecoFin(R, ph) {
+    var forma = R.flecoForma || R.fleco, yC = ALTURAS.cejas.y - 0.06, W0 = FL_W0, dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), y;
+    var HF = R.flecoAltura && ALTURAS[R.flecoAltura] ? ALTURAS[R.flecoAltura].y - 0.06 : null;
+    if (HF != null) {
+      var uu = Math.max(0, Math.min(1, (dC + 0.55) / 1.1)), corto = Math.min(HF + 0.25, yC);
+      y = forma === 'lado' ? corto + (HF - corto) * uu : forma === 'cortina' ? yC + (HF - yC) * Math.min(1, Math.abs(dC) / W0) : HF;
+    }
+    else if (forma === 'lado') { var u = Math.max(0, Math.min(1, (dC + 0.55) / 1.1)); y = ALTURAS.ojo.y - 0.06 + (ALTURAS.nariz.y - ALTURAS.ojo.y + 0.06) * u; }
+    else if (forma === 'cortina') y = yC + (ALTURAS.nariz.y - yC) * Math.min(1, Math.abs(dC) / W0);
+    else y = yC;
+    var FF = forma === 'pollina' && FORMA_Y[R.flecoLinea];
+    if (FF) y -= FL_K * (FF(1) - FF(Math.min(1, Math.abs(dC) / W0)));
+    return y;
+  }
+  function nomFleco(R) {
+    var forma = R.flecoForma || R.fleco, HF = R.flecoAltura && ALTURAS[R.flecoAltura];
+    var b = { pollina: 'pollina al ras de la ceja', lado: 'flequillo de lado, en triángulo, más abajo de los ojos', cortina: 'flequillo cortina, corto en el centro y largo hacia los lados' }[forma] || 'flequillo';
+    var s = HF ? b.split(',')[0].replace(/ al ras de la ceja| más abajo de los ojos/, '') + ', largo ' + HF.n : b;
+    var FL = forma === 'pollina' && FORMAS_ATRAS[R.flecoLinea]; if (FL) s += ', forma ' + (R.flecoLinea === 'recta' ? 'recta (cuadrada)' : FL.n);
+    return s;
+  }
+  /* el cabello del flequillo peinado hacia delante y hacia abajo por la frente hasta su largo (en cualquier vista) */
+  function flecoCamino(v, forma, ph, th, k, yE) {
+    var o = [], dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), q, W0 = FL_W0, lado = flLado;
+    var ult = null;
+    for (var t2 = th; t2 <= 1.6; t2 += 0.04) {
+      var ph2 = forma === 'cortina' ? CARA + lado(ph) * Math.min(W0 + 0.1, Math.abs(dC) + (t2 - th) * 0.35) : forma === 'lado' ? ph - (t2 - th) * 0.3 : ph;
+      q = P(ph2, t2, 1.05 + 0.006 * k); if (q.y < yE) break; if (seVe(v, ph2, t2)) { o.push(pr(v, q)); ult = q; }
+    }
+    /* un flequillo largo (por debajo de la frente) cae recto por delante del rostro hasta su largo */
+    /* de lado y cortina, al caer se va hacia su lado y termina junto al rostro (no lo tapa) */
+    if (ult && ult.y - yE > 0.04) {
+      var sd = forma === 'lado' ? -1 : forma === 'cortina' ? lado(ph) : 0, Q = sd ? P(CARA + sd * (W0 + 0.42), 1.3, 1.1) : null, tot = ult.y - yE;
+      for (var yy = ult.y - 0.08; ; yy -= 0.08) {
+        var yb = Math.max(yE, yy), fr = Math.min(1, (ult.y - yb) / Math.max(0.2, Math.min(tot, 0.9))), fs = fr * fr * (3 - 2 * fr);
+        var xb = Q ? ult.x * 1.04 + (Q.x - ult.x * 1.04) * fs : ult.x * 1.04, zb = Q ? ult.z * 1.04 + 0.03 + (Q.z - ult.z * 1.04 - 0.03) * fs : ult.z * 1.04 + 0.03;
+        o.push(pr(v, V3(xb, yb, zb))); if (yb <= yE) break;
+      }
+    }
+    return o;
+  }
+  /* «Cómo queda · de lado»: el flequillo ya cortado, a su largo y con su forma, como se ve de perfil (al final de la escena) */
+  function flecoLateral(R, v, t0) {
+    var forma = R.flecoForma || R.fleco, pila = (R.flecoPila && R.flecoPila.length ? R.flecoPila : [0, 0, 0]).slice(0, 5), n = pila.length, dif = difCapas(pila, R) || [], tr = [], TH_V = 0.55, TH_B = 1.0;
+    for (var k = 0; k < n; k++) {
+      var th = TH_B - (TH_B - TH_V) * k / n, w = FL_W0 * (th - TH_V) / (TH_B - TH_V) + 0.08;
+      for (var ph = CARA - w; ph <= CARA + w; ph += 0.015) {
+        if (!seVe(v, ph, th)) continue;
+        var q = flecoCamino(v, forma, ph, th, k, flecoFin(R, ph) + ((dif[k] && dif[k].t) || 0));
+        if (q.length > 1) tr.push(linea(plano(q), [t0, t0 + 0.02], ['#4A2E1C', '#6B4A33', '#5A3A26'][k % 3], 2.2));
+      }
+    }
+    if (tr.length) tr.push(rotulo('De lado: ' + nomFleco(R), CORTE, t0));
+    return tr;
+  }
   function conFleco(A, R) {
     var v = 'frente', F = 0.6, T0 = 0.62, T1 = 0.94, PELO = '#5A3A26';
     var forma = R.flecoForma || R.fleco, pila = (R.flecoPila && R.flecoPila.length ? R.flecoPila : [0, 0, 0]).slice(0, 5), n = pila.length, dif = difCapas(pila, R) || [];
@@ -1141,40 +1222,10 @@
     var TH_V = 0.55, TH_B = 1.0, W0 = 0.55, yC = ALTURAS.cejas.y - 0.06;   /* triángulo frontal: vértice arriba, base en el nacimiento, de sien a sien */
     /* 24-11-2026 (Fátima: «bajo la ceja, bajo los ojos, bajo el pómulo o donde termina el rostro: como quiera la clienta»): con un largo
        elegido (`R.flecoAltura`, una de las alturas del sistema) la pollina cae a esa altura, el de lado llega a ella por el lado largo y
-       la cortina por los lados (el centro, a la ceja, como su ficha) */
-    var HF = R.flecoAltura && ALTURAS[R.flecoAltura] ? ALTURAS[R.flecoAltura].y - 0.06 : null;
-    function yFin(ph, k) {
-      var dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), y;
-      if (HF != null) {
-        var uu = Math.max(0, Math.min(1, (dC + 0.55) / 1.1)), corto = Math.min(HF + 0.25, yC);
-        y = forma === 'lado' ? corto + (HF - corto) * uu : forma === 'cortina' ? yC + (HF - yC) * Math.min(1, Math.abs(dC) / W0) : HF;
-        return y + ((dif[k] && dif[k].t) || 0);
-      }
-      if (forma === 'lado') { var u = Math.max(0, Math.min(1, (dC + 0.55) / 1.1)); y = ALTURAS.ojo.y - 0.06 + (ALTURAS.nariz.y - ALTURAS.ojo.y + 0.06) * u; }
-      else if (forma === 'cortina') y = yC + (ALTURAS.nariz.y - yC) * Math.min(1, Math.abs(dC) / W0);
-      else y = yC;
-      return y + ((dif[k] && dif[k].t) || 0);
-    }
-    function lado(ph) { return Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)) >= 0 ? 1 : -1; }
-    function camino(ph, th, k, yE) {   /* el cabello del flequillo peinado hacia delante y hacia abajo por la frente hasta su largo */
-      var o = [], dC = Math.atan2(Math.sin(ph - CARA), Math.cos(ph - CARA)), q;
-      var ult = null;
-      for (var t2 = th; t2 <= 1.6; t2 += 0.04) {
-        var ph2 = forma === 'cortina' ? CARA + lado(ph) * Math.min(W0 + 0.1, Math.abs(dC) + (t2 - th) * 0.35) : forma === 'lado' ? ph - (t2 - th) * 0.3 : ph;
-        q = P(ph2, t2, 1.05 + 0.006 * k); if (q.y < yE) break; if (seVe(v, ph2, t2)) { o.push(pr(v, q)); ult = q; }
-      }
-      /* un flequillo largo (por debajo de la frente) cae recto por delante del rostro hasta su largo */
-      /* de lado y cortina, al caer se va hacia su lado y termina junto al rostro (no lo tapa) */
-      if (ult && ult.y - yE > 0.04) {
-        var sd = forma === 'lado' ? -1 : forma === 'cortina' ? lado(ph) : 0, Q = sd ? P(CARA + sd * (W0 + 0.42), 1.3, 1.1) : null, tot = ult.y - yE;
-        for (var yy = ult.y - 0.08; ; yy -= 0.08) {
-          var yb = Math.max(yE, yy), fr = Math.min(1, (ult.y - yb) / Math.max(0.2, Math.min(tot, 0.9))), fs = fr * fr * (3 - 2 * fr);
-          var xb = Q ? ult.x * 1.04 + (Q.x - ult.x * 1.04) * fs : ult.x * 1.04, zb = Q ? ult.z * 1.04 + 0.03 + (Q.z - ult.z * 1.04 - 0.03) * fs : ult.z * 1.04 + 0.03;
-          o.push(pr(v, V3(xb, yb, zb))); if (yb <= yE) break;
-        }
-      }
-      return o;
-    }
+       la cortina por los lados (el centro, a la ceja, como su ficha) — el cálculo está en flecoFin (26-11-2026) */
+    function yFin(ph, k) { return flecoFin(R, ph) + ((dif[k] && dif[k].t) || 0); }
+    function lado(ph) { return flLado(ph); }
+    function camino(ph, th, k, yE) { return flecoCamino(v, forma, ph, th, k, yE); }
     var nM = 0, MS = 0.0, filas = [];
     for (var k = 0; k < n; k++) {
       var th = TH_B - (TH_B - TH_V) * k / n, w = W0 * (th - TH_V) / (TH_B - TH_V) + 0.08, bins = {};
@@ -1241,7 +1292,7 @@
         tr.push(linea(plano(pun.map(function (o) { return [o[0], o[1] + 4]; })), [t0 + 0.01, t0 + 0.03], '#2A170C', 5.5), linea(plano(pun), [t0 + 0.01, t0 + 0.03], COL[k % 7], 2.6));
       });
     });
-    var NOMF0 = { pollina: 'pollina al ras de la ceja', lado: 'flequillo de lado, en triángulo, más abajo de los ojos', cortina: 'flequillo cortina, corto en el centro y largo hacia los lados' }[forma] || 'flequillo', NOMF = HF != null ? NOMF0.split(',')[0].replace(/ al ras de la ceja| más abajo de los ojos/, '') + ', largo ' + ALTURAS[R.flecoAltura].n : NOMF0;
+    var NOMF = nomFleco(R);
     tr.push(rotulo('Flequillo: ' + NOMF + ' · ' + pila.join('° · ') + '°', CORTE, T0));
     return Object.assign({}, A, { tr: tr, dur: Math.max(Math.round((A.dur || 18000) / F), Math.round(nM * 2200 / (T1 - T0))) });
   }
@@ -1390,7 +1441,7 @@
       tr.push(rotulo('Todo a 0°: cada línea, más larga que la de abajo', TINTA, 0.8));
     }
     if (tipsL.length > 2) { tipsL.sort(function (p, q) { return p[0] - q[0]; }); tr.push(tijera(plano(tipsL), [0.5, 0.68], CORTE, false, { x: 0.7, fq: 1 }), linea(plano(seguida(tipsL)), [0.68, 0.8], ROJO, 6, { fq: 1 })); }   /* 26-10-2026 (Fátima): una línea roja que resalte la forma del flequillo de lado */
-    var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
+    var NOM = { recta: 'recta · cuadrado', redondeada: 'redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás', semi_u: 'en semi-U', semi_v: 'en semi-V', semirredondo: 'semirredonda' };
     tr.push(rotulo('Cómo queda · ' + (v === 'nuca' ? 'atrás' : v === 'lateral' ? 'lateral' : 'de frente') + ' · forma ' + NOM[lin], TINTA, 0),
       rotulo('Antes', '#8E847A', 0.02, { x: 0.3 }), rotulo('Se corta siguiendo la línea', CORTE, 0.3, { x: 0.5 }), rotulo('Después', VERDE, 0.5));
     if (frente && R.fleco === 'lado') tr.push(rotulo('Flequillo de lado: se saca en triángulo, más abajo de los ojos, y se peina de lado', TINTA, 0.5));
@@ -1884,12 +1935,14 @@
       qs.push({ e: 'Con estas elevaciones (' + pila.join(' · ') + '°), ¿qué forma resulta en ' + R.n.toLowerCase() + '?', o: ops, c: ops.indexOf(calc.forma), x: 'Largos calculados: ' + calc.largos.map(function (x) { return CC.fmt(x); }).join(' · ') + ' cm.' });
     }
     /* Fátima, 10-10-2026: el resultado del corte, dando la vuelta a la cabeza */
-    var nomQ = { recta: 'recta, en cuadrado', redondeada: 'en forma redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'en diagonal hacia delante', diag_atras: 'en diagonal hacia atrás' }[lineaDe(R)];
+    var nomQ = { recta: 'recta, en cuadrado', redondeada: 'en forma redonda', u: 'en U', v: 'en V', a: 'en A', diag_delante: 'en diagonal hacia delante', diag_atras: 'en diagonal hacia atrás', semi_u: 'en semi-U', semi_v: 'en semi-V', semirredondo: 'en forma semirredonda' }[lineaDe(R)];
     [['nuca', 'atrás', 'Damos la vuelta a la cabeza para ver cómo queda el corte. Por detrás: antes, el cabello largo; la tijera sigue la línea ' + nomQ + '; después, el corte terminado.'],
      ['lateral', 'lateral', 'Ahora de lado: así cae el cabello cortado y así se ve la línea ' + nomQ + ' de perfil.'],
      ['frente', 'de frente', 'Y de frente: el cabello enmarca el rostro y se ve la forma final del corte.']].forEach(function (q, iq) {
       var enLineas = !cortoDe(R) && difCapas(R.capas.pila, R), a = enLineas ? escQuedaLineas(R, q[0]) : escQueda(R, q[0]);
       if (q[0] === 'frente' && !cortoDe(R) && (R.fleco || R.flecoForma)) a = conFleco(a, R);
+      /* 26-11-2026 (Fátima: «en la parte del lado hay que visualizar también»): de lado, el flequillo a su largo y con su forma */
+      if (q[0] === 'lateral' && !cortoDe(R) && (R.fleco || R.flecoForma)) a = Object.assign({}, a, { tr: (a.tr || []).concat(flecoLateral(R, 'lateral', 0.93)) });
       var pq = (q[0] === 'frente' && R.frente.pila.length ? R.frente.pila : pila).slice(0, 7);
       var txQ = enLineas ? q[2] + ' Cada capa se lleva a su elevación, se corta en la punta y cae a su largo: ' + pq.map(function (g, k) { return 'capa ' + (k + 1) + ' a ' + g + ' grados'; }).join(', ') + '.' : q[2];
       /* 30-10-2026 (Fátima: «no puede haber tres cortes en una escena sin identificar»): es el MISMO corte visto de tres lados */
