@@ -728,6 +728,25 @@
     /* las hojas que se salen del papel (síntesis, glosario…) se ajustan con lo que ya hace el sistema */
     if (Md) {
       try {
+        /* 27-11-2026 (Fátima: «hojas vacías habiendo tanto contenido»; «quitar los dos»): en Peluquería, los ejercicios genéricos del
+           mapa mental («Añade una rama nueva…», «Elige dos ramas…») y los renglones de «Mis notas» se quitan; y una hoja con más de
+           55 mm libres lleva una escena del maniquí de la técnica de su unidad que aún no salió en el libro, con su título y su
+           explicación (el bloque «En el maniquí» que ya usa el relleno). Sin escena libre, la hoja se queda como está. */
+        var LL = window.EU_PELU_LAMINAS_LIBRO, GEN_V = /^(Añade una rama nueva|Elige dos ramas y escribe)/;
+        out.forEach(function (q) {
+          [q.v && q.v.items, q.items].forEach(function (a) { if (q.tipo !== 'vis' || !a) return; for (var i = a.length - 1; i >= 0; i--) if (GEN_V.test(String(a[i] && a[i].e || '').replace(/<[^>]+>/g, ''))) a.splice(i, 1); });
+          if (q.fill2 && q.fill2.lin) { q.fill2 = Object.assign({}, q.fill2); delete q.fill2.lin; delete q.fill2.titL; }
+          if (!LL || !LL.escenaDe || !LL.tecsDe || !q.u || /^(portada|contra|indice|creditos|glosario|solucion|bibliografia|pe_diagrama|pe_animada|pe_galeria|pe_salon|pe_escena)$/.test(q.tipo)) return;
+          if (q.fill2 && (q.fill2.fig || (q.fill2.its && q.fill2.its.length))) return;
+          var h = Md.hueco(q, res); if (!h || h.libre < 55) return;
+          var r = LL.escenaDe(q, res.C, 'hueco', LL.tecsDe(q.u), q.num || 0, 0); if (!r) return;
+          var T = res.C.T, alto = Math.min(120, Math.floor(h.libre - 24)), antes = q.fill2;
+          q.fill2 = Object.assign({}, antes && !antes.nada ? antes : {}, { fig: '<div data-escena="' + String(r.e.tipo).replace(/"/g, '') + '" style="height:100%;width:100%;display:flex;flex-direction:column;align-items:center">' +
+            '<img src="' + r.src + '" alt="" style="flex:1 1 auto;min-height:0;max-width:100%;object-fit:contain;display:block;border-radius:' + Math.min(T.r || 4, 6) + 'px">' +
+            '<div style="flex:none;max-width:170mm;font-size:.85em;line-height:1.35;margin-top:1.5mm"><b style="color:' + T.acc + '">' + esc(r.e.t) + '.</b> ' + esc(r.e.texto || '') + '</div></div>',
+            figH: alto, figT: /^cb_lam_/.test(r.e.tipo || '') ? 'Lámina en el maniquí' : 'En el maniquí' });
+          var h2 = Md.hueco(q, res); if (h2 && h2.libre < 0) q.fill2 = antes;
+        });
         /* lo opcional que añadió el relleno y ya no cabe («Revisa tus errores», «Practica más»…) se quita con la función del sistema */
         if (window.EU_HOJAS_LLENAS && EU_HOJAS_LLENAS.antiCorte) EU_HOJAS_LLENAS.antiCorte(res);
         if (window.EU_RELLENO && EU_RELLENO.ajustar) {

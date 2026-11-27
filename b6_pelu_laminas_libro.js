@@ -242,5 +242,5 @@
 
   /* escenas de una técnica que ya usó este libro (la página pe_tecnica no las repite) */
   function usadas(C, tec) { var R = REG.get(C), o = {}; if (R) Object.keys(R.usadas).forEach(function (k) { var a = k.split('|'); if (a[0] === tec) o[a[1]] = 1; }); return o; }
-  window.EU_PELU_LAMINAS_LIBRO = { escena: escena, hoja: hoja, usadas: usadas };
+  window.EU_PELU_LAMINAS_LIBRO = { escena: escena, hoja: hoja, usadas: usadas, escenaDe: escenaDe, tecsDe: tecsDe };   /* 27-11-2026: escenaDe/tecsDe también para llenar huecos al final (b6_pelu_receta.js) */
 })();
