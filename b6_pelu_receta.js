@@ -608,9 +608,9 @@
       if (p.tipo === 'pe_diagrama' && DGL && DGL.datos) {
         var d = null; try { d = DGL.datos(p.dg || {}); } catch (e) { d = null; }
         if (d && d.E) p.qs = reponer(d.E.preguntas, d.R, visto);
-      } else if (p.tipo === 'pe_clase' && p.parte === 2 && p.ult !== false && R[p.rec]) {
+      } else if (p.tipo === 'pe_clase' && (p.parte === 2 || p.junta) && (p.junta || p).ult !== false && R[p.rec]) {
         var P = pasos(p.rec); if (!P.length) return;
-        p.qs = reponer(P.filter(function (x) { return x.q; }).map(function (x) { return x.q; }), R[p.rec].k === 'corte' && P.E ? P.E.R : null, visto);
+        (p.junta || p).qs = reponer(P.filter(function (x) { return x.q; }).map(function (x) { return x.q; }), R[p.rec].k === 'corte' && P.E ? P.E.R : null, visto);
       }
     });
   }
@@ -680,8 +680,16 @@
       var f = fotoDe(pasos(p.rec), usadas);
       if (f) { usadas[f.id] = 1; p.foto = f.id; }
     });
+    /* una receta de una sola hoja va en la hoja de su clase si cabe (con las imágenes hasta un 30 % más pequeñas) */
+    if (Md) for (var ji = 0; ji < out.length - 1; ji++) {
+      var c1 = out[ji], r2 = out[ji + 1];
+      if (c1.tipo !== 'pe_clase' || c1.parte !== 1 || r2.tipo !== 'pe_clase' || r2.parte !== 2 || r2.rec !== c1.rec || r2.hojas !== 1) continue;
+      c1.junta = r2; c1.sh = 0;
+      while (!cabe(c1) && c1.sh < 0.3) c1.sh = Math.round((c1.sh + 0.1) * 10) / 10;
+      if (cabe(c1)) { out.splice(ji + 1, 1); r2.sh = c1.sh; } else { delete c1.junta; c1.sh = 0; }
+    }
     /* la hoja de la clase: si con la foto, las tres vistas y el reproductor no cabe, sus imágenes se achican (hasta un 50 %) */
-    if (Md) out.forEach(function (q) { if (q.tipo === 'pe_clase' && q.parte === 1) { q.sh = 0; while (q.sh < 0.5 && !cabe(q)) q.sh = Math.round((q.sh + 0.1) * 10) / 10; } });
+    if (Md) out.forEach(function (q) { if (q.tipo === 'pe_clase' && q.parte === 1 && !q.junta) { q.sh = 0; while (q.sh < 0.5 && !cabe(q)) q.sh = Math.round((q.sh + 0.1) * 10) / 10; } });
     /* páginas y solucionario renumerados */
     var mapa = {};
     out.forEach(function (p, i) { if (p.num != null && !quitadas[p.num]) mapa[p.num] = i + 1; });
@@ -699,11 +707,29 @@
         sols.filter(function (q) { return q.entradas.length; }).forEach(function (q, i) { q.parte = i; });
       }
     }
+    /* 27-11-2026 (Fátima: «no repetir»): en «Actividades» un mismo ejercicio («Ordena los pasos de…» barajado otra vez, la misma
+       frase para completar) sale una sola vez en el libro; su sitio lo ocupa una pregunta del repaso de la unidad que aún no salió
+       (las mismas que el motor convierte en «elige», tipo `mc`); si no queda ninguna, la repetición se quita */
+    var vistoE = {}, limpio = function (t) { return String(t || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase(); };
+    var claveE = function (x) { var t = limpio(x.e); return /^ordena los pasos de/.test(t) ? t.split(':')[0] : t; };
+    out.forEach(function (q) {
+      if (q.tipo !== 'actividad' || !q.items || !q.items.length) return;
+      var pool = ((q.u && q.u.rep) || []).slice();
+      for (var i = 0; i < q.items.length; i++) {
+        var kx = claveE(q.items[i]);
+        if (!vistoE[kx]) { vistoE[kx] = 1; continue; }
+        var nr = null; while (pool.length && !nr) { var c = pool.shift(); if (c && c.p && c.o && !vistoE[limpio(c.p)]) nr = c; }
+        if (nr) { q.items[i] = { tipo: 'mc', e: nr.p, s: 'abc'.charAt(nr.c) + ') ' + nr.o[nr.c], o: nr.o, c: nr.c, x: nr.x }; vistoE[limpio(nr.p)] = 1; }
+        else { q.items.splice(i, 1); i--; }
+      }
+    });
     res.pages = out; res.clases = Object.keys(hecho).length;
     sinRepetir(out);
     /* las hojas que se salen del papel (síntesis, glosario…) se ajustan con lo que ya hace el sistema */
     if (Md) {
       try {
+        /* lo opcional que añadió el relleno y ya no cabe («Revisa tus errores», «Practica más»…) se quita con la función del sistema */
+        if (window.EU_HOJAS_LLENAS && EU_HOJAS_LLENAS.antiCorte) EU_HOJAS_LLENAS.antiCorte(res);
         if (window.EU_RELLENO && EU_RELLENO.ajustar) {
           var sal = []; out.forEach(function (q) {
             if (/^(portada|contra|pe_diagrama|pe_animada|pe_galeria)$/.test(q.tipo)) return;
@@ -833,10 +859,16 @@
   function primeraVez(ctx) {
     var L = ctx && ctx.pages; if (!L) return null;
     var m = PRIMERA.get(L); if (m) return m; m = {};
-    L.forEach(function (q) { if (q.tipo === 'pe_clase' && q.parte === 2 && R[q.rec]) pasosHoja(q).forEach(function (p) { var k = KEY_PASO(p); if (m[k] == null) m[k] = q.num; }); });
+    L.forEach(function (q) { var x = q.tipo === 'pe_clase' && R[q.rec] ? (q.parte === 2 ? q : q.junta) : null; if (x) pasosHoja(x).forEach(function (p) { var k = KEY_PASO(p); if (m[k] == null) m[k] = q.num; }); });
     PRIMERA.set(L, m); return m;
   }
   function paginaClase(pg, C, modo, ctx) {
+    /* 27-11-2026 (Fátima: «un corte es una clase»; sin hojas a medias): si la receta es corta y cabe, va en la misma hoja que su clase */
+    if (pg.parte === 1 && pg.junta) {
+      var Hh = ED.H, j = Object.assign({}, pg.junta, { num: pg.num }), a1 = paginaClase(Object.assign({}, pg, { junta: null }), C, modo, ctx), a2 = paginaClase(j, C, modo, ctx);
+      var f1 = Hh.folio(C, pg), c2 = Hh.cabecera(C, j), f2 = Hh.folio(C, j);
+      if (a1.slice(-f1.length) === f1 && a2.indexOf(c2) === 0 && a2.slice(-f2.length) === f2) return a1.slice(0, -f1.length) + '<div style="margin-top:5mm">' + a2.slice(c2.length, -f2.length) + '</div>' + f1;
+    }
     var H = ED.H, T0 = C.T || {}, r = R[pg.rec], P = pasos(pg.rec), web = modo === 'web';
     if (!r || !P.length) return H.cabecera(C, pg) + H.folio(C, pg);
     var T = { acc: T0.acc || '#B08D57', soft: T0.soft || '#EEF0F3' }, rad = Math.min(T0.r || 4, 6), alto = ((C.papel && C.papel.h) || 297) >= 250;
