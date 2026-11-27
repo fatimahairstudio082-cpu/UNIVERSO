@@ -738,7 +738,7 @@
           if (!GA || !GA.G || !GA.destino || !GA.dato) return null;
           for (var gi = 0; gi < GA.G.length; gi++) {
             var g = GA.G[gi], d = GA.destino(g); if (!d || !d.ok || d.unidad !== u.id) continue;
-            var id = GA.id(g[0]); if (usadas[id] || fotoYa[id]) continue;
+            var id = GA.id(g[0]); if (usadas[id] || fotoYa[id] || esHerr(id)) continue;   /* las fichas de herramientas y productos (carpetas 27 y 28) tampoco */
             var src = GA.dato(id); if (!src) continue;
             fotoYa[id] = 1; return { e: { tipo: 'foto', t: String(g[1] || 'Foto de referencia'), texto: '' }, src: src, foto: 1 };
           }
