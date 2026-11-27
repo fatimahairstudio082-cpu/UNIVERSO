@@ -621,6 +621,34 @@
     for (var r = 0; r < 10 && out.length < 20; r++) mods.forEach(function (M) { if (out.length < 20 && M.test && M.test[r]) out.push(M.test[r]); });
     return out.length ? out : antes.slice(0, 20);
   }
+  /* 27-11-2026 (Fátima: «no crear repeticiones»; el curso de 100 hojas pesaba 240 MB, 216 de animaciones, y el de 300 no llegaba
+     a empaquetarse): justo antes de guardar el curso, cada animación se guarda UNA sola vez. Las escenas que repiten el mismo dibujo
+     (la misma vista en la clase, la visualización y «Cómo queda») apuntan a la primera. Las coordenadas de los trazos, en píxeles del
+     lienzo 1280×720, se guardan con un decimal (una décima de píxel: el dibujo sale igual); los tiempos y lo que no son píxeles no se tocan.
+     No se quita ninguna escena ni ninguna lección. */
+  function huella(s) { var h1 = 0xdeadbeef, h2 = 0x41c6ce57; for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } return s.length + ':' + (h1 >>> 0) + ':' + (h2 >>> 0); }
+  function sinDecimales(a) {
+    if (!a || !a.length || typeof a[0] !== 'number') return;
+    var mx = 0; for (var i = 0; i < a.length; i++) { var v = Math.abs(a[i]); if (v > mx) mx = v; }
+    if (mx > 50) for (var j = 0; j < a.length; j++) if (typeof a[j] === 'number') a[j] = Math.round(a[j] * 10) / 10;
+  }
+  function unaVez(D) {
+    if (!D || !D.anim || D._unaVez) return D;
+    var vistas = {}, alias = {};
+    Object.keys(D.anim).forEach(function (k) {
+      var A = D.anim[k]; if (!A || typeof A !== 'object') return;
+      (A.tr || []).forEach(function (T) { if (!T) return; sinDecimales(T.p); if (T.f && T.f.length && typeof T.f[0] === 'object') T.f.forEach(sinDecimales); });
+      var j = JSON.stringify(A), h = huella(j), o = vistas[h];
+      if (o && JSON.stringify(D.anim[o]) === j) { alias[k] = o; delete D.anim[k]; } else if (!o) vistas[h] = k;
+    });
+    if (Object.keys(alias).length) (function cambia(x) {
+      if (!x || typeof x !== 'object') return;
+      if (Array.isArray(x)) { x.forEach(cambia); return; }
+      Object.keys(x).forEach(function (p) { if (p === 'anim' && typeof x[p] === 'string' && alias[x[p]]) x[p] = alias[x[p]]; else if (p !== 'anim' && p !== 'img') cambia(x[p]); });
+    })(D);
+    D._unaVez = 1;
+    return D;
+  }
   /* copias ligeras de los dibujos JPEG para el reproductor (los SVG no cambian) */
   var ORIG = {};
   function aligerar(D) {
@@ -661,6 +689,7 @@
       var z = new JSZip(), base = slug(D.titulo) + '-premium/';
       Object.keys(VIDEOS).forEach(function (n) { z.file(base + 'curso/' + n, VIDEOS[n]); });
       /* index.html autónomo: datos y animaciones dentro (abierto desde el gestor de archivos del móvil, los <script src> sueltos no cargan) */
+      unaVez(D);   /* 27-11-2026: cada animación una sola vez */
       var du0 = duracion(res, D); D.minTotal = du0.total; D.horasOficiales = du0.oficial;   /* certificado = duración total, u oficial si la hay (18-10-2026) */
       var datosIn = '<script>window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';<\/script>';
       var animIn = D.anim && window.EU_CURSO_ANIM ? '<script>' + EU_CURSO_ANIM.js().replace(/<\//g, '<\\/') + '<\/script>' : '';
@@ -709,5 +738,5 @@
   }
   if (!enganchar()) (function espera(n) { if (!enganchar() && n < 200) setTimeout(function () { espera(n + 1); }, 300); })(0);
 
-  window.EU_CURSO_PREMIUM = { duracion: duracion, audioLibro: audioLibro, construir: construir, imagenes: imagenes, cursoHTML: cursoHTML, guion: guionTXT, paquete: paquete };
+  window.EU_CURSO_PREMIUM = { duracion: duracion, audioLibro: audioLibro, construir: construir, imagenes: imagenes, cursoHTML: cursoHTML, guion: guionTXT, paquete: paquete, unaVez: unaVez };
 })();
