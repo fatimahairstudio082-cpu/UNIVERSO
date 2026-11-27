@@ -636,14 +636,22 @@
       var Pk = pasos(k), nv = Pk.filter(function (x) { return x.etapa === 'clase' && !x.q; }).length - 1 + Pk.filter(function (x) { return x.etapa === 'vis' && !x.q; }).length, LIM = 12, nh = Math.max(1, Math.ceil(nv / LIM));
       if (!Md) for (var h = 0; h < nh; h++) { var q = nueva(k, 2, p); q.de = h * LIM; q.a = (h + 1) * LIM; q.ult = h === nh - 1; q.hoja = h + 1; q.hojas = nh; out.push(q); }
       else {
-        var de = 0, hs = [];
-        do {
-          var q2 = nueva(k, 2, p); q2.de = de; q2.a = Math.min(nv, de + 1); q2.ult = q2.a >= nv; q2.sig = 'La clase siguiente';
-          while (q2.a < nv) { q2.a++; q2.ult = q2.a >= nv; if (!cabe(q2)) { q2.a--; q2.ult = q2.a >= nv; break; } }
-          if (q2.ult && q2.a - de > 1 && !cabe(q2)) { q2.a--; q2.ult = false; }   /* la práctica no cabe: el último paso va con ella a la hoja siguiente */
-          delete q2.sig; hs.push(q2); prov.push(q2); q2.num = prov.length; de = q2.a;
-        } while (de < nv);
-        hs.forEach(function (x, i) { x.hoja = i + 1; x.hojas = hs.length; out.push(x); });
+        var empaca = function (sh) {
+          var de = 0, hs = [], base = prov.length;
+          do {
+            var q2 = nueva(k, 2, p); q2.de = de; q2.a = Math.min(nv, de + 1); q2.ult = q2.a >= nv; q2.sig = 'La clase siguiente'; q2.sh = sh;
+            while (q2.a < nv) { q2.a++; q2.ult = q2.a >= nv; if (!cabe(q2)) { q2.a--; q2.ult = q2.a >= nv; break; } }
+            if (q2.ult && q2.a - de > 1 && !cabe(q2)) { q2.a--; q2.ult = false; }   /* la práctica no cabe: el último paso va con ella a la hoja siguiente */
+            delete q2.sig; hs.push(q2); prov.push(q2); q2.num = prov.length; de = q2.a;
+          } while (de < nv);
+          prov.length = base; hs.forEach(function (x) { delete x.num; });
+          return hs;
+        };
+        /* si la última hoja se queda con uno o dos pasos, las imágenes de esa receta se achican un poco para que quepa en una hoja menos */
+        var hs = empaca(0), hsN;
+        for (var shr = 0.15; hs.length > 1 && (hs[hs.length - 1].a - hs[hs.length - 1].de) <= 2 && shr <= 0.46; shr += 0.15) { hsN = empaca(Math.round(shr * 100) / 100); if (hsN.length < hs.length) { hs = hsN; break; } }
+        hs.forEach(function (x, i) { x.hoja = i + 1; x.hojas = hs.length; prov.push(x); x.num = prov.length; out.push(x); });
+        if (!hs[0].sh) hs.forEach(function (x) { delete x.sh; });
       }
       /* las clases que van detrás de esta (tinte procesado y canas, como en el curso) */
       Object.keys(tras).forEach(function (k2) { if (tras[k2] === k && !hayPropia(k2)) poner(k2, p); });
