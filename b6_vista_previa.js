@@ -47,6 +47,7 @@
   function htmlCurso(D) {
     var CP = window.EU_CURSO_PREMIUM;
     /* (18-10-2026) la vista previa es una página blob:, donde «presentacion.mp4» suelto no se encuentra: se le da la carpeta del vídeo */
+    if (CP.unaVez) CP.unaVez(D);   /* 27-11-2026: cada animación una sola vez, como en la descarga */
     var datos = '<script>window.CURSO_MP4_BASE=' + JSON.stringify(new URL('./referencias/curso/', location.href).href) + ';window.CURSO=' + JSON.stringify(D).replace(/<\//g, '<\\/') + ';<\/script>';
     var anim = D.anim && window.EU_CURSO_ANIM ? '<script>' + EU_CURSO_ANIM.js().replace(/<\//g, '<\\/') + '<\/script>' : '';
     return CP.cursoHTML(D).replace('<script src="datos.js"></script>', function () { return datos; }).replace('<script src="anim.js"></script>', function () { return anim; });
