@@ -9,7 +9,7 @@
   if (window.EU_LAB_CORTES) return;
 
   function azar(sem) { var a = sem >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
-  var FORMA_N = { recta: 'cuadrado', redondeada: 'en U (redondo)', v: 'V larga', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás' };
+  var FORMA_N = { recta: 'cuadrado', redondeada: 'en U (redondo)', v: 'V larga', a: 'en A', diag_delante: 'diagonal hacia delante', diag_atras: 'diagonal hacia atrás', semi_u: 'en semi-U', semi_v: 'en semi-V', semirredondo: 'semirredondo' };
   var EMP_N = { atras: 'emparejado de delante hacia atrás → redondo', delante: 'emparejado de atrás hacia delante' }, NIV_N = { 1: 'Principiante', 2: 'Intermedio', 3: 'Avanzado' };
   var CORTA = { 'línea sólida · un solo largo': 'Un largo', 'capas uniformes': 'Uniforme', 'graduación · escalonado (peso abajo)': 'Escalonado', 'capas en aumento (más cortas arriba)': 'En aumento', 'forma combinada': 'Combinado' };
 
@@ -64,7 +64,7 @@
     var cant = campo('Cortes', num(2000)), cmi = campo('Capas de', num(3)), cma = campo('a', num(10)), gmi = campo('Elevación de', num(0)), gma = campo('a', num(225)), pas = campo('cada', num(5));
     var ord = campo('Orden', sel([['rampa', 'Sube de abajo arriba'], ['libre', 'Cualquier orden']])), gui = campo('Guía', sel([['movil', 'Móvil'], ['fija', 'Fija'], ['mezcla', 'Mezcla']]));
     var ref = campo('Ángulo', sel([['craneo', 'Desde el cráneo'], ['suelo', 'Desde el suelo']])), cor = campo('Coronilla △', sel([['no', 'No'], ['si', 'Sí'], ['mezcla', 'Mezcla']]));
-    var lin = campo('Línea', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrada)'], ['redondeada', 'Redondeada (U)'], ['v', 'En V'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás'], ['mezcla', 'Mezcla (cuadrado, U y V)']]));
+    var lin = campo('Línea', sel([['', 'Según la cabeza'], ['recta', 'Recta (cuadrada)'], ['redondeada', 'Redondeada (U)'], ['v', 'En V'], ['semi_u', 'En semi-U'], ['semi_v', 'En semi-V'], ['semirredondo', 'Semirredonda'], ['a', 'En A (V invertida)'], ['diag_delante', 'Diagonal hacia delante'], ['diag_atras', 'Diagonal hacia atrás'], ['mezcla', 'Mezcla (cuadrado, U y V)']]));
     var cab = campo('Cabello', sel([['normal', 'Normal / ondulado → vertical'], ['liso', 'Liso extremo → horizontal'], ['mezcla', 'Mezcla']])), emp = campo('Emparejar', sel([['no', 'Sin emparejar'], ['atras', 'De delante hacia atrás (redondo)'], ['delante', 'De atrás hacia delante'], ['mezcla', 'Mezcla']]));
     var niv = campo('Nivel', sel([['', 'Todos'], ['1', '1 · Principiante (todo a 0°)'], ['2', '2 · Intermedio (con elevación)'], ['3', '3 · Avanzado (navaja / desgrafilar)']]));
     var aca = campo('Acabado', sel([['recto', 'Recto'], ['desgrafilado', 'Navaja / tijera de desgrafilar'], ['mezcla', 'Mezcla']]));
