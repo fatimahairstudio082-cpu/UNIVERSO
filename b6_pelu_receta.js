@@ -773,12 +773,31 @@
     }
     return res;
   }
+  /* 27-11-2026 (el libro interactivo de Intermedio 100 hojas pesaba 67 MB y 48 eran las animaciones de «Ver la clase», la misma
+     escena repetida en la clase, la visualización y «Cómo queda», y la misma escena del lavado en cada corte): dentro de un libro
+     web cada animación va UNA vez al final del documento (window.RC_ANIMS) y cada clase lleva su referencia «@n»; las coordenadas
+     de los trazos, en píxeles, con un decimal (el dibujo sale igual). Una hoja pintada fuera del documento lleva la animación entera. */
+  var WEB = null;
+  function redondea(k, v) {
+    var r1 = function (a) { var mx = 0; for (var i = 0; i < a.length; i++) { var w = Math.abs(a[i]); if (w > mx) mx = w; } return mx > 50 ? a.map(function (n) { return typeof n === 'number' ? Math.round(n * 10) / 10 : n; }) : a; };
+    if (k === 'p' && Array.isArray(v) && typeof v[0] === 'number') return r1(v);
+    if (k === 'f' && Array.isArray(v) && Array.isArray(v[0])) return v.map(function (x) { return Array.isArray(x) && typeof x[0] === 'number' ? r1(x) : x; });
+    return v;
+  }
+  function huellaW(s) { var h1 = 0xdeadbeef, h2 = 0x41c6ce57; for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } return s.length + ':' + (h1 >>> 0) + ':' + (h2 >>> 0); }
+  function refAnim(a, ctx) {
+    if (!WEB || !ctx || ctx.pages !== WEB.pages || !a) return a;
+    var j = JSON.stringify(a, redondea), h = huellaW(j), k = WEB.idx[h];
+    if (k == null || WEB.list[k] !== j) { k = WEB.list.length; WEB.list.push(j); WEB.idx[h] = k; }
+    return '@' + k;
+  }
   var JS_CLASE = '<script>(function(){if(window.__rcLibro)return;window.__rcLibro=1;var act=null,V=null;' +
+    'function RCA(A){A.forEach(function(x){if(typeof x.a==="string"&&x.a.charAt(0)==="@")x.a=(window.RC_ANIMS||[])[+x.a.slice(1)]||null});return A.filter(function(x){return x.a})}' +
     'function voz(){if(!window.speechSynthesis)return null;var v=speechSynthesis.getVoices().filter(function(x){return/^es/i.test(x.lang)});return v.filter(function(x){return/google/i.test(x.name)&&/es-ES/i.test(x.lang)})[0]||v.filter(function(x){return/es-ES/i.test(x.lang)})[0]||v[0]||null}' +
     'var IM={};function fondo(k){if(!IM[k]&&window.DG_FONDOS&&DG_FONDOS[k]){IM[k]=new Image();IM[k].src=DG_FONDOS[k]}return IM[k]}' +
     'function para(){if(window.speechSynthesis)speechSynthesis.cancel();if(act)act.b.textContent="▶ Ver la clase · animación con voz";act=null}' +
     'document.addEventListener("click",function(ev){var b=ev.target.closest("[data-rc-play]");if(!b)return;var pg=b.closest("[data-rc-pg]");if(act&&act.pg===pg)return para();para();if(!window.DG_PINTA)return;V=V||voz();' +
-    'var A=JSON.parse(pg.querySelector("[data-rc-anim]").textContent),cv=pg.querySelector("[data-rc-cv]"),img=pg.querySelector("[data-rc-img]"),sub=pg.querySelector("[data-rc-sub]"),i=0,me={pg:pg,b:b};act=me;b.textContent="❚❚ Parar";cv.style.display="block";if(img)img.style.display="none";' +
+    'var A=RCA(JSON.parse(pg.querySelector("[data-rc-anim]").textContent)),cv=pg.querySelector("[data-rc-cv]"),img=pg.querySelector("[data-rc-img]"),sub=pg.querySelector("[data-rc-sub]"),i=0,me={pg:pg,b:b};act=me;b.textContent="❚❚ Parar";cv.style.display="block";if(img)img.style.display="none";' +
     'var x=cv.getContext("2d");(function sig(){if(act!==me)return;if(i>=A.length){para();return}var a=A[i++],im=fondo(a.v),dur=Math.max(8000,a.s.length*91,(a.a&&a.a.dur)||0),t0=performance.now(),hab=0,acabo=0;if(sub)sub.textContent=a.t+" · "+a.s;' +
     'function fin(){if(hab&&acabo&&act===me)setTimeout(sig,400)}' +
     '(function cuadro(){if(act!==me)return;var p=Math.min(1,(performance.now()-t0)/dur);DG_PINTA(x,a.a,im,0,0,cv.width,cv.height,p);if(p<1)requestAnimationFrame(cuadro);else{acabo=1;fin()}})();' +
@@ -918,7 +937,7 @@
         var portada = esc0[0] ? maniquí(esc0[0], pg.rec) : '';   /* 27-11-2026: la primera escena de la clase (las tres vistas de «Cómo queda» ya van arriba) */
         ver = '<div data-rc-pg="1" data-dg-pg="1" style="margin:3mm 0 0"><div style="display:flex;gap:3mm;align-items:center;margin:0 0 2mm"><button data-rc-play="1" style="font:inherit;font-size:.86em;padding:1.5mm 4mm;border:0;border-radius:' + rad + 'px;background:' + T.acc + ';color:#fff;cursor:pointer;white-space:nowrap;flex:none">▶ Ver la clase · animación con voz</button><span data-rc-sub="1" style="font-size:.8em;font-style:italic;opacity:.85;min-width:0"></span></div>' +
           '<div style="background:' + T.soft + ';border-radius:' + rad + 'px;overflow:hidden">' + (portada ? '<img data-rc-img="1" src="' + portada + '" alt="" style="display:block;width:100%;height:auto">' : '') + '<canvas data-rc-cv="1" width="640" height="512" style="display:' + (portada ? 'none' : 'block') + ';width:100%;height:auto"></canvas></div>' +
-          '<script type="application/json" data-rc-anim="1">' + JSON.stringify(esc0.map(function (p) { return { v: p.e.vista, t: String(p.t || ''), s: String(p.texto || ''), a: p.e.anim }; })).replace(/</g, '\\u003c') + '<\/script></div>' + JS_CLASE;
+          '<script type="application/json" data-rc-anim="1">' + JSON.stringify(esc0.map(function (p) { return { v: p.e.vista, t: String(p.t || ''), s: String(p.texto || ''), a: refAnim(p.e.anim, ctx) }; }), redondea).replace(/</g, '\\u003c') + '<\/script></div>' + JS_CLASE;
       }
       /* una técnica sin «Cómo queda» (hidratación, secado…): sus tres primeros pasos con su escena, «Cómo se hace» */
       var como = '';
@@ -966,7 +985,10 @@
   if (ED && ED.documento && !ED.__peluPract) {
     ED.__peluPract = 1; var docP = ED.documento;
     ED.documento = function (res, modo) {
-      var h = docP.apply(this, arguments);
+      var web0 = WEB; WEB = modo === 'web' && res && res.pages ? { pages: res.pages, list: [], idx: {} } : null;
+      var h, W = WEB;
+      try { h = docP.apply(this, arguments); } finally { WEB = web0; }
+      if (W && W.list.length && typeof h === 'string') { var kb = h.lastIndexOf('</body>'), sc = '<script>window.RC_ANIMS=[' + W.list.join(',').replace(/<\//g, '<\\/') + '];<\/script>'; h = kb > 0 ? h.slice(0, kb) + sc + h.slice(kb) : h + sc; }
       try { if (modo === 'web' && typeof h === 'string' && h.indexOf('data-practicas="1"') >= 0) { var k = h.lastIndexOf('</body>'); if (k > 0) h = h.slice(0, k) + '<script>(' + galeriaRuntime.toString() + ')();<\/script>' + h.slice(k); } } catch (e) { console.warn('Mis prácticas', e); }
       return h;
     };
