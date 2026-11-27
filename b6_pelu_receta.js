@@ -506,6 +506,15 @@
     return caja(T, 'Recomendaciones', '<ul style="margin:0;padding-left:5mm">' + F.recomendaciones.filter(function (x) { return !(quita || /canas/i).test(x); }).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
   }
   var MANI = {};
+  /* 27-11-2026 (Fátima: «cada cuadrícula con su animación, su imagen, su explicación… el paso a paso como una receta»): la misma
+     escena del paso que enseña el curso, en pequeño (340 px, JPEG 0,7: unos 200 ppp a su tamaño impreso) para que el libro no pese; caja de alto fijo para medir */
+  var MINI = {};
+  function mini(p, rec) { if (!p.e) return ''; var k = rec + '|' + p.e.tipo + '|' + (p.e.t || ''); if (MINI[k] == null) { try { MINI[k] = window.EU_DIAGRAMA.foto(p.e, 340, 0.7) || ''; } catch (er) { MINI[k] = ''; } } return MINI[k]; }
+  /* las escenas que ya enseña la hoja de la clase (sin «Cómo queda»: los tres primeros pasos con escena), para no repetirlas en la receta */
+  function enHoja1(P) {
+    if (P.some(function (p) { return p.etapa === 'queda' && p.e; })) return {};
+    var m = {}; P.filter(function (p) { return p.etapa === 'vis' && !p.q && p.e; }).slice(0, 3).forEach(function (p) { m[KEY_PASO(p)] = 1; }); return m;
+  }
   function maniquí(p, rec) { if (!p.e) return ''; var k = rec + '|' + p.e.tipo + '|' + (p.e.t || ''); if (MANI[k] == null) { try { MANI[k] = window.EU_DIAGRAMA.foto(p.e, 760, 0.82) || ''; } catch (er) { MANI[k] = ''; } } return MANI[k]; }
 
   var ED = window.EU_EDITORIAL;
@@ -599,9 +608,9 @@
       if (p.tipo === 'pe_diagrama' && DGL && DGL.datos) {
         var d = null; try { d = DGL.datos(p.dg || {}); } catch (e) { d = null; }
         if (d && d.E) p.qs = reponer(d.E.preguntas, d.R, visto);
-      } else if (p.tipo === 'pe_clase' && p.parte === 2 && p.ult !== false && R[p.rec]) {
+      } else if (p.tipo === 'pe_clase' && (p.parte === 2 || p.junta) && (p.junta || p).ult !== false && R[p.rec]) {
         var P = pasos(p.rec); if (!P.length) return;
-        p.qs = reponer(P.filter(function (x) { return x.q; }).map(function (x) { return x.q; }), R[p.rec].k === 'corte' && P.E ? P.E.R : null, visto);
+        (p.junta || p).qs = reponer(P.filter(function (x) { return x.q; }).map(function (x) { return x.q; }), R[p.rec].k === 'corte' && P.E ? P.E.R : null, visto);
       }
     });
   }
@@ -613,13 +622,37 @@
     var pages = res.pages, out = [], hecho = {}, n0 = {}, quitadas = {};
     pages.forEach(function (p) { if (p.num != null) n0[p.num] = 1; });
     var nueva = function (k, parte, p) { return { tipo: 'pe_clase', rec: k, parte: parte, u: p.u, n: p.n, fill2: { nada: 1 } }; };
+    /* 27-11-2026 (Fátima: «diseñar las hojas para que el mismo escáner arme cada cuadrícula»; «sin limitaciones»): cada hoja se llena
+       midiéndola con el medidor del sistema (EU_ECOM.medidor): la receta lleva en cada hoja los pasos que caben, la clase ajusta sus
+       imágenes para caber, el solucionario se junta y las hojas que se salen se ajustan (EU_RELLENO.ajustar). Sin medidor, como antes. */
+    var Md = null; try { if (window.EU_ECOM && EU_ECOM.medidor && document.body && res.C && res.C.papel) Md = EU_ECOM.medidor(res.C); } catch (e0) { Md = null; }
+    var prov = [];   /* hojas de receta ya puestas, en orden: al medir, «igual que en la pág.» sale como saldrá en el libro */
+    function cabe(q) { if (!Md) return true; var keep = q.num; if (q.parte !== 2 || prov.indexOf(q) < 0) q.num = prov.length + 1; var h = Md.hueco(q, { pages: prov.indexOf(q) < 0 ? prov.concat([q]) : prov, C: res.C }); q.num = keep; return !h || h.libre >= 0; }
     var tras = { tinte_procesado: 'color_global', tinte_canas: 'tinte_procesado' };
     function poner(k, p) {
       if (hecho[k] || !pasos(k).length) return false;
       hecho[k] = 1; out.push(nueva(k, 1, p));
       /* la receta paso a paso: hasta 12 pasos por hoja (las recetas largas, como el pixie o el balayage, siguen en otra hoja) */
       var Pk = pasos(k), nv = Pk.filter(function (x) { return x.etapa === 'clase' && !x.q; }).length - 1 + Pk.filter(function (x) { return x.etapa === 'vis' && !x.q; }).length, LIM = 12, nh = Math.max(1, Math.ceil(nv / LIM));
-      for (var h = 0; h < nh; h++) { var q = nueva(k, 2, p); q.de = h * LIM; q.a = (h + 1) * LIM; q.ult = h === nh - 1; q.hoja = h + 1; q.hojas = nh; out.push(q); }
+      if (!Md) for (var h = 0; h < nh; h++) { var q = nueva(k, 2, p); q.de = h * LIM; q.a = (h + 1) * LIM; q.ult = h === nh - 1; q.hoja = h + 1; q.hojas = nh; out.push(q); }
+      else {
+        var empaca = function (sh) {
+          var de = 0, hs = [], base = prov.length;
+          do {
+            var q2 = nueva(k, 2, p); q2.de = de; q2.a = Math.min(nv, de + 1); q2.ult = q2.a >= nv; q2.sig = 'La clase siguiente'; q2.sh = sh;
+            while (q2.a < nv) { q2.a++; q2.ult = q2.a >= nv; if (!cabe(q2)) { q2.a--; q2.ult = q2.a >= nv; break; } }
+            if (q2.ult && q2.a - de > 1 && !cabe(q2)) { q2.a--; q2.ult = false; }   /* la práctica no cabe: el último paso va con ella a la hoja siguiente */
+            delete q2.sig; hs.push(q2); prov.push(q2); q2.num = prov.length; de = q2.a;
+          } while (de < nv);
+          prov.length = base; hs.forEach(function (x) { delete x.num; });
+          return hs;
+        };
+        /* si la última hoja se queda con uno o dos pasos, las imágenes de esa receta se achican un poco para que quepa en una hoja menos */
+        var hs = empaca(0), hsN;
+        for (var shr = 0.15; hs.length > 1 && (hs[hs.length - 1].a - hs[hs.length - 1].de) <= 2 && shr <= 0.46; shr += 0.15) { hsN = empaca(Math.round(shr * 100) / 100); if (hsN.length < hs.length) { hs = hsN; break; } }
+        hs.forEach(function (x, i) { x.hoja = i + 1; x.hojas = hs.length; prov.push(x); x.num = prov.length; out.push(x); });
+        if (!hs[0].sh) hs.forEach(function (x) { delete x.sh; });
+      }
       /* las clases que van detrás de esta (tinte procesado y canas, como en el curso) */
       Object.keys(tras).forEach(function (k2) { if (tras[k2] === k && !hayPropia(k2)) poner(k2, p); });
       return true;
@@ -637,7 +670,8 @@
       }
       out.push(p);
     });
-    if (!Object.keys(hecho).length) { sinRepetir(res.pages); return res; }
+    prov.forEach(function (q) { delete q.num; });
+    if (!Object.keys(hecho).length) { if (Md) Md.fin(); sinRepetir(res.pages); return res; }
     /* una foto distinta por clase, en el orden del libro, la misma que la lección del curso cuando no se repite */
     var usadas = {}, sig = null;
     for (var i = out.length - 1; i >= 0; i--) { if (out[i].tipo === 'pe_clase') { out[i].sig = sig; if (out[i].parte === 1) sig = R[out[i].rec].n; } }
@@ -646,21 +680,124 @@
       var f = fotoDe(pasos(p.rec), usadas);
       if (f) { usadas[f.id] = 1; p.foto = f.id; }
     });
+    /* una receta de una sola hoja va en la hoja de su clase si cabe (con las imágenes hasta un 30 % más pequeñas) */
+    if (Md) for (var ji = 0; ji < out.length - 1; ji++) {
+      var c1 = out[ji], r2 = out[ji + 1];
+      if (c1.tipo !== 'pe_clase' || c1.parte !== 1 || r2.tipo !== 'pe_clase' || r2.parte !== 2 || r2.rec !== c1.rec || r2.hojas !== 1) continue;
+      c1.junta = r2; c1.sh = 0;
+      while (!cabe(c1) && c1.sh < 0.3) c1.sh = Math.round((c1.sh + 0.1) * 10) / 10;
+      if (cabe(c1)) { out.splice(ji + 1, 1); r2.sh = c1.sh; } else { delete c1.junta; c1.sh = 0; }
+    }
+    /* la hoja de la clase: si con la foto, las tres vistas y el reproductor no cabe, sus imágenes se achican (hasta un 50 %) */
+    if (Md) out.forEach(function (q) { if (q.tipo === 'pe_clase' && q.parte === 1 && !q.junta) { q.sh = 0; while (q.sh < 0.5 && !cabe(q)) q.sh = Math.round((q.sh + 0.1) * 10) / 10; } });
     /* páginas y solucionario renumerados */
     var mapa = {};
     out.forEach(function (p, i) { if (p.num != null && !quitadas[p.num]) mapa[p.num] = i + 1; });
     out.forEach(function (p, i) { if (p.num != null || p.tipo === 'pe_clase') p.num = i + 1; });
     out.forEach(function (p) { if (p.tipo === 'solucion' && p.entradas) p.entradas = p.entradas.filter(function (e) { return mapa[e.p]; }).map(function (e) { return Object.assign({}, e, { p: mapa[e.p] }); }); });
+    /* el solucionario se junta en hojas llenas (los módulos de Peluquería cambiaron muchas actividades por clases y diagramas) */
+    if (Md) {
+      var sols = out.filter(function (q) { return q.tipo === 'solucion' && q.entradas; });
+      if (sols.length > 1) {
+        var ent = []; sols.forEach(function (q) { ent = ent.concat(q.entradas); q.entradas = []; });
+        var si = 0;
+        ent.forEach(function (e) { var q = sols[si]; q.entradas.push(e); if (q.entradas.length > 1 && si < sols.length - 1 && !cabe(q)) { q.entradas.pop(); si++; sols[si].entradas.push(e); } });
+        var sobran = sols.filter(function (q) { return !q.entradas.length; });
+        if (sobran.length) { out = out.filter(function (q) { return sobran.indexOf(q) < 0; }); out.forEach(function (q, i) { if (q.num != null) q.num = i + 1; }); }
+        sols.filter(function (q) { return q.entradas.length; }).forEach(function (q, i) { q.parte = i; });
+      }
+    }
+    /* 27-11-2026 (Fátima: «no repetir»): en «Actividades» un mismo ejercicio («Ordena los pasos de…» barajado otra vez, la misma
+       frase para completar) sale una sola vez en el libro; su sitio lo ocupa una pregunta del repaso de la unidad que aún no salió
+       (las mismas que el motor convierte en «elige», tipo `mc`); si no queda ninguna, la repetición se quita */
+    var vistoE = {}, limpio = function (t) { return String(t || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase(); };
+    var claveE = function (x) { var t = limpio(x.e); return /^ordena los pasos de/.test(t) ? t.split(':')[0] : t; };
+    out.forEach(function (q) {
+      if (q.tipo !== 'actividad' || !q.items || !q.items.length) return;
+      var pool = ((q.u && q.u.rep) || []).slice();
+      for (var i = 0; i < q.items.length; i++) {
+        var kx = claveE(q.items[i]);
+        if (!vistoE[kx]) { vistoE[kx] = 1; continue; }
+        var nr = null; while (pool.length && !nr) { var c = pool.shift(); if (c && c.p && c.o && !vistoE[limpio(c.p)]) nr = c; }
+        if (nr) { q.items[i] = { tipo: 'mc', e: nr.p, s: 'abc'.charAt(nr.c) + ') ' + nr.o[nr.c], o: nr.o, c: nr.c, x: nr.x }; vistoE[limpio(nr.p)] = 1; }
+        else { q.items.splice(i, 1); i--; }
+      }
+    });
     res.pages = out; res.clases = Object.keys(hecho).length;
     sinRepetir(out);
+    /* las hojas que se salen del papel (síntesis, glosario…) se ajustan con lo que ya hace el sistema */
+    if (Md) {
+      try {
+        /* 27-11-2026 (Fátima: «hojas vacías habiendo tanto contenido»; «quitar los dos»): en Peluquería, los ejercicios genéricos del
+           mapa mental («Añade una rama nueva…», «Elige dos ramas…») y los renglones de «Mis notas» se quitan; y una hoja con más de
+           55 mm libres lleva una escena del maniquí de la técnica de su unidad que aún no salió en el libro, con su título y su
+           explicación (el bloque «En el maniquí» que ya usa el relleno). Sin escena libre, la hoja se queda como está. */
+        var LL = window.EU_PELU_LAMINAS_LIBRO, GEN_V = /^(Añade una rama nueva|Elige dos ramas y escribe)/, GA = window.EU_PELU_GALERIA, fotoYa = {};
+        /* sin escena libre: una foto de la galería de Fátima ligada a esa unidad que aún no salió en el libro (su título tal cual) */
+        var fotoUnidad = function (u) {
+          if (!GA || !GA.G || !GA.destino || !GA.dato) return null;
+          for (var gi = 0; gi < GA.G.length; gi++) {
+            var g = GA.G[gi], d = GA.destino(g); if (!d || !d.ok || d.unidad !== u.id) continue;
+            var id = GA.id(g[0]); if (usadas[id] || fotoYa[id] || esHerr(id)) continue;   /* las fichas de herramientas y productos (carpetas 27 y 28) tampoco */
+            var src = GA.dato(id); if (!src) continue;
+            fotoYa[id] = 1; return { e: { tipo: 'foto', t: String(g[1] || 'Foto de referencia'), texto: '' }, src: src, foto: 1 };
+          }
+          return null;
+        };
+        out.forEach(function (q) {
+          [q.v && q.v.items, q.items].forEach(function (a) { if (q.tipo !== 'vis' || !a) return; for (var i = a.length - 1; i >= 0; i--) if (GEN_V.test(String(a[i] && a[i].e || '').replace(/<[^>]+>/g, ''))) a.splice(i, 1); });
+          if (q.fill2 && q.fill2.lin) { q.fill2 = Object.assign({}, q.fill2); delete q.fill2.lin; delete q.fill2.titL; }
+          if (!LL || !LL.escenaDe || !LL.tecsDe || !q.u || /^(portada|contra|indice|creditos|glosario|solucion|bibliografia|pe_diagrama|pe_animada|pe_galeria|pe_salon|pe_escena)$/.test(q.tipo)) return;
+          if (q.fill2 && (q.fill2.fig || (q.fill2.its && q.fill2.its.length))) return;
+          var h = Md.hueco(q, res); if (!h || h.libre < 55) return;
+          var r = LL.escenaDe(q, res.C, 'hueco', LL.tecsDe(q.u), q.num || 0, 0) || fotoUnidad(q.u); if (!r) return;
+          var T = res.C.T, alto = Math.min(120, Math.floor(h.libre - 24)), antes = q.fill2;
+          q.fill2 = Object.assign({}, antes && !antes.nada ? antes : {}, { fig: '<div data-escena="' + String(r.e.tipo).replace(/"/g, '') + '" style="height:100%;width:100%;display:flex;flex-direction:column;align-items:center">' +
+            '<img src="' + r.src + '" alt="" style="flex:1 1 auto;min-height:0;max-width:100%;object-fit:contain;display:block;border-radius:' + Math.min(T.r || 4, 6) + 'px">' +
+            '<div style="flex:none;max-width:170mm;font-size:.85em;line-height:1.35;margin-top:1.5mm"><b style="color:' + T.acc + '">' + esc(r.e.t) + '.</b> ' + esc(r.e.texto || '') + '</div></div>',
+            figH: alto, figT: r.foto ? 'Foto de referencia' : /^cb_lam_/.test(r.e.tipo || '') ? 'Lámina en el maniquí' : 'En el maniquí' });
+          var h2 = Md.hueco(q, res); if (h2 && h2.libre < 0) q.fill2 = antes;
+        });
+        /* lo opcional que añadió el relleno y ya no cabe («Revisa tus errores», «Practica más»…) se quita con la función del sistema */
+        if (window.EU_HOJAS_LLENAS && EU_HOJAS_LLENAS.antiCorte) EU_HOJAS_LLENAS.antiCorte(res);
+        if (window.EU_RELLENO && EU_RELLENO.ajustar) {
+          var sal = []; out.forEach(function (q) {
+            if (/^(portada|contra|pe_diagrama|pe_animada|pe_galeria)$/.test(q.tipo)) return;
+            var h = Md.hueco(q, res); if (!h || h.lleno <= 1.01) return;
+            if (q.tipo === 'pe_clase') { q.sh = q.sh || 0; while (q.sh < 0.5 && h && h.lleno > 1.01) { q.sh = Math.round((q.sh + 0.1) * 10) / 10; h = Md.hueco(q, res); } return; }   /* la práctica final cambió: sus imágenes se achican */
+            sal.push(q.num);
+          });
+          if (sal.length) EU_RELLENO.ajustar(res, sal);
+        }
+      } finally { Md.fin(); }
+    }
     return res;
   }
+  /* 27-11-2026 (el libro interactivo de Intermedio 100 hojas pesaba 67 MB y 48 eran las animaciones de «Ver la clase», la misma
+     escena repetida en la clase, la visualización y «Cómo queda», y la misma escena del lavado en cada corte): dentro de un libro
+     web cada animación va UNA vez al final del documento (window.RC_ANIMS) y cada clase lleva su referencia «@n»; las coordenadas
+     de los trazos, en píxeles, con un decimal (el dibujo sale igual). Una hoja pintada fuera del documento lleva la animación entera. */
+  var WEB = null;
+  function redondea(k, v) {
+    var r1 = function (a) { var mx = 0; for (var i = 0; i < a.length; i++) { var w = Math.abs(a[i]); if (w > mx) mx = w; } return mx > 50 ? a.map(function (n) { return typeof n === 'number' ? Math.round(n * 10) / 10 : n; }) : a; };
+    if (k === 'p' && Array.isArray(v) && typeof v[0] === 'number') return r1(v);
+    if (k === 'f' && Array.isArray(v) && Array.isArray(v[0])) return v.map(function (x) { return Array.isArray(x) && typeof x[0] === 'number' ? r1(x) : x; });
+    return v;
+  }
+  function huellaW(s) { var h1 = 0xdeadbeef, h2 = 0x41c6ce57; for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } return s.length + ':' + (h1 >>> 0) + ':' + (h2 >>> 0); }
+  function refAnim(a, ctx) {
+    if (!WEB || !ctx || ctx.pages !== WEB.pages || !a) return a;
+    var j = JSON.stringify(a, redondea), h = huellaW(j), k = WEB.idx[h];
+    if (k == null || WEB.list[k] !== j) { k = WEB.list.length; WEB.list.push(j); WEB.idx[h] = k; }
+    return '@' + k;
+  }
   var JS_CLASE = '<script>(function(){if(window.__rcLibro)return;window.__rcLibro=1;var act=null,V=null;' +
+    'function RCA(A){A.forEach(function(x){if(typeof x.a==="string"&&x.a.charAt(0)==="@")x.a=(window.RC_ANIMS||[])[+x.a.slice(1)]||null});return A.filter(function(x){return x.a})}' +
     'function voz(){if(!window.speechSynthesis)return null;var v=speechSynthesis.getVoices().filter(function(x){return/^es/i.test(x.lang)});return v.filter(function(x){return/google/i.test(x.name)&&/es-ES/i.test(x.lang)})[0]||v.filter(function(x){return/es-ES/i.test(x.lang)})[0]||v[0]||null}' +
     'var IM={};function fondo(k){if(!IM[k]&&window.DG_FONDOS&&DG_FONDOS[k]){IM[k]=new Image();IM[k].src=DG_FONDOS[k]}return IM[k]}' +
     'function para(){if(window.speechSynthesis)speechSynthesis.cancel();if(act)act.b.textContent="▶ Ver la clase · animación con voz";act=null}' +
     'document.addEventListener("click",function(ev){var b=ev.target.closest("[data-rc-play]");if(!b)return;var pg=b.closest("[data-rc-pg]");if(act&&act.pg===pg)return para();para();if(!window.DG_PINTA)return;V=V||voz();' +
-    'var A=JSON.parse(pg.querySelector("[data-rc-anim]").textContent),cv=pg.querySelector("[data-rc-cv]"),img=pg.querySelector("[data-rc-img]"),sub=pg.querySelector("[data-rc-sub]"),i=0,me={pg:pg,b:b};act=me;b.textContent="❚❚ Parar";cv.style.display="block";if(img)img.style.display="none";' +
+    'var A=RCA(JSON.parse(pg.querySelector("[data-rc-anim]").textContent)),cv=pg.querySelector("[data-rc-cv]"),img=pg.querySelector("[data-rc-img]"),sub=pg.querySelector("[data-rc-sub]"),i=0,me={pg:pg,b:b};act=me;b.textContent="❚❚ Parar";cv.style.display="block";if(img)img.style.display="none";' +
     'var x=cv.getContext("2d");(function sig(){if(act!==me)return;if(i>=A.length){para();return}var a=A[i++],im=fondo(a.v),dur=Math.max(8000,a.s.length*91,(a.a&&a.a.dur)||0),t0=performance.now(),hab=0,acabo=0;if(sub)sub.textContent=a.t+" · "+a.s;' +
     'function fin(){if(hab&&acabo&&act===me)setTimeout(sig,400)}' +
     '(function cuadro(){if(act!==me)return;var p=Math.min(1,(performance.now()-t0)/dur);DG_PINTA(x,a.a,im,0,0,cv.width,cv.height,p);if(p<1)requestAnimationFrame(cuadro);else{acabo=1;fin()}})();' +
@@ -771,10 +908,16 @@
   function primeraVez(ctx) {
     var L = ctx && ctx.pages; if (!L) return null;
     var m = PRIMERA.get(L); if (m) return m; m = {};
-    L.forEach(function (q) { if (q.tipo === 'pe_clase' && q.parte === 2 && R[q.rec]) pasosHoja(q).forEach(function (p) { var k = KEY_PASO(p); if (m[k] == null) m[k] = q.num; }); });
+    L.forEach(function (q) { var x = q.tipo === 'pe_clase' && R[q.rec] ? (q.parte === 2 ? q : q.junta) : null; if (x) pasosHoja(x).forEach(function (p) { var k = KEY_PASO(p); if (m[k] == null) m[k] = q.num; }); });
     PRIMERA.set(L, m); return m;
   }
   function paginaClase(pg, C, modo, ctx) {
+    /* 27-11-2026 (Fátima: «un corte es una clase»; sin hojas a medias): si la receta es corta y cabe, va en la misma hoja que su clase */
+    if (pg.parte === 1 && pg.junta) {
+      var Hh = ED.H, j = Object.assign({}, pg.junta, { num: pg.num }), a1 = paginaClase(Object.assign({}, pg, { junta: null }), C, modo, ctx), a2 = paginaClase(j, C, modo, ctx);
+      var f1 = Hh.folio(C, pg), c2 = Hh.cabecera(C, j), f2 = Hh.folio(C, j);
+      if (a1.slice(-f1.length) === f1 && a2.indexOf(c2) === 0 && a2.slice(-f2.length) === f2) return a1.slice(0, -f1.length) + '<div style="margin-top:5mm">' + a2.slice(c2.length, -f2.length) + '</div>' + f1;
+    }
     var H = ED.H, T0 = C.T || {}, r = R[pg.rec], P = pasos(pg.rec), web = modo === 'web';
     if (!r || !P.length) return H.cabecera(C, pg) + H.folio(C, pg);
     var T = { acc: T0.acc || '#B08D57', soft: T0.soft || '#EEF0F3' }, rad = Math.min(T0.r || 4, 6), alto = ((C.papel && C.papel.h) || 297) >= 250;
@@ -785,21 +928,28 @@
       var f = pg.foto ? foto(+String(pg.foto).slice(6)) : null;
       var texto = clase.slice(0, 1).map(function (p) { return p.puntos ? p.puntos.map(function (b) { return b[1]; }).join(' ') : p.texto; }).join(' ');
       var ficha = r.k === 'corte' ? fichaCorte(P.E && P.E.R, T) : r.cer ? fichaTinte(r.cer, T) : '';
-      var qd = fin.filter(function (p) { return p.e; }).slice(0, 2), hq = alto ? 50 : 34;
+      /* 27-11-2026 (Fátima: «cómo queda de adelante, de atrás y de lado, de cada corte específico»): las tres vistas */
+      var sh = 1 - (pg.sh || 0), qd = fin.filter(function (p) { return p.e; }).slice(0, 3), hq = Math.round((alto ? (qd.length > 2 ? 46 : 50) : 32) * sh);
       var resul = qd.length ? '<div style="margin-top:3mm"><div style="font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">Cómo queda</div><div style="display:grid;grid-template-columns:repeat(' + qd.length + ',minmax(0,1fr));gap:3mm">' +
         qd.map(function (p) { var m = maniquí(p, pg.rec); return m ? '<div>' + img(m, p.t, hq) + '<div style="font-size:.7em;margin-top:1mm">' + esc(p.t) + '</div></div>' : ''; }).join('') + '</div></div>' : '';
       var esc0 = P.filter(function (p) { return p.e && p.e.anim; }), ver = '';
       if (web && esc0.length) {
-        var portada = qd[0] ? maniquí(qd[0], pg.rec) : '';
+        var portada = esc0[0] ? maniquí(esc0[0], pg.rec) : '';   /* 27-11-2026: la primera escena de la clase (las tres vistas de «Cómo queda» ya van arriba) */
         ver = '<div data-rc-pg="1" data-dg-pg="1" style="margin:3mm 0 0"><div style="display:flex;gap:3mm;align-items:center;margin:0 0 2mm"><button data-rc-play="1" style="font:inherit;font-size:.86em;padding:1.5mm 4mm;border:0;border-radius:' + rad + 'px;background:' + T.acc + ';color:#fff;cursor:pointer;white-space:nowrap;flex:none">▶ Ver la clase · animación con voz</button><span data-rc-sub="1" style="font-size:.8em;font-style:italic;opacity:.85;min-width:0"></span></div>' +
           '<div style="background:' + T.soft + ';border-radius:' + rad + 'px;overflow:hidden">' + (portada ? '<img data-rc-img="1" src="' + portada + '" alt="" style="display:block;width:100%;height:auto">' : '') + '<canvas data-rc-cv="1" width="640" height="512" style="display:' + (portada ? 'none' : 'block') + ';width:100%;height:auto"></canvas></div>' +
-          '<script type="application/json" data-rc-anim="1">' + JSON.stringify(esc0.map(function (p) { return { v: p.e.vista, t: String(p.t || ''), s: String(p.texto || ''), a: p.e.anim }; })).replace(/</g, '\\u003c') + '<\/script></div>' + JS_CLASE;
-        resul = '';
+          '<script type="application/json" data-rc-anim="1">' + JSON.stringify(esc0.map(function (p) { return { v: p.e.vista, t: String(p.t || ''), s: String(p.texto || ''), a: refAnim(p.e.anim, ctx) }; }), redondea).replace(/</g, '\\u003c') + '<\/script></div>' + JS_CLASE;
       }
-      var hF = alto ? (ver ? 62 : 76) : 46;
+      /* una técnica sin «Cómo queda» (hidratación, secado…): sus tres primeros pasos con su escena, «Cómo se hace» */
+      var como = '';
+      if (!qd.length) {
+        var h1v = P.filter(function (p) { return p.etapa === 'vis' && !p.q && p.e; }).slice(0, 3), hc = Math.round((alto ? 44 : 30) * sh);
+        if (h1v.length) como = '<div style="margin-top:3mm"><div style="font-weight:700;color:' + T.acc + ';margin:0 0 1.5mm">Cómo se hace</div><div style="display:grid;grid-template-columns:repeat(' + h1v.length + ',minmax(0,1fr));gap:3mm">' +
+          h1v.map(function (p) { var m = mini(p, pg.rec); return m ? '<div>' + img(m, p.t, hc) + '<div style="font-size:.7em;margin-top:1mm">' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + '</div></div>' : ''; }).join('') + '</div></div>';
+      }
+      var hF = Math.round((alto ? (ver ? 62 : 76) : 46) * sh);
       return H.cabecera(C, pg) + kick((pg.u && pg.u.t ? pg.u.t + ' · ' : '') + 'Clase') + H.h1(C, esc(r.n)) +
         (f ? img(f.src, f.t, hF) : '') +
-        '<div style="font-size:.98em;line-height:1.55;margin-top:3mm">' + esc(texto) + '</div>' + ficha + resul + ver +
+        '<div style="font-size:.98em;line-height:1.55;margin-top:3mm">' + esc(texto) + '</div>' + ficha + resul + como + ver +
         (web && r.k === 'corte' && practicasActivo(C) ? '<div data-practicas="1" data-clave="' + esc((C.titulo || '') + '|' + pg.rec) + '" data-titulo="' + esc(r.n) + '"></div>' : '') + H.folio(C, pg);   /* 16-11-2026: «Mis prácticas» (solo web) */
     }
     /* hoja 2: la receta paso a paso, la práctica y lo que viene después */
@@ -808,10 +958,16 @@
     if (pg.a != null) vis = vis.slice(de, pg.a);
     var corta = function (t) { t = String(t || ''); if (!largo) return t; var m = /^(.{40,220}?[.!?])(\s|$)/.exec(t); return m ? m[1] : t.slice(0, 220); };
     var PV = primeraVez(ctx);
+    var Y1 = enHoja1(P), hm = Math.round((alto ? 30 : 22) * (1 - (pg.sh || 0)));
     var lista = '<ol start="' + (de + 1) + '" style="margin:0;padding-left:6mm;font-size:' + (largo ? '.82em' : '.9em') + ';line-height:1.42">' + vis.map(function (p) {
       var tx = p.puntos ? p.puntos.map(function (b) { return b[1]; }).join(' ') : p.texto;
       var n1 = PV && PV[KEY_PASO(p)];
       if (n1 && n1 < pg.num) return '<li style="margin:0 0 1.6mm"><b>' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + ':</b> <i style="opacity:.8">igual que en la pág. ' + n1 + '.</i></li>';
+      /* 27-11-2026: el paso con la imagen de su propia escena (la del curso), a la izquierda; el texto, a la derecha */
+      var m = p.e && !Y1[KEY_PASO(p)] ? mini(p, pg.rec) : '';
+      if (m) return '<li style="margin:0 0 2.4mm;break-inside:avoid"><div style="display:grid;grid-template-columns:' + Math.round(hm * 1.35) + 'mm minmax(0,1fr);gap:3mm;align-items:start">' +
+        '<div style="height:' + hm + 'mm;background:' + T.soft + ';border-radius:' + rad + 'px;overflow:hidden;display:flex;align-items:center;justify-content:center"><img src="' + m + '" alt="" style="display:block;max-width:100%;max-height:100%;object-fit:contain"></div>' +
+        '<div><b>' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + '.</b> ' + esc(corta(tx)) + '</div></div></li>';
       return '<li style="margin:0 0 1.6mm"><b>' + esc(String(p.t).replace(/^(Visualización|Clase) · /, '')) + '.</b> ' + esc(corta(tx)) + '</li>';
     }).join('') + '</ol>';
     if (pg.qs) qs = pg.qs.map(function (q) { return { q: q }; });   /* 16-11-2026: sin las preguntas que ya salieron en el libro */
@@ -829,7 +985,10 @@
   if (ED && ED.documento && !ED.__peluPract) {
     ED.__peluPract = 1; var docP = ED.documento;
     ED.documento = function (res, modo) {
-      var h = docP.apply(this, arguments);
+      var web0 = WEB; WEB = modo === 'web' && res && res.pages ? { pages: res.pages, list: [], idx: {} } : null;
+      var h, W = WEB;
+      try { h = docP.apply(this, arguments); } finally { WEB = web0; }
+      if (W && W.list.length && typeof h === 'string') { var kb = h.lastIndexOf('</body>'), sc = '<script>window.RC_ANIMS=[' + W.list.join(',').replace(/<\//g, '<\\/') + '];<\/script>'; h = kb > 0 ? h.slice(0, kb) + sc + h.slice(kb) : h + sc; }
       try { if (modo === 'web' && typeof h === 'string' && h.indexOf('data-practicas="1"') >= 0) { var k = h.lastIndexOf('</body>'); if (k > 0) h = h.slice(0, k) + '<script>(' + galeriaRuntime.toString() + ')();<\/script>' + h.slice(k); } } catch (e) { console.warn('Mis prácticas', e); }
       return h;
     };

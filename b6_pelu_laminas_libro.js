@@ -178,7 +178,7 @@
     if (!res || !res.pages || !cfg || cfg.materia !== 'pelu' || ((cfg.acab || {}).laminasLibro === 'no')) return res;
     var quit = {}, k = {};
     res.pages.forEach(function (p, i) {
-      if (!p.u || !GEN_PG.test(p.tipo) || !(/^(pe_u_c_|cb_)/.test(p.u.id) || (/^(ejemplo|pro_caso)$/.test(p.tipo) && /^pe_u_/.test(p.u.id)))) return;   /* 19-10-2026: «Cerca de ti» inventado («Daniela vive en…») también fuera de cortes y técnicas */
+      if (!p.u || !GEN_PG.test(p.tipo) || !(/^(pe_u_c_|cb_)/.test(p.u.id) || (/^(ejemplo|pro_caso|lec_caso)$/.test(p.tipo) && /^pe_u_/.test(p.u.id)))) return;   /* 27-11-2026: «Así se resuelve» con un caso inventado («un concurso en Valencia…») también */   /* 19-10-2026: «Cerca de ti» inventado («Daniela vive en…») también fuera de cortes y técnicas */
       k[p.u.id] = (k[p.u.id] || 0);
       res.pages[i] = { tipo: 'pe_salon', u: p.u, n: p.n, num: p.num, ks: k[p.u.id]++, fill2: { nada: 1 }, indice: p.indice };
       quit[p.num] = 1;
@@ -242,5 +242,5 @@
 
   /* escenas de una técnica que ya usó este libro (la página pe_tecnica no las repite) */
   function usadas(C, tec) { var R = REG.get(C), o = {}; if (R) Object.keys(R.usadas).forEach(function (k) { var a = k.split('|'); if (a[0] === tec) o[a[1]] = 1; }); return o; }
-  window.EU_PELU_LAMINAS_LIBRO = { escena: escena, hoja: hoja, usadas: usadas };
+  window.EU_PELU_LAMINAS_LIBRO = { escena: escena, hoja: hoja, usadas: usadas, escenaDe: escenaDe, tecsDe: tecsDe };   /* 27-11-2026: escenaDe/tecsDe también para llenar huecos al final (b6_pelu_receta.js) */
 })();

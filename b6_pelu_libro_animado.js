@@ -57,7 +57,7 @@
     var figs = d.sel.map(function (k, j) {
       var e = E.escenas[k];
       return '<figure style="margin:0;background:' + T.soft + ';border-radius:' + rad + 'px;padding:1.5mm">' +
-        '<img src="' + d.fotos[j] + '" alt="' + es(e.t) + '" style="width:100%;height:auto;display:block;border-radius:' + rad + 'px">' +
+        '<img src="' + d.fotos[j] + '" alt="' + es(e.t) + '" style="width:100%;height:auto;' + (e.anim && e.anim.crop ? 'aspect-ratio:' + e.anim.crop[2] + '/' + e.anim.crop[3] + ';' : '') + 'display:block;border-radius:' + rad + 'px">' +   /* 27-11-2026: con su proporción, el medidor ve su alto antes de que cargue (si no, el relleno añadía bloques que se salían) */
         '<figcaption style="font-size:.64em;line-height:1.3;margin-top:1.2mm"><b style="font-family:' + T.tit + ';color:' + T.acc + ';font-size:1.12em;display:block">' + (k + 1) + ' · ' + es(e.t) + '</b>' + es(e.texto) + '</figcaption></figure>';
     }).join('');
     var grid = '<div data-pa-grid="1" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm">' + figs + '</div>';
