@@ -507,9 +507,9 @@
   }
   var MANI = {};
   /* 27-11-2026 (Fátima: «cada cuadrícula con su animación, su imagen, su explicación… el paso a paso como una receta»): la misma
-     escena del paso que enseña el curso, en pequeño (400 px, JPEG 0,72) para que el libro no pese; caja de alto fijo para medir */
+     escena del paso que enseña el curso, en pequeño (340 px, JPEG 0,7: unos 200 ppp a su tamaño impreso) para que el libro no pese; caja de alto fijo para medir */
   var MINI = {};
-  function mini(p, rec) { if (!p.e) return ''; var k = rec + '|' + p.e.tipo + '|' + (p.e.t || ''); if (MINI[k] == null) { try { MINI[k] = window.EU_DIAGRAMA.foto(p.e, 400, 0.72) || ''; } catch (er) { MINI[k] = ''; } } return MINI[k]; }
+  function mini(p, rec) { if (!p.e) return ''; var k = rec + '|' + p.e.tipo + '|' + (p.e.t || ''); if (MINI[k] == null) { try { MINI[k] = window.EU_DIAGRAMA.foto(p.e, 340, 0.7) || ''; } catch (er) { MINI[k] = ''; } } return MINI[k]; }
   /* las escenas que ya enseña la hoja de la clase (sin «Cómo queda»: los tres primeros pasos con escena), para no repetirlas en la receta */
   function enHoja1(P) {
     if (P.some(function (p) { return p.etapa === 'queda' && p.e; })) return {};
